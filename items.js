@@ -27,15 +27,14 @@ module.exports.get = function(event, context, callback) {
         let params = {
             TableName : "tba21",
             ProjectionExpression:"ocean, #tm, itemId, #p, description, #u",
-            KeyConditionExpression: "ocean = :o and #tm > :one_day_ago",
+            KeyConditionExpression: "ocean = :o",
             ExpressionAttributeNames:{
                 "#p": "position",
                 "#u": "url",
                 "#tm": "timestamp"
             },
             ExpressionAttributeValues: {
-                ":o": event.queryStringParameters.ocean,
-                ":one_day_ago": Math.floor(Date.now() / 1000)-86400,
+                ":o": event.queryStringParameters.ocean
             }
         };
 
