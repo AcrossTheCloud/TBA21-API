@@ -1,6 +1,9 @@
 const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies
 const docClient = new AWS.DynamoDB.DocumentClient();
+const Joi = require('joi');
+const uuid = require('uuid/v1');
 
+const ocean = ['Pacific','Atlantic','Indian','Southern','Arctic'];
 
 module.exports.get = function(event, context, callback) {
     console.log(event.queryStringParameters);
@@ -57,6 +60,66 @@ module.exports.get = function(event, context, callback) {
                 callback(null, response);
             }
         });
+    }
+
+};
+
+module.exports.put = function(event, context, callback) {
+    console.log(event.queryStringParameters);
+    let body = JSON.parse(event.body);
+
+    const schema = Joi.object().keys({
+    ocean: Joi.any().valid(ocean).required(),
+    description: Joi.string().required(),
+    url: Joi.string().uri().required(),
+    position: Joi.array().ordered([
+          Joi.number().min(-90).max(90).required(),
+          Joi.number().min(-180).max(180).required()
+      ]),
+    });
+
+    if (!Joi.validate(body, schema).error) {
+        body['itemId'] = uuid();
+        body['timestamp'] = new Date() / 1000;
+        let putParams = {
+          TableName: "tba21",
+          Item: body
+        };
+        docClient.put(putParams, (error) => {
+            if (error) {
+                    console.log(error.stack);
+                    const response = {
+                        statusCode: 503,
+                        headers: {
+                            "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
+                            "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
+                        },
+                        body: JSON.stringify({ "message": "Server error " + err.stack })
+                    };
+                    callback(null, response);
+                } else {
+                    console.log(event);
+                    const response = {
+                        statusCode: 200,
+                        headers: {
+                            "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
+                            "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
+                        },
+                        body: JSON.stringify({ "message": "Item stored"})
+                    };
+                    callback(null, response);
+                }
+            });
+    } else {
+        const response = {
+            statusCode: 422,
+            headers: {
+                "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
+                "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
+            },
+            body: JSON.stringify({ "message": "Bad request, error validating body" })
+        };
+        callback(null, response);
     }
 
 };
