@@ -11,7 +11,7 @@
 	"position":[-34.4128595,150.9321558]
 }
 ```
-Required metadata fields:
+## Required metadata fields
 * `ocean`: one of 'Pacific','Atlantic','Indian','Southern','Arctic'.
 * `description`: text description of artefact.
 * `url`: url for viewing/downloading artefact.
