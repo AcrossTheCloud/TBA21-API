@@ -12,7 +12,7 @@
 }
 ```
 Required metadata fields:
-	* `ocean`: one of 'Pacific','Atlantic','Indian','Southern','Arctic'.
-	* `description`: text description of artefact.
-	* `url`: url for viewing/downloading artefact.
-	* `position`: array of [lat,lng] coordinates for the artefact.
+* `ocean`: one of 'Pacific','Atlantic','Indian','Southern','Arctic'.
+* `description`: text description of artefact.
+* `url`: url for viewing/downloading artefact.
+* `position`: array of [lat,lng] coordinates for the artefact.
