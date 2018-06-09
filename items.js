@@ -5,24 +5,25 @@ const uuid = require('uuid/v1');
 
 const ocean = ['Pacific','Atlantic','Indian','Southern','Arctic'];
 
+const headers = {
+    "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
+    "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
+};
+
 module.exports.get = function(event, context, callback) {
     console.log(event.queryStringParameters);
 
     if (event.queryStringParameters === null) {
         const response = {
             statusCode: 400,
-            headers: {
-                "Access-Control-Allow-Origin" : "*",
-            },
+            headers: headers,
             body: 'missing query parameter, try ?ocean=Pacific'
         }
         callback(null,response);
     } else if (typeof(event.queryStringParameters.ocean) === 'undefined') {
         const response = {
             statusCode: 400,
-            headers: {
-                "Access-Control-Allow-Origin" : "*",
-            },
+            headers: headers,
             body: 'invalid query parameter, try ?ocean=Pacific'
         }
         callback(null,response);
@@ -52,9 +53,7 @@ module.exports.get = function(event, context, callback) {
                 console.log("Query succeeded.");
                 const response = {
                     statusCode: 200,
-                    headers: {
-                        "Access-Control-Allow-Origin" : "*",
-                    },
+                    headers: headers,
                     body: JSON.stringify(data),
                 };
                 callback(null, response);
@@ -64,7 +63,7 @@ module.exports.get = function(event, context, callback) {
 
 };
 
-module.exports.put = function(event, context, callback) {
+module.exports.post = function(event, context, callback) {
     console.log(event.queryStringParameters);
     let body = JSON.parse(event.body);
 
@@ -91,10 +90,7 @@ module.exports.put = function(event, context, callback) {
                     console.log(error.stack);
                     const response = {
                         statusCode: 503,
-                        headers: {
-                            "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
-                            "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
-                        },
+                        headers: headers,
                         body: JSON.stringify({ "message": "Server error " + err.stack })
                     };
                     callback(null, response);
@@ -102,10 +98,7 @@ module.exports.put = function(event, context, callback) {
                     console.log(event);
                     const response = {
                         statusCode: 200,
-                        headers: {
-                            "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
-                            "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
-                        },
+                        headers: headers,
                         body: JSON.stringify({ "message": "Item stored"})
                     };
                     callback(null, response);
@@ -114,10 +107,7 @@ module.exports.put = function(event, context, callback) {
     } else {
         const response = {
             statusCode: 422,
-            headers: {
-                "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
-                "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
-            },
+            headers: headers,
             body: JSON.stringify({ "message": "Bad request, error validating body" })
         };
         callback(null, response);
