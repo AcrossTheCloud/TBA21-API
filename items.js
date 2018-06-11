@@ -86,7 +86,6 @@ module.exports.get = function(event, context, callback) {
 };
 
 module.exports.post = function(event, context, callback) {
-    console.log(event.queryStringParameters);
     let body = JSON.parse(event.body);
 
     const schema = Joi.object().keys({

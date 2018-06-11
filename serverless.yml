@@ -112,5 +112,5 @@ functions:
     events:
       - http:
           path: item
-          method: put
+          method: post
           cors: true
