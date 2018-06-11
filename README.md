@@ -5,10 +5,10 @@
 * POST /item with body example:
 ```json
 {
-	"ocean":"Pacific",
-	"description":"whales",
-	"url":"https://www.wildaboutwhales.com.au/mj65jcqcktsj/3PIBKE5PVSakQIuGcUimgi/cc089697dfb65e8b2296493498128bdc/moonshadow-cruises-656x388.jpg",
-	"position":[-34.4128595,150.9321558],
+  "ocean":"Pacific",
+  "description":"whales",
+  "url":"https://www.wildaboutwhales.com.au/mj65jcqcktsj/3PIBKE5PVSakQIuGcUimgi/cc089697dfb65e8b2296493498128bdc/moonshadow-cruises-656x388.jpg",
+  "position":[-34.4128595,150.9321558],
   "artist": "Vincent van Gogh"
 }
 ```
