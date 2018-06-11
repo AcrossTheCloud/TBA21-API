@@ -107,7 +107,7 @@ functions:
           path: items
           method: get
           cors: true
-  putItem:
+  postItem:
     handler: items.post
     events:
       - http:

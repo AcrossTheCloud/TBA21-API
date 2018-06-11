@@ -96,7 +96,7 @@ module.exports.post = function(event, context, callback) {
           Joi.number().min(-90).max(90).required(),
           Joi.number().min(-180).max(180).required()
       ]),
-    artist: Joi.any().string()
+    artist: Joi.string()
     });
 
     if (!Joi.validate(body, schema).error) {
