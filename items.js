@@ -93,8 +93,8 @@ module.exports.post = function(event, context, callback) {
     description: Joi.string().required(),
     url: Joi.string().uri().required(),
     position: Joi.array().ordered([
-          Joi.number().min(-90).max(90).required(),
-          Joi.number().min(-180).max(180).required()
+          Joi.number().min(-180).max(180).required(),
+          Joi.number().min(-90).max(90).required()
       ]),
     artist: Joi.string()
     });
