@@ -14,12 +14,34 @@ module.exports.get = function(event, context, callback) {
     console.log(event.queryStringParameters);
 
     if (event.queryStringParameters === null) {
-        const response = {
-            statusCode: 400,
-            headers: headers,
-            body: 'missing query parameter, try ?ocean=Pacific'
-        }
-        callback(null,response);
+      let params = {
+          TableName : "tba21",
+          ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artist",
+          ExpressionAttributeNames:{
+              "#p": "position",
+              "#u": "url",
+              "#tm": "timestamp"
+          }
+      };
+
+      docClient.scan(params, function(err, data) {
+          if (err) {
+              const response = {
+                  statusCode: 503,
+                  body: JSON.stringify(err)
+              }
+              callback(null,response);
+          } else {
+              console.log("Scan succeeded.");
+              const response = {
+                  statusCode: 200,
+                  headers: headers,
+                  body: JSON.stringify(data),
+              };
+              callback(null, response);
+          }
+      });
+
     } else if (typeof(event.queryStringParameters.ocean) === 'undefined') {
         const response = {
             statusCode: 400,
@@ -30,7 +52,7 @@ module.exports.get = function(event, context, callback) {
     } else {
         let params = {
             TableName : "tba21",
-            ProjectionExpression:"ocean, #tm, itemId, #p, description, #u",
+            ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artist",
             KeyConditionExpression: "ocean = :o",
             ExpressionAttributeNames:{
                 "#p": "position",
