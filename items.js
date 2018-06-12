@@ -108,11 +108,10 @@ module.exports.post = function(event, context, callback) {
         };
         docClient.put(putParams, (error) => {
             if (error) {
-                    console.log(error.stack);
                     const response = {
                         statusCode: 503,
                         headers: headers,
-                        body: JSON.stringify({ "message": "Server error " + err.stack })
+                        body: JSON.stringify({ "message": "Server error " + error.toString() })
                     };
                     callback(null, response);
                 } else {
