@@ -112,10 +112,11 @@ module.exports.post = function(event, context, callback) {
 module.exports.patch = function(event, context, callback) {
   let data = JSON.parse(event.body);
   data.id = event.queryStringParameters.id;
+  console.log(data);
 
   const schema = Joi.object().keys({
     id: Joi.string().guid().required(),
-    works: Joi.array().items(Joi.string()).required(),
+    works: Joi.array().items(Joi.string().guid()).required(),
   });
 
   if (!Joi.validate(data, schema).error) {
