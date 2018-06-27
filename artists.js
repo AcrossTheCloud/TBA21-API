@@ -21,7 +21,7 @@ module.exports.get = function(event, context, callback) {
         const response = {
           statusCode: 503,
           body: JSON.stringify(err)
-        }
+        };
         callback(null,response);
       } else {
         console.log("Scan succeeded.");
@@ -50,7 +50,7 @@ module.exports.get = function(event, context, callback) {
         const response = {
           statusCode: 503,
           body: JSON.stringify(err)
-        }
+        };
         callback(null,response);
       } else {
         console.log("Query succeeded.");
@@ -75,7 +75,7 @@ module.exports.post = function(event, context, callback) {
   });
 
   if (!Joi.validate(body, schema).error) {
-    body['artistId'] = uuid();
+    body.artistId = uuid();
     let putParams = {
       TableName: "tba21-artists",
       Item: body
@@ -111,7 +111,7 @@ module.exports.post = function(event, context, callback) {
 
 module.exports.patch = function(event, context, callback) {
   let data = JSON.parse(event.body);
-  data['id'] = event.queryStringParameters.id;
+  data.id = event.queryStringParameters.id;
 
   const schema = Joi.object().keys({
     id: Joi.string().guid().required(),
@@ -124,7 +124,7 @@ module.exports.patch = function(event, context, callback) {
       Key: { artistId : event.query },
       UpdateExpression: 'SET html = list_append(works, :works)',
       ExpressionAttributeValues: {
-        ':works': body.works
+        ':works': data.works
       }
     };
 

@@ -29,7 +29,7 @@ module.exports.get = function(event, context, callback) {
               const response = {
                   statusCode: 503,
                   body: JSON.stringify(err)
-              }
+              };
               callback(null,response);
           } else {
               console.log("Scan succeeded.");
@@ -42,12 +42,12 @@ module.exports.get = function(event, context, callback) {
           }
       });
 
-    } else if (typeof(event.queryStringParameters.ocean) === 'undefined') {
+    } else if (typeof (event.queryStringParameters.ocean) === 'undefined') {
         const response = {
             statusCode: 400,
             headers: headers,
             body: 'invalid query parameter, try ?ocean=Pacific'
-        }
+        };
         callback(null,response);
     } else {
         let params = {
@@ -69,7 +69,7 @@ module.exports.get = function(event, context, callback) {
                 const response = {
                     statusCode: 503,
                     body: JSON.stringify(err)
-                }
+                };
                 callback(null,response);
             } else {
                 console.log("Query succeeded.");
@@ -100,8 +100,8 @@ module.exports.post = function(event, context, callback) {
     });
 
     if (!Joi.validate(body, schema).error) {
-        body['itemId'] = uuid();
-        body['timestamp'] = new Date() / 1000;
+        body.itemId = uuid();
+        body.timestamp = new Date() / 1000;
         let putParams = {
           TableName: "tba21",
           Item: body

@@ -137,3 +137,24 @@ functions:
           path: item
           method: post
           cors: true
+  getArtists:
+    handler: artists.get
+    events:
+      - http:
+          path: artists
+          method: get
+          cors: true
+  postArtist:
+    handler: artists.post
+    events:
+      - http:
+          path: artist
+          method: post
+          cors: true
+  patchArtist:
+    handler: artists.patch
+    events:
+      - http:
+          path: artist
+          method: patch
+          cors: true
