@@ -31,7 +31,8 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/tba21"
+      Resource:
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/tba21*"
     - Effect: 'Allow'
       Action:
         - 'lambda:InvokeFunction'
@@ -45,7 +46,7 @@ provider:
 
 resources:
   Resources:
-    TemperatureDynamoDbTable:
+    TBA21DynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
       DeletionPolicy: Retain
       Properties:
@@ -68,7 +69,29 @@ resources:
           ReadCapacityUnits: 2
           WriteCapacityUnits: 2
         TableName: tba21
-    temperatureRole:
+    TBA21DynamoDbArtistsTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: artistId
+            AttributeType: S
+          -
+            AttributeName: name
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: artistId
+            KeyType: HASH
+          -
+            AttributeName: name
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
+        TableName: tba21-artists
+    TBA21Role:
       Type: AWS::IAM::Role
       Properties:
         RoleName: tba21Role
