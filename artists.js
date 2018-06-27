@@ -125,7 +125,7 @@ module.exports.patch = function(event, context, callback) {
       Key: {
         "artistId": data.id,
       },
-      UpdateExpression: 'SET html = list_append(works, :works)',
+      UpdateExpression: 'SET works = list_append(works, :works)',
       ExpressionAttributeValues: {
         ':works': data.works
       }
