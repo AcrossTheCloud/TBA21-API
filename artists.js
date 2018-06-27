@@ -122,7 +122,7 @@ module.exports.patch = function(event, context, callback) {
   if (!Joi.validate(data, schema).error) {
     var params = {
       TableName: 'tba21-artists',
-      Key: { artistId : event.query },
+      Key: { artistId : data.id },
       UpdateExpression: 'SET html = list_append(works, :works)',
       ExpressionAttributeValues: {
         ':works': data.works
