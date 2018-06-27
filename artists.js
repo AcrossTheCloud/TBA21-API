@@ -115,7 +115,7 @@ module.exports.patch = function(event, context, callback) {
 
   const schema = Joi.object().keys({
     id: Joi.string().guid().required(),
-    works: Joi.array().items(Joi.string()).required,
+    works: Joi.array().items(Joi.string()).required(),
   });
 
   if (!Joi.validate(data, schema).error) {
