@@ -77,16 +77,10 @@ resources:
           -
             AttributeName: artistId
             AttributeType: S
-          -
-            AttributeName: name
-            AttributeType: S
         KeySchema:
           -
             AttributeName: artistId
             KeyType: HASH
-          -
-            AttributeName: name
-            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 2
           WriteCapacityUnits: 2
