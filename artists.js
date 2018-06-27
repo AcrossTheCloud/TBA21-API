@@ -68,10 +68,14 @@ module.exports.get = function(event, context, callback) {
 
 module.exports.post = function(event, context, callback) {
   let body = JSON.parse(event.body);
+  if (!body.hasOwnProperty('works')) {
+    body['works'] = [];
+  }
 
   const schema = Joi.object().keys({
     name: Joi.string().required(),
-    works: Joi.array().items(Joi.string()),
+    works: Joi.array().items(Joi.string()).required(),
+    biography: Joi.string()
   });
 
   if (!Joi.validate(body, schema).error) {
