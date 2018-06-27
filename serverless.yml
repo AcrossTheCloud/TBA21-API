@@ -79,7 +79,7 @@ resources:
             AttributeType: S
           -
             AttributeName: name
-            AttributeType: N
+            AttributeType: S
         KeySchema:
           -
             AttributeName: artistId
