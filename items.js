@@ -21,6 +21,7 @@ const addArtistNames = function(data, callback) {
     };
     docClient.query(params, function(err, data) {
       if (err) {
+        console.log(err);
         const response = {
           headers: headers,
           statusCode: 503,
