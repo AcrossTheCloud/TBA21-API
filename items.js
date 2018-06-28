@@ -10,41 +10,37 @@ const headers = {
     "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
 };
 
-const addArtistNames = function(data, callback) {
-  data.Items = data.Items.map((item) => {
-    let params = {
-      TableName: "tba21-artists",
-      KeyConditionExpression: "artistId = :artistId",
-      ExpressionAttributeValues: {
-        ":artistId": item.artistId
-      }
-    };
-    docClient.query(params, function(err, data) {
-      if (err) {
-        console.log(err);
-        const response = {
-          headers: headers,
-          statusCode: 503,
-          body: JSON.stringify(err)
-        };
-        callback(null,response);
-      } else {
-        console.log("Query succeeded.");
-        item['artistName']=response.Items[0].name;
-      }
-    });
-    return item;
-  });
-  return data;
+const addArtistNames = async function(data) {
+  try {
+    data.Items = await Promise.all(data.Items.map(async (item) => {
+      let params = {
+        TableName: "tba21-artists",
+        KeyConditionExpression: "artistId = :artistId",
+        ExpressionAttributeValues: {
+          ":artistId": item.artistId
+        }
+      };
+      let result = await docClient.query(params).promise();
+      item['artistName']=result.Items[0].name;
+      return item;
+    }));
+    return data;
+  }
+  catch(error) {
+    console.log(error);
+    return null;
+  }
 };
 
-module.exports.get = function(event, context, callback) {
+module.exports.get = async function(event, context, callback) {
     console.log(event.queryStringParameters);
+
+    try {
 
     if (event.queryStringParameters === null) {
       let params = {
           TableName : "tba21",
-          ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artist",
+          ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artistId",
           ExpressionAttributeNames:{
               "#p": "position",
               "#u": "url",
@@ -52,23 +48,15 @@ module.exports.get = function(event, context, callback) {
           }
       };
 
-      docClient.scan(params, function(err, data) {
-          if (err) {
-              const response = {
-                  statusCode: 503,
-                  body: JSON.stringify(err)
-              };
-              callback(null,response);
-          } else {
-              console.log("Scan succeeded.");
-              const response = {
-                  statusCode: 200,
-                  headers: headers,
-                  body: JSON.stringify(addArtistNames(data, callback)),
-              };
-              callback(null, response);
-          }
-      });
+      let data = await docClient.scan(params).promise();
+      let withNames = await addArtistNames(data);
+
+      const response = {
+          statusCode: 200,
+          headers: headers,
+          body: JSON.stringify(withNames),
+      };
+      callback(null, response);
 
     } else if (typeof (event.queryStringParameters.ocean) === 'undefined') {
         const response = {
@@ -80,7 +68,7 @@ module.exports.get = function(event, context, callback) {
     } else {
         let params = {
             TableName : "tba21",
-            ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artist",
+            ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artistId",
             KeyConditionExpression: "ocean = :o",
             ExpressionAttributeNames:{
                 "#p": "position",
@@ -92,23 +80,22 @@ module.exports.get = function(event, context, callback) {
             }
         };
 
-        docClient.query(params, function(err, data) {
-            if (err) {
-                const response = {
-                    statusCode: 503,
-                    body: JSON.stringify(err)
-                };
-                callback(null,response);
-            } else {
-                console.log("Query succeeded.");
-                const response = {
-                    statusCode: 200,
-                    headers: headers,
-                    body: JSON.stringify(addArtistNames(data, callback)),
-                };
-                callback(null, response);
-            }
-        });
+        let data = docClient.query(params).promise();
+        let withNames = await addArtistNames(data);
+        const response = {
+            statusCode: 200,
+            headers: headers,
+            body: JSON.stringify(withNames),
+        };
+        callback(null, response);
+      }
+    } catch (error) {
+      const response = {
+          statusCode: 503,
+          headers: headers,
+          body: JSON.stringify(error),
+      };
+      callback(null, response);
     }
 
 };
