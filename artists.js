@@ -33,7 +33,7 @@ module.exports.get = function(event, context, callback) {
         callback(null, response);
       }
     });
-  } else {
+  } else if (event.queryStringParameters.hasOwnProperty('name')){
     let params = {
       TableName: "tba21-artists",
       FilterExpression: "begins_with(#nm,:nm)",
@@ -63,6 +63,39 @@ module.exports.get = function(event, context, callback) {
         callback(null, response);
       }
     });
+  } else if (event.queryStringParameters.hasOwnProperty('artistId')) {
+    let params = {
+      TableName: "tba21-artists",
+      KeyConditionExpression: "artistId = :artistId",
+      ExpressionAttributeValues: {
+        ":artistId": event.queryStringParameters.artistId
+      }
+    };
+    docClient.query(params, function(err, data) {
+      if (err) {
+        const response = {
+          headers: headers,
+          statusCode: 503,
+          body: JSON.stringify(err)
+        };
+        callback(null,response);
+      } else {
+        console.log("Query succeeded.");
+        const response = {
+          statusCode: 200,
+          headers: headers,
+          body: JSON.stringify(data),
+        };
+        callback(null, response);
+      }
+    });
+  } else {
+    const response = {
+      statusCode: 422,
+      headers: headers,
+      body: JSON.stringify({ "message": "Bad request, invalid query parameter." })
+    };
+    callback(null, response);
   }
 
 };
@@ -136,9 +169,7 @@ module.exports.patch = function(event, context, callback) {
       }
     };
 
-    var documentClient = new AWS.DynamoDB.DocumentClient();
-
-    documentClient.update(params, (error) => {
+    docClient.update(params, (error) => {
       if (error) {
         const response = {
           statusCode: 503,

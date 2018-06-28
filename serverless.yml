@@ -69,7 +69,7 @@ resources:
           ReadCapacityUnits: 2
           WriteCapacityUnits: 2
         TableName: tba21
-    TBA21ArtistsDynamoDbTable:
+    TBA21ArtistDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
       DeletionPolicy: Retain
       Properties:
