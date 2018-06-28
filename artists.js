@@ -48,6 +48,7 @@ module.exports.get = function(event, context, callback) {
     docClient.query(params, function(err, data) {
       if (err) {
         const response = {
+          headers: headers,
           statusCode: 503,
           body: JSON.stringify(err)
         };
