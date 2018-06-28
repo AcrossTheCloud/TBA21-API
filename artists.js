@@ -35,7 +35,7 @@ module.exports.get = function(event, context, callback) {
     });
   } else {
     let params = {
-      TableName: "tba21-artist",
+      TableName: "tba21-artists",
       KeyConditionExpression: "begins_with(#nm,:nm)",
       ExpressionAttributeNames:{
         "#nm": "name"
