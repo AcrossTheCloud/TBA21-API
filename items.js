@@ -10,7 +10,7 @@ const headers = {
     "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
 };
 
-const addArtistNames = function(data) {
+const addArtistNames = function(data, callback) {
   data.Items = data.Items.map((item) => {
     let params = {
       TableName: "tba21-artists",
@@ -63,7 +63,7 @@ module.exports.get = function(event, context, callback) {
               const response = {
                   statusCode: 200,
                   headers: headers,
-                  body: JSON.stringify(addArtistNames(data)),
+                  body: JSON.stringify(addArtistNames(data, callback)),
               };
               callback(null, response);
           }
@@ -103,7 +103,7 @@ module.exports.get = function(event, context, callback) {
                 const response = {
                     statusCode: 200,
                     headers: headers,
-                    body: JSON.stringify(addArtistNames(data)),
+                    body: JSON.stringify(addArtistNames(data, callback)),
                 };
                 callback(null, response);
             }
