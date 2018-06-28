@@ -37,7 +37,7 @@ module.exports.get = function(event, context, callback) {
     let params = {
       TableName: "tba21-artists",
       IndexName: "name-index",
-      KeyConditionExpression: "begins_with(#nm,:nm)",
+      FilterExpression: "begins_with(#nm,:nm)",
       ExpressionAttributeNames:{
         "#nm": "name"
       },
@@ -46,7 +46,7 @@ module.exports.get = function(event, context, callback) {
       }
     };
 
-    docClient.query(params, function(err, data) {
+    docClient.scan(params, function(err, data) {
       if (err) {
         const response = {
           headers: headers,
