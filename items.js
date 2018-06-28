@@ -10,7 +10,7 @@ const headers = {
     "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
 };
 
-const addArtistNames = async function(data) {
+const addArtistNames = async (data) => {
   try {
     data.Items = await Promise.all(data.Items.map(async (item) => {
       let params = {

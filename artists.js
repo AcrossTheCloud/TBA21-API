@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies
 const docClient = new AWS.DynamoDB.DocumentClient();
 const Joi = require('joi');
@@ -103,7 +104,7 @@ module.exports.get = function(event, context, callback) {
 module.exports.post = function(event, context, callback) {
   let body = JSON.parse(event.body);
   if (!body.hasOwnProperty('works')) {
-    body['works'] = [];
+    body.works = [];
   }
 
   const schema = Joi.object().keys({
