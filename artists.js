@@ -36,6 +36,7 @@ module.exports.get = function(event, context, callback) {
   } else {
     let params = {
       TableName: "tba21-artists",
+      IndexName: "name-index",
       KeyConditionExpression: "begins_with(#nm,:nm)",
       ExpressionAttributeNames:{
         "#nm": "name"
