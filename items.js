@@ -21,14 +21,17 @@ const addArtistNames = async (data) => {
         }
       };
       let result = await docClient.query(params).promise();
-      item['artistName']=result.Items[0].name;
-      return item;
+      item.artistName=result.Items[0].name;
+
+return item;
     }));
-    return data;
+
+return data;
   }
   catch(error) {
     console.log(error);
-    return null;
+
+return null;
   }
 };
 
@@ -124,7 +127,7 @@ module.exports.post = async (event, context, callback) => {
         Item: body
       };
       let data = await docClient.put(putParams).promise();
-
+      console.log(data);
       const response = {
         statusCode: 200,
         headers: headers,

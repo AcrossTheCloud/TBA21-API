@@ -75,7 +75,7 @@ module.exports.get = async (event, context, callback) => {
       statusCode: 503,
       headers: headers,
       body: JSON.stringify({ "message": "Server error " + error.toString() })
-    }
+    };
     callback(null, response);
   }
 };
@@ -100,6 +100,7 @@ module.exports.post = async (event, context, callback) => {
         Item: body
       };
       let data = await docClient.put(putParams).promise();
+      console.log(data);
       const response = {
         statusCode: 200,
         headers: headers,
@@ -120,7 +121,7 @@ module.exports.post = async (event, context, callback) => {
       statusCode: 503,
       headers: headers,
       body: JSON.stringify({ "message": "Server error " + error.toString() })
-    }
+    };
     callback(null, response);
   }
 };
