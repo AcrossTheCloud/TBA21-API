@@ -32,7 +32,7 @@ const addArtistNames = async (data) => {
   }
 };
 
-module.exports.get = async function(event, context, callback) {
+module.exports.get = async (event, context, callback) => {
   console.log(event.queryStringParameters);
 
   try {
@@ -80,7 +80,7 @@ module.exports.get = async function(event, context, callback) {
         }
       };
 
-      let data = docClient.query(params).promise();
+      let data = await docClient.query(params).promise();
       let withNames = await addArtistNames(data);
       const response = {
         statusCode: 200,
@@ -90,62 +90,62 @@ module.exports.get = async function(event, context, callback) {
       callback(null, response);
     }
   } catch (error) {
+    console.log(error);
     const response = {
       statusCode: 503,
       headers: headers,
-      body: JSON.stringify(error),
+      body: JSON.stringify({ "message": "Server error " + error.toString() })
     };
     callback(null, response);
   }
 
 };
 
-module.exports.post = function(event, context, callback) {
-  let body = JSON.parse(event.body);
+module.exports.post = async (event, context, callback) => {
+  try {
+    let body = JSON.parse(event.body);
 
-  const schema = Joi.object().keys({
-    ocean: Joi.any().valid(ocean).required(),
-    description: Joi.string().required(),
-    url: Joi.string().uri().required(),
-    position: Joi.array().ordered([
-      Joi.number().min(-180).max(180).required(),
-      Joi.number().min(-90).max(90).required()
-    ]),
-    artistId: Joi.string().required()
-  });
-
-  if (!Joi.validate(body, schema).error) {
-    body.itemId = uuid();
-    body.timestamp = new Date() / 1000;
-    let putParams = {
-      TableName: "tba21",
-      Item: body
-    };
-    docClient.put(putParams, (error) => {
-      if (error) {
-        const response = {
-          statusCode: 503,
-          headers: headers,
-          body: JSON.stringify({ "message": "Server error " + error.toString() })
-        };
-        callback(null, response);
-      } else {
-        console.log(event);
-        const response = {
-          statusCode: 200,
-          headers: headers,
-          body: JSON.stringify({ "message": "Item stored"})
-        };
-        callback(null, response);
-      }
+    const schema = Joi.object().keys({
+      ocean: Joi.any().valid(ocean).required(),
+      description: Joi.string().required(),
+      url: Joi.string().uri().required(),
+      position: Joi.array().ordered([
+        Joi.number().min(-180).max(180).required(),
+        Joi.number().min(-90).max(90).required()
+      ]),
+      artistId: Joi.string().required()
     });
-  } else {
+
+    if (!Joi.validate(body, schema).error) {
+      body.itemId = uuid();
+      body.timestamp = new Date() / 1000;
+      let putParams = {
+        TableName: "tba21",
+        Item: body
+      };
+      let data = await docClient.put(putParams).promise();
+
+      const response = {
+        statusCode: 200,
+        headers: headers,
+        body: JSON.stringify({ "message": "Item stored"})
+      };
+      callback(null, response);
+    } else {
+      const response = {
+        statusCode: 422,
+        headers: headers,
+        body: JSON.stringify({ "message": "Bad request, error validating body" })
+      };
+      callback(null, response);
+    }
+  } catch (error) {
+    console.log(error);
     const response = {
-      statusCode: 422,
+      statusCode: 503,
       headers: headers,
-      body: JSON.stringify({ "message": "Bad request, error validating body" })
+      body: JSON.stringify({ "message": "Server error " + error.toString() })
     };
     callback(null, response);
   }
-
 };
