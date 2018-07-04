@@ -116,6 +116,7 @@ module.exports.post = async (event, context, callback) => {
         Joi.number().min(-180).max(180).required(),
         Joi.number().min(-90).max(90).required()
       ]),
+      tags: Joi.array().items(Joi.string()),
       artistId: Joi.string().required()
     });
 
