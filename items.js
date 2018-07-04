@@ -154,6 +154,10 @@ module.exports.post = async (event, context, callback) => {
   }
 };
 
+function flattenDeep(arr1) {
+   return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
+}
+
 module.exports.tags = async (event, context, callback) => {
   try {
     let params = {
@@ -161,11 +165,10 @@ module.exports.tags = async (event, context, callback) => {
       ProjectionExpression:"tags"
     };
     let data = await docClient.scan(params).promise();
-    data = Array.from(new Set(data.Items // remove unique elements from:
+    data = Array.from(new Set(flattenDeep(data.Items // remove unique elements from and flatten
       .filter((item) => item.hasOwnProperty('tags')) // remove all items without tags
       .map((item) => item.tags) // now just get the tags
-      .flat() // flatten
-    ));
+    )));
     const response = {
       statusCode: 200,
       headers: headers,
