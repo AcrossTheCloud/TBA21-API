@@ -161,6 +161,11 @@ module.exports.tags = async (event, context, callback) => {
       ProjectionExpression:"tags"
     };
     let data = await docClient.scan(params).promise();
+    data = Array.from(new Set(data.Items // remove unique elements from:
+      .filter((item) => item.hasOwnProperty('tags')) // remove all items without tags
+      .map((item) => item.tags) // now just get the tags
+      .flat() // flatten
+    ));
     const response = {
       statusCode: 200,
       headers: headers,
