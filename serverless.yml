@@ -159,7 +159,7 @@ functions:
           method: patch
           cors: true
   getTags:
-    handler: items.getTags
+    handler: items.tags
     events:
       - http:
           path: tags
