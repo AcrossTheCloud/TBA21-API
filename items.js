@@ -43,7 +43,7 @@ module.exports.get = async (event, context, callback) => {
     if (event.queryStringParameters === null) {
       let params = {
         TableName : "tba21",
-        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artistId",
+        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artistId, tags",
         ExpressionAttributeNames:{
           "#p": "position",
           "#u": "url",
@@ -71,7 +71,7 @@ module.exports.get = async (event, context, callback) => {
     } else {
       let params = {
         TableName : "tba21",
-        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artistId",
+        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artistId, tags",
         KeyConditionExpression: "ocean = :o",
         ExpressionAttributeNames:{
           "#p": "position",
