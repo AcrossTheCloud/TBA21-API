@@ -152,3 +152,28 @@ module.exports.post = async (event, context, callback) => {
     callback(null, response);
   }
 };
+
+module.exports.tags = async (event, context, callback) => {
+  try {
+    let params = {
+      TableName : "tba21",
+      ProjectionExpression:"tags"
+    };
+    let data = await docClient.scan(params).promise();
+    const response = {
+      statusCode: 200,
+      headers: headers,
+      body: JSON.stringify(data),
+    };
+    callback(null, response);
+  } catch (error) {
+    console.log(error);
+    const response = {
+      statusCode: 503,
+      headers: headers,
+      body: JSON.stringify({ "message": "Server error " + error.toString() })
+    };
+    callback(null, response);
+  }
+
+};

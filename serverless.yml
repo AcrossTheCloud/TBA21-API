@@ -158,3 +158,10 @@ functions:
           path: artist
           method: patch
           cors: true
+  getTags:
+    handler: items.getTags
+    events:
+      - http:
+          path: tags
+          method: get
+          cors: true
