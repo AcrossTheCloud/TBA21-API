@@ -20,8 +20,8 @@ service: tba21
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: prod
-  region: eu-central-1
+  stage: ${env:STAGE, 'prod'}
+  region: ${env:REGION, 'eu-central-1'}
   environment:
     ITEMS_TABLE: tba21-items-${opt:stage, self:provider.stage}
     PEOPLE_TABLE: tba21-people-${opt:stage, self:provider.stage}
