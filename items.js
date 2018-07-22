@@ -10,28 +10,27 @@ const headers = {
   "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
 };
 
-const addArtistNames = async (data) => {
+const addPeopleNames = async (data) => {
   try {
-    data.Items = await Promise.all(data.Items.map(async (item) => {
-      let params = {
-        TableName: "tba21-artists",
-        KeyConditionExpression: "artistId = :artistId",
-        ExpressionAttributeValues: {
-          ":artistId": item.artistId
-        }
-      };
-      let result = await docClient.query(params).promise();
-      item.artistName=result.Items[0].name;
-
-return item;
+      data.Items = await Promise.all(data.Items.map(async (item) => {
+        item.people = await Promise.all(item.people.map(async (person) => {
+        let params = {
+          TableName: process.env.PEOPLE_TABLE,
+          KeyConditionExpression: "personId = :personId",
+          ExpressionAttributeValues: {
+            ":personId": person.personId
+          }
+        };
+        let result = await docClient.query(params).promise();
+        person.personName=result.Items[0].name;
+        return person;
+      }));
+      return item;
     }));
-
-return data;
-  }
-  catch(error) {
+    return data;
+  } catch(error) {
     console.log(error);
-
-return null;
+    return null;
   }
 };
 
@@ -42,8 +41,8 @@ module.exports.get = async (event, context, callback) => {
 
     if (event.queryStringParameters === null) {
       let params = {
-        TableName : "tba21",
-        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artistId, tags",
+        TableName : process.env.ITEMS_TABLE,
+        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags",
         ExpressionAttributeNames:{
           "#p": "position",
           "#u": "url",
@@ -52,7 +51,7 @@ module.exports.get = async (event, context, callback) => {
       };
 
       let data = await docClient.scan(params).promise();
-      let withNames = await addArtistNames(data);
+      let withNames = await addPeopleNames(data);
 
       const response = {
         statusCode: 200,
@@ -70,8 +69,8 @@ module.exports.get = async (event, context, callback) => {
       callback(null,response);
     } else {
       let params = {
-        TableName : "tba21",
-        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, artistId, tags",
+        TableName : process.env.ITEMS_TABLE,
+        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags",
         KeyConditionExpression: "ocean = :o",
         ExpressionAttributeNames:{
           "#p": "position",
@@ -84,7 +83,7 @@ module.exports.get = async (event, context, callback) => {
       };
 
       let data = await docClient.query(params).promise();
-      let withNames = await addArtistNames(data);
+      let withNames = await addPeopleNames(data);
       const response = {
         statusCode: 200,
         headers: headers,
@@ -117,14 +116,17 @@ module.exports.post = async (event, context, callback) => {
         Joi.number().min(-90).max(90).required()
       ]),
       tags: Joi.array().items(Joi.string()),
-      artistId: Joi.string().required()
+      people: Joi.array().includes(Joi.object({
+        personId: Joi.uuid().required(),
+        personRole: Joi.string().required()
+      }))
     });
 
     if (!Joi.validate(body, schema).error) {
       body.itemId = uuid();
       body.timestamp = new Date() / 1000;
       let putParams = {
-        TableName: "tba21",
+        TableName: process.env.ITEMS_TABLE,
         Item: body
       };
       let data = await docClient.put(putParams).promise();
@@ -161,7 +163,7 @@ function flattenDeep(arr1) {
 module.exports.tags = async (event, context, callback) => {
   try {
     let params = {
-      TableName : "tba21",
+      TableName : process.env.ITEMS_TABLE,
       ProjectionExpression:"tags"
     };
     let data = await docClient.scan(params).promise();
@@ -184,5 +186,31 @@ module.exports.tags = async (event, context, callback) => {
     };
     callback(null, response);
   }
+};
 
+module.exports.roles = async (event, context, callback) => {
+  try {
+    let params = {
+      TableName : process.env.ITEMS_TABLE,
+      ProjectionExpression:"people"
+    };
+    let data = await docClient.scan(params).promise();
+    data = Array.from(new Set(flattenDeep(data.Items // remove unique elements from and flatten
+      .map((item) => item.people).map((person) => person.role) // now just get the roles
+    )));
+    const response = {
+      statusCode: 200,
+      headers: headers,
+      body: JSON.stringify(data),
+    };
+    callback(null, response);
+  } catch (error) {
+    console.log(error);
+    const response = {
+      statusCode: 503,
+      headers: headers,
+      body: JSON.stringify({ "message": "Server error " + error.toString() })
+    };
+    callback(null, response);
+  }
 };

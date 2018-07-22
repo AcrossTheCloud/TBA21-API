@@ -15,7 +15,7 @@ module.exports.get = async (event, context, callback) => {
   try {
     if (event.queryStringParameters === null) {
       let params = {
-        TableName : "tba21-artists"
+        TableName : process.env.PEOPLE_TABLE
       };
 
       let data = await docClient.scan(params).promise();
@@ -27,7 +27,7 @@ module.exports.get = async (event, context, callback) => {
       callback(null, response);
     } else if (event.queryStringParameters.hasOwnProperty('name')){
       let params = {
-        TableName: "tba21-artists",
+        TableName: process.env.PEOPLE_TABLE,
         FilterExpression: "begins_with(#nm,:nm)",
         ExpressionAttributeNames:{
           "#nm": "name"
@@ -44,12 +44,12 @@ module.exports.get = async (event, context, callback) => {
         body: JSON.stringify(data),
       };
       callback(null, response);
-    } else if (event.queryStringParameters.hasOwnProperty('artistId')) {
+    } else if (event.queryStringParameters.hasOwnProperty('personId')) {
       let params = {
-        TableName: "tba21-artists",
-        KeyConditionExpression: "artistId = :artistId",
+        TableName: process.env.PEOPLE_TABLE,
+        KeyConditionExpression: "personId = :personId",
         ExpressionAttributeValues: {
-          ":artistId": event.queryStringParameters.artistId
+          ":personId": event.queryStringParameters.personId
         }
       };
       let data = await docClient.query(params).promise();
@@ -96,7 +96,7 @@ module.exports.post = async (event, context, callback) => {
     if (!Joi.validate(body, schema).error) {
       body.artistId = uuid();
       let putParams = {
-        TableName: "tba21-artists",
+        TableName: process.env.PEOPLE_TABLE,
         Item: body
       };
       let data = await docClient.put(putParams).promise();
@@ -139,9 +139,9 @@ module.exports.patch = async (event, context, callback) => {
 
     if (!Joi.validate(data, schema).error) {
       var params = {
-        TableName: 'tba21-artists',
+        TableName: 'tba21-people',
         Key: {
-          "artistId": data.id,
+          "personId": data.id,
         },
         UpdateExpression: 'SET works = list_append(works, :works)',
         ExpressionAttributeValues: {

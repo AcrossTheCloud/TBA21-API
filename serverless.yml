@@ -22,6 +22,9 @@ provider:
   runtime: nodejs8.10
   stage: prod
   region: eu-central-1
+  environment:
+    ITEMS_TABLE: tba21-items-${opt:stage, self:provider.stage}
+    PEOPLE_TABLE: tba21-people-${opt:stage, self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -68,21 +71,21 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 2
           WriteCapacityUnits: 2
-        TableName: tba21
+        TableName: tba21-items-${opt:stage, self:provider.stage}
     TBA21ArtistDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
       DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
           -
-            AttributeName: artistId
+            AttributeName: personId
             AttributeType: S
           -
             AttributeName: name
             AttributeType: S
         KeySchema:
           -
-            AttributeName: artistId
+            AttributeName: personId
             KeyType: HASH
           -
             AttributeName: name
@@ -90,11 +93,11 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 2
           WriteCapacityUnits: 2
-        TableName: tba21-artists
+        TableName: tba21-people-${opt:stage, self:provider.stage}
     TBA21Role:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: tba21Role
+        RoleName: tba21Role-${opt:stage, self:provider.stage}
         AssumeRolePolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -104,7 +107,7 @@ resources:
                   - lambda.amazonaws.com
               Action: sts:AssumeRole
         Policies:
-          - PolicyName: tba21Policy
+          - PolicyName: tba21Policy-${opt:stage, self:provider.stage}
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
@@ -137,25 +140,25 @@ functions:
           path: item
           method: post
           cors: true
-  getArtists:
-    handler: artists.get
+  getPeople:
+    handler: people.get
     events:
       - http:
-          path: artists
+          path: people
           method: get
           cors: true
-  postArtist:
-    handler: artists.post
+  postPerson:
+    handler: people.post
     events:
       - http:
-          path: artist
+          path: person
           method: post
           cors: true
-  patchArtist:
-    handler: artists.patch
+  patchPerson:
+    handler: people.patch
     events:
       - http:
-          path: artist
+          path: person
           method: patch
           cors: true
   getTags:
