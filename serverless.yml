@@ -168,3 +168,10 @@ functions:
           path: tags
           method: get
           cors: true
+  getRoles:
+    handler: people.roles
+    events:
+      - http:
+          path: roles
+          method: get
+          cors: true
