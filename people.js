@@ -94,7 +94,7 @@ module.exports.post = async (event, context, callback) => {
     });
 
     if (!Joi.validate(body, schema).error) {
-      body.artistId = uuid();
+      body.personId = uuid();
       let putParams = {
         TableName: process.env.PEOPLE_TABLE,
         Item: body
