@@ -90,7 +90,6 @@ module.exports.post = async (event, context, callback) => {
 
     const schema = Joi.object().keys({
       name: Joi.string().required(),
-      works: Joi.array().items(Joi.string()).required(),
       biography: Joi.string()
     });
 
