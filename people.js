@@ -87,9 +87,6 @@ module.exports.get = async (event, context, callback) => {
 module.exports.post = async (event, context, callback) => {
   try {
     let body = JSON.parse(event.body);
-    if (!body.hasOwnProperty('works')) {
-      body.works = [];
-    }
 
     const schema = Joi.object().keys({
       name: Joi.string().required(),
