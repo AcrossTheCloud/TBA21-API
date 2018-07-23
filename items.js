@@ -187,30 +187,3 @@ module.exports.tags = async (event, context, callback) => {
     callback(null, response);
   }
 };
-
-module.exports.roles = async (event, context, callback) => {
-  try {
-    let params = {
-      TableName : process.env.ITEMS_TABLE,
-      ProjectionExpression:"people"
-    };
-    let data = await docClient.scan(params).promise();
-    data = Array.from(new Set(flattenDeep(data.Items // remove unique elements from and flatten
-      .map((item) => item.people).map((person) => person.role) // now just get the roles
-    )));
-    const response = {
-      statusCode: 200,
-      headers: headers,
-      body: JSON.stringify(data),
-    };
-    callback(null, response);
-  } catch (error) {
-    console.log(error);
-    const response = {
-      statusCode: 503,
-      headers: headers,
-      body: JSON.stringify({ "message": "Server error " + error.toString() })
-    };
-    callback(null, response);
-  }
-};
