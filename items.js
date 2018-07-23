@@ -117,7 +117,7 @@ module.exports.post = async (event, context, callback) => {
       ]),
       tags: Joi.array().items(Joi.string()),
       people: Joi.array().includes(Joi.object({
-        personId: Joi.uuid().required(),
+        personId: Joi.string().uuid().required(),
         personRole: Joi.string().required()
       }))
     });
