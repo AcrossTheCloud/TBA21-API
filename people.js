@@ -182,8 +182,9 @@ module.exports.roles = async (event, context, callback) => {
       ProjectionExpression:"people"
     };
     let data = await docClient.scan(params).promise();
+    console.log(data);
     data = Array.from(new Set(flattenDeep(data.Items // remove unique elements from and flatten
-      .map((item) => item.people).map((person) => person.role) // now just get the roles
+      .map((item) => item.people).map((person) => person.roles).flatten() // now just get the roles
     )));
     const response = {
       statusCode: 200,
