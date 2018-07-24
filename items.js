@@ -138,6 +138,7 @@ module.exports.post = async (event, context, callback) => {
       };
       callback(null, response);
     } else {
+      console.log(Joi.validate(body, schema).error);
       const response = {
         statusCode: 422,
         headers: headers,
