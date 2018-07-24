@@ -183,9 +183,7 @@ module.exports.roles = async (event, context, callback) => {
     };
     let data = await docClient.scan(params).promise();
     console.log(data);
-    data = Array.from(new Set(flattenDeep(data.Items // remove unique elements from and flatten
-      .map(item => item.people).map(person => person.roles) // now just get the roles
-    )));
+    data = Array.from(new Set(flattenDeep(flattenDeep(data.Items.map(item => item.people)).map(person => person.roles))));
     const response = {
       statusCode: 200,
       headers: headers,
