@@ -10,40 +10,45 @@ const headers = {
   "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
 };
 
-const convertToGraph = async function (data) {
-  let edges = new Set();
-  let nodes = new Set();
-  data.Items.map(item  => {
-    let itemNodes = []
-    item.people.map(person => {
-      itemNodes.push({id: person.personId, label: person.personName});
-      nodes.add({id: person.personId, label: person.personName});
-    });
+const convertToGraph = async (data) => {
+  try {
+    let edges = new Set();
+    let nodes = new Set();
+    await Promise.all(data.Items.map(item  => {
+      let itemNodes = []
+      item.people.map(person => {
+        itemNodes.push({id: person.personId, label: person.personName});
+        nodes.add({id: person.personId, label: person.personName});
+      });
 
-    // add item as undirected edge between all possible unique pairs of nodes
-    // special case: only one person assigned, also attach to 'nobody'
-    if (itemNodes.length === 1) {
-      nodes.add({id: 'n1', label: 'nobody'}); // for items with only one person attached, need a 'nobody' to attach the other end to.
-      edges.add({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description});
-    } else {
-      // handle all pairs
-      for (let i = 0; i < itemNodes.length; i++) {
-        for (let j = i + 1; j < itemNodes.length; j++) {
-          edges.add({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: item.description});
+      // add item as undirected edge between all possible unique pairs of nodes
+      // special case: only one person assigned, also attach to 'nobody'
+      if (itemNodes.length === 1) {
+        nodes.add({id: 'n1', label: 'nobody'}); // for items with only one person attached, need a 'nobody' to attach the other end to.
+        edges.add({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description});
+      } else {
+        // handle all pairs
+        for (let i = 0; i < itemNodes.length; i++) {
+          for (let j = i + 1; j < itemNodes.length; j++) {
+            edges.add({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: item.description});
+          }
         }
       }
-    }
-  });
-  console.log(nodes); // tslint:disable-line:no-console
-  console.log(edges); // tslint:disable-line:no-console
+    }));
+    console.log(nodes); // tslint:disable-line:no-console
+    console.log(edges); // tslint:disable-line:no-console
 
-  return {nodes: Array.from(nodes), edges: Array.from(edges)};
+    return {nodes: Array.from(nodes), edges: Array.from(edges)};
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 };
 
 const addPeopleNames = async (data) => {
   try {
-      data.Items = await Promise.all(data.Items.map(async (item) => {
-        item.people = await Promise.all(item.people.map(async (person) => {
+    data.Items = await Promise.all(data.Items.map(async (item) => {
+      item.people = await Promise.all(item.people.map(async (person) => {
         let params = {
           TableName: process.env.PEOPLE_TABLE,
           KeyConditionExpression: "personId = :personId",
@@ -258,7 +263,7 @@ module.exports.post = async (event, context, callback) => {
 };
 
 function flattenDeep(arr1) {
-   return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
+  return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
 }
 
 module.exports.tags = async (event, context, callback) => {
