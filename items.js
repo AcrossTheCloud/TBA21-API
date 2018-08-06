@@ -44,9 +44,6 @@ const convertToGraph = async (data) => {
         }
       }
     }));
-    console.log(nodes); // tslint:disable-line:no-console
-    console.log(edges); // tslint:disable-line:no-console
-
     return {nodes: Array.from(nodes), edges: Array.from(edges)};
   } catch (error) {
     console.log(error);
