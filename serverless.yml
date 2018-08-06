@@ -133,6 +133,13 @@ functions:
           path: items
           method: get
           cors: true
+  getItemsGraph:
+    handler: items.getGraph
+    events:
+      - http:
+          path: itemsGraph
+          method: get
+          cors: true
   postItem:
     handler: items.post
     events:
