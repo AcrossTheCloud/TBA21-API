@@ -2,6 +2,7 @@ const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-depe
 const docClient = new AWS.DynamoDB.DocumentClient();
 const Joi = require('joi');
 const uuid = require('uuid/v1');
+const _ = require('underscore');
 
 const ocean = ['Pacific','Atlantic','Indian','Southern','Arctic'];
 
@@ -12,25 +13,33 @@ const headers = {
 
 const convertToGraph = async (data) => {
   try {
-    let edges = new Set();
-    let nodes = new Set();
+    let edges = [];
+    let nodes = [];
     await Promise.all(data.Items.map(item  => {
       let itemNodes = []
       item.people.map(person => {
         itemNodes.push({id: person.personId, label: person.personName});
-        nodes.add({id: person.personId, label: person.personName});
+        if (!_.findWhere(nodes, {id: person.personId, label: person.personName})) {
+          nodes.push({id: person.personId, label: person.personName});
+        }
       });
 
       // add item as undirected edge between all possible unique pairs of nodes
       // special case: only one person assigned, also attach to 'nobody'
       if (itemNodes.length === 1) {
-        nodes.add({id: 'n1', label: 'nobody'}); // for items with only one person attached, need a 'nobody' to attach the other end to.
-        edges.add({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description});
+        if (!_.findWhere(nodes, {id: 'n1', label: 'nobody'})) {
+          nodes.push({id: 'n1', label: 'nobody'}); // for items with only one person attached, need a 'nobody' to attach the other end to.
+        }
+        if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description})) {
+          edges.push({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description});
+        }
       } else {
         // handle all pairs
         for (let i = 0; i < itemNodes.length; i++) {
           for (let j = i + 1; j < itemNodes.length; j++) {
-            edges.add({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: item.description});
+            if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: item.description})) {
+              edges.push({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: item.description});
+            }
           }
         }
       }
@@ -156,11 +165,12 @@ module.exports.getGraph = async (event, context, callback) => {
 
       let data = await docClient.scan(params).promise();
       let withNames = await addPeopleNames(data);
+      let asGraph = await convertToGraph(withNames);
 
       const response = {
         statusCode: 200,
         headers: headers,
-        body: JSON.stringify(withNames),
+        body: JSON.stringify(asGraph),
       };
       callback(null, response);
 
