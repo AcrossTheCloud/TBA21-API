@@ -50,8 +50,12 @@ const convertToGraph = async (data) => {
         // handle all pairs
         for (let i = 0; i < itemNodes.length; i++) {
           for (let j = i + 1; j < itemNodes.length; j++) {
-            if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label, color: colour})) {
-              edges.push({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label, color: colour});
+            if (!_.findWhere(edges, {id: item.itemId})) {
+              if (!_.findWhere(edges, {source: itemNodes[i].id, target: itemNodes[j].id})) {
+                edges.push({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label, color: colour});
+              } else { // shove it in backwards to avoid overlapping curved edges
+                edges.push({id: item.itemId, source: itemNodes[j].id, target: itemNodes[i].id, label: label, color: colour});
+              }
             }
           }
         }
