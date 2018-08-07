@@ -11,24 +11,6 @@ const headers = {
   "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
 };
 
-// stringWrap function from http://stackoverflow.com/posts/14502311/revisions
-const stringWrap = function (str, width, spaceReplacer) {
-    if (str.length>width) {
-        let p=width;
-        for (;p>0 && str[p]!=' '; p--) {
-          // eslint-disable-line no-empty
-        }
-        if (p>0) {
-            let left = str.substring(0, p);
-            let right = str.substring(p+1);
-
-            return left + spaceReplacer + stringWrap(right, width, spaceReplacer);
-        }
-    }
-
-    return str;
-};
-
 const oceanColourMapping = {
   'Pacific': 'blue',
   'Atlantic': 'aqua',
