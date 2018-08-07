@@ -24,10 +24,8 @@ const convertToGraph = async (data) => {
   try {
     let edges = [];
     let nodes = [];
-    await Promise.all(data.Items.map(item  => {
-      let itemNodes = []
-
-      let label = stringWrap(item.description,40,'\n');
+    await Promise.all(data.Items.map((item)  => {
+      let itemNodes = [];
       let colour = oceanColourMapping[item.ocean];
       item.people.map((person) => {
         itemNodes.push({id: person.personId, label: person.personName});
@@ -43,15 +41,15 @@ const convertToGraph = async (data) => {
         if (!_.findWhere(nodes, {id: 'n1', label: 'nobody'})) {
           nodes.push({id: 'n1', label: 'nobody'}); // for items with only one person attached, need a 'nobody' to attach the other end to.
         }
-        if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[0].id, target: 'n1', label: label, color: colour})) {
-          edges.push({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: label, color: colour});
+        if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description, color: colour})) {
+          edges.push({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description, color: colour});
         }
       } else {
         // handle all pairs
         for (let i = 0; i < itemNodes.length; i++) {
           for (let j = i + 1; j < itemNodes.length; j++) {
-            if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label, color: colour})) {
-              edges.push({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label, color: colour});
+            if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: item.description, color: colour})) {
+              edges.push({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: item.description, color: colour});
             }
           }
         }
@@ -78,14 +76,18 @@ const addPeopleNames = async (data) => {
         };
         let result = await docClient.query(params).promise();
         person.personName=result.Items[0].name;
-        return person;
+
+return person;
       }));
-      return item;
+
+return item;
     }));
-    return data;
+
+return data;
   } catch(error) {
     console.log(error);
-    return null;
+
+return null;
   }
 };
 
