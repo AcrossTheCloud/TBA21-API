@@ -29,6 +29,14 @@ const stringWrap = function (str, width, spaceReplacer) {
     return str;
 };
 
+const oceanColourMapping = {
+  'Pacific': 'blue',
+  'Atlantic': 'aqua',
+  'Indian': 'green',
+  'Southern': 'teal',
+  'Arctic': 'grey'
+};
+
 
 const convertToGraph = async (data) => {
   try {
@@ -36,6 +44,9 @@ const convertToGraph = async (data) => {
     let nodes = [];
     await Promise.all(data.Items.map(item  => {
       let itemNodes = []
+
+      let label = stringWrap(item.description,40,'\n');
+      let colour = oceanColourMapping[item.ocean];
       item.people.map(person => {
         itemNodes.push({id: person.personId, label: person.personName});
         if (!_.findWhere(nodes, {id: person.personId, label: person.personName})) {
@@ -49,16 +60,15 @@ const convertToGraph = async (data) => {
         if (!_.findWhere(nodes, {id: 'n1', label: 'nobody'})) {
           nodes.push({id: 'n1', label: 'nobody'}); // for items with only one person attached, need a 'nobody' to attach the other end to.
         }
-        if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description})) {
-          edges.push({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description});
+        if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[0].id, target: 'n1', label: label, color: colour})) {
+          edges.push({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: label, color: colour});
         }
       } else {
         // handle all pairs
         for (let i = 0; i < itemNodes.length; i++) {
           for (let j = i + 1; j < itemNodes.length; j++) {
-            let label = stringWrap(item.description,40,'\n');
-            if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label})) {
-              edges.push({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label});
+            if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label, color: colour})) {
+              edges.push({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label, color: colour});
             }
           }
         }
