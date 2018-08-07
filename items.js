@@ -47,11 +47,12 @@ const convertToGraph = async (data) => {
 
       let label = stringWrap(item.description,40,'\n');
       let colour = oceanColourMapping[item.ocean];
-      item.people.map(person => {
+      item.people.map((person) => {
         itemNodes.push({id: person.personId, label: person.personName});
         if (!_.findWhere(nodes, {id: person.personId, label: person.personName})) {
           nodes.push({id: person.personId, label: person.personName});
         }
+        return person;
       });
 
       // add item as undirected edge between all possible unique pairs of nodes
@@ -73,6 +74,7 @@ const convertToGraph = async (data) => {
           }
         }
       }
+      return item;
     }));
     return {nodes: Array.from(nodes), edges: Array.from(edges)};
   } catch (error) {
@@ -300,7 +302,9 @@ module.exports.post = async (event, context, callback) => {
 };
 
 function flattenDeep(arr1) {
-  return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
+  return arr1.reduce((acc, val) => (Array.isArray(val)
+    ? acc.concat(flattenDeep(val))
+    : acc.concat(val), []));
 }
 
 module.exports.tags = async (event, context, callback) => {
@@ -312,8 +316,8 @@ module.exports.tags = async (event, context, callback) => {
     let data = await docClient.scan(params).promise();
     data = Array.from(new Set(flattenDeep(data.Items // remove unique elements from and flatten
       .filter((item) => item.hasOwnProperty('tags')) // remove all items without tags
-      .map((item) => item.tags) // now just get the tags
-    )));
+      .map((item) => item.tags)))); // now just get the tags
+
     const response = {
       statusCode: 200,
       headers: headers,
