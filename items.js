@@ -35,21 +35,23 @@ const convertToGraph = async (data) => {
         return person;
       });
 
+      let label = item.description.split(' ').slice(0,2).join(' ');
+
       // add item as undirected edge between all possible unique pairs of nodes
       // special case: only one person assigned, also attach to 'nobody'
       if (itemNodes.length === 1) {
         if (!_.findWhere(nodes, {id: 'n1', label: 'nobody'})) {
           nodes.push({id: 'n1', label: 'nobody'}); // for items with only one person attached, need a 'nobody' to attach the other end to.
         }
-        if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description, color: colour})) {
-          edges.push({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: item.description, color: colour});
+        if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[0].id, target: 'n1', label: label, color: colour})) {
+          edges.push({id: item.itemId, source: itemNodes[0].id, target: 'n1', label: label, color: colour});
         }
       } else {
         // handle all pairs
         for (let i = 0; i < itemNodes.length; i++) {
           for (let j = i + 1; j < itemNodes.length; j++) {
-            if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: item.description, color: colour})) {
-              edges.push({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: item.description, color: colour});
+            if (!_.findWhere(edges, {id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label, color: colour})) {
+              edges.push({id: item.itemId, source: itemNodes[i].id, target: itemNodes[j].id, label: label, color: colour});
             }
           }
         }
