@@ -304,6 +304,13 @@ module.exports.tags = async (event, context, callback) => {
       ProjectionExpression:"tags"
     };
     let data = await docClient.scan(params).promise();
+    console.log(data.Items.filter((item) => item.hasOwnProperty('tags')));
+    console.log(data.Items.filter((item) => item.hasOwnProperty('tags')).map((item) => item.tags));
+    console.log(data.Items.filter((item) => item.hasOwnProperty('tags')).map((item) => item.tags));
+    console.log(flattenDeep(data.Items // remove unique elements from and flatten
+      .filter((item) => item.hasOwnProperty('tags')) // remove all items without tags
+      .map((item) => item.tags)));
+      
     data = Array.from(new Set(flattenDeep(data.Items // remove unique elements from and flatten
       .filter((item) => item.hasOwnProperty('tags')) // remove all items without tags
       .map((item) => item.tags)))); // now just get the tags
