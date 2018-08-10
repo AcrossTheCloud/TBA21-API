@@ -9,12 +9,6 @@ const headers = {
   "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
 };
 
-function flattenDeep(arr1) {
-   return arr1.reduce((acc, val) => (Array.isArray(val)
-    ? acc.concat(flattenDeep(val))
-    : acc.concat(val), []));
-}
-
 module.exports.get = async (event, context, callback) => {
   console.log(event.queryStringParameters);
 
@@ -185,7 +179,7 @@ module.exports.roles = async (event, context, callback) => {
     };
     let data = await docClient.scan(params).promise();
     console.log(data);
-    data = Array.from(new Set(flattenDeep(flattenDeep(data.Items.map((item) => item.people)).map((person) => person.roles))));
+    data = Array.from(new Set(_.flatten(data.Items.map((item) => item.people)).map((person) => person.roles)));
     const response = {
       statusCode: 200,
       headers: headers,

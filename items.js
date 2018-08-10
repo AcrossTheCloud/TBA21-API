@@ -291,12 +291,6 @@ module.exports.post = async (event, context, callback) => {
   }
 };
 
-function flattenDeep(arr1) {
-  return arr1.reduce((acc, val) => (Array.isArray(val)
-    ? acc.concat(flattenDeep(val))
-    : acc.concat(val), []));
-}
-
 module.exports.tags = async (event, context, callback) => {
   try {
     let params = {
@@ -307,11 +301,8 @@ module.exports.tags = async (event, context, callback) => {
     console.log(data.Items.filter((item) => item.hasOwnProperty('tags')));
     console.log(data.Items.filter((item) => item.hasOwnProperty('tags')).map((item) => item.tags));
     console.log(data.Items.filter((item) => item.hasOwnProperty('tags')).map((item) => item.tags));
-    console.log(flattenDeep(data.Items // remove unique elements from and flatten
-      .filter((item) => item.hasOwnProperty('tags')) // remove all items without tags
-      .map((item) => item.tags)));
-      
-    data = Array.from(new Set(flattenDeep(data.Items // remove unique elements from and flatten
+
+    data = Array.from(new Set(_.flatten(data.Items // remove unique elements from and flatten
       .filter((item) => item.hasOwnProperty('tags')) // remove all items without tags
       .map((item) => item.tags)))); // now just get the tags
 
