@@ -180,7 +180,7 @@ module.exports.roles = async (event, context, callback) => {
     };
     let data = await docClient.scan(params).promise();
     console.log(data);
-    data = Array.from(new Set(_.flatten(data.Items.map((item) => item.people)).map((person) => person.roles)));
+    data = Array.from(new Set(_.flatten(_.flatten(data.Items.map((item) => item.people)).map((person) => person.roles))));
     const response = {
       statusCode: 200,
       headers: headers,
