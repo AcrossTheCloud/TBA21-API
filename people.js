@@ -3,6 +3,7 @@ const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-depe
 const docClient = new AWS.DynamoDB.DocumentClient();
 const Joi = require('joi');
 const uuid = require('uuid/v1');
+const _ = require('underscore');
 
 const headers = {
   "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
