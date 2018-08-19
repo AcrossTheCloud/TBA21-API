@@ -142,6 +142,8 @@ functions:
           cors: true
   postItem:
     handler: items.post
+    authorizer:
+      arn: arn:aws:cognito-idp:ap-southeast-2:455563481328:userpool/ap-southeast-2_rI6TfcN8f
     events:
       - http:
           path: item
@@ -156,6 +158,8 @@ functions:
           cors: true
   postPerson:
     handler: people.post
+    authorizer:
+      arn: arn:aws:cognito-idp:ap-southeast-2:455563481328:userpool/ap-southeast-2_rI6TfcN8f
     events:
       - http:
           path: person
@@ -163,6 +167,8 @@ functions:
           cors: true
   patchPerson:
     handler: people.patch
+    authorizer:
+      arn: arn:aws:cognito-idp:ap-southeast-2:455563481328:userpool/ap-southeast-2_rI6TfcN8f
     events:
       - http:
           path: person
