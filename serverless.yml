@@ -147,6 +147,7 @@ functions:
           path: item
           method: post
           cors: true
+          authorizer: aws_iam
   getPeople:
     handler: people.get
     events:
@@ -161,6 +162,8 @@ functions:
           path: person
           method: post
           cors: true
+          authorizer: aws_iam
+
   patchPerson:
     handler: people.patch
     events:
@@ -168,6 +171,8 @@ functions:
           path: person
           method: patch
           cors: true
+          authorizer: aws_iam
+
   getTags:
     handler: items.tags
     events:
