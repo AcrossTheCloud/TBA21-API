@@ -107,6 +107,7 @@ resources:
           -
             AttributeName: key
             KeyType: HASH
+        ProvisionedThroughput:
           ReadCapacityUnits: 2
           WriteCapacityUnits: 2
         TableName: tba21-image-tags-${opt:stage, self:provider.stage}
