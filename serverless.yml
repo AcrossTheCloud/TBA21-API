@@ -25,6 +25,7 @@ provider:
   environment:
     ITEMS_TABLE: tba21-items-${opt:stage, self:provider.stage}
     PEOPLE_TABLE: tba21-people-${opt:stage, self:provider.stage}
+    IMAGE_TAG_TABLE: tba21-image-tags-${opt:stage, self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -94,6 +95,22 @@ resources:
           ReadCapacityUnits: 2
           WriteCapacityUnits: 2
         TableName: tba21-people-${opt:stage, self:provider.stage}
+    TBA21ImageTagDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: key
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: key
+            KeyType: HASH
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
+        TableName: tba21-image-tags-${opt:stage, self:provider.stage}
+
     TBA21Role:
       Type: AWS::IAM::Role
       Properties:
