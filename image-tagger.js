@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
 const rekognition = new AWS.Rekognition();
 const docClient = new AWS.DynamoDB.DocumentClient();
 
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context, callback) => {
 
     let s3Record = event.Records[0].s3;
     let srcBucket = s3Record.bucket.name;
