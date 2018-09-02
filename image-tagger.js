@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 
 // use separate region for rekognition due to limited region availability
+AWS.config.rekognition = { endpoint: process.env.REKOGNITION_ENDPOINT };
 const rekognition = new AWS.Rekognition();
 const docClient = new AWS.DynamoDB.DocumentClient();
 
