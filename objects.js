@@ -11,7 +11,7 @@ module.exports.tags = async (event, context, callback) => {
     let params = {
       TableName : process.env.IMAGE_TAG_TABLE,
       Key: {
-        HashKey: event.queryStringParameters.key
+        Key: event.queryStringParameters.key
       }
     };
     let data = await docClient.get(params).promise();
