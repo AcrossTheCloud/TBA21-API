@@ -142,6 +142,11 @@ resources:
                         - Ref: 'AWS::Region'
                         - Ref: 'AWS::AccountId'
                         - 'log-group:/aws/lambda/*:*:*'
+                - Effect: Allow
+                  Action:
+                    - s3:GetObject
+                  Resource:
+                    - 'arn:aws:s3:::tba21-content*/*'
 
 functions:
   getItems:
