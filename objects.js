@@ -14,7 +14,7 @@ module.exports.tags = async (event, context, callback) => {
         HashKey: event.queryStringParameters.key
       }
     };
-    let data = await docClient.scan(params).promise();
+    let data = await docClient.get(params).promise();
 
     const response = {
       statusCode: 200,
