@@ -190,12 +190,18 @@ functions:
           method: patch
           cors: true
           authorizer: aws_iam
-
   getTags:
     handler: items.tags
     events:
       - http:
           path: tags
+          method: get
+          cors: true
+  getImageTags:
+    handler: objects.tags
+    events:
+      - http:
+          path: imageTags
           method: get
           cors: true
   getRoles:
