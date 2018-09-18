@@ -1,10 +1,7 @@
 const AWS = require('aws-sdk');
 
-// use separate region for rekognition due to limited region availability
-AWS.config.rekognition = { endpoint: process.env.REKOGNITION_ENDPOINT };
-
 const rekognition = new AWS.Rekognition();
-const docClient = new AWS.DynamoDB.DocumentClient();
+// const docClient = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = async (event, context, callback) => {
 
@@ -32,7 +29,8 @@ exports.handler = async (event, context, callback) => {
       TableName: process.env.IMAGE_TAG_TABLE,
       Item: requestData
     };
-
+    AWS.config.update({region: 'eu-central-1'});
+    let docClient = new AWS.DynamoDB.DocumentClient();
     let dynamoDBdata = await docClient.put(putParams).promise();
     console.log(dynamoDBdata);
 }
