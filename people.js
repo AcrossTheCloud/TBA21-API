@@ -11,8 +11,6 @@ const headers = {
 };
 
 module.exports.get = async (event, context, callback) => {
-  console.log(event.queryStringParameters);
-  console.log(event.requestContext.authorizer.claims);
 
   try {
     if (event.queryStringParameters === null) {
