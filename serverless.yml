@@ -167,6 +167,7 @@ functions:
           path: items
           method: get
           cors: true
+          authorizer: aws_iam
   getItemsGraph:
     handler: items.getGraph
     events:
