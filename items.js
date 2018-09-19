@@ -106,11 +106,12 @@ module.exports.get = async (event, context, callback) => {
     if (event.queryStringParameters === null) {
       let params = {
         TableName : process.env.ITEMS_TABLE,
-        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags, private",
+        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags, #pt",
         ExpressionAttributeNames:{
           "#p": "position",
           "#u": "url",
-          "#tm": "timestamp"
+          "#tm": "timestamp",
+          "#pt": "private"
         }
       };
 
