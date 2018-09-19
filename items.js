@@ -117,12 +117,15 @@ module.exports.get = async (event, context, callback) => {
 
       let data = await docClient.scan(params).promise();
 
-      data.Items = data.Items.filter((item) => {
+      console.log(data.Items);
+      let filtered = {};
+      filtered.Items = data.Items.filter((item) => {
         console.log(!item.private || authorized);
         !item.private || authorized;
       });
+      console.log(filtered.Items);
 
-      let withNames = await addPeopleNames(data);
+      let withNames = await addPeopleNames(filtered);
 
       const response = {
         statusCode: 200,
