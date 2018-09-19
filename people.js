@@ -12,14 +12,15 @@ const headers = {
 
 module.exports.get = async (event, context, callback) => {
   console.log(event.queryStringParameters);
+  console.log(event.requestContext.authorizer.claims);
 
   try {
     if (event.queryStringParameters === null) {
       let params = {
         TableName : process.env.PEOPLE_TABLE
       };
-
       let data = await docClient.scan(params).promise();
+      //let data = data.filter();
       const response = {
         statusCode: 200,
         headers: headers,

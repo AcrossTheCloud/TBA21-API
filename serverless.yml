@@ -189,6 +189,7 @@ functions:
           path: people
           method: get
           cors: true
+          authorizer: aws_iam
   postPerson:
     handler: people.post
     events:
