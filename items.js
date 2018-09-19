@@ -106,12 +106,11 @@ module.exports.get = async (event, context, callback) => {
     if (event.queryStringParameters === null) {
       let params = {
         TableName : process.env.ITEMS_TABLE,
-        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags, #pt",
+        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags, privacy",
         ExpressionAttributeNames:{
           "#p": "position",
           "#u": "url",
-          "#tm": "timestamp",
-          "#pt": "private"
+          "#tm": "timestamp"
         }
       };
 
@@ -120,8 +119,8 @@ module.exports.get = async (event, context, callback) => {
       console.log(data.Items);
       let filtered = {};
       filtered.Items = data.Items.filter((item) => {
-        console.log(!item.private || authorized);
-        return !item.private || authorized;
+        console.log(!item.privacy || authorized);
+        return !item.privacy || authorized;
       });
       console.log(filtered.Items);
 
@@ -265,7 +264,7 @@ module.exports.post = async (event, context, callback) => {
         personId: Joi.string().uuid().required(),
         roles: Joi.array().items(Joi.string()).required(),
       })),
-      private: Joi.boolean().default(false)
+      privacy: Joi.boolean().default(false)
     });
 
     if (!Joi.validate(body, schema).error) {
