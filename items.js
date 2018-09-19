@@ -121,7 +121,7 @@ module.exports.get = async (event, context, callback) => {
       let filtered = {};
       filtered.Items = data.Items.filter((item) => {
         console.log(!item.private || authorized);
-        !item.private || authorized;
+        return !item.private || authorized;
       });
       console.log(filtered.Items);
 
