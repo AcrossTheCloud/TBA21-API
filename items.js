@@ -83,30 +83,30 @@ const addPeopleNames = async (data) => {
         let result = await docClient.query(params).promise();
         person.personName=result.Items[0].name;
 
-return person;
+        return person;
       }));
 
-return item;
+      return item;
     }));
 
-return data;
+    return data;
   } catch(error) {
     console.log(error);
-
-return null;
+    return null;
   }
 };
 
 module.exports.get = async (event, context, callback) => {
   console.log(event.queryStringParameters);
-  console.log(event.requestContext.authorizer.claims);
+  console.log(event.requestContext.identity.cognitoAuthenticationType);
+  const authorized = typeof(event.requestContext.identity.cognitoAuthenticationType) !== 'undefined' && event.requestContext.identity.cognitoAuthenticationType === 'authenticated';
 
   try {
 
     if (event.queryStringParameters === null) {
       let params = {
         TableName : process.env.ITEMS_TABLE,
-        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags",
+        ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags, private",
         ExpressionAttributeNames:{
           "#p": "position",
           "#u": "url",
@@ -115,6 +115,11 @@ module.exports.get = async (event, context, callback) => {
       };
 
       let data = await docClient.scan(params).promise();
+
+      data = data.filter((item) => {
+        !item.private || authorized;
+      });
+
       let withNames = await addPeopleNames(data);
 
       const response = {
@@ -254,7 +259,8 @@ module.exports.post = async (event, context, callback) => {
       people: Joi.array().items(Joi.object().keys({
         personId: Joi.string().uuid().required(),
         roles: Joi.array().items(Joi.string()).required(),
-      }))
+      })),
+      private: Joi.boolean().default(false)
     });
 
     if (!Joi.validate(body, schema).error) {
