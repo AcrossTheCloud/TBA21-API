@@ -118,6 +118,7 @@ module.exports.get = async (event, context, callback) => {
       let data = await docClient.scan(params).promise();
 
       data.Items = data.Items.filter((item) => {
+        console.log(!item.private || authorized);
         !item.private || authorized;
       });
 
