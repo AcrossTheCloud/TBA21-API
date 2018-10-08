@@ -255,7 +255,7 @@ module.exports.post = async (event, context, callback) => {
     const schema = Joi.object().keys({
       ocean: Joi.any().valid(ocean).required(),
       description: Joi.string().required(),
-      urls: Joi.array().items(Joi.string().uri()).required(),
+      urls: Joi.array().required(),
       position: Joi.array().ordered([
         Joi.number().min(-180).max(180).required(),
         Joi.number().min(-90).max(90).required()
