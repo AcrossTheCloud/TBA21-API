@@ -109,7 +109,7 @@ module.exports.get = async (event, context, callback) => {
         ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags, privacy",
         ExpressionAttributeNames:{
           "#p": "position",
-          "#u": "url",
+          "#u": "urls",
           "#tm": "timestamp"
         }
       };
@@ -147,7 +147,7 @@ module.exports.get = async (event, context, callback) => {
         KeyConditionExpression: "ocean = :o",
         ExpressionAttributeNames:{
           "#p": "position",
-          "#u": "url",
+          "#u": "urls",
           "#tm": "timestamp"
         },
         ExpressionAttributeValues: {
@@ -187,7 +187,7 @@ module.exports.getGraph = async (event, context, callback) => {
         ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags",
         ExpressionAttributeNames:{
           "#p": "position",
-          "#u": "url",
+          "#u": "urls",
           "#tm": "timestamp"
         }
       };
@@ -254,7 +254,7 @@ module.exports.post = async (event, context, callback) => {
     const schema = Joi.object().keys({
       ocean: Joi.any().valid(ocean).required(),
       description: Joi.string().required(),
-      url: Joiarray().items(Joi.string().uri()).required(),
+      urls: Joi.array().items(Joi.string().uri()).required(),
       position: Joi.array().ordered([
         Joi.number().min(-180).max(180).required(),
         Joi.number().min(-90).max(90).required()
