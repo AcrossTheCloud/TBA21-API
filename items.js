@@ -85,6 +85,7 @@ const addPeopleNames = async (data) => {
 
         return person;
       }));
+      item.urls = item.urls.values;
 
       return item;
     }));
@@ -217,7 +218,7 @@ module.exports.getGraph = async (event, context, callback) => {
         KeyConditionExpression: "ocean = :o",
         ExpressionAttributeNames:{
           "#p": "position",
-          "#u": "url",
+          "#u": "urls",
           "#tm": "timestamp"
         },
         ExpressionAttributeValues: {
