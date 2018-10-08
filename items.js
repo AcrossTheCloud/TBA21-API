@@ -270,6 +270,7 @@ module.exports.post = async (event, context, callback) => {
     if (!Joi.validate(body, schema).error) {
       body.itemId = uuid();
       body.timestamp = new Date() / 1000;
+      body.urls = docClient.createSet(body.urls);
       let putParams = {
         TableName: process.env.ITEMS_TABLE,
         Item: body
