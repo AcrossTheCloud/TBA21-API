@@ -92,6 +92,7 @@ module.exports.post = async (event, context, callback) => {
       name: Joi.string().required(),
       biography: Joi.string(),
       telephone: Joi.string(),
+      email: Joi.string(),
       privacy: Joi.boolean().default(false)
     });
 
