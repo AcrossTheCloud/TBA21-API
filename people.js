@@ -40,7 +40,7 @@ module.exports.get = async (event, context, callback) => {
       };
 
       let data = await docClient.scan(params).promise();
-      let filtered = privacyFilter(data);
+      let filtered = privacyFilter(event,data);
       const response = {
         statusCode: 200,
         headers: headers,
