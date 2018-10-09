@@ -216,6 +216,7 @@ functions:
           path: tags
           method: get
           cors: true
+          authorizer: aws_iam
   getImageTags:
     handler: objects.tags
     events:
@@ -230,3 +231,4 @@ functions:
           path: roles
           method: get
           cors: true
+          authorizer: aws_iam
