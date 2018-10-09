@@ -91,6 +91,7 @@ module.exports.post = async (event, context, callback) => {
     const schema = Joi.object().keys({
       name: Joi.string().required(),
       biography: Joi.string(),
+      telephone: Joi.string(),
       privacy: Joi.boolean().default(false)
     });
 
