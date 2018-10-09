@@ -85,6 +85,7 @@ const addPeopleNames = async (data) => {
 
         return person;
       }));
+      item.urls = item.urls.values;
 
       return item;
     }));
@@ -109,7 +110,7 @@ module.exports.get = async (event, context, callback) => {
         ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags, privacy",
         ExpressionAttributeNames:{
           "#p": "position",
-          "#u": "url",
+          "#u": "urls",
           "#tm": "timestamp"
         }
       };
@@ -147,7 +148,7 @@ module.exports.get = async (event, context, callback) => {
         KeyConditionExpression: "ocean = :o",
         ExpressionAttributeNames:{
           "#p": "position",
-          "#u": "url",
+          "#u": "urls",
           "#tm": "timestamp"
         },
         ExpressionAttributeValues: {
@@ -187,7 +188,7 @@ module.exports.getGraph = async (event, context, callback) => {
         ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags",
         ExpressionAttributeNames:{
           "#p": "position",
-          "#u": "url",
+          "#u": "urls",
           "#tm": "timestamp"
         }
       };
@@ -217,7 +218,7 @@ module.exports.getGraph = async (event, context, callback) => {
         KeyConditionExpression: "ocean = :o",
         ExpressionAttributeNames:{
           "#p": "position",
-          "#u": "url",
+          "#u": "urls",
           "#tm": "timestamp"
         },
         ExpressionAttributeValues: {
@@ -254,7 +255,7 @@ module.exports.post = async (event, context, callback) => {
     const schema = Joi.object().keys({
       ocean: Joi.any().valid(ocean).required(),
       description: Joi.string().required(),
-      url: Joi.string().uri().required(),
+      urls: Joi.array().required(),
       position: Joi.array().ordered([
         Joi.number().min(-180).max(180).required(),
         Joi.number().min(-90).max(90).required()
@@ -270,6 +271,8 @@ module.exports.post = async (event, context, callback) => {
     if (!Joi.validate(body, schema).error) {
       body.itemId = uuid();
       body.timestamp = new Date() / 1000;
+      console.log(body.urls);
+      body.urls = docClient.createSet(body.urls);
       let putParams = {
         TableName: process.env.ITEMS_TABLE,
         Item: body
