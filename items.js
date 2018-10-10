@@ -3,6 +3,7 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 const Joi = require('joi');
 const uuid = require('uuid/v1');
 const _ = require('underscore');
+const privacyFilter = require('./common').privacyFilter;
 
 const ocean = ['Pacific','Atlantic','Indian','Southern','Arctic'];
 
@@ -100,7 +101,6 @@ const addPeopleNames = async (data) => {
 module.exports.get = async (event, context, callback) => {
   console.log(event.queryStringParameters);
   console.log(event.requestContext.identity.cognitoAuthenticationType);
-  const authorized = typeof(event.requestContext.identity.cognitoAuthenticationType) !== 'undefined' && event.requestContext.identity.cognitoAuthenticationType === 'authenticated';
 
   try {
 
@@ -116,15 +116,7 @@ module.exports.get = async (event, context, callback) => {
       };
 
       let data = await docClient.scan(params).promise();
-
-      console.log(data.Items);
-      let filtered = {};
-      filtered.Items = data.Items.filter((item) => {
-        console.log(!item.privacy || authorized);
-        return !item.privacy || authorized;
-      });
-      console.log(filtered.Items);
-
+      let filtered = privacyFilter(event,data);
       let withNames = await addPeopleNames(filtered);
 
       const response = {
@@ -157,7 +149,8 @@ module.exports.get = async (event, context, callback) => {
       };
 
       let data = await docClient.query(params).promise();
-      let withNames = await addPeopleNames(data);
+      let filtered = privacyFilter(event,data);
+      let withNames = await addPeopleNames(filtered);
       const response = {
         statusCode: 200,
         headers: headers,
@@ -194,6 +187,7 @@ module.exports.getGraph = async (event, context, callback) => {
       };
 
       let data = await docClient.scan(params).promise();
+      let filtered = privacyFilter(event,data);
       let withNames = await addPeopleNames(data);
       let asGraph = await convertToGraph(withNames);
 
@@ -227,7 +221,8 @@ module.exports.getGraph = async (event, context, callback) => {
       };
 
       let data = await docClient.query(params).promise();
-      let withNames = await addPeopleNames(data);
+      let filtered = privacyFilter(event,data);
+      let withNames = await addPeopleNames(filtered);
       let asGraph = await convertToGraph(withNames);
       const response = {
         statusCode: 200,
@@ -271,8 +266,8 @@ module.exports.post = async (event, context, callback) => {
     if (!Joi.validate(body, schema).error) {
       body.itemId = uuid();
       body.timestamp = new Date() / 1000;
-      console.log(body.urls);
-      body.urls = docClient.createSet(body.urls);
+      body.tags = _.uniq(body.tags); // unique tags only please
+      body.urls = docClient.createSet(body.urls); // turn list into set
       let putParams = {
         TableName: process.env.ITEMS_TABLE,
         Item: body
@@ -312,9 +307,6 @@ module.exports.tags = async (event, context, callback) => {
       ProjectionExpression:"tags"
     };
     let data = await docClient.scan(params).promise();
-    console.log(data.Items.filter((item) => item.hasOwnProperty('tags')));
-    console.log(data.Items.filter((item) => item.hasOwnProperty('tags')).map((item) => item.tags));
-    console.log(data.Items.filter((item) => item.hasOwnProperty('tags')).map((item) => item.tags));
 
     data = Array.from(new Set(_.flatten(data.Items // remove unique elements from and flatten
       .filter((item) => item.hasOwnProperty('tags')) // remove all items without tags

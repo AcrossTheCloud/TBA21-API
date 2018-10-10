@@ -4,6 +4,7 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 const Joi = require('joi');
 const uuid = require('uuid/v1');
 const _ = require('underscore');
+const privacyFilter = require('./common').privacyFilter;
 
 const headers = {
   "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
@@ -18,11 +19,12 @@ module.exports.get = async (event, context, callback) => {
         TableName : process.env.PEOPLE_TABLE
       };
       let data = await docClient.scan(params).promise();
+      let filtered = privacyFilter(event,data);
       //let data = data.filter();
       const response = {
         statusCode: 200,
         headers: headers,
-        body: JSON.stringify(data),
+        body: JSON.stringify(filtered),
       };
       callback(null, response);
     } else if (event.queryStringParameters.hasOwnProperty('name')){
@@ -38,10 +40,11 @@ module.exports.get = async (event, context, callback) => {
       };
 
       let data = await docClient.scan(params).promise();
+      let filtered = privacyFilter(event,data);
       const response = {
         statusCode: 200,
         headers: headers,
-        body: JSON.stringify(data),
+        body: JSON.stringify(filtered),
       };
       callback(null, response);
     } else if (event.queryStringParameters.hasOwnProperty('personId')) {
@@ -53,12 +56,13 @@ module.exports.get = async (event, context, callback) => {
         }
       };
       let data = await docClient.query(params).promise();
+      let filtered = privacyFilter(data);
 
       console.log("Query succeeded.");
       const response = {
         statusCode: 200,
         headers: headers,
-        body: JSON.stringify(data),
+        body: JSON.stringify(filtered),
       };
       callback(null, response);
     } else {
@@ -86,7 +90,10 @@ module.exports.post = async (event, context, callback) => {
 
     const schema = Joi.object().keys({
       name: Joi.string().required(),
-      biography: Joi.string()
+      biography: Joi.string(),
+      telephone: Joi.string(),
+      email: Joi.string(),
+      privacy: Joi.boolean().default(false)
     });
 
     if (!Joi.validate(body, schema).error) {
