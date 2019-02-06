@@ -9,6 +9,6 @@ phases:
       - npm install -g serverless
       - npm install -g redoc-cli
       - serverless deploy
-      - redoc-cli bundle api-oas-postman.json
-      - aws s3 cp --sse AES25 redoc-static.html s3://docs.oceanarchive.io/api.html
+      - redoc-cli bundle api-oas30-postman.json
+      - aws s3 cp --sse AES256 redoc-static.html s3://docs.oceanarchive.io/api.html
       
