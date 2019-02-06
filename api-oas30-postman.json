@@ -60,10 +60,10 @@
     },
     "/items": {
       "get": {
-        "description": "Returns a list of all items",
+        "description": "/items",
         "responses": {
           "200": {
-            "description": "A list of items",
+            "description": "Returns a list of items",
             "content": {
               "application/json": {
                 "schema": {
