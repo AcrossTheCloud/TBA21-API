@@ -241,6 +241,30 @@
     },
     "/tags": {
       "get": {
+        "description": "/tags",
+        "responses": {
+          "200": {
+            "description": "Returns a list of all used tags across all items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "example": 
+                  [
+                    "fish farmer",
+                    "watcher",
+                    "photographer",
+                    "captain",
+                    "drone operator"
+                  ]
+              }
+            }
+          }
+        },
         "security": [
           {
             "sigv4": []
