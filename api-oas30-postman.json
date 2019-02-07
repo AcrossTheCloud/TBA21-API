@@ -72,60 +72,7 @@
                     "Items": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "urls": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            }
-                          },
-                          "ocean": {
-                            "type": "string"
-                          },
-                          "timestamp": {
-                            "type": "number"
-                          },
-                          "people": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "personId": 
-                                  {
-                                    "type" : "string"
-                                  },
-                                "roles": {
-                                  "type": "array",
-                                  "items": {
-                                    "type": "string"
-                                  }
-                                },
-                                "personName": {
-                                  "type": "string"
-                                }
-                              }
-                            }
-                          },
-                          "itemId": {
-                            "type": "string"
-                          },
-                          "description": {
-                            "type": "string"
-                          },
-                          "position": {
-                            "type": "array",
-                            "items": {
-                              "type": "number"
-                            }
-                          },
-                          "tags": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            }
-                          }
-                        }
+                        "$ref": "#/components/schemas/itemWithID"
                       }
                     }
                   },
@@ -313,6 +260,18 @@
     },
     "/item": {
       "post": {
+        "description": "/item",
+        "requestBody": {
+          "description": "Item to be stored",
+          "required": "true",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/item"
+              }
+            }
+          }
+        },
         "security": [
           {
             "sigv4": []
@@ -545,6 +504,76 @@
         "name": "Authorization",
         "in": "header",
         "x-amazon-apigateway-authtype": "awsSigv4"
+      }
+    },
+    "schemas": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ocean": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "number"
+          },
+          "people": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "personId": {
+                  "type": "string"
+                },
+                "roles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "personName": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "position": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "itemWithID": {
+        "allOf": 
+        [ 
+          {
+            "$ref": "#/components/schemas/item"
+          }, 
+          {
+            "type": "object",
+            "properties": {
+              "itemId": {
+               "type": "string"
+              }
+            }
+          }
+        ]
       }
     }
   }
