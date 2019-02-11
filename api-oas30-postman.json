@@ -434,6 +434,25 @@
     },
     "/person": {
       "post": {
+        "description": "/person",
+        "requestBody": {
+          "description": "Person to be stored",
+          "required": "true",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/person"
+              },
+              "example": {
+                "name": "John Citizen",
+                "email": "john@example.net",
+                "telephone": "+61 491 570 156",
+                "biography": "The world's most boring biography",
+                "privacy": false
+              }
+            }
+          }
+        },
         "security": [
           {
             "sigv4": []
@@ -574,6 +593,23 @@
             }
           }
         ]
+      },
+      "person": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "telephone": {
+            "type": "string"
+          },
+          "privacy": {
+            "type": "boolean"
+          }
+        }
       }
     }
   }
