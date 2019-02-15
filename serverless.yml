@@ -17,6 +17,15 @@ service: tba21
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
 
+plugins:
+  - serverless-api-gateway-caching
+
+custom:
+  # Enable or disable caching globally
+  apiGatewayCaching:
+    enabled: true
+    ttlInSeconds: 180 # 3 min
+
 provider:
   name: aws
   runtime: nodejs8.10
@@ -187,6 +196,9 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+
   postItem:
     handler: items.post
     events:
@@ -203,6 +215,9 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+
   postPerson:
     handler: people.post
     events:
@@ -228,6 +243,9 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+
   getImageTags:
     handler: objects.tags
     events:
@@ -235,6 +253,11 @@ functions:
           path: imageTags
           method: get
           cors: true
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.queryStringParameter.key
+
   getRoles:
     handler: people.roles
     events:
