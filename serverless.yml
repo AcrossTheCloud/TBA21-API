@@ -256,7 +256,7 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.queryStringParameter.key
+              - name: request.querystring.key
 
   getRoles:
     handler: people.roles
