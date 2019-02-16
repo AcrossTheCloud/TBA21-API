@@ -188,6 +188,10 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.ocean
   getItemsGraph:
     handler: items.getGraph
     events:
