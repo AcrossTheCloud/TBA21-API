@@ -25,6 +25,7 @@ custom:
   apiGatewayCaching:
     enabled: true
     ttlInSeconds: 180 # 3 min
+    dataEncrypted: true
 
 provider:
   name: aws
