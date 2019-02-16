@@ -19,7 +19,7 @@
   "homepage": "https://github.com/AcrossTheCloud/TBA21-API",
   "dependencies": {
     "joi": "^14.3.1",
-    "serverless-api-gateway-caching": "git://github.com/narratorai/serverless-api-gateway-caching.git#set-encrypt-for-stage",
+    "serverless-api-gateway-caching": "^1.3.4",
     "underscore": "^1.9.1",
     "uuid": "^3.3.2"
   },
