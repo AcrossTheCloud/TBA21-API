@@ -153,21 +153,19 @@ module.exports.get = async (event, context, callback) => {
     } else if (event.queryStringParameters.itemId) {
       let params = {
         TableName: process.env.ITEMS_TABLE,
-        ProjectionExpression: "ocean, #tm, itemId, #p, description, #u, people, tags",
-        KeyConditionExpression: "itemId = :id",
+        ProjectionExpression: "ocean, #tm, itemId, #p, description, #u, people, tags, privacy",
         ExpressionAttributeNames: {
           "#p": "position",
           "#u": "urls",
           "#tm": "timestamp"
-        },
-        ExpressionAttributeValues: {
-          ":id": event.queryStringParameters.itemId
         }
       };
 
-      let data = await docClient.query(params).promise();
+      let data = await docClient.scan(params).promise();
+      data.Items = data.Items.filter((item) => item.itemId === event.queryStringParameters.itemId );
       let filtered = privacyFilter(event, data);
       let withNames = await addPeopleNames(filtered);
+      withNames = withNames.Items[0];
       const response = {
         statusCode: 200,
         headers: headers,
