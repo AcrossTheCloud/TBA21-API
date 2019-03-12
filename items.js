@@ -126,14 +126,7 @@ module.exports.get = async (event, context, callback) => {
       };
       callback(null, response);
 
-    } else if (typeof (event.queryStringParameters.ocean) === 'undefined') {
-      const response = {
-        statusCode: 400,
-        headers: headers,
-        body: 'invalid query parameter, try ?ocean=Pacific'
-      };
-      callback(null,response);
-    } else {
+    } else if (event.queryStringParameters.ocean) {
       let params = {
         TableName : process.env.ITEMS_TABLE,
         ProjectionExpression:"ocean, #tm, itemId, #p, description, #u, people, tags",
@@ -155,6 +148,37 @@ module.exports.get = async (event, context, callback) => {
         statusCode: 200,
         headers: headers,
         body: JSON.stringify(withNames),
+      };
+      callback(null, response);
+    } else if (event.queryStringParameters.itemId) {
+      let params = {
+        TableName: process.env.ITEMS_TABLE,
+        ProjectionExpression: "ocean, #tm, itemId, #p, description, #u, people, tags",
+        KeyConditionExpression: "itemId = :id",
+        ExpressionAttributeNames: {
+          "#p": "position",
+          "#u": "urls",
+          "#tm": "timestamp"
+        },
+        ExpressionAttributeValues: {
+          ":id": event.queryStringParameters.itemId
+        }
+      };
+
+      let data = await docClient.query(params).promise();
+      let filtered = privacyFilter(event, data);
+      let withNames = await addPeopleNames(filtered);
+      const response = {
+        statusCode: 200,
+        headers: headers,
+        body: JSON.stringify(withNames),
+      };
+      callback(null, response);
+    } else {
+      const response = {
+        statusCode: 400,
+        headers: headers,
+        body: 'invalid query parameter, try ?ocean=Pacific'
       };
       callback(null, response);
     }
