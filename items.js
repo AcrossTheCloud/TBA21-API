@@ -151,6 +151,7 @@ module.exports.get = async (event, context, callback) => {
       };
       callback(null, response);
     } else if (event.queryStringParameters.itemId) {
+      let responseBody = {};
       let params = {
         TableName: process.env.ITEMS_TABLE,
         ProjectionExpression: "ocean, #tm, itemId, #p, description, #u, people, tags, privacy",
@@ -162,14 +163,17 @@ module.exports.get = async (event, context, callback) => {
       };
 
       let data = await docClient.scan(params).promise();
-      data.Items = data.Items.filter((item) => item.itemId === event.queryStringParameters.itemId );
-      let filtered = privacyFilter(event, data);
-      let withNames = await addPeopleNames(filtered);
-      withNames = withNames.Items[0];
+      data.Items = data.Items.filter((item) => item.itemId === event.queryStringParameters.itemId);
+      if (data.Items.length > 0) {
+        let filtered = privacyFilter(event, data);
+        let withNames = await addPeopleNames(filtered);
+        withNames = withNames.Items[0];
+        responseBody = JSON.stringify(withNames);
+      }
       const response = {
         statusCode: 200,
         headers: headers,
-        body: JSON.stringify(withNames),
+        body: responseBody,
       };
       callback(null, response);
     } else {
