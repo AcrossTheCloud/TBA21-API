@@ -151,7 +151,7 @@ module.exports.get = async (event, context, callback) => {
       };
       callback(null, response);
     } else if (event.queryStringParameters.itemId) {
-      let responseBody = {};
+      let responseBody = false;
       let params = {
         TableName: process.env.ITEMS_TABLE,
         ProjectionExpression: "ocean, #tm, itemId, #p, description, #u, people, tags, privacy",
