@@ -193,7 +193,7 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.ocean
-              - itemId: request.querystring.itemId
+              - name: request.querystring.itemId
   getItemsGraph:
     handler: items.getGraph
     events:
