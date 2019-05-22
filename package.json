@@ -5,26 +5,50 @@
   "description": "TBA21 API",
   "main": "s",
   "scripts": {
-    "test": "mocha && eslint .",
+    "test": "jest --coverage",
+    "offline": "npm run clean && npm run lint &&  export SLS_DEBUG=true && sls offline start --port 8080",
+    "lint": "tslint -t stylish -p .",
+    "clean": "rimraf build coverage",
     "deploy": "serverless deploy --aws-s3-accelerate"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AcrossTheCloud/TBA21-API.git"
   },
-  "author": "Matthew Berryman",
+  "author": "Dan Wood",
   "bugs": {
     "url": "https://github.com/AcrossTheCloud/TBA21-API/issues"
   },
   "homepage": "https://github.com/AcrossTheCloud/TBA21-API",
   "dependencies": {
     "joi": "^14.3.1",
-    "serverless-api-gateway-caching": "^1.3.4",
+    "serverless-api-gateway-caching": "^1.3.8",
     "underscore": "^1.9.1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "mocha": "^5.2.0",
-    "eslint": "^5.14.0"
+    "@types/aws-lambda": "^8.10.26",
+    "@types/jest": "^24.0.13",
+    "@types/node": "^12.0.2",
+    "@types/request": "^2.48.1",
+    "@types/request-promise-native": "^1.0.15",
+    "aws-lambda": "^0.1.2",
+    "aws-lambda-mock-context": "^3.2.1",
+    "aws-sdk": "^2.445.0",
+    "aws-sdk-mock": "^4.4.0",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^24.8.0",
+    "request-promise-native": "^1.0.7",
+    "rimraf": "^2.6.3",
+    "serverless-aws-documentation": "^1.1.0",
+    "serverless-offline": "^4.10.5",
+    "serverless-plugin-typescript": "^1.1.7",
+    "serverless-webpack": "^5.3.0",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^5.3.3",
+    "ts-node": "^8.0.3",
+    "tslint": "^5.13.1",
+    "typescript": "^3.4.5",
+    "webpack": "^4.29.0"
   }
 }

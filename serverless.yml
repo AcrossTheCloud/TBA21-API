@@ -18,7 +18,17 @@ service: tba21
 # frameworkVersion: "=X.X.X"
 
 plugins:
+  - serverless-webpack
+  - serverless-offline
   - serverless-api-gateway-caching
+
+package:
+  include:
+    src/**/!(*.test).js
+  exclude:
+    - node_modules/**/*
+    - build,
+    - coverage
 
 custom:
   # Enable API GW caching with some global options set
@@ -37,16 +47,6 @@ provider:
     PEOPLE_TABLE: tba21-people-${opt:stage, self:provider.stage}
     IMAGE_TAG_TABLE: tba21-image-tags-${opt:stage, self:provider.stage}
   iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/tba21*"
     - Effect: 'Allow'
       Action:
         - 'lambda:InvokeFunction'
@@ -60,68 +60,6 @@ provider:
 
 resources:
   Resources:
-    TBA21DynamoDbTable:
-      Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
-      Properties:
-        AttributeDefinitions:
-          -
-            AttributeName: ocean
-            AttributeType: S
-          -
-            AttributeName: timestamp
-            AttributeType: N
-
-        KeySchema:
-          -
-            AttributeName: ocean
-            KeyType: HASH
-          -
-            AttributeName: timestamp
-            KeyType: RANGE
-        ProvisionedThroughput:
-          ReadCapacityUnits: 2
-          WriteCapacityUnits: 2
-        TableName: tba21-items-${opt:stage, self:provider.stage}
-    TBA21ArtistDynamoDbTable:
-      Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
-      Properties:
-        AttributeDefinitions:
-          -
-            AttributeName: personId
-            AttributeType: S
-          -
-            AttributeName: name
-            AttributeType: S
-        KeySchema:
-          -
-            AttributeName: personId
-            KeyType: HASH
-          -
-            AttributeName: name
-            KeyType: RANGE
-        ProvisionedThroughput:
-          ReadCapacityUnits: 2
-          WriteCapacityUnits: 2
-        TableName: tba21-people-${opt:stage, self:provider.stage}
-    TBA21ImageTagDynamoDbTable:
-      Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
-      Properties:
-        AttributeDefinitions:
-          -
-            AttributeName: key
-            AttributeType: S
-        KeySchema:
-          -
-            AttributeName: key
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 2
-          WriteCapacityUnits: 2
-        TableName: tba21-image-tags-${opt:stage, self:provider.stage}
-
     TBA21Role:
       Type: AWS::IAM::Role
       Properties:
@@ -152,17 +90,6 @@ resources:
                         - Ref: 'AWS::Region'
                         - Ref: 'AWS::AccountId'
                         - 'log-group:/aws/lambda/*:*:*'
-                - Effect: Allow # note that these rights are given in the default policy and are required if you want logs out of your lambda(s)
-                  Action:
-                    - dynamodb:PutItem
-                  Resource:
-                    - 'Fn::Join':
-                      - ':'
-                      -
-                        - 'arn:aws:dynamodb'
-                        - Ref: 'AWS::Region'
-                        - Ref: 'AWS::AccountId'
-                        - 'table/tba21-image-tags*'
                 - Effect: Allow
                   Action:
                     - s3:GetObject
@@ -182,7 +109,9 @@ resources:
 
 functions:
   getItems:
-    handler: items.get
+    handler: src/items/items.get
+    description: Returns items from the database.
+
     events:
       - http:
           path: items
@@ -193,83 +122,3 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.ocean
-  getItemsGraph:
-    handler: items.getGraph
-    events:
-      - http:
-          path: itemsGraph
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-
-  postItem:
-    handler: items.post
-    events:
-      - http:
-          path: item
-          method: post
-          cors: true
-          authorizer: aws_iam
-  getPeople:
-    handler: people.get
-    events:
-      - http:
-          path: people
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.name
-
-  postPerson:
-    handler: people.post
-    events:
-      - http:
-          path: person
-          method: post
-          cors: true
-          authorizer: aws_iam
-
-  patchPerson:
-    handler: people.patch
-    events:
-      - http:
-          path: person
-          method: patch
-          cors: true
-          authorizer: aws_iam
-  getTags:
-    handler: items.tags
-    events:
-      - http:
-          path: tags
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-
-  getImageTags:
-    handler: objects.tags
-    events:
-      - http:
-          path: imageTags
-          method: get
-          cors: true
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.key
-
-  getRoles:
-    handler: people.roles
-    events:
-      - http:
-          path: roles
-          method: get
-          cors: true
-          authorizer: aws_iam
