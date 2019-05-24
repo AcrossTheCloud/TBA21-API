@@ -1,9 +1,7 @@
 import { IMain, IDatabase } from 'pg-promise';
 import pgPromise from 'pg-promise';
 
-import config from './dev-config';
-
 const pgp: IMain = pgPromise();
-const cn: string = `postgres://${config.database.USERNAME}:${config.database.PASSWORD}@${config.database.HOST}:${config.database.PORT}/${config.database.DATABASE}`;
+const cn: string = `postgres://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
 
 export const db: IDatabase<any> = pgp(cn); // tslint:disable-line no-any

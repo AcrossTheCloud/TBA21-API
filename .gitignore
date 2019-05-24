@@ -61,5 +61,4 @@ typings/
 .serverless
 
 .build
-src/config.js
 .idea

@@ -19,12 +19,10 @@ service: tba21
 
 plugins:
   - serverless-plugin-typescript
+  - serverless-dotenv-plugin
   - serverless-offline
   - serverless-api-gateway-caching
 
-package:
-  include:
-    - src/config.js
 
 custom:
   # Enable API GW caching with some global options set

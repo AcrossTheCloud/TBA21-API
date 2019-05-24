@@ -6,8 +6,8 @@
   "main": "s",
   "scripts": {
     "test": "jest --coverage",
-    "offline": "bash src/link_config.sh && npm run clean && npm run lint && export SLS_DEBUG=true && sls offline start --port 8080",
-    "package": "bash src/link_config.sh && npm run clean && npm run lint && sls package",
+    "offline": "npm run clean && npm run lint && export SLS_DEBUG=true && sls offline start --port 8080",
+    "package": "npm run clean && npm run lint && sls package",
     "lint": "tslint -c ./tslint.json -t stylish -p .",
     "clean": "rimraf .build .serverless",
     "deploy": "npm run clean && npm run lint && serverless deploy --aws-s3-accelerate"
@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/AcrossTheCloud/TBA21-API",
   "dependencies": {
-    "joi": "^14.3.1",
     "pg-promise": "^8.7.2",
     "underscore": "^1.9.1",
     "uuid": "^3.3.2"
@@ -37,6 +36,7 @@
     "rimraf": "^2.6.3",
     "serverless-api-gateway-caching": "^1.3.8",
     "serverless-aws-documentation": "^1.1.0",
+    "serverless-dotenv-plugin": "^2.1.1",
     "serverless-offline": "^4.10.6",
     "serverless-plugin-typescript": "^1.1.7",
     "ts-jest": "^24.0.2",
