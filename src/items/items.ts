@@ -1,13 +1,19 @@
-import { APIGatewayEvent, Callback, Context, ProxyResult } from 'aws-lambda'; // tslint:disable-line no-implicit-dependencies (Using only the type information from the @types package.)
+import { APIGatewayProxyResult } from 'aws-lambda';
+import { Connection } from 'typeorm';
+import { Item } from '../entity/items';
+import { badRequestResponse } from '../common'; // tslint:disable-line no-implicit-dependencies (Using only the type information from the @types package.)
 
-export const get = (event: APIGatewayEvent, context: Context, callback: Callback): void => {
-  const response: ProxyResult = {
-    body: JSON.stringify({
-      input: event,
-      message: 'stuff',
-    }),
-    statusCode: 200,
-  };
+export const getItems = async (pgConnection: Connection, queryString?: any): Promise<APIGatewayProxyResult> => {// tslint:disable-line no-any
+  try {
 
-  callback(undefined, response);
+    return {
+      body: JSON.stringify({
+       message: await pgConnection.manager.find(Item),
+     }),
+      statusCode: 200,
+    };
+  } catch (e) {
+    console.log('Edfgdgdfgdfgdfgdfgdfgdfgdfgdf,gdf,g,df,gd,fg -- ', e);
+    return badRequestResponse;
+  }
 };

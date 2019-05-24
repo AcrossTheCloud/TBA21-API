@@ -1,5 +1,4 @@
 {
-  "extends": ["tslint:all"],
   "rules": {
     "align": [
       true,
@@ -19,10 +18,6 @@
     "indent": [ true, "spaces" ],
     "interface-name": [true, "never-prefix"],
     "jsdoc-format": true,
-    "jsx-no-lambda": false,
-    "jsx-no-multiline-js": false,
-    "jsx-boolean-value": false,
-    "label-position": true,
     "max-line-length": false,
     "member-ordering": [
       true,

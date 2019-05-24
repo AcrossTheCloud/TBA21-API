@@ -2,15 +2,17 @@
     "compilerOptions": {
         "baseUrl": "src",
         "outDir": "build/dist",
-        "module": "esnext",
+        "module": "commonjs",
         "target": "es5",
         "lib": [
+            "es5",
             "es6",
             "esnext.asynciterable"
         ],
         "sourceMap": true,
         "allowJs": true,
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "moduleResolution": "node",
         "rootDir": "src",
         "forceConsistentCasingInFileNames": true,
@@ -30,9 +32,6 @@
         "src/**/*.test.*",
         "node_modules",
         "build",
-        "scripts",
-        "webpack",
-        "jest",
         ".serverless"
     ],
     "include": [

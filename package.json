@@ -6,10 +6,11 @@
   "main": "s",
   "scripts": {
     "test": "jest --coverage",
-    "offline": "npm run clean && npm run lint &&  export SLS_DEBUG=true && sls offline start --port 8080",
-    "lint": "tslint -t stylish -p .",
-    "clean": "rimraf build coverage",
-    "deploy": "serverless deploy --aws-s3-accelerate"
+    "offline": "npm run clean && npm run lint && export SLS_DEBUG=true && sls offline start --port 8080",
+    "package": "npm run clean && npm run lint && sls package",
+    "lint": "tslint -c ./tslint.json -t stylish -p .",
+    "clean": "rimraf build coverage .serverless",
+    "deploy": "npm run clean && npm run lint && serverless deploy --aws-s3-accelerate"
   },
   "repository": {
     "type": "git",
@@ -21,8 +22,9 @@
   },
   "homepage": "https://github.com/AcrossTheCloud/TBA21-API",
   "dependencies": {
-    "joi": "^14.3.1",
-    "serverless-api-gateway-caching": "^1.3.8",
+    "pg": "^7.11.0",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.17",
     "underscore": "^1.9.1",
     "uuid": "^3.3.2"
   },
@@ -30,25 +32,23 @@
     "@types/aws-lambda": "^8.10.26",
     "@types/jest": "^24.0.13",
     "@types/node": "^12.0.2",
-    "@types/request": "^2.48.1",
-    "@types/request-promise-native": "^1.0.15",
     "aws-lambda": "^0.1.2",
     "aws-lambda-mock-context": "^3.2.1",
-    "aws-sdk": "^2.445.0",
+    "aws-sdk": "^2.462.0",
     "aws-sdk-mock": "^4.4.0",
-    "babel-preset-env": "^1.7.0",
     "jest": "^24.8.0",
-    "request-promise-native": "^1.0.7",
     "rimraf": "^2.6.3",
+    "serverless-api-gateway-caching": "^1.3.8",
     "serverless-aws-documentation": "^1.1.0",
-    "serverless-offline": "^4.10.5",
+    "serverless-offline": "^4.10.6",
     "serverless-plugin-typescript": "^1.1.7",
     "serverless-webpack": "^5.3.0",
     "ts-jest": "^24.0.2",
-    "ts-loader": "^5.3.3",
+    "ts-loader": "^6.0.1",
     "ts-node": "^8.0.3",
-    "tslint": "^5.13.1",
+    "tslint": "^5.16.0",
     "typescript": "^3.4.5",
-    "webpack": "^4.29.0"
+    "webpack": "^4.32.2",
+    "webpack-filter-warnings-plugin": "^1.2.1"
   }
 }

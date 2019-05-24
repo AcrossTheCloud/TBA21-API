@@ -23,12 +23,10 @@ plugins:
   - serverless-api-gateway-caching
 
 package:
-  include:
-    src/**/!(*.test).js
   exclude:
     - node_modules/**/*
-    - build,
     - coverage
+    - .serverless
 
 custom:
   # Enable API GW caching with some global options set
@@ -109,12 +107,12 @@ resources:
 
 functions:
   getItems:
-    handler: src/items/items.get
+    handler: src/handler.handler
     description: Returns items from the database.
 
     events:
       - http:
-          path: items
+          path: items/getItems
           method: get
           cors: true
           authorizer: aws_iam
