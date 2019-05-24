@@ -31,6 +31,7 @@
     },
     "exclude": [
         "src/*config.js",
+        "src/config.js",
         "src/**/*.test.*",
         "node_modules",
         ".build",

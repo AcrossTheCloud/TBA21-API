@@ -105,7 +105,7 @@ resources:
 
 functions:
   getItems:
-    handler: src/handler.handler
+    handler: src/items/items.getItems
     description: Returns items from the database.
 
     events:
