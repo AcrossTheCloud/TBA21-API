@@ -60,4 +60,6 @@ typings/
 # serverless
 .serverless
 
+.build
+src/config.js
 .idea

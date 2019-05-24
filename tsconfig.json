@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
         "baseUrl": "src",
-        "outDir": "build/dist",
+        "outDir": ".build/",
+        "rootDir": "src",
         "module": "commonjs",
         "target": "es5",
         "lib": [
@@ -29,9 +30,10 @@
         "resolveJsonModule": true
     },
     "exclude": [
+        "src/*config.js",
         "src/**/*.test.*",
         "node_modules",
-        "build",
+        ".build",
         ".serverless"
     ],
     "include": [

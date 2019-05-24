@@ -18,15 +18,13 @@ service: tba21
 # frameworkVersion: "=X.X.X"
 
 plugins:
-  - serverless-webpack
+  - serverless-plugin-typescript
   - serverless-offline
   - serverless-api-gateway-caching
 
 package:
-  exclude:
-    - node_modules/**/*
-    - coverage
-    - .serverless
+  include:
+    - src/config.js
 
 custom:
   # Enable API GW caching with some global options set
