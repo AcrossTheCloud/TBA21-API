@@ -1,11 +1,15 @@
+require('dotenv').config({ DEBUG: true });
+
 import { APIGatewayEvent, Context } from 'aws-lambda';
-import { get } from './items';
+import { getItems } from './items';
 
 describe('This is a simple test', () => {
-  test('Check the get function', () => {
-    get({} as APIGatewayEvent, {} as Context, (error, response) => {
-      const json = JSON.parse(response.body);
-      expect(json.message).toEqual('stuff');
-    });
+  test('Check the get function', async () =>{
+    const
+      response = await getItems({} as APIGatewayEvent, {} as Context),
+      item = JSON.parse(response.body);
+
+    expect(item.message[0].id).toEqual('3');
+
   });
 });
