@@ -7,9 +7,9 @@
   "scripts": {
     "test": "jest --coverage",
     "offline": "npm run clean && npm run lint && export SLS_DEBUG=true && sls offline start --port 8080",
-    "package": "npm run clean && npm run lint && sls package",
+    "package": "npm run clean && npm run lint && npm run test && sls package",
     "lint": "tslint -c ./tslint.json -t stylish -p .",
-    "clean": "rimraf .build .serverless",
+    "clean": "rimraf .build .serverless coverage",
     "deploy": "npm run clean && npm run lint && serverless deploy --aws-s3-accelerate"
   },
   "repository": {
