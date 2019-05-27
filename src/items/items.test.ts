@@ -1,4 +1,9 @@
-require('dotenv').config({ DEBUG: true });
+require('dotenv').config(
+  {
+    DEBUG: true,
+    path: process.cwd() + '/.env-test'
+  }
+);
 
 import { APIGatewayEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
@@ -15,7 +20,8 @@ describe('This is a simple test', () => {
       response = await getItems({} as APIGatewayEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.message[0].id).toEqual('3');
+    expect(item.message[0].id).toEqual('1');
+    expect(item.message[0].series).toEqual('series');
 
   });
 });
