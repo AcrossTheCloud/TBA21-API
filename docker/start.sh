@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 bash ./docker/stop.sh > /dev/null 2>&1 # ignore the output
-git clone git@github.com:AcrossTheCloud/TBA21-schema.git docker/schema
+git clone --branch dev git@github.com:AcrossTheCloud/TBA21-schema.git docker/schema
 
 # https://hub.docker.com/_/postgres
 docker rm tba21_test_postgres > /dev/null 2>&1 # ignore the output
@@ -15,4 +15,4 @@ sleep 15
 jest --coverage
 
 echo -e '\033[0;33m#### STOPPING DOCKER ####\033[m'
-bash ./docker/stop.sh
+bash ./docker/stop.sh > /dev/null 2>&1 # ignore the output

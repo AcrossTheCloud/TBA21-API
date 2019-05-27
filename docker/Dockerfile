@@ -14,5 +14,5 @@ RUN apt-get update \
 RUN mkdir -p /docker-entrypoint-initdb.d
 RUN chmod 777 /usr/local/bin/docker-entrypoint.sh
 
-COPY $PWD/docker/schema/schema.sql /docker-entrypoint-initdb.d/
-COPY $PWD/docker/test.sql /docker-entrypoint-initdb.d/
+COPY $PWD/docker/schema/schema.sql /docker-entrypoint-initdb.d/0.schema.sql
+COPY $PWD/docker/schema/seeds/* /docker-entrypoint-initdb.d/
