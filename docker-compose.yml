@@ -1,0 +1,14 @@
+version: "3.3"
+services:
+  tba21_test_postgres:
+    container_name: tba21_test_postgres
+    image: tba21_test_postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tba21
+    build:
+      context: .
+      dockerfile: $PWD/docker/Dockerfile
+    ports:
+      - "5432:5432"
