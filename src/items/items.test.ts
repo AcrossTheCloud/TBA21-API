@@ -17,12 +17,12 @@ afterAll( () => {
 
 describe('getItems Tests', () => {
 
-  test('Check that we have 3 seeds.', async () =>{
+  test('Check that we have 7 seeds.', async () =>{
     const
       response = await getItems({} as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.message.length).toEqual(3);
+    expect(item.message.length).toEqual(7);
   });
 
   test('Check that we can limit the number of returned items.', async () =>{

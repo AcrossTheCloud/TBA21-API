@@ -1,0 +1,63 @@
+version: 2
+#  codecov: codecov/codecov@1.0.4
+
+jobs:
+  build:
+    docker:
+      - image: circleci/node:lts
+
+    steps:
+      - checkout
+
+      # NPM stuff
+      - run:
+          name: Update npm
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Install npm
+          command: npm install
+
+      # Close the schema repo
+      - run:
+          name: Clone Schema
+          command: git clone --branch dev git@github.com:AcrossTheCloud/TBA21-schema.git ~/project/docker/schema
+
+      # Do Docker stuff
+      - setup_remote_docker
+      - run:
+          name: Start container and verify it's working
+          command: cd ~/project/ && sudo docker-compose up --build
+
+      # Wait for PG
+      - run:
+          name: Waiting for Postgres to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z localhost 5432 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Postgress && exit 1
+
+      - run:
+          name: Run unit tests
+          environment:
+            DATABASE_URL: "postgres://ubuntu@localhost:5432/contacts?sslmode=disable"
+          command: |
+            set -ou pipefail
+            trap "jest --coverage > ${TEST_RESULTS}/go-test-report.xml" EXIT
+            # Notice this `set -o pipefail`, this will cause script to fail if `make test` fails
+            # without this option script will return success regardless of testing result due to pipe after test command
+            make test | tee ${TEST_RESULTS}/go-test.out
+
+      - store_artifacts:
+          path: coverage
+      - codecov/upload:
+          file: coverage/coverage-final.json
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules

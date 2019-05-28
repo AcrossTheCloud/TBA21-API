@@ -9,6 +9,6 @@ services:
       POSTGRES_DB: tba21
     build:
       context: .
-      dockerfile: $PWD/docker/Dockerfile
+      dockerfile: docker/Dockerfile
     ports:
       - "5432:5432"
