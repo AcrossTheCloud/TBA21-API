@@ -6,6 +6,7 @@
   "main": "s",
   "scripts": {
     "test": "npm run clean && ./docker/start.sh",
+    "test-localdb": "npm run clean && LOCAL=true jest --coverage",
     "offline": "npm run clean && npm run lint && export SLS_DEBUG=true && sls offline start --port 8080",
     "package": "npm run clean && npm run lint && npm run test && sls package",
     "lint": "tslint -c ./tslint.json -t stylish -p .",

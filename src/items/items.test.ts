@@ -1,7 +1,7 @@
 require('dotenv').config(
   {
     DEBUG: true,
-    path: process.cwd() + '/.env-test'
+    path: process.cwd() + (process.env.LOCAL ? '/.env' : '/.env-test')
   }
 );
 
