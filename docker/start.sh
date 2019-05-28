@@ -11,3 +11,6 @@ docker-compose up --build -d
 
 echo -e '\033[0;33m#### WAITING FOR INITD SCRIPTS TO RUN ON DOCKER ####\033[m'
 sleep 15
+
+
+echo -e '\033[0;32m#### Postgres should be up now, :) ####\033[m'
