@@ -116,3 +116,17 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.ocean
+  getItemsById:
+    handler: src/items/items.getItemsById
+    description: Returns items id from the database.
+
+    events:
+      - http:
+          path: items/getItemsById
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.ocean
