@@ -5,12 +5,24 @@ orbs:
 
 jobs:
   build:
-    machine: true
+
     docker:
       - image: circleci/node:lts
-
+        environment:
+          TEST_DATABASE_URL: postgresql://postgres@localhost/tba21
+      - image: circleci/postgres:11-alpine-postgis-ram
+        environment:
+          POSTGRES_DB: tba21
+          POSTGRES_PASSWORD: postgres
     steps:
       - checkout
+
+      # PG CLIENT
+      - run: curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+      - run: echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee  /etc/apt/sources.list.d/pgdg.list
+      - run: sudo apt update
+      - run: sudo apt -y upgrade
+      - run: sudo apt -y install postgresql-client
 
       # NPM stuff
       - run:
@@ -31,17 +43,17 @@ jobs:
           name: Clone Schema
           command: git clone --branch dev https://github.com/AcrossTheCloud/TBA21-schema.git ~/project/docker/schema
 
-      # Do Docker stuff
-      - setup_remote_docker:
-          docker_layer_caching: true
+      # Seed the database
       - run:
-          name: Start postgres container
-          command: docker-compose up -d
-
-      # Wait for PG
+          name: Add Schema to DB
+          command: psql -d $TEST_DATABASE_URL -f ~/project/docker/schema/schema.sql
       - run:
-          name: Waiting for Postgres to be ready
-          command: sleep 15
+          name: Add Schema to DB
+          command:
+            for f in ~/project/docker/schema/seeds/*.sql;
+              do
+                psql -d $TEST_DATABASE_URL -f "$f";
+              done;
 
       - run:
           name: Run unit tests
