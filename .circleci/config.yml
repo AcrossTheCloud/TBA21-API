@@ -34,7 +34,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Start container and verify it's working
-          command: sudo docker-compose up --build -d
+          command: docker-compose up --build -d
 
       # Wait for PG
       - run:
