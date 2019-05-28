@@ -31,16 +31,12 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
-          name: Install npm
-          command: npm install
-
-      - run:
-          name: Install JEST
-          command: sudo npm install -g jest
+          name: npm install
+          command: npm i && sudo npm i -g jest
 
       # Clone the schema repo
       - run:
-          name: Clone Schema
+          name: Clone Schema Repo
           command: git clone --branch dev https://github.com/AcrossTheCloud/TBA21-schema.git ~/project/docker/schema
 
       # Seed the database
@@ -48,7 +44,7 @@ jobs:
           name: Add Schema to DB
           command: psql -d $TEST_DATABASE_URL -f ~/project/docker/schema/schema.sql
       - run:
-          name: Add Schema to DB
+          name: Add Seeds to DB
           command:
             for f in ~/project/docker/schema/seeds/*.sql;
               do
@@ -56,7 +52,7 @@ jobs:
               done;
 
       - run:
-          name: Run unit tests
+          name: Runing Jest
           command: jest --coverage
 
       - store_artifacts:
