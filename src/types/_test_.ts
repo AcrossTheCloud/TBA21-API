@@ -1,2 +1,2 @@
 
-export interface QueryStringParameters { [name: string]: string };
+export interface QueryStringParameters { [name: string]: string; }

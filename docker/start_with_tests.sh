@@ -11,3 +11,8 @@ docker-compose up --build -d
 
 echo -e '\033[0;33m#### WAITING FOR INITD SCRIPTS TO RUN ON DOCKER ####\033[m'
 sleep 15
+
+jest --coverage
+
+echo -e '\033[0;33m#### STOPPING DOCKER ####\033[m'
+bash ./docker/stop.sh > /dev/null 2>&1 # ignore the output
