@@ -5,6 +5,7 @@ orbs:
 
 jobs:
   build:
+    machine: true
     docker:
       - image: circleci/node:lts
 
@@ -31,10 +32,11 @@ jobs:
           command: git clone --branch dev https://github.com/AcrossTheCloud/TBA21-schema.git ~/project/docker/schema
 
       # Do Docker stuff
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
-          name: Start container and verify it's working
-          command: docker-compose up --build -d
+          name: Start postgres container
+          command: docker-compose up -d
 
       # Wait for PG
       - run:
