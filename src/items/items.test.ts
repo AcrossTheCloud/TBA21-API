@@ -8,18 +8,18 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
-import { getItems } from './items';
+import { get } from './items';
 
 afterAll( () => {
   // Close the database connection.
   db.$pool.end();
 });
 
-describe('getItems Tests', () => {
+describe('get Tests', () => {
 
   test('Check that we have 7 seeds.', async () =>{
     const
-      response = await getItems({} as APIGatewayProxyEvent, {} as Context),
+      response = await get({} as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
     expect(item.message.length).toEqual(7);
@@ -28,7 +28,7 @@ describe('getItems Tests', () => {
   test('Check that we can limit the number of returned items.', async () =>{
     const
       queryStringParameters: QueryStringParameters = {limit: '2'},
-      response = await getItems({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
     expect(item.message.length).toEqual(2);
@@ -36,7 +36,7 @@ describe('getItems Tests', () => {
 
   test('Check that the first row is populated and has specific values.', async () =>{
     const
-      response = await getItems({} as APIGatewayProxyEvent, {} as Context),
+      response = await get({} as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
     expect(item.message[0].id).toEqual('1');
@@ -45,7 +45,7 @@ describe('getItems Tests', () => {
 
   test('Check that the second row is populated and has specific values.', async () =>{
     const
-      response = await getItems({} as APIGatewayProxyEvent, {} as Context),
+      response = await get({} as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
     expect(item.message[1].id).toEqual('2');

@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda
 import { badRequestResponse } from '../common';
 import { db } from '../databaseConnect';
 
-export const getItems = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     queryString: { [name: string]: string } | null = event.queryStringParameters,
     QUERY: string = `select COUNT ( id ) OVER ( ), * from ${process.env.DB_NAME}.items items`,
@@ -35,6 +35,6 @@ export const getItems = async (event: APIGatewayProxyEvent, context: Context): P
     };
   } catch (e) {
     console.log('getItems ERROR - ', e);
-    return badRequestResponse;
+    return badRequestResponse();
   }
 };

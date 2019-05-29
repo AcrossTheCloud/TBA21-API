@@ -103,12 +103,11 @@ resources:
 
 functions:
   getItems:
-    handler: src/items/items.getItems
+    handler: src/items/items.get
     description: Returns items from the database.
-
     events:
       - http:
-          path: items/getItems
+          path: items/get
           method: get
           cors: true
           authorizer: aws_iam
@@ -116,3 +115,17 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.ocean
+
+
+
+###### ADMIN FUNCTIONS ######
+
+  getCollections:
+    handler: src/admin/collections/collections.get
+    description: Returns collections from the database.
+    events:
+      - http:
+          path: admin/collections/get
+          method: get
+          cors: true
+          authorizer: aws_iam
