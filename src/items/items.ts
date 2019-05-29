@@ -7,7 +7,7 @@ import { db } from '../databaseConnect';
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  */
-export const getItems = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     queryString: { [name: string]: string } | null = event.queryStringParameters,
     QUERY: string = `select COUNT ( id ) OVER ( ), * from ${process.env.DB_NAME}.items items`,
@@ -26,7 +26,7 @@ export const getItems = async (event: APIGatewayProxyEvent, context: Context): P
     };
   } catch (e) {
     console.log('getItems ERROR - ', e);
-    return badRequestResponse;
+    return badRequestResponse();
   }
 };
 /**
@@ -54,14 +54,14 @@ export const getItemsById = async (event: APIGatewayEvent, context: Context): Pr
       };
     } catch (e) {
       console.log('getItemsById ERROR - ', e);
-      return badRequestResponse;
+      return badRequestResponse();
     }
   } else {
-    return badRequestResponse ;
+    return badRequestResponse() ;
   }
 };
 /**
- * Gets the item by tag id
+ * Get the item by tag name
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  */
@@ -70,28 +70,25 @@ export const getItemsByTag = async (event: APIGatewayEvent, context: Context): P
     queryString: { [name: string]: string } | null = event.queryStringParameters,
     QUERY: string = `select COUNT ( ID ) OVER ( ), * from ${process.env.DB_NAME}.items items`;
 
-  if (queryString) {
+  if (queryString && queryString.hasOwnProperty('tag')) {
     const
-      KEYWORD = queryString.hasOwnProperty('keywordTag') ? `AND (keyword_tags::text like ('{%${queryString.keywordTag}%}'))` : '',
-      CONCEPT = queryString.hasOwnProperty('conceptTag') ? `AND (concept_tags::text like ('{%${queryString.conceptTag}%}'))` : '';
-
-    const
+      TAGQUERY = `(keyword_tags::text like ('{%${queryString.keywordTag}%}')) OR (concept_tags::text like ('{%${queryString.conceptTag}%}'))`,
       LIMIT: string = (queryString.hasOwnProperty('limit') && parseInt(queryString.limit, 0) < 50) ? `LIMIT ${queryString.limit}` : 'LIMIT 15',
       OFFSET: string = queryString.hasOwnProperty('offset') ? `OFFSET ${queryString.offset}` : '';
 
     try {
       return {
         body: JSON.stringify({
-           message: await db.query(`${QUERY} WHERE status=true ${KEYWORD} ${CONCEPT} ${LIMIT} ${OFFSET}`),
+           message: await db.query(`${QUERY} WHERE status=true ${TAGQUERY} ${LIMIT} ${OFFSET}`),
          }),
         statusCode: 200,
       };
     } catch (e) {
       console.log('getItems ERROR - ', e);
-      return badRequestResponse;
+      return badRequestResponse();
     }
 
   } else {
-    return badRequestResponse;
+    return badRequestResponse();
   }
 };

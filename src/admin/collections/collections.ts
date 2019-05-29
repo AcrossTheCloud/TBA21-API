@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { badRequestResponse } from '../common';
-import { db } from '../databaseConnect';
-import { limitQuery } from '../utils/queryHelpers';
+import { badRequestResponse } from '../../common';
+import { db } from '../../databaseConnect';
+import { limitQuery } from '../../utils/queryHelpers';
 
 /**
  *
@@ -28,7 +28,6 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         UNNEST(collection.concept_tags) as tagid
       INNER JOIN 
         tba21.concept_tags AS tag ON tag.ID = tagid
-      WHERE status=true
       GROUP BY collection.ID
       ${`LIMIT ${limitQuery(params.limit, defaultValues.limit)}`}
       ${`OFFSET ${params.offset || defaultValues.offset}`}
@@ -36,8 +35,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 
     return {
       body: JSON.stringify({
-         collections: await db.query(query),
-       }),
+       collections: await db.query(query),
+     }),
       statusCode: 200,
     };
   } catch (e) {
