@@ -130,3 +130,17 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.ocean
+  getItemsByTag:
+    handler: src/items/items.getItemsByTag
+    description: Returns items by tag from the database.
+
+    events:
+      - http:
+          path: items/getItemsByTag
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.ocean
