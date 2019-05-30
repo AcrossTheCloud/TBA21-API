@@ -104,20 +104,26 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
     const query = `
       SELECT
         COUNT ( item.ID ) OVER (),
-        item.*,
-        json_agg(s3uploads.*) AS s3details,
-        json_agg(concept_tag.*) AS aggregated_concept_tags,
-        json_agg(keyword_tag.*) AS aggregated_keyword_tags
+         item.*,
+         json_agg(s3uploads.*) AS s3details,
+         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
       FROM 
         ${process.env.DB_NAME}.items AS item
           INNER JOIN ${process.env.DB_NAME}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
-            UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.DB_NAME}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
-                  
-          UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+            
+        UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+          LEFT JOIN ${process.env.DB_NAME}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+                
+        UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
           LEFT JOIN ${process.env.DB_NAME}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
-      WHERE status=true
-      AND concept_tag.tag_name LIKE ('%${queryString.tag}%') OR keyword_tag.tag_name LIKE ('%${queryString.tag}%')
+      WHERE 
+        status=true
+      AND (
+        concept_tag.tag_name LIKE ('%${queryString.tag}%')
+        OR
+        keyword_tag.tag_name LIKE ('%${queryString.tag}%')
+      )
       GROUP BY item.ID
       ORDER BY item.ID
       ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  

@@ -22,12 +22,17 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       SELECT 
         COUNT ( collection.ID ) OVER (),
         collection.*,
-        json_agg(tag.*) AS aggregated_concept_tags
+        COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
       FROM 
         tba21.collections AS collection,
-        UNNEST(collection.concept_tags) as tagid
-      INNER JOIN 
-        tba21.concept_tags AS tag ON tag.ID = tagid
+        
+        UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
+          LEFT JOIN ${process.env.DB_NAME}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+                  
+        UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
+          LEFT JOIN ${process.env.DB_NAME}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+          
       GROUP BY collection.ID
       ${`LIMIT ${limitQuery(params.limit, defaultValues.limit)}`}
       ${`OFFSET ${params.offset || defaultValues.offset}`}

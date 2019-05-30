@@ -111,24 +111,20 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.ocean
 
   getItemsById:
     handler: src/items/items.getById
     description: Returns items id from the database.
     events:
       - http:
-          path: items/getsById
+          path: items/getById
           method: get
           cors: true
           authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.ocean
+              - name: request.querystring.id
 
   getItemsByTag:
     handler: src/items/items.getByTag
@@ -142,7 +138,7 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.ocean
+              - name: request.querystring.tag
 
 ###### ADMIN FUNCTIONS ######
 

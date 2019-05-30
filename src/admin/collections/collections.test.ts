@@ -17,24 +17,23 @@ afterAll( () => {
 
 describe('/admin/collections/collections.get', () => {
 
-  test('The function runs without queryStringParams', async () =>{
+  test('The function runs without queryStringParams', async () => {
     const
       response = await get({} as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.collections.length).toEqual(3);
+    expect(item.collections.length).toEqual(4);
   });
 
-  test('Check we have a COUNT of 3', async () =>{
+  test('Check we have a COUNT of 4 with status of true', async () => {
     const
       response = await get({} as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.collections[0].count).toEqual('3');
+    expect(item.collections[0].count).toEqual('4');
   });
 
-
-  test('Check that we can limit the number of returned items.', async () =>{
+  test('Check that we can limit the number of returned items.', async () => {
     const
       queryStringParameters: QueryStringParameters = {limit: '1'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
@@ -45,17 +44,14 @@ describe('/admin/collections/collections.get', () => {
 
   /*
     SELECT
-      COUNT ( collection.ID ) OVER (),
-      collection.*,
-      json_agg(tag.*) AS aggregated_concept_tags
-    FROM tba21.collections AS collection, UNNEST(collection.concept_tags) as tagid
-    INNER JOIN tba21.concept_tags AS tag ON tag.ID = tagid
+      collection.*
+    FROM tba21.collections AS collection
     GROUP BY collection.ID
-    LIMIT 1 OFFSET 2
+    LIMIT 1 OFFSET 3
   */
-  test('Pagination works', async () =>{
+  test('Pagination works', async () => {
     const
-      queryStringParameters: QueryStringParameters = {limit: '1', offset: '2'},
+      queryStringParameters: QueryStringParameters = {limit: '1', offset: '3'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
