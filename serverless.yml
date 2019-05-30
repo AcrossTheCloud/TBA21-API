@@ -103,12 +103,11 @@ resources:
 
 functions:
   getItems:
-    handler: src/items/items.getItems
+    handler: src/items/items.get
     description: Returns items from the database.
-
     events:
       - http:
-          path: items/getItems
+          path: items/get
           method: get
           cors: true
           authorizer: aws_iam
@@ -116,13 +115,13 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.ocean
+
   getItemsById:
-    handler: src/items/items.getItemsById
+    handler: src/items/items.getById
     description: Returns items id from the database.
-
     events:
       - http:
-          path: items/getItemsById
+          path: items/getsById
           method: get
           cors: true
           authorizer: aws_iam
@@ -130,13 +129,13 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.ocean
-  getItemsByTag:
-    handler: src/items/items.getItemsByTag
-    description: Returns items by tag from the database.
 
+  getItemsByTag:
+    handler: src/items/items.getByTag
+    description: Returns items by tag from the database.
     events:
       - http:
-          path: items/getItemsByTag
+          path: items/getByTag
           method: get
           cors: true
           authorizer: aws_iam

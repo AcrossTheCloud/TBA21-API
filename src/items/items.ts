@@ -1,6 +1,7 @@
 import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { badRequestResponse } from '../common';
 import { db } from '../databaseConnect';
+import { limitQuery } from '../utils/queryHelpers';
 
 /**
  * Gets all the items
@@ -9,23 +10,38 @@ import { db } from '../databaseConnect';
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
-    queryString: { [name: string]: string } | null = event.queryStringParameters,
-    QUERY: string = `select COUNT ( id ) OVER ( ), * from ${process.env.DB_NAME}.items items`,
-    JOIN: string = `INNER JOIN tba21.s3uploads s3uploads ON (items.s3uploads_sha512 = s3uploads.ID_sha512)`;
+    defaultValues = { limit: 15, offset: 0 },
+    queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues; // Use default values if not supplied.
 
-  const
-    LIMIT: string = (queryString && queryString.hasOwnProperty('limit') && parseInt(queryString.limit, 0) < 50) ? `LIMIT ${queryString.limit}` : 'LIMIT 15',
-    OFFSET: string = (queryString && queryString.hasOwnProperty('offset')) ? `OFFSET ${queryString.offset}` : '';
+  const query = `
+    SELECT
+      COUNT ( item.ID ) OVER (),
+      item.*,
+      json_agg(s3uploads.*) AS s3details,
+      json_agg(concept_tag.*) AS aggregated_concept_tags,
+      json_agg(keyword_tag.*) AS aggregated_keyword_tags
+    FROM 
+      ${process.env.DB_NAME}.items AS item
+        INNER JOIN ${process.env.DB_NAME}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
+          UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+          LEFT JOIN ${process.env.DB_NAME}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+                
+        UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+        LEFT JOIN ${process.env.DB_NAME}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+    WHERE status=true
+    GROUP BY item.ID
+    ORDER BY item.ID
+    ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
+    ${`OFFSET ${queryString.offset || defaultValues.offset}`}
+  `;
 
   try {
     return {
-      body: JSON.stringify({
-         message: await db.query(`${QUERY} ${JOIN} WHERE status=true ${LIMIT} ${OFFSET}`),
-       }),
+      body: JSON.stringify({ message: await db.query(query) }),
       statusCode: 200,
     };
   } catch (e) {
-    console.log('getItems ERROR - ', e);
+    console.log('/items/items.get ERROR - ', e);
     return badRequestResponse();
   }
 };
@@ -34,61 +50,92 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  */
-export const getItemsById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
-    queryString: { [name: string]: string } | null = event.queryStringParameters,
-    QUERY: string = `select COUNT ( id ) OVER ( ), * from ${process.env.DB_NAME}.items items`;
-
-  // Default query string params.
-  if (queryString && queryString.hasOwnProperty('id')) {
-    const
-      LIMIT: string = (queryString.hasOwnProperty('limit') && parseInt(queryString.limit, 0) < 50) ? `LIMIT ${queryString.limit}` : 'LIMIT 15',
-      OFFSET: string = queryString.hasOwnProperty('offset') ? `OFFSET ${queryString.offset}` : '';
+    queryString = event.queryStringParameters; // Use default values if not supplied.
+  if (queryString && queryString.hasOwnProperty('id') && queryString.id.length) {
+    const query = `
+      SELECT
+        COUNT ( item.ID ) OVER (),
+        item.*,
+        json_agg(s3uploads.*) AS s3details,
+        json_agg(concept_tag.*) AS aggregated_concept_tags,
+        json_agg(keyword_tag.*) AS aggregated_keyword_tags
+      FROM 
+        ${process.env.DB_NAME}.items AS item
+          INNER JOIN ${process.env.DB_NAME}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
+            UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.DB_NAME}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+                  
+          UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+          LEFT JOIN ${process.env.DB_NAME}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      WHERE status=true
+      AND item.id=${queryString.id}
+      GROUP BY item.ID
+      ORDER BY item.ID
+    `;
 
     try {
       return {
         body: JSON.stringify({
-           message: await db.query(`${QUERY} WHERE status=true AND id=${queryString.id} ${LIMIT} ${OFFSET}`),
+           message: await db.query(query),
         }),
         statusCode: 200,
       };
     } catch (e) {
-      console.log('getItemsById ERROR - ', e);
+      console.log('/items/items.getById ERROR - ', e);
       return badRequestResponse();
     }
   } else {
     return badRequestResponse() ;
   }
 };
+
 /**
  * Get the item by tag name
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  */
-export const getItemsByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
-    queryString: { [name: string]: string } | null = event.queryStringParameters,
-    QUERY: string = `select COUNT ( ID ) OVER ( ), * from ${process.env.DB_NAME}.items items`;
-
-  if (queryString && queryString.hasOwnProperty('tag')) {
-    const
-      TAGQUERY = `(keyword_tags::text like ('{%${queryString.keywordTag}%}')) OR (concept_tags::text like ('{%${queryString.conceptTag}%}'))`,
-      LIMIT: string = (queryString.hasOwnProperty('limit') && parseInt(queryString.limit, 0) < 50) ? `LIMIT ${queryString.limit}` : 'LIMIT 15',
-      OFFSET: string = queryString.hasOwnProperty('offset') ? `OFFSET ${queryString.offset}` : '';
+    defaultValues = { limit: 15, offset: 0 },
+    queryString = event.queryStringParameters; // Use default values if not supplied.
+  if (queryString && queryString.hasOwnProperty('tag') && queryString.tag.length) {
+    const query = `
+      SELECT
+        COUNT ( item.ID ) OVER (),
+        item.*,
+        json_agg(s3uploads.*) AS s3details,
+        json_agg(concept_tag.*) AS aggregated_concept_tags,
+        json_agg(keyword_tag.*) AS aggregated_keyword_tags
+      FROM 
+        ${process.env.DB_NAME}.items AS item
+          INNER JOIN ${process.env.DB_NAME}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
+            UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.DB_NAME}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+                  
+          UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+          LEFT JOIN ${process.env.DB_NAME}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      WHERE status=true
+      AND concept_tag.tag_name LIKE ('%${queryString.tag}%') OR keyword_tag.tag_name LIKE ('%${queryString.tag}%')
+      GROUP BY item.ID
+      ORDER BY item.ID
+      ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
+      ${`OFFSET ${queryString.offset || defaultValues.offset}`}
+    `;
 
     try {
       return {
         body: JSON.stringify({
-           message: await db.query(`${QUERY} WHERE status=true ${TAGQUERY} ${LIMIT} ${OFFSET}`),
-         }),
+          message: await db.query(query),
+        }),
         statusCode: 200,
       };
     } catch (e) {
-      console.log('getItems ERROR - ', e);
+      console.log('/items/items.getByTag ERROR - ', e);
       return badRequestResponse();
     }
-
   } else {
-    return badRequestResponse();
+    return badRequestResponse() ;
   }
 };
