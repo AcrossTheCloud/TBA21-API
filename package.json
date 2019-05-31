@@ -12,7 +12,7 @@
     "test-win-localdb": "npm run clean && jest --coverage",
     "docker-start": "./docker/stop.sh > /dev/null 2>&1 && ./docker/start.sh",
     "docker-stop": "./docker/stop.sh",
-    "package": "npm run clean && npm run lint && npm run test && sls package",
+    "package": "npm run clean && npm run lint && sls package",
     "lint": "tslint -c ./tslint.json -t stylish -p .",
     "clean": "rimraf .build .serverless coverage",
     "deploy": "npm run clean && npm run lint && serverless deploy --aws-s3-accelerate"
