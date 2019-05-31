@@ -48,7 +48,7 @@ describe('/admin/collections/collections.get', () => {
       result = JSON.parse(response.body);
 
     expect(result.collections.length).toEqual(1);
-    expect(result.collections[0].title).toEqual('Quantum Aspects of Life');
+    expect(result.collections[0].title).toEqual('Detonation');
   });
 
 });

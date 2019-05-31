@@ -36,6 +36,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       WHERE status = true
       
       GROUP BY collection.ID
+      ORDER BY collection.ID
       ${`LIMIT ${limitQuery(params.limit, defaultValues.limit)}`}
       ${`OFFSET ${params.offset || defaultValues.offset}`}
     `;

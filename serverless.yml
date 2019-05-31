@@ -184,21 +184,21 @@ functions:
           authorizer: aws_iam
 
   getItemsAdmin:
-    handler: src/admin/items.get
+    handler: src/admin/items/items.get
     description: Returns items from the database.
     events:
       - http:
-          path: items/get
+          path: admin/items/get
           method: get
           cors: true
           authorizer: aws_iam
 
   getItemsByIdAdmin:
-    handler: src/admin/items.getById
+    handler: src/admin/items/items.getById
     description: Returns items id from the database.
     events:
       - http:
-          path: items/getById
+          path: admin/items/getById
           method: get
           cors: true
           authorizer: aws_iam
@@ -208,11 +208,11 @@ functions:
               - name: request.querystring.id
 
   getItemsByTagAdmin:
-    handler: src/admin/items.getByTag
+    handler: src/admin/items/items.getByTag
     description: Returns items by tag from the database.
     events:
       - http:
-          path: items/getByTag
+          path: admin/items/getByTag
           method: get
           cors: true
           authorizer: aws_iam
