@@ -70,6 +70,13 @@ describe('/items/getById', () => {
 
     expect(item.message.length).toEqual(0);
   });
+  test('Get a bad response when no id is given', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {id: ''},
+      response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+
+    expect(response.statusCode).toEqual(400);
+  });
 });
 
 describe('/items/getByTag', () => {

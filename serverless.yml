@@ -152,3 +152,28 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  getCollectionById:
+    handler: src/admin/collections/collections.getById
+    description: Returns collections id from the database.
+    events:
+      - http:
+          path: admin/collections/getById
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+
+
+  getCollectionsByTag:
+    handler: src/admin/collections/collections.getByTag
+    description: Returns collections by tag from the database.
+    events:
+      - http:
+          path: admin/collections/getByTag
+          method: get
+          cors: true
+          authorizer: aws_iam
+
