@@ -75,8 +75,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
                   
           UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
           LEFT JOIN ${process.env.DB_NAME}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
-      WHERE status=true
-      AND collection.id=${queryString.id}
+      WHERE collection.id=${queryString.id}
       GROUP BY collection.ID
       ORDER BY collection.ID
     `;
