@@ -1,5 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { badRequestResponse } from '../../common';
+import { badRequestResponse, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
 
@@ -39,10 +39,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       ${`OFFSET ${params.offset || defaultValues.offset}`}
     `;
 
-    return {
-      body: JSON.stringify({ collections: await db.query(query) }),
-      statusCode: 200,
-    };
+    return successResponse({ collections: await db.query(query) });
   } catch (e) {
     console.log('/admin/collections/get ERROR - ', e);
     return badRequestResponse();
@@ -65,25 +62,25 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
       SELECT
         COUNT ( collection.ID ) OVER (),
         collection.*,
-        json_agg(concept_tag.*) AS aggregated_concept_tags,
-        json_agg(keyword_tag.*) AS aggregated_keyword_tags
+        COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
       FROM 
         ${process.env.PGDATABASE}.collections AS collection,
-            UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+        
+        UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
+          LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
                   
-          UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
+        UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
           LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+          
       WHERE collection.id=${queryString.id}
+      
       GROUP BY collection.ID
       ORDER BY collection.ID
     `;
 
     try {
-      return {
-        body: JSON.stringify({ collections: await db.query(query) }),
-        statusCode: 200,
-      };
+      return successResponse({ collections: await db.query(query) });
     } catch (e) {
       console.log('/admin/collections/collections.getById ERROR - ', e);
       return badRequestResponse();
@@ -120,23 +117,21 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
                 
         UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
           LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
-        WHERE
-         (
-            concept_tag.tag_name LIKE ('%${queryString.tag}%')
-            OR
-            keyword_tag.tag_name LIKE ('%${queryString.tag}%')
-          )
+      WHERE (
+        concept_tag.tag_name LIKE ('%${queryString.tag}%')
+        OR
+        keyword_tag.tag_name LIKE ('%${queryString.tag}%')
+      )
+      
       GROUP BY collections.ID
       ORDER BY collections.ID
+      
       ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
       ${`OFFSET ${queryString.offset || defaultValues.offset}`}
     `;
 
     try {
-      return {
-        body: JSON.stringify({collections: await db.query(query) }),
-        statusCode: 200,
-      };
+      return successResponse({ collections: await db.query(query) });
     } catch (e) {
       console.log('/admin/collections/collections.getByTag ERROR - ', e);
       return badRequestResponse();

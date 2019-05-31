@@ -10,3 +10,9 @@ export const badRequestResponse = (message?: string): APIGatewayProxyResult => (
   headers: headers,
   statusCode: 400
 });
+
+export const successResponse = (data: any): APIGatewayProxyResult => ({ // tslint:disable-line no-any
+  body: JSON.stringify(data),
+  headers: headers,
+  statusCode: 200
+});
