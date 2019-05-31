@@ -149,7 +149,7 @@ functions:
 
 ###### ADMIN FUNCTIONS ######
 
-  getCollections:
+  getCollectionsAdmin:
     handler: src/admin/collections/collections.get
     description: Returns collections from the database.
     events:
@@ -159,7 +159,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  getCollectionById:
+  getCollectionByIdAdmin:
     handler: src/admin/collections/collections.getById
     description: Returns collections id from the database.
     events:
@@ -173,8 +173,7 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
 
-
-  getCollectionsByTag:
+  getCollectionsByTagAdmin:
     handler: src/admin/collections/collections.getByTag
     description: Returns collections by tag from the database.
     events:
@@ -183,4 +182,42 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+
+  getItemsAdmin:
+    handler: src/admin/items.get
+    description: Returns items from the database.
+    events:
+      - http:
+          path: items/get
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  getItemsByIdAdmin:
+    handler: src/admin/items.getById
+    description: Returns items id from the database.
+    events:
+      - http:
+          path: items/getById
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+
+  getItemsByTagAdmin:
+    handler: src/admin/items.getByTag
+    description: Returns items by tag from the database.
+    events:
+      - http:
+          path: items/getByTag
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.tag
 

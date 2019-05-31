@@ -6,8 +6,8 @@ require('dotenv').config(
 );
 
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { db } from '../../databaseConnect';
-import { QueryStringParameters } from '../../types/_test_';
+import { db } from '../databaseConnect';
+import { QueryStringParameters } from '../types/_test_';
 import { get, getById, getByTag } from './collections';
 
 afterAll( () => {
@@ -20,26 +20,18 @@ describe('/admin/collections/collections.get', () => {
   test('The function runs without queryStringParams', async () => {
     const
       response = await get({} as APIGatewayProxyEvent, {} as Context),
-      item = JSON.parse(response.body);
+      result = JSON.parse(response.body);
 
-    expect(item.collections.length).toEqual(4);
-  });
-
-  test('Check we have a COUNT of 4 with status of true', async () => {
-    const
-      response = await get({} as APIGatewayProxyEvent, {} as Context),
-      item = JSON.parse(response.body);
-
-    expect(item.collections[0].count).toEqual('4');
+    expect(result.collections.length).toEqual(4);
   });
 
   test('Check that we can limit the number of returned items.', async () => {
     const
       queryStringParameters: QueryStringParameters = {limit: '1'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-      item = JSON.parse(response.body);
+      result = JSON.parse(response.body);
 
-    expect(item.collections.length).toEqual(1);
+    expect(result.collections.length).toEqual(1);
   });
 
   /*
@@ -53,22 +45,22 @@ describe('/admin/collections/collections.get', () => {
     const
       queryStringParameters: QueryStringParameters = {limit: '1', offset: '1'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-      item = JSON.parse(response.body);
+      result = JSON.parse(response.body);
 
-    expect(item.collections.length).toEqual(1);
-    expect(item.collections[0].title).toEqual('Detonation');
+    expect(result.collections.length).toEqual(1);
+    expect(result.collections[0].title).toEqual('Quantum Aspects of Life');
   });
 
 });
 
 describe('/collections/getById', () => {
-  test('Get collection by id of 2', async () => {
+  test('Get item by id of 2', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '2'},
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-      item = JSON.parse(response.body);
+      result = JSON.parse(response.body);
 
-    expect(item.collections[0].id).toEqual('2');
+    expect(result.collections[0].id).toEqual('2');
   });
 
   test('Get a bad response when no id is given', async () => {
@@ -81,13 +73,13 @@ describe('/collections/getById', () => {
 });
 
 describe('/collections/getByTag', () => {
-  test('Get all collections with a tag of con', async () => {
+  test('Get all items with a tag of con', async () => {
     const
       queryStringParameters: QueryStringParameters = {tag: 'con'},
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-      item = JSON.parse(response.body);
+      result = JSON.parse(response.body);
 
-    expect(item.collections.length).toEqual(2);
+    expect(result.collections.length).toEqual(2);
   });
   test('Get a bad response when no tag is given', async () => {
     const

@@ -34,6 +34,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
           LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
           
       GROUP BY collection.ID
+      ORDER BY collection.ID
       ${`LIMIT ${limitQuery(params.limit, defaultValues.limit)}`}
       ${`OFFSET ${params.offset || defaultValues.offset}`}
     `;
