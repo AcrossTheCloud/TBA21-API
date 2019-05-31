@@ -68,7 +68,7 @@ describe('/collections/getById', () => {
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.message[0].id).toEqual('2');
+    expect(item.collections[0].id).toEqual('2');
   });
 
   test('Get a bad response when no id is given', async () => {
@@ -87,7 +87,7 @@ describe('/collections/getByTag', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.message.length).toEqual(2);
+    expect(item.collections.length).toEqual(2);
   });
   test('Get a bad response when no tag is given', async () => {
     const

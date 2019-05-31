@@ -40,6 +40,13 @@ provider:
     ITEMS_TABLE: tba21-items-${opt:stage, self:provider.stage}
     PEOPLE_TABLE: tba21-people-${opt:stage, self:provider.stage}
     IMAGE_TAG_TABLE: tba21-image-tags-${opt:stage, self:provider.stage}
+
+    PGUSER: ${env:PGUSER}
+    PGPASSWORD: ${env:PGPASSWORD}
+    PGHOST: ${env:PGHOST}
+    PGPORT: ${env:PGPORT, "5432"}
+    PGDATABASE: ${env:PGDATABASE}
+    PGSSL: ${env:PGSSL}
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
