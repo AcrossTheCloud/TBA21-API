@@ -110,6 +110,7 @@ resources:
                         - 'userpool/eu-central-1_bnvWk6I6I'
 
 functions:
+## Items
   getItems:
     handler: src/items/items.get
     description: Returns items from the database.
@@ -176,7 +177,23 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.person
 
-###### ADMIN FUNCTIONS ######
+### Collections
+  getCollectionsByPerson:
+    handler: src/collections/collections.getByPerson
+    description: Returns collection by person from the database.
+    events:
+      - http:
+          path: collections/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+
+
+  ###### ADMIN FUNCTIONS ######
 
 #### Collections
   adminGetCollections:
@@ -216,6 +233,20 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.tag
+
+  adminGetCollectionsByPerson:
+    handler: src/admin/collections/collections.getByPerson
+    description: Returns collection by person from the database.
+    events:
+      - http:
+          path: admin/collections/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
 
 #### Items
   adminGetItems:
