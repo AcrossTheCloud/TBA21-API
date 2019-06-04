@@ -148,6 +148,34 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.tag
 
+  getItemsByType:
+    handler: src/items/items.getByType
+    description: Returns items by type from the database.
+    events:
+      - http:
+          path: items/getByType
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.type
+
+  getItemsByPerson:
+    handler: src/items/items.getByPerson
+    description: Returns items by person from the database.
+    events:
+      - http:
+          path: items/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+
 ###### ADMIN FUNCTIONS ######
 
 #### Collections
@@ -228,3 +256,16 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.tag
 
+  adminGetItemsByType:
+    handler: src/admin/items/items.getByType
+    description: Returns items by type from the database.
+    events:
+      - http:
+          path: admin/items/getByType
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.type

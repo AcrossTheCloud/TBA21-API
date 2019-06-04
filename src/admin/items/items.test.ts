@@ -8,7 +8,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
-import { get, getById, getByTag } from './items';
+import { get, getById, getByTag, getByType } from './items';
 
 afterAll( () => {
   // Close the database connection.
@@ -83,6 +83,24 @@ describe('/items/getByTag', () => {
   test('Get a bad response when no tag is given', async () => {
     const
       queryStringParameters: QueryStringParameters = {tag: ''},
+      response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+
+    expect(response.statusCode).toEqual(400);
+  });
+});
+
+describe('/items/getByType', () => {
+  test('Get all items with a type of b', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {type: 'b'},
+      response = await getByType({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      results = JSON.parse(response.body);
+    console.log(results.item);
+    expect(results.items.length).toEqual(1);
+  });
+  test('Get a bad response when no type is given', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {person: ''},
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);

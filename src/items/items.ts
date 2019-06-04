@@ -19,7 +19,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       item.*,
       json_agg(s3uploads.*) AS s3details,
       COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-      COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
+      COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+      ST_AsGeoJSON(item.location) as geoJSON 
     FROM 
       ${process.env.PGDATABASE}.items AS item
         INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
@@ -61,7 +62,8 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
         item.*,
         json_agg(s3uploads.*) AS s3details,
         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
+        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+        ST_AsGeoJSON(item.location) as geoJSON 
       FROM 
         ${process.env.PGDATABASE}.items AS item
           INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
@@ -105,7 +107,8 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
          item.*,
          json_agg(s3uploads.*) AS s3details,
          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
+         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+         ST_AsGeoJSON(item.location) as geoJSON 
       FROM 
         ${process.env.PGDATABASE}.items AS item
           INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
@@ -134,6 +137,100 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       return successResponse({ items: await db.query(query) });
     } catch (e) {
       console.log('/items/items.getByTag ERROR - ', e);
+      return badRequestResponse();
+    }
+  } else {
+    return badRequestResponse() ;
+  }
+};
+
+export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  let
+    defaultValues = { limit: 15, offset: 0 },
+    queryString = event.queryStringParameters; // Use default values if not supplied.
+  if (queryString && queryString.hasOwnProperty('type') && queryString.type.length) {
+    const query = `
+      SELECT 
+      COUNT ( item.ID ) OVER (),
+      itemtype.ID,
+      item.*,
+      json_agg(s3uploads.*) AS s3details,
+      COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+      COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+      ST_AsGeoJSON(item.location) as geoJSON
+      
+      
+      FROM ${process.env.PGDATABASE}.types as itemtype
+      INNER JOIN ${process.env.PGDATABASE}.items AS item ON item.item_type=itemtype.id
+      INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
+      
+      UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+      LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+      UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+      LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+      WHERE type_name LIKE '%${queryString.type}%' 
+      AND status=true
+      
+      GROUP BY itemtype.ID, item.ID
+      ORDER BY item.ID
+
+      ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}
+      ${`OFFSET ${queryString.offset || defaultValues.offset}`}
+    `;
+
+    try {
+      return successResponse({ items: await db.query(query) });
+    } catch (e) {
+      console.log('/items/items.getByType ERROR - ', e);
+      return badRequestResponse();
+    }
+  } else {
+    return badRequestResponse() ;
+  }
+};
+
+export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  let
+    defaultValues = { limit: 15, offset: 0 },
+    queryString = event.queryStringParameters; // Use default values if not supplied.
+  if (queryString && queryString.hasOwnProperty('person') && queryString.person.length) {
+    const query = `
+      SELECT
+        COUNT ( item.ID ) OVER (),
+         item.*,
+         json_agg(s3uploads.*) AS s3details,
+         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+         ST_AsGeoJSON(item.location) as geoJSON 
+      FROM 
+        ${process.env.PGDATABASE}.items AS item
+          INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512
+          INNER JOIN ${process.env.PGDATABASE}.types AS item_type ON item.item_type = item_type,
+                     
+        UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+          LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+                
+        UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+          LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      WHERE 
+        status=true
+      AND ( 
+        CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_) LIKE '%${queryString.person}%' 
+      )
+      
+      GROUP BY item.ID
+      ORDER BY item.ID
+      
+      ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
+      ${`OFFSET ${queryString.offset || defaultValues.offset}`}
+    `;
+
+    try {
+      return successResponse({ items: await db.query(query) });
+    } catch (e) {
+      console.log('/items/items.getByPerson ERROR - ', e);
       return badRequestResponse();
     }
   } else {
