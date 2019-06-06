@@ -300,3 +300,32 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.type
+
+  adminGtItemsByPerson:
+    handler: src/admin/items/items.getByPerson
+    description: Returns items by person from the database.
+    events:
+      - http:
+          path: admin/items/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+
+  adminChangeKeywordTag:
+    handler: src/admin/items/items.changeKeywordTag
+    description: Change the keyword tags on an item
+    events:
+      - http:
+          path: admin/items/changeKeywordTag
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id,
+              - name: request.querystring.tag
