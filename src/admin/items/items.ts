@@ -4,9 +4,13 @@ import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
 
 /**
+ *
  * Gets all the items
+ *
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
@@ -44,9 +48,13 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
   }
 };
 /**
+ *
  * Gets the item by their id
+ *
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
@@ -86,9 +94,13 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
 };
 
 /**
+ *
  * Get the item by tag name
+ *
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
@@ -134,7 +146,15 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
     return badRequestResponse() ;
   }
 };
-
+/**
+ *
+ * Get the all items containing the specified person
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     defaultValues = { limit: 15, offset: 0 },
@@ -179,6 +199,15 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     return badRequestResponse() ;
   }
 };
+/**
+ *
+ * Get the all items containing the specified type
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ */
 export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     defaultValues = { limit: 15, offset: 0 },
