@@ -23,7 +23,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         COUNT ( collection.ID ) OVER (),
         collection.*,
         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
+        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+        ST_AsGeoJSON(collection.geom) as geoJSON
       FROM 
         ${process.env.PGDATABASE}.collections AS collection,
         
@@ -63,7 +64,8 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
         COUNT ( collection.ID ) OVER (),
         collection.*,
         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
+        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+        ST_AsGeoJSON(collection.geom) as geoJSON
       FROM 
         ${process.env.PGDATABASE}.collections AS collection,
         
@@ -105,17 +107,18 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
   if (queryString && queryString.hasOwnProperty('tag') && queryString.tag.length) {
     const query = `
       SELECT
-        COUNT ( collections.ID ) OVER (),
-         collections.*,
+        COUNT ( collection.ID ) OVER (),
+         collection.*,
          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
+         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+         ST_AsGeoJSON(collection.geom) as geoJSON
       FROM 
-        ${process.env.PGDATABASE}.collections AS collections,
+        ${process.env.PGDATABASE}.collections AS collection,
             
-        UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
+        UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
           LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
                 
-        UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
+        UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
           LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
       WHERE (
         concept_tag.tag_name LIKE ('%${queryString.tag}%')
@@ -123,8 +126,8 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
         keyword_tag.tag_name LIKE ('%${queryString.tag}%')
       )
       
-      GROUP BY collections.ID
-      ORDER BY collections.ID
+      GROUP BY collection.ID
+      ORDER BY collection.ID
       
       ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
       ${`OFFSET ${queryString.offset || defaultValues.offset}`}

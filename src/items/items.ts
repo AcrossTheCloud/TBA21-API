@@ -24,7 +24,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       json_agg(s3uploads.*) AS s3details,
       COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
       COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-      ST_AsGeoJSON(item.location) as geoJSON 
+      ST_AsGeoJSON(item.location) as geoJSON
     FROM 
       ${process.env.PGDATABASE}.items AS item
         INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
@@ -120,7 +120,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
          json_agg(s3uploads.*) AS s3details,
          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-         ST_AsGeoJSON(item.location) as geoJSON 
+         ST_AsGeoJSON(item.location) as geoJSON
       FROM 
         ${process.env.PGDATABASE}.items AS item
           INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
