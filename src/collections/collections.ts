@@ -184,3 +184,72 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     return badRequestResponse() ;
   }
 };
+
+export const changeCollectionStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  let
+    queryString = event.queryStringParameters; // Use default values if not supplied.
+  if (queryString && queryString.hasOwnProperty('status') && (queryString.hasOwnProperty('id'))) {
+    const query = `
+      UPDATE tba21.collections
+      SET status = ${queryString.status}
+      WHERE collections.id = ${queryString.id}
+    `;
+
+    try {
+      return successResponse({ items: await db.query(query) });
+    } catch (e) {
+      console.log('/items/items.changeItemStatus ERROR - ', e);
+      return badRequestResponse();
+    }
+  } else {
+    return badRequestResponse() ;
+  }
+};
+/**
+ *
+ * Get all the collections in a bounding box (map)
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ */
+export const getCollectionsOnMap = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  let
+    queryString = event.queryStringParameters; // Use default values if not supplied.
+  if (queryString && queryString.top_right && queryString.top_left && queryString.bottom_left && queryString.bottom_right) {
+    const query = `
+      SELECT *, ST_AsText(location) 
+      FROM ${process.env.PGDATABASE}.items
+      WHERE location && ST_MakeEnvelope(${queryString.top_right}, ${queryString.top_left}, ${queryString.bottom_left},${queryString.bottom_right}, 4326);
+    `;
+// ST_MakeEnvelope(top_right, top_left, bottom_left, bottom_right, 4326);
+    try {
+      return successResponse({ items: await db.query(query) });
+    } catch (e) {
+      console.log('/items/items.getItemsOnMap ERROR - ', e);
+      return badRequestResponse();
+    }
+  } else {
+    return badRequestResponse() ;
+  }
+};
+// untested WIP
+export const deleteCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  let
+    queryString = event.queryStringParameters; // Use default values if not supplied.
+  if ((queryString && queryString.id) && (queryString.id.length)) {
+    const query = `
+      DELETE FROM ${process.env.PGDATABASE}.collections
+      WHERE '${queryString.id}';
+    `;
+    try {
+      return successResponse({ items: await db.query(query) });
+    } catch (e) {
+      console.log('/items/items.deleteCollection ERROR - ', e);
+      return badRequestResponse();
+    }
+  } else {
+    return badRequestResponse() ;
+  }
+};

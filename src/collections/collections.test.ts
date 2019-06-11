@@ -8,7 +8,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
-import { get, getById, getByPerson, getByTag } from './collections';
+import { get, getById, getByPerson, getByTag, changeCollectionStatus} from './collections';
 
 afterAll( () => {
   // Close the database connection.
@@ -102,6 +102,34 @@ describe('/collections/getByPerson', () => {
     const
       queryStringParameters: QueryStringParameters = {person: ''},
       response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+
+    expect(response.statusCode).toEqual(400);
+  });
+});
+
+describe('/items/changeCollectionStatus', () => {
+  test('Change the status of a collection', async () => {
+    let
+      queryStringParameters: QueryStringParameters = {status: 'false', id: '1'},
+      response = await changeCollectionStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      results = JSON.parse(response.body);
+    expect(results);
+    response = await get({} as APIGatewayProxyEvent, {} as Context),
+      results = JSON.parse(response.body);
+
+    expect(results.collections.length).toEqual(3);
+  });
+  test('Get a bad response when no id is given', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {status: 'false', id: ''},
+      response = await changeCollectionStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+
+    expect(response.statusCode).toEqual(400);
+  });
+  test('Get a bad response when no status is given', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {status: '', id: '1'},
+      response = await changeCollectionStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);
   });

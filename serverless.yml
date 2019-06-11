@@ -177,6 +177,38 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.person
 
+  ChangeItemStatus:
+    handler: src/items/items.changeItemStatus
+    description: Change the status of an item
+    events:
+      - http:
+          path: items/changeItemStatus
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id,
+              - name: request.querystring.status
+
+    GetItemsOnMap:
+      handler: src/items/items.getItemsOnMap
+      description: Get all items inside a bounding box
+      events:
+        - http:
+            path: items/getItemsOnMap
+            method: get
+            cors: true
+            authorizer: aws_iam
+            caching:
+              enabled: true
+              cacheKeyParameters:
+                - name: request.querystring.top_left,
+                - name: request.querystring.top_right,
+                - name: request.querystring.bottom_left,
+                - name: request.querystring.bottom_right
+
 ### Collections
   getCollectionsByPerson:
     handler: src/collections/collections.getByPerson
@@ -192,6 +224,20 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.person
 
+  changeCollectionStatus:
+    handler: src/collections/collections.changeCollectionStatus
+    description: Change the status of a collection
+    events:
+      - http:
+          path: collections/changeCollectionStatus
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id,
+              - name: request.querystring.status
 
   ###### ADMIN FUNCTIONS ######
 
@@ -315,12 +361,12 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.person
 
-  adminChangeKeywordTag:
-    handler: src/admin/items/items.changeKeywordTag
+  adminAddKeywordTag:
+    handler: src/admin/items/items.addKeywordTag
     description: Change the keyword tags on an item
     events:
       - http:
-          path: admin/items/changeKeywordTag
+          path: admin/items/addKeywordTag
           method: get
           cors: true
           authorizer: aws_iam

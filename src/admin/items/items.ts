@@ -253,3 +253,37 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
     return badRequestResponse() ;
   }
 };
+// /**
+//  * WIP
+//  * Change the keyword tags of an item
+//  *
+//  * @param event {APIGatewayEvent}
+//  * @param context {Promise<APIGatewayProxyResult>}
+//  *
+//  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+//  */
+// export const addKeywordTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+//
+//   let
+//     queryString = event.queryStringParameters, // Use default values if not supplied.
+//     keywordTags = JSON.parse(queryString.data);
+//   if (keywordTags && keywordTags.length) {
+//     const query = `
+//       WITH tags AS (
+//         INSERT INTO
+//           ${process.env.PGDATABASE}.keyword_tags (tag_name)
+//         VALUES ('${Object.keys(keywordTags.tags).map(index => (`${keywordTags.tags[index]})`))}')
+//             ON CONFLICT (tag_name) DO NOTHING
+//           RETURNING id
+//         )
+//     `;
+//     try {
+//       return successResponse({ items: await db.query(query) });
+//     } catch (e) {
+//       console.log('/items/items.addKeywordTag ERROR - ', e);
+//       return badRequestResponse();
+//     }
+//   } else {
+//     return badRequestResponse() ;
+//   }
+// };

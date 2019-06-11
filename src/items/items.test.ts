@@ -8,8 +8,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
-import { get, getById, getByTag, getByPerson, getByType } from './items';
-
+import { get, getById, getByTag, getByPerson, getByType, changeItemStatus, getItemsOnMap } from './items';
 afterAll( () => {
   // Close the database connection.
   db.$pool.end();
@@ -60,7 +59,7 @@ describe('/items/getById', () => {
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.items[0].id).toEqual('2');
+    expect(results.items[0].id).toEqual('1');
   });
   test(`Check an item with a status of false isn't returned`, async () => {
     const
@@ -86,7 +85,7 @@ describe('/items/getByTag', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.items.length).toEqual(2);
+    expect(results.items.length).toEqual(3);
   });
   test('Get a bad response when no tag is given', async () => {
     const
@@ -121,7 +120,6 @@ describe('/items/getByType', () => {
       queryStringParameters: QueryStringParameters = {type: 'b'},
       response = await getByType({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    console.log(results.item);
     expect(results.items.length).toEqual(1);
   });
   test('Get a bad response when no type is given', async () => {
@@ -132,3 +130,70 @@ describe('/items/getByType', () => {
     expect(response.statusCode).toEqual(400);
   });
 });
+
+describe('/items/changeItemStatus', () => {
+  test('Change the status of an item', async () => {
+    let
+      queryStringParameters: QueryStringParameters = {status: 'true', id: '1'},
+      response = await changeItemStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      results = JSON.parse(response.body);
+    expect(results);
+    response = await get({} as APIGatewayProxyEvent, {} as Context),
+      results = JSON.parse(response.body);
+
+    expect(results.items.length).toEqual(6);
+  });
+  test('Get a bad response when no id is given', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {status: 'false', id: ''},
+      response = await changeItemStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+
+    expect(response.statusCode).toEqual(400);
+  });
+  test('Get a bad response when no status is given', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {status: '', id: '1'},
+      response = await changeItemStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+
+    expect(response.statusCode).toEqual(400);
+  });
+});
+
+describe('/items/getItemsOnMap', () => {
+  test('Get all items within the bounding box (32.784840, 32.781431, 11.201, -0.009226)', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {lat_sw: '28.620240545725636', lng_sw: '-25.116634368896488', lat_ne: '52.62108005994499', lng_ne: '38.16461563110352'},
+      response = await getItemsOnMap({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      results = JSON.parse(response.body);
+    expect(results.items.length).toEqual(2);
+  });
+  test('Get a bad response when a boundary is missing', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {lat_sw: '28.620240545725636', lng_sw: '', lat_ne: '52.62108005994499', lng_ne: '38.16461563110352'},
+      response = await getItemsOnMap({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+
+    expect(response.statusCode).toEqual(400);
+  });
+});
+
+// describe('/items/deleteItem', () => {
+//   test('Delete an item with an id of 1)', async () => {
+//     let
+//       queryStringParameters: QueryStringParameters = {id: '1'},
+//       response = await deleteItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+//       results = JSON.parse(response.body);
+//     expect(results);
+//
+//     queryStringParameters = {id: '1'},
+//       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+//       results = JSON.parse(response.body);
+//     expect(results.items.length).toEqual(0);
+//   });
+//   test('Get a bad response when no id is given', async () => {
+//     const
+//       queryStringParameters: QueryStringParameters = {id: ''},
+//       response = await deleteItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+//
+//     expect(response.statusCode).toEqual(400);
+//   });
+// });

@@ -266,3 +266,60 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     return badRequestResponse() ;
   }
 };
+/**
+ *
+ * Changes an items status
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ */
+export const changeItemStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  let
+    queryString = event.queryStringParameters; // Use default values if not supplied.
+  if (queryString && queryString.hasOwnProperty('status') && (queryString.hasOwnProperty('id'))) {
+    const query = `
+      UPDATE ${process.env.PGDATABASE}.items
+      SET status = ${queryString.status}
+      WHERE items.id = ${queryString.id};
+    `;
+
+    try {
+      return successResponse({ items: await db.query(query) });
+    } catch (e) {
+      console.log('/items/items.changeItemStatus ERROR - ', e);
+      return badRequestResponse();
+    }
+  } else {
+    return badRequestResponse() ;
+  }
+};
+/**
+ *
+ * Get all the items in a bounding box (map)
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ */
+export const getItemsOnMap = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  let
+    queryString = event.queryStringParameters; // Use default values if not supplied.
+  if (queryString && queryString.lat_sw && queryString.lng_sw && queryString.lat_ne && queryString.lng_ne) {
+    const query = `
+      SELECT *, ST_AsText(location) as geoJSON 
+      FROM ${process.env.PGDATABASE}.items
+      WHERE ST_Intersects(ST_MakeEnvelope(${queryString.lat_sw}, ${queryString.lng_sw}, ${queryString.lat_ne},${queryString.lng_ne}, 4326), location);
+    `;
+    try {
+      return successResponse({ items: await db.query(query) });
+    } catch (e) {
+      console.log('/items/items.getItemsOnMap ERROR - ', e);
+      return badRequestResponse();
+    }
+  } else {
+    return badRequestResponse() ;
+  }
+};
