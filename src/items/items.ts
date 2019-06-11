@@ -282,7 +282,7 @@ export const changeItemStatus = async (event: APIGatewayEvent, context: Context)
     const query = `
       UPDATE ${process.env.PGDATABASE}.items
       SET status = ${queryString.status}
-      WHERE items.id = ${queryString.id};
+      WHERE items.id = ${queryString.id}
     `;
 
     try {

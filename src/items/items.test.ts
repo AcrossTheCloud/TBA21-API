@@ -59,7 +59,7 @@ describe('/items/getById', () => {
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.items[0].id).toEqual('1');
+    expect(results.items[0].id).toEqual('2');
   });
   test(`Check an item with a status of false isn't returned`, async () => {
     const
@@ -85,7 +85,7 @@ describe('/items/getByTag', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.items.length).toEqual(3);
+    expect(results.items.length).toEqual(2);
   });
   test('Get a bad response when no tag is given', async () => {
     const
