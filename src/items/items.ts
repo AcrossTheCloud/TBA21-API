@@ -311,7 +311,7 @@ export const getItemsOnMap = async (event: APIGatewayEvent, context: Context): P
     const query = `
       SELECT *, ST_AsText(location) as geoJSON 
       FROM ${process.env.PGDATABASE}.items
-      WHERE ST_Intersects(ST_MakeEnvelope(${queryString.lat_sw}, ${queryString.lng_sw}, ${queryString.lat_ne},${queryString.lng_ne}, 4326), location);
+      WHERE location && ST_MakeEnvelope(${queryString.lat_sw}, ${queryString.lng_sw}, ${queryString.lat_ne},${queryString.lng_ne}, 4326), ;
     `;
     try {
       return successResponse({ items: await db.query(query) });
