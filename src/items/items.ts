@@ -304,7 +304,7 @@ export const changeItemStatus = async (event: APIGatewayEvent, context: Context)
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
-export const getItemsOnMap = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getItemsInBounds = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     queryString = event.queryStringParameters; // Use default values if not supplied.
   if (queryString && queryString.lat_sw && queryString.lng_sw && queryString.lat_ne && queryString.lng_ne) {

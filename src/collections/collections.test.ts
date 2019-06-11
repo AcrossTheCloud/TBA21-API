@@ -1,3 +1,4 @@
+
 require('dotenv').config(
   {
     DEBUG: true,
@@ -8,7 +9,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
-import { get, getById, getByPerson, getByTag, changeCollectionStatus} from './collections';
+import { get, getById, getByPerson, getByTag, changeCollectionStatus, getCollectionsInBounds } from './collections';
 
 afterAll( () => {
   // Close the database connection.
@@ -130,6 +131,23 @@ describe('/items/changeCollectionStatus', () => {
     const
       queryStringParameters: QueryStringParameters = {status: '', id: '1'},
       response = await changeCollectionStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+
+    expect(response.statusCode).toEqual(400);
+  });
+});
+
+describe('/items/getCollectionsInBounds', () => {
+  test('Get all items within the bounding box (32.784840, 32.781431, 11.201, -0.009226)', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {lat_sw: '-71.16028', lng_sw: '- 42.258729', lat_ne: '71.160837', lng_ne: '42.25932'},
+      response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      results = JSON.parse(response.body);
+    expect(results.items.length).toEqual(4);
+  });
+  test('Get a bad response when a boundary is missing', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {lat_sw: '-71.16028', lng_sw: '- 42.258729', lat_ne: '', lng_ne: '42.25932'},
+      response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);
   });

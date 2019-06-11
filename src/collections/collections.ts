@@ -145,6 +145,15 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
     return badRequestResponse() ;
   }
 };
+/**
+ *
+ * Gets collections with a specific person in them
+ *
+ * @param event { APIGatewayProxyEvent }, limit and offset (optional, defaults set in api)
+ * @param context { APIGatewayProxyResult }
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collection list of the results
+ */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     defaultValues = { limit: 15, offset: 0 },
@@ -184,7 +193,15 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     return badRequestResponse() ;
   }
 };
-
+/**
+ *
+ * Changes the status of a collection
+ *
+ * @param event { APIGatewayProxyEvent }, limit and offset (optional, defaults set in api)
+ * @param context { APIGatewayProxyResult }
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collection list of the results
+ */
 export const changeCollectionStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     queryString = event.queryStringParameters; // Use default values if not supplied.
@@ -198,7 +215,7 @@ export const changeCollectionStatus = async (event: APIGatewayEvent, context: Co
     try {
       return successResponse({ items: await db.query(query) });
     } catch (e) {
-      console.log('/items/items.changeItemStatus ERROR - ', e);
+      console.log('/collections/collections.changeItemStatus ERROR - ', e);
       return badRequestResponse();
     }
   } else {
@@ -214,39 +231,19 @@ export const changeCollectionStatus = async (event: APIGatewayEvent, context: Co
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
-export const getCollectionsOnMap = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getCollectionsInBounds = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     queryString = event.queryStringParameters; // Use default values if not supplied.
-  if (queryString && queryString.top_right && queryString.top_left && queryString.bottom_left && queryString.bottom_right) {
+  if (queryString && queryString.lat_sw && queryString.lng_sw && queryString.lat_ne && queryString.lng_ne) {
     const query = `
-      SELECT *, ST_AsText(location) 
-      FROM ${process.env.PGDATABASE}.items
-      WHERE location && ST_MakeEnvelope(${queryString.top_right}, ${queryString.top_left}, ${queryString.bottom_left},${queryString.bottom_right}, 4326);
-    `;
-// ST_MakeEnvelope(top_right, top_left, bottom_left, bottom_right, 4326);
-    try {
-      return successResponse({ items: await db.query(query) });
-    } catch (e) {
-      console.log('/items/items.getItemsOnMap ERROR - ', e);
-      return badRequestResponse();
-    }
-  } else {
-    return badRequestResponse() ;
-  }
-};
-// untested WIP
-export const deleteCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  let
-    queryString = event.queryStringParameters; // Use default values if not supplied.
-  if ((queryString && queryString.id) && (queryString.id.length)) {
-    const query = `
-      DELETE FROM ${process.env.PGDATABASE}.collections
-      WHERE '${queryString.id}';
+      SELECT *, ST_AsText(geom) as geoJSON 
+      FROM ${process.env.PGDATABASE}.collections
+      WHERE geom && ST_MakeEnvelope(${queryString.lat_sw}, ${queryString.lng_sw}, ${queryString.lat_ne},${queryString.lng_ne}, 4326)
     `;
     try {
       return successResponse({ items: await db.query(query) });
     } catch (e) {
-      console.log('/items/items.deleteCollection ERROR - ', e);
+      console.log('/collections/collections.getCollectionsOnMap ERROR - ', e);
       return badRequestResponse();
     }
   } else {

@@ -204,10 +204,10 @@ functions:
             caching:
               enabled: true
               cacheKeyParameters:
-                - name: request.querystring.top_left,
-                - name: request.querystring.top_right,
-                - name: request.querystring.bottom_left,
-                - name: request.querystring.bottom_right
+                - name: request.querystring.lat_sw,
+                - name: request.querystring.lng_sw,
+                - name: request.querystring.lng_ne,
+                - name: request.querystring.lat_ne
 
 ### Collections
   getCollectionsByPerson:
@@ -238,6 +238,23 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id,
               - name: request.querystring.status
+
+  getCollectionsInBounds:
+    handler: src/collections/collections.getCollectionsInBounds
+    description: Gets the collections within the specified bounds
+    events:
+      - http:
+          path: collections/changeCollectionStatus
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.lat_sw,
+              - name: request.querystring.lng_sw,
+              - name: request.querystring.lng_ne,
+              - name: request.querystring.lat_ne
 
   ###### ADMIN FUNCTIONS ######
 
