@@ -110,6 +110,7 @@ resources:
                         - 'userpool/eu-central-1_bnvWk6I6I'
 
 functions:
+## Items
   getItems:
     handler: src/items/items.get
     description: Returns items from the database.
@@ -148,7 +149,114 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.tag
 
-###### ADMIN FUNCTIONS ######
+  getItemsByType:
+    handler: src/items/items.getByType
+    description: Returns items by type from the database.
+    events:
+      - http:
+          path: items/getByType
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.type
+
+  getItemsByPerson:
+    handler: src/items/items.getByPerson
+    description: Returns items by person from the database.
+    events:
+      - http:
+          path: items/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+
+  ChangeItemStatus:
+    handler: src/items/items.changeItemStatus
+    description: Change the status of an item
+    events:
+      - http:
+          path: items/changeItemStatus
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id,
+              - name: request.querystring.status
+
+    GetItemsOnMap:
+      handler: src/items/items.getItemsOnMap
+      description: Get all items inside a bounding box
+      events:
+        - http:
+            path: items/getItemsOnMap
+            method: get
+            cors: true
+            authorizer: aws_iam
+            caching:
+              enabled: true
+              cacheKeyParameters:
+                - name: request.querystring.lat_sw,
+                - name: request.querystring.lng_sw,
+                - name: request.querystring.lng_ne,
+                - name: request.querystring.lat_ne
+
+### Collections
+  getCollectionsByPerson:
+    handler: src/collections/collections.getByPerson
+    description: Returns collection by person from the database.
+    events:
+      - http:
+          path: collections/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+
+  changeCollectionStatus:
+    handler: src/collections/collections.changeCollectionStatus
+    description: Change the status of a collection
+    events:
+      - http:
+          path: collections/changeCollectionStatus
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id,
+              - name: request.querystring.status
+
+  getCollectionsInBounds:
+    handler: src/collections/collections.getCollectionsInBounds
+    description: Gets the collections within the specified bounds
+    events:
+      - http:
+          path: collections/changeCollectionStatus
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.lat_sw,
+              - name: request.querystring.lng_sw,
+              - name: request.querystring.lng_ne,
+              - name: request.querystring.lat_ne
+
+  ###### ADMIN FUNCTIONS ######
 
 #### Collections
   adminGetCollections:
@@ -189,6 +297,20 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.tag
 
+  adminGetCollectionsByPerson:
+    handler: src/admin/collections/collections.getByPerson
+    description: Returns collection by person from the database.
+    events:
+      - http:
+          path: admin/collections/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+
 #### Items
   adminGetItems:
     handler: src/admin/items/items.get
@@ -228,3 +350,45 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.tag
 
+  adminGetItemsByType:
+    handler: src/admin/items/items.getByType
+    description: Returns items by type from the database.
+    events:
+      - http:
+          path: admin/items/getByType
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.type
+
+  adminGtItemsByPerson:
+    handler: src/admin/items/items.getByPerson
+    description: Returns items by person from the database.
+    events:
+      - http:
+          path: admin/items/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+
+  adminAddKeywordTag:
+    handler: src/admin/items/items.addKeywordTag
+    description: Change the keyword tags on an item
+    events:
+      - http:
+          path: admin/items/addKeywordTag
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id,
+              - name: request.querystring.tag
