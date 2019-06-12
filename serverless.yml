@@ -189,7 +189,7 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.id,
+              - name: request.querystring.id
               - name: request.querystring.status
 
     GetItemsOnMap:
@@ -204,10 +204,10 @@ functions:
             caching:
               enabled: true
               cacheKeyParameters:
-                - name: request.querystring.lat_sw,
-                - name: request.querystring.lng_sw,
-                - name: request.querystring.lng_ne,
-                - name: request.querystring.lat_ne
+                - name: request.querystring.lat_se
+                - name: request.querystring.lng_sw
+                - name: request.querystring.lng_ne
+                - name: request.querystring.lat_nw
 
 ### Collections
   getCollectionsByPerson:
@@ -236,7 +236,7 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.id,
+              - name: request.querystring.id
               - name: request.querystring.status
 
   getCollectionsInBounds:
@@ -251,10 +251,10 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.lat_sw,
-              - name: request.querystring.lng_sw,
-              - name: request.querystring.lng_ne,
-              - name: request.querystring.lat_ne
+              - name: request.querystring.lat_se
+              - name: request.querystring.lng_sw
+              - name: request.querystring.lng_ne
+              - name: request.querystring.lat_nw
 
   ###### ADMIN FUNCTIONS ######
 
@@ -390,5 +390,5 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.id,
+              - name: request.querystring.id
               - name: request.querystring.tag
