@@ -143,7 +143,15 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
     return badRequestResponse() ;
   }
 };
-
+/**
+ *
+ * Gets collections that contain a person from the database
+ *
+ * @param event { APIGatewayProxyEvent }, limit and offset (optional, defaults set in api)
+ * @param context { APIGatewayProxyResult }
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collection list of the results
+ */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     defaultValues = { limit: 15, offset: 0 },
