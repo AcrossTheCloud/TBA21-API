@@ -38,10 +38,13 @@ provider:
   region: ${env:REGION, 'eu-central-1'}
   versionFunctions: false
   environment:
-    ITEMS_TABLE: tba21-items-${opt:stage, self:provider.stage}
-    PEOPLE_TABLE: tba21-people-${opt:stage, self:provider.stage}
-    IMAGE_TAG_TABLE: tba21-image-tags-${opt:stage, self:provider.stage}
-
+    UPLOADS_TABLE: tba21.s3uploads
+    TYPES_TABLE: tba21.types
+    ITEMS_TABLE: tba21.items
+    COLLECTIONS_TABLE: tba21.collections
+    COLLECTIONS_ITEMS_TABLE: tba21.collections_items
+    CONCEPT_TAGS_TABLE: tba21.concept_tags
+    KEYWORD_TAGS_TABLE: tba21.keyword_tags
     PGUSER: ${env:PGUSER}
     PGPASSWORD: ${env:PGPASSWORD}
     PGHOST: ${env:PGHOST}
@@ -192,22 +195,22 @@ functions:
               - name: request.querystring.id
               - name: request.querystring.status
 
-    GetItemsOnMap:
-      handler: src/items/items.getItemsOnMap
-      description: Get all items inside a bounding box
-      events:
-        - http:
-            path: items/getItemsOnMap
-            method: get
-            cors: true
-            authorizer: aws_iam
-            caching:
-              enabled: true
-              cacheKeyParameters:
-                - name: request.querystring.lat_se
-                - name: request.querystring.lng_sw
-                - name: request.querystring.lng_ne
-                - name: request.querystring.lat_nw
+  GetItemsOnMap:
+    handler: src/items/items.getItemsInBounds
+    description: Get all items inside a bounding box
+    events:
+      - http:
+          path: items/getItemsOnMap
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.lat_se
+              - name: request.querystring.lng_sw
+              - name: request.querystring.lng_ne
+              - name: request.querystring.lat_nw
 
 ### Collections
   getCollectionsByPerson:

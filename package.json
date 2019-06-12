@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/AcrossTheCloud/TBA21-API",
   "dependencies": {
+    "@hapi/joi": "^15.0.3",
     "pg-promise": "^8.7.2"
   },
   "devDependencies": {

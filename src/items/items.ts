@@ -2,6 +2,9 @@ import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context }
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
+import Joi from '@hapi/joi';
+
+
 
 /**
  *
@@ -13,11 +16,23 @@ import { limitQuery } from '../utils/queryHelpers';
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  let
-    defaultValues = { limit: 15, offset: 0 },
-    queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues; // Use default values if not supplied.
+  try {
+    // VALIDATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      limit: Joi.number().integer(),
+      offset: Joi.number().integer()
+    }));
+    //will cause an exception if it is not valid
+    console.log(result); // to see the result
 
-  const query = `
+    let
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues; // Use default values if not supplied.
+
+
+
+
+    const query = `
     SELECT
       COUNT ( item.ID ) OVER (),
       item.*,
@@ -26,26 +41,30 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
       ST_AsGeoJSON(item.location) as geoJSON
     FROM 
-      ${process.env.PGDATABASE}.items AS item
-        INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
+      ${process.env.ITEMS_TABLE} AS item
+        INNER JOIN ${process.env.UPLOADS_TABLE} AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
         
       UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-        LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+        LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
                 
       UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-        LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+        LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         
     WHERE status=true
     
     GROUP BY item.ID
     ORDER BY item.ID
     
-    ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
-    ${`OFFSET ${queryString.offset || defaultValues.offset}`}
+    LIMIT $1 
+    OFFSET $2 
   `;
+    let params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    //console.log(query,params);
 
-  try {
-    return successResponse({ items: await db.query(query) });
+
+    let allItems = await db.any(query, params);
+    //console.log('lngth', allItems.length);
+    return successResponse({ items: allItems });
   } catch (e) {
     console.log('/items/items.get ERROR - ', e);
     return badRequestResponse();
@@ -61,10 +80,16 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  let
-    queryString = event.queryStringParameters; // Use default values if not supplied.
+  try {
+    // VALIDATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      id: Joi.number().integer().required()
+    }),{ presence: "required" });
+    //will cause an exception if it is not valid
+    console.log(result); // to see the result 
+    let queryString = event.queryStringParameters; // Use default values if not supplied.
 
-  if (queryString && queryString.hasOwnProperty('id') && queryString.id.length) {
+
     const query = `
       SELECT
         item.*,
@@ -73,30 +98,31 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
         ST_AsGeoJSON(item.location) as geoJSON 
       FROM 
-        ${process.env.PGDATABASE}.items AS item
-          INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
+        ${process.env.ITEMS_TABLE} AS item
+          INNER JOIN ${process.env.UPLOADS_TABLE} AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
           
         UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+          LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
                   
         UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+          LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
       
-      WHERE status=true AND item.id=${queryString.id}
+      WHERE status=true AND item.id=$1
       
       GROUP BY item.ID
       ORDER BY item.ID
     `;
 
-    try {
-      return successResponse({ items: await db.query(query) });
-    } catch (e) {
-      console.log('/items/items.getById ERROR - ', e);
-      return badRequestResponse();
-    }
-  } else {
-    return badRequestResponse() ;
+    let params = [queryString.id];
+
+    let theItem = await db.oneOrNone(query,params);
+
+    return successResponse({ items: theItem });
+  } catch (e) {
+    console.log('/items/items.getById ERROR - ', e);
+    return badRequestResponse();
   }
+
 };
 
 /**
@@ -109,10 +135,19 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  let
-    defaultValues = { limit: 15, offset: 0 },
-    queryString = event.queryStringParameters; // Use default values if not supplied.
-  if (queryString && queryString.hasOwnProperty('tag') && queryString.tag.length) {
+  try {
+    // VALIDATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      limit: Joi.number().integer(),
+      offset: Joi.number().integer(),
+      tag: Joi.string().required()
+    }));
+    //will cause an exception if it is not valid
+    console.log(result); // to see the result
+    let
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters; // Use default values if not supplied.
+
     const query = `
       SELECT
         COUNT ( item.ID ) OVER (),
@@ -122,38 +157,38 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
          ST_AsGeoJSON(item.location) as geoJSON
       FROM 
-        ${process.env.PGDATABASE}.items AS item
-          INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
+        ${process.env.ITEMS_TABLE} AS item
+          INNER JOIN ${process.env.UPLOADS_TABLE} AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
             
         UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+          LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
                 
         UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+          LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
       WHERE 
         status=true
       AND (
-        concept_tag.tag_name LIKE ('%${queryString.tag}%')
+        concept_tag.tag_name LIKE '%' || $1 || '%'
         OR
-        keyword_tag.tag_name LIKE ('%${queryString.tag}%')
+        keyword_tag.tag_name LIKE '%' || $1 || '%'
       )
       
       GROUP BY item.ID
       ORDER BY item.ID
       
-      ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
-      ${`OFFSET ${queryString.offset || defaultValues.offset}`}
+      LIMIT $2  
+      OFFSET $3
     `;
+    let params = [queryString.tag, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    let allItems = await db.any(query, params)
 
-    try {
-      return successResponse({ items: await db.query(query) });
-    } catch (e) {
-      console.log('/items/items.getByTag ERROR - ', e);
-      return badRequestResponse();
-    }
-  } else {
-    return badRequestResponse() ;
+
+    return successResponse({ items: allItems });
+  } catch (e) {
+    console.log('/items/items.getByTag ERROR - ', e);
+    return badRequestResponse();
   }
+
 };
 /**
  *
@@ -165,10 +200,17 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
 export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    // VALIDATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      limit: Joi.number().integer(),
+      offset: Joi.number().integer(),
+      type: Joi.string().required()
+    }));
   let
     defaultValues = { limit: 15, offset: 0 },
     queryString = event.queryStringParameters; // Use default values if not supplied.
-  if (queryString && queryString.hasOwnProperty('type') && queryString.type.length) {
+
     const query = `
       SELECT 
       COUNT ( item.ID ) OVER (),
@@ -180,35 +222,35 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
       ST_AsGeoJSON(item.location) as geoJSON
       
       
-      FROM ${process.env.PGDATABASE}.types as itemtype
-      INNER JOIN ${process.env.PGDATABASE}.items AS item ON item.item_type=itemtype.id
-      INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
+      FROM ${process.env.TYPES_TABLE} as itemtype
+      INNER JOIN ${process.env.ITEMS_TABLE} AS item ON item.item_type=itemtype.id
+      INNER JOIN ${process.env.UPLOADS_TABLE} AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512,
       
       UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
       LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
       
       UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-      LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
       
-      WHERE type_name LIKE '%${queryString.type}%' 
+      WHERE type_name LIKE '%' || $1 || '%' 
       AND status=true
       
       GROUP BY itemtype.ID, item.ID
       ORDER BY item.ID
 
-      ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}
-      ${`OFFSET ${queryString.offset || defaultValues.offset}`}
+      LIMIT $2
+      OFFSET $3
     `;
+    let params = [queryString.type, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    let allItems = await db.any(query, params)
 
-    try {
-      return successResponse({ items: await db.query(query) });
+
+      return successResponse({ items: allItems });
     } catch (e) {
       console.log('/items/items.getByType ERROR - ', e);
       return badRequestResponse();
     }
-  } else {
-    return badRequestResponse() ;
-  }
+
 };
 /**
  *
@@ -221,10 +263,16 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
  *
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    // VALIDATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      limit: Joi.number().integer(),
+      offset: Joi.number().integer(),
+      person: Joi.string().required()
+    }));
   let
     defaultValues = { limit: 15, offset: 0 },
     queryString = event.queryStringParameters; // Use default values if not supplied.
-  if (queryString && queryString.hasOwnProperty('person') && queryString.person.length) {
     const query = `
       SELECT
         COUNT ( item.ID ) OVER (),
@@ -234,37 +282,36 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
          ST_AsGeoJSON(item.location) as geoJSON 
       FROM 
-        ${process.env.PGDATABASE}.items AS item
-          INNER JOIN ${process.env.PGDATABASE}.s3uploads AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512
-          INNER JOIN ${process.env.PGDATABASE}.types AS item_type ON item.item_type = item_type,
+        ${process.env.ITEMS_TABLE} AS item
+          INNER JOIN ${process.env.UPLOADS_TABLE} AS s3uploads ON item.s3uploads_sha512 = s3uploads.ID_sha512
+          INNER JOIN ${process.env.TYPES_TABLE} AS item_type ON item.item_type = item_type,
                      
         UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+          LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
                 
         UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+          LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
       WHERE 
         status=true
       AND ( 
-        CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_) LIKE '%${queryString.person}%' 
+        CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_) LIKE '%' || $1 || '%' 
       )
       
       GROUP BY item.ID
       ORDER BY item.ID
       
-      ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
-      ${`OFFSET ${queryString.offset || defaultValues.offset}`}
+      LIMIT $2 
+      OFFSET $3 
     `;
+    let params = [queryString.person, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    let allItems = await db.any(query, params)
 
-    try {
-      return successResponse({ items: await db.query(query) });
+
+      return successResponse({ items: allItems });
     } catch (e) {
       console.log('/items/items.getByPerson ERROR - ', e);
       return badRequestResponse();
     }
-  } else {
-    return badRequestResponse() ;
-  }
 };
 /**
  *
@@ -276,24 +323,29 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
 export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    // VALIDATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      id: Joi.number().required(),
+      status: Joi.boolean().required()
+    }));
   let
     queryString = event.queryStringParameters; // Use default values if not supplied.
-  if (queryString && queryString.hasOwnProperty('status') && (queryString.hasOwnProperty('id'))) {
     const query = `
-      UPDATE ${process.env.PGDATABASE}.items
-      SET status = ${queryString.status}
-      WHERE items.id = ${queryString.id}
+      UPDATE ${process.env.ITEMS_TABLE}
+      SET status = $1 
+      WHERE id = $2 
+      RETURNING id,status
     `;
+    let params= [queryString.status,queryString.id];
+    let itemId = await db.one(query,params);
 
-    try {
-      return successResponse({ items: await db.query(query) });
+      return successResponse({ updatedItem: itemId  });
     } catch (e) {
       console.log('/items/items.changeStatus ERROR - ', e);
       return badRequestResponse();
     }
-  } else {
-    return badRequestResponse() ;
-  }
+
 };
 /**
  *
@@ -305,21 +357,29 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
 export const getItemsInBounds = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    // VALIDATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      lat_sw: Joi.number().required(),
+      lat_ne: Joi.number().required(),
+      lng_sw: Joi.number().required(),
+      lng_ne: Joi.number().required()
+    }));
   let
     queryString = event.queryStringParameters; // Use default values if not supplied.
-  if (queryString && queryString.lat_sw && queryString.lng_sw && queryString.lat_ne && queryString.lng_ne) {
+
     const query = `
       SELECT *, ST_AsText(location) as geoJSON 
-      FROM ${process.env.PGDATABASE}.items
-      WHERE location && ST_MakeEnvelope(${queryString.lat_sw}, ${queryString.lng_sw}, ${queryString.lat_ne},${queryString.lng_ne}, 4326)
+      FROM ${process.env.ITEMS_TABLE}
+      WHERE location && ST_MakeEnvelope($1, $2, $3,$4, 4326)
     `;
-    try {
-      return successResponse({ items: await db.query(query) });
+    let params=[queryString.lat_sw,queryString.lng_sw,queryString.lat_ne,queryString.lng_ne];
+    let allItems= await db.any(query,params); 
+
+      return successResponse({ items: allItems});
     } catch (e) {
       console.log('/items/items.getItemsOnMap ERROR - ', e);
       return badRequestResponse();
     }
-  } else {
-    return badRequestResponse() ;
-  }
+
 };
