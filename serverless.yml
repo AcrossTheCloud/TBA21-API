@@ -178,11 +178,11 @@ functions:
               - name: request.querystring.person
 
   ChangeItemStatus:
-    handler: src/items/items.changeItemStatus
+    handler: src/items/items.changeStatus
     description: Change the status of an item
     events:
       - http:
-          path: items/changeItemStatus
+          path: items/changeStatus
           method: get
           cors: true
           authorizer: aws_iam
@@ -225,11 +225,11 @@ functions:
               - name: request.querystring.person
 
   changeCollectionStatus:
-    handler: src/collections/collections.changeCollectionStatus
+    handler: src/collections/collections.changeStatus
     description: Change the status of a collection
     events:
       - http:
-          path: collections/changeCollectionStatus
+          path: collections/changeStatus
           method: get
           cors: true
           authorizer: aws_iam
@@ -244,7 +244,7 @@ functions:
     description: Gets the collections within the specified bounds
     events:
       - http:
-          path: collections/changeCollectionStatus
+          path: collections/getCollectionsInBounds
           method: get
           cors: true
           authorizer: aws_iam

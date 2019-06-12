@@ -275,7 +275,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
-export const changeItemStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   let
     queryString = event.queryStringParameters; // Use default values if not supplied.
   if (queryString && queryString.hasOwnProperty('status') && (queryString.hasOwnProperty('id'))) {
@@ -288,7 +288,7 @@ export const changeItemStatus = async (event: APIGatewayEvent, context: Context)
     try {
       return successResponse({ items: await db.query(query) });
     } catch (e) {
-      console.log('/items/items.changeItemStatus ERROR - ', e);
+      console.log('/items/items.changeStatus ERROR - ', e);
       return badRequestResponse();
     }
   } else {

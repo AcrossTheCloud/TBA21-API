@@ -8,7 +8,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
-import { get, getById, getByTag, getByPerson, getByType, changeItemStatus, getItemsInBounds } from './items';
+import { get, getById, getByTag, getByPerson, getByType, changeStatus, getItemsInBounds } from './items';
 afterAll( () => {
   // Close the database connection.
   db.$pool.end();
@@ -131,11 +131,11 @@ describe('/items/getByType', () => {
   });
 });
 
-describe('/items/changeItemStatus', () => {
+describe('/items/changeStatus', () => {
   test('Change the status of an item', async () => {
     let
       queryStringParameters: QueryStringParameters = {status: 'true', id: '1'},
-      response = await changeItemStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await changeStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
     expect(results);
     response = await get({} as APIGatewayProxyEvent, {} as Context),
@@ -146,14 +146,14 @@ describe('/items/changeItemStatus', () => {
   test('Get a bad response when no id is given', async () => {
     const
       queryStringParameters: QueryStringParameters = {status: 'false', id: ''},
-      response = await changeItemStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+      response = await changeStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);
   });
   test('Get a bad response when no status is given', async () => {
     const
       queryStringParameters: QueryStringParameters = {status: '', id: '1'},
-      response = await changeItemStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+      response = await changeStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);
   });
