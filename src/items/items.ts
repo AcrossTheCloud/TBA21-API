@@ -202,7 +202,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
 export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
       limit: Joi.number().integer(),
       offset: Joi.number().integer(),
       type: Joi.string().required()
@@ -265,7 +265,7 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
       limit: Joi.number().integer(),
       offset: Joi.number().integer(),
       person: Joi.string().required()
@@ -325,7 +325,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
 export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
       id: Joi.number().required(),
       status: Joi.boolean().required()
     }));
@@ -359,7 +359,7 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
 export const getItemsInBounds = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
       lat_sw: Joi.number().required(),
       lat_ne: Joi.number().required(),
       lng_sw: Joi.number().required(),
