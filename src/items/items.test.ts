@@ -1,9 +1,9 @@
 require('dotenv').config(
   {
-    DEBUG: true,
-    path: process.cwd() + (process.env.LOCAL ? '/.env' : '/.env-test')
-  }
-);
+    DEBUG: true
+  });
+
+console.log('env pass:', process.env.PGPASSWORD)
 
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
@@ -59,17 +59,18 @@ describe('/items/getById', () => {
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.items[0].id).toEqual('2');
+    expect(results.items.id).toEqual('2');
   });
   test(`Check an item with a status of false isn't returned`, async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '1'},
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
+      console.log('empt ', results.items);
 
-    expect(results.items.length).toEqual(0);
+    expect(results.items).toEqual(null);
   });
-  test('Get a bad response when no id is given', async () => {
+  test('Get a bad response when no tag is given', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: ''},
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context);

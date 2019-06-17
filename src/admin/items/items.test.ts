@@ -1,7 +1,6 @@
 require('dotenv').config(
   {
-    DEBUG: true,
-    path: process.cwd() + (process.env.LOCAL ? '/.env' : '/.env-test')
+    DEBUG: true
   }
 );
 
@@ -15,7 +14,7 @@ afterAll( () => {
   db.$pool.end();
 });
 
-describe('get Tests', () => {
+describe('get Admin Tests', () => {
 
   test('Check that we have 7 seeds.', async () => {
     const

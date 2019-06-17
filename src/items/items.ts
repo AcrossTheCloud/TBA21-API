@@ -3,9 +3,6 @@ import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
 import Joi from '@hapi/joi';
-
-
-
 /**
  *
  * Gets all the items
@@ -22,15 +19,12 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       limit: Joi.number().integer(),
       offset: Joi.number().integer()
     }));
-    //will cause an exception if it is not valid
+    // will cause an exception if it is not valid
     console.log(result); // to see the result
 
     let
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues; // Use default values if not supplied.
-
-
-
 
     const query = `
     SELECT
@@ -59,11 +53,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
     OFFSET $2 
   `;
     let params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
-    //console.log(query,params);
-
 
     let allItems = await db.any(query, params);
-    //console.log('lngth', allItems.length);
     return successResponse({ items: allItems });
   } catch (e) {
     console.log('/items/items.get ERROR - ', e);
@@ -82,13 +73,10 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
-      id: Joi.number().integer().required()
-    }),{ presence: "required" });
-    //will cause an exception if it is not valid
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({id: Joi.number().integer().required()}), { presence: 'required' });
+    // will cause an exception if it is not valid
     console.log(result); // to see the result 
     let queryString = event.queryStringParameters; // Use default values if not supplied.
-
 
     const query = `
       SELECT
@@ -115,7 +103,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
 
     let params = [queryString.id];
 
-    let theItem = await db.oneOrNone(query,params);
+    let theItem = await db.oneOrNone(query, params);
 
     return successResponse({ items: theItem });
   } catch (e) {
@@ -142,7 +130,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       offset: Joi.number().integer(),
       tag: Joi.string().required()
     }));
-    //will cause an exception if it is not valid
+    // will cause an exception if it is not valid
     console.log(result); // to see the result
     let
       defaultValues = { limit: 15, offset: 0 },
@@ -180,8 +168,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       OFFSET $3
     `;
     let params = [queryString.tag, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
-    let allItems = await db.any(query, params)
-
+    let allItems = await db.any(query, params);
 
     return successResponse({ items: allItems });
   } catch (e) {
@@ -207,9 +194,9 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
       offset: Joi.number().integer(),
       type: Joi.string().required()
     }));
-  let
-    defaultValues = { limit: 15, offset: 0 },
-    queryString = event.queryStringParameters; // Use default values if not supplied.
+    let
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters; // Use default values if not supplied.
 
     const query = `
       SELECT 
@@ -242,14 +229,13 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
       OFFSET $3
     `;
     let params = [queryString.type, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
-    let allItems = await db.any(query, params)
+    let allItems = await db.any(query, params);
 
-
-      return successResponse({ items: allItems });
-    } catch (e) {
-      console.log('/items/items.getByType ERROR - ', e);
-      return badRequestResponse();
-    }
+    return successResponse({ items: allItems });
+  } catch (e) {
+    console.log('/items/items.getByType ERROR - ', e);
+    return badRequestResponse();
+  }
 
 };
 /**
@@ -270,9 +256,9 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
       offset: Joi.number().integer(),
       person: Joi.string().required()
     }));
-  let
-    defaultValues = { limit: 15, offset: 0 },
-    queryString = event.queryStringParameters; // Use default values if not supplied.
+    let
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters; // Use default values if not supplied.
     const query = `
       SELECT
         COUNT ( item.ID ) OVER (),
@@ -304,14 +290,13 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
       OFFSET $3 
     `;
     let params = [queryString.person, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
-    let allItems = await db.any(query, params)
+    let allItems = await db.any(query, params);
 
-
-      return successResponse({ items: allItems });
-    } catch (e) {
-      console.log('/items/items.getByPerson ERROR - ', e);
-      return badRequestResponse();
-    }
+    return successResponse({ items: allItems });
+  } catch (e) {
+    console.log('/items/items.getByPerson ERROR - ', e);
+    return badRequestResponse();
+  }
 };
 /**
  *
@@ -329,22 +314,22 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
       id: Joi.number().required(),
       status: Joi.boolean().required()
     }));
-  let
-    queryString = event.queryStringParameters; // Use default values if not supplied.
+    let
+      queryString = event.queryStringParameters; // Use default values if not supplied.
     const query = `
       UPDATE ${process.env.ITEMS_TABLE}
       SET status = $1 
       WHERE id = $2 
       RETURNING id,status
     `;
-    let params= [queryString.status,queryString.id];
-    let itemId = await db.one(query,params);
+    let params = [queryString.status, queryString.id];
+    let itemId = await db.one(query, params);
 
-      return successResponse({ updatedItem: itemId  });
-    } catch (e) {
-      console.log('/items/items.changeStatus ERROR - ', e);
-      return badRequestResponse();
-    }
+    return successResponse({ updatedItem: itemId });
+  } catch (e) {
+    console.log('/items/items.changeStatus ERROR - ', e);
+    return badRequestResponse();
+  }
 
 };
 /**
@@ -365,21 +350,21 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
       lng_sw: Joi.number().required(),
       lng_ne: Joi.number().required()
     }));
-  let
-    queryString = event.queryStringParameters; // Use default values if not supplied.
+    let
+      queryString = event.queryStringParameters; // Use default values if not supplied.
 
     const query = `
       SELECT *, ST_AsText(location) as geoJSON 
       FROM ${process.env.ITEMS_TABLE}
       WHERE location && ST_MakeEnvelope($1, $2, $3,$4, 4326)
     `;
-    let params=[queryString.lat_sw,queryString.lng_sw,queryString.lat_ne,queryString.lng_ne];
-    let allItems= await db.any(query,params); 
+    let params = [queryString.lat_sw, queryString.lng_sw, queryString.lat_ne, queryString.lng_ne];
+    let allItems = await db.any(query, params);
 
-      return successResponse({ items: allItems});
-    } catch (e) {
-      console.log('/items/items.getItemsOnMap ERROR - ', e);
-      return badRequestResponse();
-    }
+    return successResponse({ items: allItems });
+  } catch (e) {
+    console.log('/items/items.getItemsOnMap ERROR - ', e);
+    return badRequestResponse();
+  }
 
 };
