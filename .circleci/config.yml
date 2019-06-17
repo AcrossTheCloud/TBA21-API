@@ -54,7 +54,20 @@ jobs:
       - run:
           name: Runing Jest
           command: jest --coverage
-
+          environment:
+            UPLOADS_TABLE: tba21.s3uploads
+            TYPES_TABLE: tba21.types
+            ITEMS_TABLE: tba21.items
+            COLLECTIONS_TABLE: tba21.collections
+            COLLECTIONS_ITEMS_TABLE: tba21.collections_items
+            CONCEPT_TAGS_TABLE: tba21.concept_tags
+            KEYWORD_TAGS_TABLE: tba21.keyword_tags
+            PGUSER: postgres
+            PGPASSWORD: postgres
+            PGHOST: localhost
+            PGPORT: 5432
+            PGDATABASE: tba21
+            PGSSL: false
       - store_artifacts:
           path: coverage
       - codecov/upload:
