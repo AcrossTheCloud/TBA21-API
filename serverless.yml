@@ -134,19 +134,19 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  getItemsById:
-    handler: src/items/items.getById
-    description: Returns items id from the database.
+  getItemsBys3Key:
+    handler: src/items/items.getBys3Key
+    description: Returns items s3 key from the database.
     events:
       - http:
-          path: items/getById
+          path: items/getBys3Key
           method: get
           cors: true
           authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.id
+              - name: request.querystring.s3Key
 
   getItemsByTag:
     handler: src/items/items.getByTag
@@ -335,19 +335,19 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  adminGetItemsById:
-    handler: src/admin/items/items.getById
-    description: Returns items id from the database.
+  adminGetItemsBys3Key:
+    handler: src/admin/items/items.getBys3Key
+    description: Returns items s3 key from the database.
     events:
       - http:
-          path: admin/items/getById
+          path: admin/items/getBys3Key
           method: get
           cors: true
           authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.id
+              - name: request.querystring.s3Key
 
   adminGetItemsByTag:
     handler: src/admin/items/items.getByTag
