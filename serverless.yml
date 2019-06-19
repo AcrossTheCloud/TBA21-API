@@ -38,6 +38,10 @@ provider:
   region: ${env:REGION, 'eu-central-1'}
   versionFunctions: false
   environment:
+    # AWS
+    USER_POOL_ID: ${env:USER_POOL_ID}
+
+    # Database
     UPLOADS_TABLE: tba21.s3uploads
     TYPES_TABLE: tba21.types
     ITEMS_TABLE: tba21.items
@@ -45,12 +49,18 @@ provider:
     COLLECTIONS_ITEMS_TABLE: tba21.collections_items
     CONCEPT_TAGS_TABLE: tba21.concept_tags
     KEYWORD_TAGS_TABLE: tba21.keyword_tags
+
     PGUSER: ${env:PGUSER}
     PGPASSWORD: ${env:PGPASSWORD}
     PGHOST: ${env:PGHOST}
     PGPORT: ${env:PGPORT, "5432"}
     PGDATABASE: ${env:PGDATABASE}
     PGSSL: ${env:PGSSL}
+
+    # Mailchimp
+    MC_DC: ${env:MC_DC}
+    MC_APIKEY: ${env:MC_APIKEY}
+    MC_AUDIENCE_ID: ${env:MC_AUDIENCE_ID}
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
@@ -395,3 +405,45 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.tag
+
+
+# MAILCHIMP
+  mailchimpGetSegments:
+    handler: src/mailchimp/mailchimp.getSegments
+    description: Get subscriber tags via their hashed email
+    events:
+      - http:
+          path: mailchimp/getSegments
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  mailchimpGetSubscriberTags:
+    handler: src/mailchimp/mailchimp.getSubscriberTags
+    description: Get subscriber tags via their hashed email
+    events:
+      - http:
+          path: mailchimp/getSubscriberTags
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  mailchimpPostSubscriberAddTag:
+    handler: src/mailchimp/mailchimp.postSubscriberAddTag
+    description: Adds a tag to a subscriber
+    events:
+      - http:
+          path: mailchimp/postSubscriberAddTag
+          method: post
+          cors: true
+          authorizer: aws_iam
+
+  mailchimpDeleteSubscriberRemoveTag:
+    handler: src/mailchimp/mailchimp.deleteSubscriberRemoveTag
+    description: Removes a tag from a subscriber
+    events:
+      - http:
+          path: mailchimp/deleteSubscriberRemoveTag
+          method: delete
+          cors: true
+          authorizer: aws_iam

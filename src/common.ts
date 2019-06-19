@@ -11,6 +11,12 @@ export const badRequestResponse = (message?: string): APIGatewayProxyResult => (
   statusCode: 400
 });
 
+export const internalServerErrorResponse = (message?: string): APIGatewayProxyResult => ({
+  body: JSON.stringify({message: (message ? message : 'Internal Server Error')}),
+  headers: headers,
+  statusCode: 500
+});
+
 export const successResponse = (data: any): APIGatewayProxyResult => ({ // tslint:disable-line no-any
   body: JSON.stringify(data),
   headers: headers,
