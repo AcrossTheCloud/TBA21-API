@@ -42,13 +42,13 @@ provider:
     USER_POOL_ID: ${env:USER_POOL_ID}
 
     # Database
-    UPLOADS_TABLE: tba21.s3uploads
-    TYPES_TABLE: tba21.types
-    ITEMS_TABLE: tba21.items
-    COLLECTIONS_TABLE: tba21.collections
-    COLLECTIONS_ITEMS_TABLE: tba21.collections_items
-    CONCEPT_TAGS_TABLE: tba21.concept_tags
-    KEYWORD_TAGS_TABLE: tba21.keyword_tags
+    UPLOADS_TABLE: ${env:UPLOADS_TABLE}
+    TYPES_TABLE: ${env:TYPES_TABLE}
+    ITEMS_TABLE: ${env:ITEMS_TABLE}
+    COLLECTIONS_TABLE: ${env:COLLECTIONS_TABLE}
+    COLLECTIONS_ITEMS_TABLE: ${env:COLLECTIONS_ITEMS_TABLE}
+    CONCEPT_TAGS_TABLE: ${env:CONCEPT_TAGS_TABLE}
+    KEYWORD_TAGS_TABLE: ${env:KEYWORD_TAGS_TABLE}
 
     PGUSER: ${env:PGUSER}
     PGPASSWORD: ${env:PGPASSWORD}
