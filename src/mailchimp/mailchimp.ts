@@ -66,7 +66,7 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
  *
  */
 export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  console.log(event.queryStringParameters);
+  console.log('The event', event);
 
   if (event.queryStringParameters.hasOwnProperty('tag')) {
 
