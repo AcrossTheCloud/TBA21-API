@@ -410,7 +410,7 @@ functions:
 # MAILCHIMP
   mailchimpGetSegments:
     handler: src/mailchimp/mailchimp.getSegments
-    description: Get subscriber tags via their hashed email
+    description: Get all subscriber tags
     events:
       - http:
           path: mailchimp/getSegments

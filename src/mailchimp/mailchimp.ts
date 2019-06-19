@@ -97,23 +97,25 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
       await addTagToSubscriber(email, segment[0].id);
       return successResponse(true);
     } catch (e) {
-      const errors = e.response.data.errors;
-      for (let i = 0; i < errors.length; i++) {
-        if (errors[i].message === 'Email is not subscribed to the list') { // The user is a subscriber and has the Unsubscribed status.
-          if (await changeSubscriberStatus(email, 'subscribed')) {
+      if (e.response && e.response.data && e.response.data.errors) {
+        const errors = e.response.data.errors;
+        for (let i = 0; i < errors.length; i++) {
+          if (errors[i].message === 'Email is not subscribed to the list') { // The user is a subscriber and has the Unsubscribed status.
+            if (await changeSubscriberStatus(email, 'subscribed')) {
 
-            try {
-              await addTagToSubscriber(email, segment[0].id);
-              return successResponse(true);
-            } catch (e) {
-              return internalServerErrorResponse(`Couldn't add user to list.`);
+              try {
+                await addTagToSubscriber(email, segment[0].id);
+                return successResponse(true);
+              } catch (e) {
+                return internalServerErrorResponse(`Couldn't add user to list.`);
+              }
+
+            } else {
+              return internalServerErrorResponse(`Couldn't change the users status to subscribed.`);
             }
-
           } else {
-            return internalServerErrorResponse(`Couldn't change the users status to subscribed.`);
+            return internalServerErrorResponse(`Something went wrong.`);
           }
-        } else {
-          return internalServerErrorResponse(`Something went wrong.`);
         }
       }
 
@@ -144,7 +146,7 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
 
       return successResponse(true);
     } catch (e) {
-      if (e.response.data.detail === 'Member does not belong to the static segment.') {
+      if (e.response && e.response.data && e.response.data.detail === 'Member does not belong to the static segment.') {
         return successResponse(false);
       } else {
         return internalServerErrorResponse(`An error has occurred - ${e}`);
