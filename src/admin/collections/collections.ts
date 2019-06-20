@@ -2,191 +2,218 @@ import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context }
 import { badRequestResponse, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
-
+import Joi from '@hapi/joi';
 /**
  *
- * Gets collections from the database
+ * Gets all the collections
  *
- * @param event { APIGatewayProxyEvent }, limit and offset (optional, defaults set in api)
- * @param context { APIGatewayProxyResult }
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collection list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
+    // VALidATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer()
+      }));
+    // will cause an exception if it is not valid
+    console.log(result); // to see the result
+
     const
       defaultValues = { limit: 15, offset: 0 },
-      params = event.queryStringParameters ? event.queryStringParameters : defaultValues; // Use default values if not supplied.
-
-    const query = `
-      SELECT 
-        COUNT ( collection.ID ) OVER (),
-        collection.*,
-        COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-        ST_AsGeoJSON(collection.geom) as geoJSON
-      FROM 
-        ${process.env.PGDATABASE}.collections AS collection,
+      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues, // Use default values if not supplied.
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      query = `
+        SELECT
+          COUNT ( collections.id ) OVER (),
+          collections.*,
+          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          ST_AsGeoJSON(collections.geom) as geoJSON
+        FROM 
+          ${process.env.COLLECTIONS_TABLE} AS collections,
+            
+          UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
+                    
+          UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
+            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
+            
+        GROUP BY collections.id
+        ORDER BY collections.id
         
-        UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
-                  
-        UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
-          
-      GROUP BY collection.ID
-      ORDER BY collection.ID
-      ${`LIMIT ${limitQuery(params.limit, defaultValues.limit)}`}
-      ${`OFFSET ${params.offset || defaultValues.offset}`}
-    `;
+        LIMIT $1 
+        OFFSET $2 
+      `;
 
-    return successResponse({ collections: await db.query(query) });
+    return successResponse({ collections: await db.any(query, params) });
   } catch (e) {
-    console.log('/admin/collections/get ERROR - ', e);
+    console.log('/collections/collections.get ERROR - ', e);
     return badRequestResponse();
   }
 };
 /**
  *
- * Gets collections by their ID from the database
+ * Gets the collections by their id
  *
- * @param event { APIGatewayProxyEvent },
- * @param context { APIGatewayProxyResult }
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collection list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
  */
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  let
-    queryString = event.queryStringParameters; // Use default values if not supplied.
-  if (queryString && queryString.hasOwnProperty('id') && queryString.id.length) {
-    const query = `
-      SELECT
-        COUNT ( collection.ID ) OVER (),
-        collection.*,
-        COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-        ST_AsGeoJSON(collection.geom) as geoJSON
-      FROM 
-        ${process.env.PGDATABASE}.collections AS collection,
-        
-        UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
-                  
-        UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
-          
-      WHERE collection.id=${queryString.id}
-      
-      GROUP BY collection.ID
-      ORDER BY collection.ID
-    `;
+  try {
+    // VALidATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({id:  Joi.number().required()}), { presence: 'required' });
+    // will cause an exception if it is not valid
+    console.log(result); // to see the result
 
-    try {
-      return successResponse({ collections: await db.query(query) });
-    } catch (e) {
-      console.log('/admin/collections/collections.getById ERROR - ', e);
-      return badRequestResponse();
-    }
-  } else {
-    return badRequestResponse() ;
+    const
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [queryString.id],
+      query = `
+        SELECT
+          collections.*,
+          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          ST_AsGeoJSON(collections.geom) as geoJSON 
+        FROM 
+          ${process.env.COLLECTIONS_TABLE} AS collections,
+            
+          UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
+                    
+          UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
+            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
+        
+        WHERE collections.id=$1
+        
+        GROUP BY collections.id
+        ORDER BY collections.id
+      `;
+
+    return successResponse({ collections: await db.oneOrNone(query, params) });
+  } catch (e) {
+    console.log('/collections/collections.getById ERROR - ', e);
+    return badRequestResponse();
   }
 };
+
 /**
  *
- * Gets collections by their tag from the database
+ * Get the collections by tag name
  *
- * @param event { APIGatewayProxyEvent }, limit and offset (optional, defaults set in api)
- * @param context { APIGatewayProxyResult }
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collection list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  let
-    defaultValues = { limit: 15, offset: 0 },
-    queryString = event.queryStringParameters; // Use default values if not supplied.
-  if (queryString && queryString.hasOwnProperty('tag') && queryString.tag.length) {
-    const query = `
+  try {
+    // VALidATE first
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+        tag: Joi.string().required()
+      }));
+    // will cause an exception if it is not valid
+    console.log(result); // to see the result
+
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [queryString.tag, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      query = `
       SELECT
-        COUNT ( collection.ID ) OVER (),
-         collection.*,
+        COUNT ( collections.id ) OVER (),
+         collections.*,
          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-         ST_AsGeoJSON(collection.geom) as geoJSON
+         ST_AsGeoJSON(collections.geom) as geoJSON
       FROM 
-        ${process.env.PGDATABASE}.collections AS collection,
+        ${process.env.COLLECTIONS_TABLE} AS collections,
             
-        UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+        UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
+          LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
                 
-        UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+        UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
+          LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
       WHERE (
-        concept_tag.tag_name LIKE ('%${queryString.tag}%')
+        LOWER(concept_tag.tag_name) LIKE '%' || LOWER($1) || '%'
         OR
-        keyword_tag.tag_name LIKE ('%${queryString.tag}%')
+        LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($1) || '%'
       )
       
-      GROUP BY collection.ID
-      ORDER BY collection.ID
+      GROUP BY collections.id
+      ORDER BY collections.id
       
-      ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
-      ${`OFFSET ${queryString.offset || defaultValues.offset}`}
+      LIMIT $2  
+      OFFSET $3
     `;
 
-    try {
-      return successResponse({ collections: await db.query(query) });
-    } catch (e) {
-      console.log('/admin/collections/collections.getByTag ERROR - ', e);
-      return badRequestResponse();
-    }
-  } else {
-    return badRequestResponse() ;
+    return successResponse({ collections: await db.any(query, params) });
+  } catch (e) {
+    console.log('/collections/collections.getByTag ERROR - ', e);
+    return badRequestResponse();
   }
 };
 /**
  *
- * Gets collections that contain a person from the database
+ * Get a list of collections containing a person
  *
- * @param event { APIGatewayProxyEvent }, limit and offset (optional, defaults set in api)
- * @param context { APIGatewayProxyResult }
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collection list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ *
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  let
-    defaultValues = { limit: 15, offset: 0 },
-    queryString = event.queryStringParameters; // Use default values if not supplied.
-  if (queryString && queryString.hasOwnProperty('person') && queryString.person.length) {
-    const query = `
-      SELECT
-        COUNT ( collections.ID ) OVER (),
-         collections.*,
-         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags
-      FROM 
-        ${process.env.PGDATABASE}.collections AS collections,
-            
-        UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
-                
-        UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
-          LEFT JOIN ${process.env.PGDATABASE}.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
-          
-        WHERE (concat(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_) LIKE '%${queryString.person}%')
-      GROUP BY collections.ID
-      ORDER BY collections.ID
-      
-      ${`LIMIT ${limitQuery(queryString.limit, defaultValues.limit)}`}  
-      ${`OFFSET ${queryString.offset || defaultValues.offset}`}
-    `;
+  try {
+    // VALidATE first
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+        person: Joi.string().required()
+      }));
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [queryString.person, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      query = `
+        SELECT
+          COUNT ( collections.id ) OVER (),
+           collections.*,
+           COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+           COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+           ST_AsGeoJSON(collections.geom) as geoJSON 
+        FROM 
+          ${process.env.COLLECTIONS_TABLE} AS collections,
+                       
+          UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
+                  
+          UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
+            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
+        WHERE ( 
+          LOWER(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) LIKE '%' || LOWER($1) || '%' 
+        )
+        
+        GROUP BY collections.id
+        ORDER BY collections.id
+        
+        LIMIT $2 
+        OFFSET $3 
+      `;
 
-    try {
-      return successResponse({ collections: await db.query(query) });
-    } catch (e) {
-      console.log('/collections/collections.getByPerson ERROR - ', e);
-      return badRequestResponse();
-    }
-  } else {
-    return badRequestResponse() ;
+    return successResponse({ collections: await db.any(query, params) });
+  } catch (e) {
+    console.log('/collections/collections.getByPerson ERROR - ', e);
+    return badRequestResponse();
   }
 };

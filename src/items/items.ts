@@ -290,17 +290,17 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
   try {
     // VALIDATE first
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
-      id: Joi.number().required(),
+      s3Key: Joi.string().required(),
       status: Joi.boolean().required()
     }));
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.status, queryString.id],
+      params = [queryString.status, queryString.s3Key],
         query = `
         UPDATE ${process.env.ITEMS_TABLE}
         SET status = $1 
-        WHERE id = $2 
-        RETURNING id,status
+        WHERE s3_key = $2 
+        RETURNING s3_key,status
       `;
 
     return successResponse({ updatedItem: await db.one(query, params) });

@@ -60,14 +60,14 @@ describe('/admin/collections/collections.get', () => {
 
 });
 
-describe('/collections/getById', () => {
+describe('/admin/collections/getById', () => {
   test('Get collection by id of 2', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '2'},
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.collections[0].id).toEqual('2');
+    expect(item.collections.id).toEqual('2');
   });
 
   test('Get a bad response when no id is given', async () => {
@@ -79,7 +79,7 @@ describe('/collections/getById', () => {
   });
 });
 
-describe('/collections/getByTag', () => {
+describe('/admin/collections/getByTag', () => {
   test('Get all collections with a tag of con', async () => {
     const
       queryStringParameters: QueryStringParameters = {tag: 'con'},

@@ -205,7 +205,7 @@ functions:
               - name: request.querystring.id
               - name: request.querystring.status
 
-  GetItemsOnMap:
+  getItemsInBounds:
     handler: src/items/items.getItemsInBounds
     description: Get all items inside a bounding box
     events:
@@ -223,6 +223,34 @@ functions:
               - name: request.querystring.lat_nw
 
 ### Collections
+  getGetCollectionsByTag:
+    handler: src/collections/collections.getByTag
+    description: Returns collections by tag from the database.
+    events:
+      - http:
+          path: collections/getByTag
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.tag
+
+  getCollectionById:
+    handler: src/collections/collections.getById
+    description: Returns collections id from the database.
+    events:
+      - http:
+          path: collections/getById
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+
   getCollectionsByPerson:
     handler: src/collections/collections.getByPerson
     description: Returns collection by person from the database.

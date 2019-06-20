@@ -260,7 +260,6 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
         LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         
         WHERE LOWER(type_name) LIKE '%' || LOWER($1) || '%' 
-        AND status=true
         
         GROUP BY itemtype.ID, item.s3_key
         ORDER BY item.s3_key
