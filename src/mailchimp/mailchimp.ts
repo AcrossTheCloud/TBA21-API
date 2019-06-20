@@ -66,68 +66,64 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
  *
  */
 export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  console.log('The event', event);
+  if (event.queryStringParameters.hasOwnProperty('tag')) {
 
-  return successResponse(event);
+    // Get all tags with ids
+    const
+      segments = await getSegmentsWithId(), // "tags"
+      segment = segments ? segments.filter( s => s.name === event.queryStringParameters.tag) : null, // Filter out all but the given tag
+      email = await getEmailFromUUID(event.queryStringParameters.uuid);
 
-  // if (event.queryStringParameters.hasOwnProperty('tag')) {
-  //
-  //   // Get all tags with ids
-  //   const
-  //     segments = await getSegmentsWithId(), // "tags"
-  //     segment = segments ? segments.filter( s => s.name === event.queryStringParameters.tag) : null, // Filter out all but the given tag
-  //     email = await getEmailFromUUID(event.queryStringParameters.uuid);
-  //
-  //   if (!segment || !segment.length) {
-  //     return badRequestResponse('No tag by that name');
-  //   }
-  //
-  //   // If the user isn't a subscriber, add them.
-  //   if (!await userIsASubscriber(email)) {
-  //     try {
-  //       const data = {
-  //           email_address: email,
-  //           tags: [segment[0].name],
-  //           status: 'subscribed'
-  //         };
-  //       await axios.post( url + `/lists/${process.env.MC_AUDIENCE_ID}/members`, data, { headers: headers });
-  //       return successResponse(true);
-  //     } catch (e) {
-  //       return internalServerErrorResponse(`postSubscriberAddTag: Create Subscriber Error - ${e}`);
-  //     }
-  //   }
-  //
-  //   try {
-  //     await addTagToSubscriber(email, segment[0].id);
-  //     return successResponse(true);
-  //   } catch (e) {
-  //     if (e.response && e.response.data && e.response.data.errors) {
-  //       const errors = e.response.data.errors;
-  //       for (let i = 0; i < errors.length; i++) {
-  //         if (errors[i].message === 'Email is not subscribed to the list') { // The user is a subscriber and has the Unsubscribed status.
-  //           if (await changeSubscriberStatus(email, 'subscribed')) {
-  //
-  //             try {
-  //               await addTagToSubscriber(email, segment[0].id);
-  //               return successResponse(true);
-  //             } catch (e) {
-  //               return internalServerErrorResponse(`Couldn't add user to list.`);
-  //             }
-  //
-  //           } else {
-  //             return internalServerErrorResponse(`Couldn't change the users status to subscribed.`);
-  //           }
-  //         } else {
-  //           return internalServerErrorResponse(`Something went wrong.`);
-  //         }
-  //       }
-  //     }
-  //
-  //     return internalServerErrorResponse(`Something went wrong.`);
-  //   }
-  // } else {
-  //   return badRequestResponse('Please supply the tag name');
-  // }
+    if (!segment || !segment.length) {
+      return badRequestResponse('No tag by that name');
+    }
+
+    // If the user isn't a subscriber, add them.
+    if (!await userIsASubscriber(email)) {
+      try {
+        const data = {
+            email_address: email,
+            tags: [segment[0].name],
+            status: 'subscribed'
+          };
+        await axios.post( url + `/lists/${process.env.MC_AUDIENCE_ID}/members`, data, { headers: headers });
+        return successResponse(true);
+      } catch (e) {
+        return internalServerErrorResponse(`postSubscriberAddTag: Create Subscriber Error - ${e}`);
+      }
+    }
+
+    try {
+      await addTagToSubscriber(email, segment[0].id);
+      return successResponse(true);
+    } catch (e) {
+      if (e.response && e.response.data && e.response.data.errors) {
+        const errors = e.response.data.errors;
+        for (let i = 0; i < errors.length; i++) {
+          if (errors[i].message === 'Email is not subscribed to the list') { // The user is a subscriber and has the Unsubscribed status.
+            if (await changeSubscriberStatus(email, 'subscribed')) {
+
+              try {
+                await addTagToSubscriber(email, segment[0].id);
+                return successResponse(true);
+              } catch (e) {
+                return internalServerErrorResponse(`Couldn't add user to list.`);
+              }
+
+            } else {
+              return internalServerErrorResponse(`Couldn't change the users status to subscribed.`);
+            }
+          } else {
+            return internalServerErrorResponse(`Something went wrong.`);
+          }
+        }
+      }
+
+      return internalServerErrorResponse(`Something went wrong.`);
+    }
+  } else {
+    return badRequestResponse('Please supply the tag name');
+  }
 };
 
 /**
