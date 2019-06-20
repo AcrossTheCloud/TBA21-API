@@ -3,8 +3,6 @@ require('dotenv').config(
     DEBUG: true
   });
 
-console.log('env pass:', process.env.PGPASSWORD);
-
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
