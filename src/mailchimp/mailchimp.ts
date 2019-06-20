@@ -21,7 +21,8 @@ export const getSegments: Handler = async (event: APIGatewayEvent, context: Cont
     const response = await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/segments`, { headers: headers });
     return successResponse(response.data.segments.map( tag => ({ name: tag.name })));
   } catch (e) {
-    return internalServerErrorResponse(e);
+    console.log('getSegments: ', e);
+    return internalServerErrorResponse('MC0001');
   }
 };
 
@@ -50,7 +51,8 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
       if (e.response.status === 404) {
         return successResponse([]);
       }
-      return internalServerErrorResponse();
+      console.log('getSubscriberTags: ', e);
+      return internalServerErrorResponse('MC0002');
     }
   } else {
     return badRequestResponse('Email is required.');
@@ -78,7 +80,7 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
     // No tags at all? Fail
     if (!segments || !segments.length) { return badRequestResponse('No segments'); }
     // If we don't find the users email from their UUID, fail
-    if (email === 'Error getting cognito user.') { return internalServerErrorResponse('Error getting cognito user.'); }
+    if (email === 'Error getting cognito user.') { return internalServerErrorResponse('We had an issue processing your request. (MC003)'); }
     // If there's no tag that has the name of the supplied tag, fail
     if (!segment || !segment.length) { return badRequestResponse('No tag by that name'); }
 
@@ -93,7 +95,8 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
         await axios.post( url + `/lists/${process.env.MC_AUDIENCE_ID}/members`, data, { headers: headers });
         return successResponse(true);
       } catch (e) {
-        return internalServerErrorResponse(`postSubscriberAddTag: Create Subscriber Error - ${e}`);
+        console.log('postSubscriberAddTag: ', e);
+        return internalServerErrorResponse(`We've had an issue processing your request. (MC0004)`);
       }
     }
 
@@ -112,19 +115,23 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
                 await addTagToSubscriber(email, segment[0].id);
                 return successResponse(true);
               } catch (e) {
-                return internalServerErrorResponse(`Couldn't add user to list.`);
+                console.log('postSubscriberAddTag: ', e);
+                return internalServerErrorResponse(`We had trouble updating your preferences. (MC0005)`);
               }
 
             } else {
-              return internalServerErrorResponse(`Couldn't change the users status to subscribed.`);
+              console.log('postSubscriberAddTag: ', e);
+              return internalServerErrorResponse(`We had trouble processing your request. (MC0006)`);
             }
           } else {
-            return internalServerErrorResponse(`Something went wrong.`);
+            console.log('postSubscriberAddTag: ', e);
+            return internalServerErrorResponse(`Something went wrong. (MC0007)`);
           }
         }
       }
       // No error matched what we expected, fail.
-      return internalServerErrorResponse(`Something went wrong.`);
+      console.log('postSubscriberAddTag: ', e);
+      return internalServerErrorResponse(`Something went wrong. (MC0008)`);
     }
 
   } else {
@@ -169,23 +176,26 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
                   await addTagToSubscriber(email, segment[0].id);
                   return successResponse(true);
                 } catch (e) {
-                  return internalServerErrorResponse(`Couldn't add user to list.`);
+                  console.log('deleteSubscriberRemoveTag: ', e);
+                  return internalServerErrorResponse(`We had trouble processing your request. (MC0008)`);
                 }
 
               } else {
-                return internalServerErrorResponse(`Couldn't change the users status to subscribed.`);
+                console.log('deleteSubscriberRemoveTag: ', e);
+                return internalServerErrorResponse(`We had trouble processing your request. (MC0009)`);
               }
             } else {
-              return internalServerErrorResponse(`Something went wrong.`);
+              console.log('deleteSubscriberRemoveTag: ', e);
+              return internalServerErrorResponse(`We've had a bit of an issue. (MC0010)`);
             }
           }
         }
         // No error matched what we expected, fail.
-
-        console.log('ERRORRR' , e);
-        return internalServerErrorResponse(`Hi ${e}`);
+        console.log('deleteSubscriberRemoveTag: ', e);
+        return internalServerErrorResponse(`Something went wrong. (MC0011)`);
       }
-      return internalServerErrorResponse(`Something went wrong.`);
+      console.log('deleteSubscriberRemoveTag: ', e);
+      return internalServerErrorResponse(`Something went wrong. (MC0011)`);
     }
   } else {
     return badRequestResponse('Please supply a tag name.');
@@ -211,7 +221,7 @@ const addTagToSubscriber = async (email: string, tagID: string): Promise<boolean
     await axios.post(url + `/lists/${process.env.MC_AUDIENCE_ID}/segments/${tagID}/members`, { email_address: email }, { headers: headers });
     return true;
   } catch (e) {
-    console.log('addTagToSubscriber', e.response.data);
+    console.log('addTagToSubscriber: ', e.response.data);
     throw e;
   }
 };
@@ -235,6 +245,7 @@ const changeSubscriberStatus = async (email: string, status: string): Promise<bo
     await axios.put(url + `/lists/${process.env.MC_AUDIENCE_ID}/members/${hashEmail(email)}`, { status: 'subscribed' }, { headers: headers });
     return true;
   } catch (e) {
+    console.log('changeSubscriberStatus: ', e);
     throw e;
   }
 };
@@ -249,6 +260,7 @@ const userIsASubscriber = async (email: string): Promise<boolean> => {
     await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/members/${hashEmail(email)}`, {headers: headers});
     return true;
   } catch (e) {
+    console.log('userIsASubscriber: ', e);
     return false;
   }
 };
@@ -267,6 +279,7 @@ const getSegmentsWithId = async (): Promise< { id: string, name: string }[] | nu
       name: tag.name
     }));
   } catch (e) {
+    console.log('getSegmentsWithId: ', e);
     return null;
   }
 };
