@@ -66,26 +66,30 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
  *
  */
 export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  if (event.queryStringParameters.hasOwnProperty('tag')) {
+  if (event.hasOwnProperty('body')) {
+    const queryStringParameters = JSON.parse(event.body);
 
     // Get all tags with ids
     const
       segments = await getSegmentsWithId(), // "tags"
-      segment = segments ? segments.filter( s => s.name === event.queryStringParameters.tag) : null, // Filter out all but the given tag
-      email = await getEmailFromUUID(event.queryStringParameters.uuid);
+      segment = segments ? segments.filter( s => s.name === queryStringParameters.tag) : null, // Filter out all but the given tag
+      email = await getEmailFromUUID(queryStringParameters.uuid);
 
-    if (!segment || !segment.length) {
-      return badRequestResponse('No tag by that name');
-    }
+    // No tags at all? Fail
+    if (!segments || !segments.length) { return badRequestResponse('No segments'); }
+    // If we don't find the users email from their UUID, fail
+    if (email === 'Error getting cognito user.') { return internalServerErrorResponse('Error getting cognito user.'); }
+    // If there's no tag that has the name of the supplied tag, fail
+    if (!segment || !segment.length) { return badRequestResponse('No tag by that name'); }
 
     // If the user isn't a subscriber, add them.
     if (!await userIsASubscriber(email)) {
       try {
         const data = {
-            email_address: email,
-            tags: [segment[0].name],
-            status: 'subscribed'
-          };
+          email_address: email,
+          tags: [segment[0].name],
+          status: 'subscribed'
+        };
         await axios.post( url + `/lists/${process.env.MC_AUDIENCE_ID}/members`, data, { headers: headers });
         return successResponse(true);
       } catch (e) {
@@ -94,6 +98,7 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
     }
 
     try {
+      // Add tag to the user, if they already exist.
       await addTagToSubscriber(email, segment[0].id);
       return successResponse(true);
     } catch (e) {
@@ -118,9 +123,10 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
           }
         }
       }
-
+      // No error matched what we expected, fail.
       return internalServerErrorResponse(`Something went wrong.`);
     }
+
   } else {
     return badRequestResponse('Please supply the tag name');
   }
@@ -146,6 +152,8 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
 
       return successResponse(true);
     } catch (e) {
+      console.log('I GET HERE');
+
       if (e.response && e.response.data && e.response.data.detail === 'Member does not belong to the static segment.') {
         return successResponse(false);
       } else {

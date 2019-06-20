@@ -21,6 +21,6 @@ export const getEmailFromUUID = async (uuid: string): Promise<string> => {
     return user.Users[0].Attributes[0].Value;
 
   } catch (e) {
-    throw new Error(`Error getting cognito user. ${e}`);
+    return `Error getting cognito user.`;
   }
 };
