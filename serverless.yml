@@ -447,3 +447,13 @@ functions:
           method: delete
           cors: true
           authorizer: aws_iam
+
+  mailchimpPostSubscribeUser:
+    handler: src/mailchimp/mailchimp.postSubscribeUser
+    description: Sets the users status to subscribed
+    events:
+      - http:
+          path: mailchimp/postSubscribeUser
+          method: post
+          cors: true
+          authorizer: aws_iam

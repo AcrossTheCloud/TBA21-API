@@ -19,7 +19,7 @@ const
 export const getSegments: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     const response = await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/segments`, { headers: headers });
-    return successResponse(response.data.segments.map( tag => ({ name: tag.name })));
+    return successResponse(response.data.segments.map( tag => tag.name ));
   } catch (e) {
     console.log('getSegments: ', e);
     return internalServerErrorResponse('MC0001');
@@ -40,12 +40,18 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
     try {
       const
         email = hashEmail(event.queryStringParameters.email),
-        response = await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/members/${email}/tags`, {headers: headers});
+        // response = await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/members/${email}/tags`, {headers: headers});
+        // /lists/{list_id}/members/{subscriber_hash}
+        response = await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/members/${email}?fields=tags,status`, {headers: headers});
 
       // Map of tags
-      return successResponse(response.data.tags.map(tag => ({name: tag.name})));
+      return successResponse(
+        {
+          status: response.data.status,
+          tags: response.data.tags.map( tag => tag.name )
+        }
+      );
     } catch (e) {
-
       // The user doesn't exist if we return a 404
       // Return an empty list and allow the user to select one and then we'll create them as a subscriber.
       if (e.response.status === 404) {
@@ -135,10 +141,9 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
     }
 
   } else {
-    return badRequestResponse('Please supply the tag name');
+    return badRequestResponse('Required fields not supplied.');
   }
 };
-
 /**
  *
  * Removes a tag to a subscriber
@@ -199,6 +204,28 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
     }
   } else {
     return badRequestResponse('Please supply a tag name.');
+  }
+};
+
+/**
+ *
+ * Sets the subscribers status to subscribed.
+ *
+ * @params { uuid: string }
+ * @returns { boolean }
+ *
+ */
+export const postSubscribeUser: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  if (event.hasOwnProperty('body')) {
+    const queryStringParameters = JSON.parse(event.body);
+    try {
+      await changeSubscriberStatus(await getEmailFromUUID(queryStringParameters.uuid), 'subscribed');
+      return successResponse(true);
+    } catch (e) {
+      return successResponse(false);
+    }
+  } else {
+    return badRequestResponse('Required fields not supplied.');
   }
 };
 
