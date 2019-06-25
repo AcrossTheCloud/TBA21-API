@@ -54,13 +54,13 @@ describe('/admin/collections/collections.get', () => {
 });
 
 describe('/collections/getById', () => {
-  test('Get item by id of 2', async () => {
+  test('Get collection by id of 2', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '2'},
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections[0].id).toEqual('2');
+    expect(result.collections.id).toEqual('2');
   });
 
   test('Get a bad response when no id is given', async () => {
@@ -136,18 +136,18 @@ describe('/items/changeStatus', () => {
 });
 
 describe('/items/getCollectionsInBounds', () => {
-  test('Get all items within the bounding box (32.784840, 32.781431, 11.201, -0.009226)', async () => {
+  test('Get all items within the bounding box (90, 180, 90, 180)', async () => {
     const
-      queryStringParameters: QueryStringParameters = {lat_sw: '-71.16028', lng_sw: '- 42.258729', lat_ne: '71.160837', lng_ne: '42.25932'},
+      queryStringParameters: QueryStringParameters = {lat_sw: '-90', lng_sw: '-180', lat_ne: '90', lng_ne: '180'},
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(4);
+
+    expect(results.collections.length).toEqual(4);
   });
   test('Get a bad response when a boundary is missing', async () => {
     const
-      queryStringParameters: QueryStringParameters = {lat_sw: '-71.16028', lng_sw: '- 42.258729', lat_ne: '', lng_ne: '42.25932'},
+      queryStringParameters: QueryStringParameters = {lat_sw: '-90', lng_sw: '', lat_ne: '90', lng_ne: '180'},
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
-
     expect(response.statusCode).toEqual(400);
   });
 });

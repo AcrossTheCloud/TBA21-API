@@ -134,19 +134,19 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  getItemsById:
-    handler: src/items/items.getById
-    description: Returns items id from the database.
+  getItemsBys3Key:
+    handler: src/items/items.getBys3Key
+    description: Returns items s3 key from the database.
     events:
       - http:
-          path: items/getById
+          path: items/getBys3Key
           method: get
           cors: true
           authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.id
+              - name: request.querystring.s3Key
 
   getItemsByTag:
     handler: src/items/items.getByTag
@@ -205,7 +205,7 @@ functions:
               - name: request.querystring.id
               - name: request.querystring.status
 
-  GetItemsOnMap:
+  getItemsInBounds:
     handler: src/items/items.getItemsInBounds
     description: Get all items inside a bounding box
     events:
@@ -223,6 +223,34 @@ functions:
               - name: request.querystring.lat_nw
 
 ### Collections
+  getGetCollectionsByTag:
+    handler: src/collections/collections.getByTag
+    description: Returns collections by tag from the database.
+    events:
+      - http:
+          path: collections/getByTag
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.tag
+
+  getCollectionById:
+    handler: src/collections/collections.getById
+    description: Returns collections id from the database.
+    events:
+      - http:
+          path: collections/getById
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+
   getCollectionsByPerson:
     handler: src/collections/collections.getByPerson
     description: Returns collection by person from the database.
@@ -335,19 +363,19 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  adminGetItemsById:
-    handler: src/admin/items/items.getById
-    description: Returns items id from the database.
+  adminGetItemsBys3Key:
+    handler: src/admin/items/items.getBys3Key
+    description: Returns items s3 key from the database.
     events:
       - http:
-          path: admin/items/getById
+          path: admin/items/getBys3Key
           method: get
           cors: true
           authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.id
+              - name: request.querystring.s3Key
 
   adminGetItemsByTag:
     handler: src/admin/items/items.getByTag
