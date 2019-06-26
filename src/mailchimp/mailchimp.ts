@@ -75,13 +75,15 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
  */
 export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   if (event.hasOwnProperty('body')) {
+    console.log('event.requestContext', event.requestContext);
+    console.log('context', context.identity.cognitoIdentityId);
     const queryStringParameters = JSON.parse(event.body);
 
     // Get all tags with ids
     const
       segments = await getSegmentsWithId(), // "tags"
       segment = segments ? segments.filter( s => s.name === queryStringParameters.tag) : null, // Filter out all but the given tag
-      email = await getEmailFromUUID(queryStringParameters.uuid);
+      email = await getEmailFromUUID(event.requestContext.accountId);
 
     // No tags at all? Fail
     if (!segments || !segments.length) { return badRequestResponse('No segments'); }
@@ -157,7 +159,7 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
     const
       segments = await getSegmentsWithId(), // "tags"
       segment = segments.filter( s => s.name === event.queryStringParameters.tag), // Filter out all but the given tag
-      email = await getEmailFromUUID(event.queryStringParameters.uuid);
+      email = await getEmailFromUUID(event.requestContext.accountId);
 
     try {
       await axios.delete(url + `/lists/${process.env.MC_AUDIENCE_ID}/segments/${segment[0].id}/members/${hashEmail(email)}`, { headers: headers });
@@ -211,21 +213,15 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
  *
  * Sets the subscribers status to subscribed.
  *
- * @params { uuid: string }
  * @returns { boolean }
  *
  */
 export const postSubscribeUser: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  if (event.hasOwnProperty('body')) {
-    const queryStringParameters = JSON.parse(event.body);
-    try {
-      await changeSubscriberStatus(await getEmailFromUUID(queryStringParameters.uuid), 'subscribed');
-      return successResponse(true);
-    } catch (e) {
-      return successResponse(false);
-    }
-  } else {
-    return badRequestResponse('Required fields not supplied.');
+  try {
+    await changeSubscriberStatus(await getEmailFromUUID(event.requestContext.accountId), 'subscribed');
+    return successResponse(true);
+  } catch (e) {
+    return successResponse(false);
   }
 };
 
