@@ -76,7 +76,8 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
 export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   if (event.hasOwnProperty('body')) {
     console.log('event.requestContext', event.requestContext);
-    console.log('context', context.identity.cognitoIdentityId);
+    console.log('context', context.identity);
+    console.log('event.requestContext.authorizer', event.requestContext.authorizer);
     const queryStringParameters = JSON.parse(event.body);
 
     // Get all tags with ids
