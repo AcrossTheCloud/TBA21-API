@@ -96,7 +96,6 @@ export const getBys3Key = async (event: APIGatewayEvent, context: Context): Prom
         GROUP BY item.s3_key
         ORDER BY item.s3_key
       `;
-
     return successResponse({ items: await db.oneOrNone(query, params) });
   } catch (e) {
     console.log('/items/items.getById ERROR - ', e);
@@ -333,7 +332,7 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
       query = `
         SELECT *, ST_AsText(location) as geoJSON 
         FROM ${process.env.ITEMS_TABLE}
-        WHERE location && ST_MakeEnvelope($1, $2, $3,$4, 4326)
+        WHERE location && ST_MakeEnvelope($1, $2, $3, $4, 4326)
       `;
 
     return successResponse({ items: await db.any(query, params) });
@@ -342,4 +341,28 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
     return badRequestResponse();
   }
 
+};
+/**
+ *
+ * Delete an item
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ */
+export const deleteItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    let
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = ['private/' + queryString.s3_key] ,
+      query = `
+        DELETE FROM ${process.env.ITEMS_TABLE}
+        WHERE items.s3_key='${params}'
+      `;
+    return successResponse({ items: await db.any(query, params) });
+  } catch (e) {
+    console.log('/items/items.deleteItem ERROR - ', e);
+    return badRequestResponse();
+  }
 };
