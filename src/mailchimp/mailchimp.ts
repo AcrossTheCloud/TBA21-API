@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const
   url = `https://${process.env.MC_DC}.api.mailchimp.com/3.0/`,
   headers = {
-    Authorization: `apikey ${process.env.MC_APIKEY}`,
+    Authorization: `apikey ${process.env.MC_APIKEY}`
   };
 
 /**
@@ -75,16 +75,13 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
  */
 export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   if (event.hasOwnProperty('body')) {
-    console.log('event.requestContext', event.requestContext);
-    console.log('context', context.identity);
-    console.log('event.requestContext.authorizer', event.requestContext.authorizer);
     const queryStringParameters = JSON.parse(event.body);
 
     // Get all tags with ids
     const
       segments = await getSegmentsWithId(), // "tags"
       segment = segments ? segments.filter( s => s.name === queryStringParameters.tag) : null, // Filter out all but the given tag
-      email = await getEmailFromUUID(event.requestContext.accountId);
+      email = await getEmailFromUUID(event.requestContext.authorizer.claims['cognito:username']);
 
     // No tags at all? Fail
     if (!segments || !segments.length) { return badRequestResponse('No segments'); }
@@ -160,7 +157,7 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
     const
       segments = await getSegmentsWithId(), // "tags"
       segment = segments.filter( s => s.name === event.queryStringParameters.tag), // Filter out all but the given tag
-      email = await getEmailFromUUID(event.requestContext.accountId);
+      email = await getEmailFromUUID(event.requestContext.authorizer.claims['cognito:username']);
 
     try {
       await axios.delete(url + `/lists/${process.env.MC_AUDIENCE_ID}/segments/${segment[0].id}/members/${hashEmail(email)}`, { headers: headers });
@@ -219,7 +216,7 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
  */
 export const postSubscribeUser: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await changeSubscriberStatus(await getEmailFromUUID(event.requestContext.accountId), 'subscribed');
+    await changeSubscriberStatus(await getEmailFromUUID(event.requestContext.authorizer.claims['cognito:username']), 'subscribed');
     return successResponse(true);
   } catch (e) {
     return successResponse(false);
