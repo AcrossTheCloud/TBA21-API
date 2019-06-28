@@ -31,7 +31,7 @@ export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         WHERE 'collection_id' = $1
       `;
 
-    db.any(query, params);
+    await db.any(query, params);
 
     return {
       body: 'true',

@@ -362,7 +362,6 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.person
 
-
   adminDeleteCollection:
     handler: src/admin/collections/delete.deleteById
     description: Removes a collection and it's collection_items entry from the database
@@ -372,6 +371,19 @@ functions:
           method: delete
           cors: true
           authorizer: aws_iam
+
+  adminUpdateCollection:
+    handler: src/admin/collections/update.updateById
+    description: Removes a collection and it's collection_items entry from the database
+    events:
+      - http:
+          path: admin/collections/update
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
 #### Items
   adminGetItems:
