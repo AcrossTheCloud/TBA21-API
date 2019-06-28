@@ -130,7 +130,7 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
         Type: COGNITO_USER_POOLS
-        ProviderARNs: arn:aws:cognito-idp:eu-central-1:811876431819:userpool/eu-central-1_MClQ7jNon, arn:aws:cognito-idp:eu-central-1:811876431819:userpool/eu-central-1_bnvWk6I6I]
+        ProviderARNs: ['arn:aws:cognito-idp:eu-central-1:811876431819:userpool/eu-central-1_MClQ7jNon', 'arn:aws:cognito-idp:eu-central-1:811876431819:userpool/eu-central-1_bnvWk6I6I']
 
 functions:
 ## Items
