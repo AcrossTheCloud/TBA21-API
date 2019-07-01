@@ -23,7 +23,6 @@ plugins:
   - serverless-offline
   - serverless-api-gateway-caching
 
-
 custom:
   # Enable API GW caching with some global options set
   apiGatewayCaching:
@@ -99,12 +98,12 @@ resources:
                     - logs:PutLogEvents
                   Resource:
                     - 'Fn::Join':
-                      - ':'
-                      -
-                        - 'arn:aws:logs'
-                        - Ref: 'AWS::Region'
-                        - Ref: 'AWS::AccountId'
-                        - 'log-group:/aws/lambda/*:*:*'
+                        - ':'
+                        -
+                          - 'arn:aws:logs'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'log-group:/aws/lambda/*:*:*'
                 - Effect: Allow
                   Action:
                     - s3:GetObject
@@ -115,12 +114,23 @@ resources:
                     - cognicity-idp:*
                   Resource:
                     - 'Fn::Join':
-                      - ':'
-                      -
-                        - 'arn:aws:cognito-idp'
-                        - Ref: 'AWS::Region'
-                        - Ref: 'AWS::AccountId'
-                        - 'userpool/eu-central-1_bnvWk6I6I'
+                        - ':'
+                        -
+                          - 'arn:aws:cognito-idp'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'userpool/eu-central-1_bnvWk6I6I'
+    ApiGatewayAuthorizer:
+      DependsOn:
+          - ApiGatewayRestApi
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: cognito-authorizer
+        IdentitySource: method.request.header.Authorization
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Type: COGNITO_USER_POOLS
+        ProviderARNs: ['arn:aws:cognito-idp:eu-central-1:811876431819:userpool/eu-central-1_MClQ7jNon', 'arn:aws:cognito-idp:eu-central-1:811876431819:userpool/eu-central-1_bnvWk6I6I']
 
 functions:
 ## Items
@@ -281,11 +291,11 @@ functions:
               - name: request.querystring.status
 
   getCollectionsInBounds:
-    handler: src/collections/collections.getCollectionsInBounds
+    handler: src/collections/collections.getInBounds
     description: Gets the collections within the specified bounds
     events:
       - http:
-          path: collections/getCollectionsInBounds
+          path: collections/getInBounds
           method: get
           cors: true
           authorizer: aws_iam
@@ -371,6 +381,17 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.person
+
+
+  adminDeleteCollection:
+    handler: src/admin/collections/delete.deleteById
+    description: Removes a collection and it's collection_items entry from the database
+    events:
+      - http:
+          path: admin/collections/delete
+          method: delete
+          cors: true
+          authorizer: aws_iam
 
 #### Items
   adminGetItems:
@@ -484,7 +505,10 @@ functions:
           path: mailchimp/postSubscriberAddTag
           method: post
           cors: true
-          authorizer: aws_iam
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   mailchimpDeleteSubscriberRemoveTag:
     handler: src/mailchimp/mailchimp.deleteSubscriberRemoveTag
@@ -494,7 +518,10 @@ functions:
           path: mailchimp/deleteSubscriberRemoveTag
           method: delete
           cors: true
-          authorizer: aws_iam
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
   mailchimpPostSubscribeUser:
     handler: src/mailchimp/mailchimp.postSubscribeUser
@@ -504,5 +531,7 @@ functions:
           path: mailchimp/postSubscribeUser
           method: post
           cors: true
-          authorizer: aws_iam
-
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer

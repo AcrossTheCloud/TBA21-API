@@ -12,6 +12,13 @@ docker-compose up --build -d
 echo -e '\033[0;33m#### WAITING FOR INITD SCRIPTS TO RUN ON DOCKER ####\033[m'
 sleep 15
 
+export PGUSER=postgres
+export PGPASSWORD=postgres
+export PGHOST=127.0.0.1
+export PGPORT=5432
+export PGDATABASE=tba21
+export PGSSL=false
+
 jest --coverage
 
 echo -e '\033[0;33m#### STOPPING DOCKER ####\033[m'
