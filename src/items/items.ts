@@ -355,12 +355,13 @@ export const deleteItem = async (event: APIGatewayEvent, context: Context): Prom
   try {
     let
       queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = ['private/' + queryString.s3_key] ,
+      params = ['private/user/' + queryString.s3_key] ,
       query = `
         DELETE FROM ${process.env.ITEMS_TABLE}
         WHERE items.s3_key='${params}'
       `;
-    return successResponse({ items: await db.any(query, params) });
+    await db.any(query, params);
+    return successResponse(true );
   } catch (e) {
     console.log('/items/items.deleteItem ERROR - ', e);
     return badRequestResponse();

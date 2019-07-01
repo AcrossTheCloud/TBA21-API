@@ -6,7 +6,17 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
-import { get, getBys3Key, getByTag, getByPerson, getByType, changeStatus, getItemsInBounds } from './items';
+import {
+  get,
+  getBys3Key,
+  getByTag,
+  getByPerson,
+  getByType,
+  changeStatus,
+  getItemsInBounds,
+  deleteItem,
+  deleteItemsFromCollection
+} from './items';
 afterAll( () => {
   // Close the database connection.
   db.$pool.end();
@@ -157,24 +167,27 @@ describe('/items/getItemsInBounds', () => {
   });
 });
 
-// describe('/items/deleteItem', () => {
-//   test('Delete an item with an id of 1)', async () => {
-//     let
-//       queryStringParameters: QueryStringParameters = {id: '1'},
-//       response = await deleteItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-//       results = JSON.parse(response.body);
-//     expect(results);
-//
-//     queryStringParameters = {id: '1'},
-//       response = await getBys3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-//       results = JSON.parse(response.body);
-//     expect(results.items.length).toEqual(0);
-//   });
-//   test('Get a bad response when no id is given', async () => {
-//     const
-//       queryStringParameters: QueryStringParameters = {id: ''},
-//       response = await deleteItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
-//
-//     expect(response.statusCode).toEqual(400);
-//   });
-// });
+describe('/items/deleteItem', () => {
+  test('Delete an item with an key of key4', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {s3_key: 'key4'},
+      response = await deleteItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      results = JSON.parse(response.body);
+    expect(results).toBe(true);
+  });
+});
+
+describe('/items/deleteItemsFromCollection', () => {
+  test('Delete an item from a collection with an key of key6', async () => {
+    const
+      requestBody = {
+      'id': '1',
+      's3_keys': ['user/key6']
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await deleteItemsFromCollection({ body } as APIGatewayProxyEvent, {} as Context),
+      responseBody = JSON.parse(response.body);
+
+    expect(responseBody).toBe(true);
+  });
+});
