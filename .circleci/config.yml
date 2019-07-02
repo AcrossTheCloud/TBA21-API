@@ -53,7 +53,7 @@ jobs:
 
       - run:
           name: Runing Jest
-          command: jest --coverage
+          command: jest -i --coverage
           environment:
             UPLOADS_TABLE: tba21.s3uploads
             TYPES_TABLE: tba21.types

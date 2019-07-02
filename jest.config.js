@@ -1,3 +1,4 @@
+
 module.exports = {
   "roots": [
     "<rootDir>/src"
@@ -11,5 +12,7 @@ module.exports = {
     "js",
     "json",
     "node"
-  ]
+  ],
+  "testSequencer": "./sequencer",
+  "verbose": false
 }
