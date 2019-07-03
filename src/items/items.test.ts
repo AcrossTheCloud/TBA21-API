@@ -1,4 +1,3 @@
-
 require('dotenv').config(
   {
     DEBUG: true
@@ -16,12 +15,12 @@ import {
   changeStatus,
   getItemsInBounds,
 } from './items';
-afterAll( () => {
-  // Close the database connection.
-  db.$pool.end();
-});
 
-describe('get Tests', () => {
+describe('Item tests', () => {
+  afterAll( () => {
+    // Close the database connection.
+    db.$pool.end();
+  });
 
   test('Check that we have 5 seeds with a status of true.', async () => {
     const
@@ -39,9 +38,6 @@ describe('get Tests', () => {
 
     expect(results.items.length).toEqual(2);
   });
-});
-
-describe('/items/getBys3Key', () => {
   test('Get item by its s3 key', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/user/key2'},
@@ -66,9 +62,6 @@ describe('/items/getBys3Key', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
-
-describe('/items/getByTag', () => {
   test('Get all items with a tag of con', async () => {
     const
       queryStringParameters: QueryStringParameters = {tag: 'con'},
@@ -84,9 +77,6 @@ describe('/items/getByTag', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
-
-describe('/items/getByPerson', () => {
   test('Get all items with person Tim attached', async () => {
     const
       queryStringParameters: QueryStringParameters = {person: 'Tim'},
@@ -102,9 +92,6 @@ describe('/items/getByPerson', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
-
-describe('/items/getByType', () => {
   test('Get all items with a type of b', async () => {
     const
       queryStringParameters: QueryStringParameters = {type: 'b'},
@@ -119,9 +106,6 @@ describe('/items/getByType', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
-
-describe('/items/changeStatus', () => {
   test('Change the status of an item', async () => {
     let
       queryStringParameters: QueryStringParameters = {status: 'true', s3Key: 'private/user/key3'},
@@ -147,9 +131,6 @@ describe('/items/changeStatus', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
-
-describe('/items/getItemsInBounds', () => {
   test('Get all items within the bounding box (32.784840, 32.781431, 11.201, -0.009226)', async () => {
     const
       queryStringParameters: QueryStringParameters = {lat_sw: '28.620240545725636', lng_sw: '-25.116634368896488', lat_ne: '52.62108005994499', lng_ne: '38.16461563110352'},
@@ -163,30 +144,5 @@ describe('/items/getItemsInBounds', () => {
       response = await getItemsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);
-  });
-});
-
-describe('/items/deleteItem', () => {
-  test('Delete an item with an key of key4', async () => {
-    const
-      queryStringParameters: QueryStringParameters = {s3_key: 'key4'},
-      response = await deleteItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-      results = JSON.parse(response.body);
-    expect(results).toBe(true);
-  });
-});
-
-describe('/items/deleteItemsFromCollection', () => {
-  test('Delete an item from a collection with an key of key6', async () => {
-    const
-      requestBody = {
-      'id': '1',
-      's3_keys': ['user/key6']
-      },
-      body: string = JSON.stringify(requestBody),
-      response = await deleteItemsFromCollection({ body } as APIGatewayProxyEvent, {} as Context),
-      responseBody = JSON.parse(response.body);
-
-    expect(responseBody).toBe(true);
   });
 });

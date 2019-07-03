@@ -8,11 +8,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
 import { deleteById } from './delete';
-
-afterAll( () => {
-  // Close the database connection.
-  db.$pool.end();
-});
+import { reSeedDatabase } from '../../utils/testHelper';
 
 describe('Admin Collections Delete', () => {
   afterAll( async () => {

@@ -31,9 +31,6 @@ describe('Admin Items', () => {
 
     expect(result.items.length).toEqual(2);
   });
-});
-
-describe('admin/items/getBys3Key', () => {
   test('Get item with a specific s3 key', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/user/key2'},
@@ -49,9 +46,6 @@ describe('admin/items/getBys3Key', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
-
-describe('admin/items/getByTag', () => {
   test('Get all items with a tag of con', async () => {
     const
       queryStringParameters: QueryStringParameters = {tag: 'con'},

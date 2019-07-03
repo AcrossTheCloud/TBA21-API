@@ -1,4 +1,3 @@
-
 require('dotenv').config(
   {
     DEBUG: true
@@ -34,13 +33,6 @@ describe('Collections', () => {
     expect(result.collections.length).toEqual(1);
   });
 
-  /*
-    SELECT
-      collection.*
-    FROM tba21.collections AS collection
-    GROUP BY collection.ID
-    LIMIT 1 OFFSET 3
-  */
   test('Pagination works', async () => {
     const
       queryStringParameters: QueryStringParameters = {limit: '1', offset: '1'},
@@ -51,9 +43,6 @@ describe('Collections', () => {
     expect(result.collections[0].title).toEqual('Detonation');
   });
 
-});
-
-describe('/collections/getById', () => {
   test('Get collection by id of 2', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '2'},
@@ -70,9 +59,7 @@ describe('/collections/getById', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
 
-describe('/collections/getByTag', () => {
   test('Get all collections with a tag of con', async () => {
     const
       queryStringParameters: QueryStringParameters = {tag: 'con'},
@@ -88,9 +75,7 @@ describe('/collections/getByTag', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
 
-describe('/collections/getByPerson', () => {
   test('Get all collections with a person of Tim', async () => {
     const
       queryStringParameters: QueryStringParameters = {person: 'Tim'},
@@ -105,20 +90,7 @@ describe('/collections/getByPerson', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
 
-describe('/items/changeStatus', () => {
-  test('Change the status of a collection', async () => {
-    let
-      queryStringParameters: QueryStringParameters = {status: 'false', id: '1'},
-      response = await changeStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-      results = JSON.parse(response.body);
-    expect(results);
-    response = await get({} as APIGatewayProxyEvent, {} as Context),
-      results = JSON.parse(response.body);
-
-    expect(results.collections.length).toEqual(3);
-  });
   test('Get a bad response when no id is given', async () => {
     const
       queryStringParameters: QueryStringParameters = {status: 'false', id: ''},
@@ -133,9 +105,7 @@ describe('/items/changeStatus', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
 
-describe('/items/getCollectionsInBounds', () => {
   test('Get all items within the bounding box (90, 180, 90, 180)', async () => {
     const
       queryStringParameters: QueryStringParameters = {lat_sw: '-90', lng_sw: '-180', lat_ne: '90', lng_ne: '180'},
@@ -143,6 +113,7 @@ describe('/items/getCollectionsInBounds', () => {
       results = JSON.parse(response.body);
 
     expect(results.collections.length).toEqual(4);
+
   });
   test('Get a bad response when a boundary is missing', async () => {
     const
@@ -150,4 +121,5 @@ describe('/items/getCollectionsInBounds', () => {
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
     expect(response.statusCode).toEqual(400);
   });
+
 });

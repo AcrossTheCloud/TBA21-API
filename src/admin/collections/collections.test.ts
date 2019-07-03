@@ -41,13 +41,6 @@ describe('Admin Collections', () => {
     expect(item.collections.length).toEqual(1);
   });
 
-  /*
-    SELECT
-      collection.*
-    FROM tba21.collections AS collection
-    GROUP BY collection.ID
-    LIMIT 1 OFFSET 3
-  */
   test('Pagination works', async () => {
     const
       queryStringParameters: QueryStringParameters = {limit: '1', offset: '1'},
@@ -58,9 +51,6 @@ describe('Admin Collections', () => {
     expect(item.collections[0].title).toEqual('Detonation');
   });
 
-});
-
-describe('/admin/collections/getById', () => {
   test('Get collection by id of 2', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '2'},
@@ -77,9 +67,7 @@ describe('/admin/collections/getById', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
 
-describe('/admin/collections/getByTag', () => {
   test('Get all collections with a tag of con', async () => {
     const
       queryStringParameters: QueryStringParameters = {tag: 'con'},
