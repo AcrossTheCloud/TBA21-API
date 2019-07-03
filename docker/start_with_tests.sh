@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 bash ./docker/stop.sh > /dev/null 2>&1 # ignore the output
-git clone --branch dev https://github.com/AcrossTheCloud/TBA21-schema.git docker/schema
 
 # https://hub.docker.com/_/postgres
 docker rm tba21_test_postgres > /dev/null 2>&1 # ignore the output
@@ -19,7 +18,7 @@ export PGPORT=5432
 export PGDATABASE=tba21
 export PGSSL=false
 
-jest --coverage
+jest -i --coverage --detectOpenHandles
 
 echo -e '\033[0;33m#### STOPPING DOCKER ####\033[m'
 bash ./docker/stop.sh > /dev/null 2>&1 # ignore the output

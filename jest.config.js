@@ -13,6 +13,6 @@ module.exports = {
     "json",
     "node"
   ],
-  "testSequencer": "./sequencer",
+  "testSequencer": "<rootDir>/sequencer",
   "verbose": false
 }

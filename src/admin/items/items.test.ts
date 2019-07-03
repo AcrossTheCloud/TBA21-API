@@ -9,12 +9,11 @@ import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
 import { get, getBys3Key, getByTag } from './items';
 
-afterAll( () => {
-  // Close the database connection.
-  db.$pool.end();
-});
-
-describe('get Admin Tests', () => {
+describe('Admin Items', () => {
+  afterAll( () => {
+    // Close the database connection.
+    db.$pool.end();
+  });
 
   test('Check that we have 7 seeds.', async () => {
     const

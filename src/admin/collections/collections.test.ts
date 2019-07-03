@@ -9,12 +9,12 @@ import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
 import { get, getById, getByTag } from './collections';
 
-afterAll( () => {
-  // Close the database connection.
-  db.$pool.end();
-});
+describe('Admin Collections', () => {
 
-describe('/admin/collections/collections.get', () => {
+  afterAll( () => {
+    // Close the database connection.
+    db.$pool.end();
+  });
 
   test('The function runs without queryStringParams', async () => {
     const

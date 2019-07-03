@@ -14,7 +14,12 @@ afterAll( () => {
   db.$pool.end();
 });
 
-describe('/admin/collections/delete/deleteByID', () => {
+describe('Admin Collections Delete', () => {
+  afterAll( async () => {
+    await reSeedDatabase();
+    db.$pool.end();
+  });
+
   test('Delete ID 1', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '1'},

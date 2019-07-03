@@ -15,8 +15,6 @@ import {
   getByType,
   changeStatus,
   getItemsInBounds,
-  deleteItem,
-  deleteItemsFromCollection
 } from './items';
 afterAll( () => {
   // Close the database connection.
