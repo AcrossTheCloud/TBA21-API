@@ -9,12 +9,11 @@ import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
 import { get, getBys3Key, getByTag } from './items';
 
-afterAll( () => {
-  // Close the database connection.
-  db.$pool.end();
-});
-
-describe('get Admin Tests', () => {
+describe('Admin Items', () => {
+  afterAll( () => {
+    // Close the database connection.
+    db.$pool.end();
+  });
 
   test('Check that we have 7 seeds.', async () => {
     const
@@ -32,9 +31,6 @@ describe('get Admin Tests', () => {
 
     expect(result.items.length).toEqual(2);
   });
-});
-
-describe('admin/items/getBys3Key', () => {
   test('Get item with a specific s3 key', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/user/key2'},
@@ -50,9 +46,6 @@ describe('admin/items/getBys3Key', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-});
-
-describe('admin/items/getByTag', () => {
   test('Get all items with a tag of con', async () => {
     const
       queryStringParameters: QueryStringParameters = {tag: 'con'},

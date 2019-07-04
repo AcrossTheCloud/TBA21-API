@@ -200,7 +200,7 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.person
 
-  ChangeItemStatus:
+  changeItemStatus:
     handler: src/items/items.changeStatus
     description: Change the status of an item
     events:
@@ -220,7 +220,7 @@ functions:
     description: Get all items inside a bounding box
     events:
       - http:
-          path: items/getItemsOnMap
+          path: items/getItemsInBounds
           method: get
           cors: true
           authorizer: aws_iam
@@ -306,6 +306,26 @@ functions:
               - name: request.querystring.lng_sw
               - name: request.querystring.lng_ne
               - name: request.querystring.lat_nw
+
+  deleteItem:
+    handler: src/items/items.deleteItem
+    description: Deletes an item
+    events:
+      - http:
+          path: items/deleteItem
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+  deleteItemsFromCollection:
+    handler: src/items/items.deleteItemsFromCollection
+    description: Deletes items from a collection
+    events:
+      - http:
+          path: items/deleteItemsFromCollection
+          method: delete
+          cors: true
+          authorizer: aws_iam
 
   ###### ADMIN FUNCTIONS ######
 
