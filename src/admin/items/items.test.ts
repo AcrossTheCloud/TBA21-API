@@ -36,8 +36,8 @@ describe('Admin Items', () => {
       queryStringParameters: QueryStringParameters = {s3Key: 'private/user/key2'},
       response = await getBys3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    console.log(result.items);
-    expect(result.items.s3_key).toEqual('private/user/key2');
+    console.log(result.item);
+    expect(result.item.s3_key).toEqual('private/user/key2');
   });
   test('Get a bad response when no key is given', async () => {
     const

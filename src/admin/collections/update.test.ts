@@ -7,14 +7,18 @@ require('dotenv').config(
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
+import { reSeedDatabase } from '../../utils/testHelper';
 import { updateById } from './update';
 
-afterAll( () => {
-  // Close the database connection.
-  db.$pool.end();
-});
-
 describe('/admin/collections/update/updateByID', () => {
+
+  // AfterAll tests reseed the DB
+  afterAll( async () => {
+    await reSeedDatabase();
+    // Close the database connection.
+    db.$pool.end();
+  });
+
   test('Update ID 1', async () => {
     const
       requestBody = {

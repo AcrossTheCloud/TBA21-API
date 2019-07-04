@@ -94,9 +94,8 @@ export const getBys3Key = async (event: APIGatewayEvent, context: Context): Prom
         WHERE status=true AND item.s3_key=$1
         
         GROUP BY item.s3_key
-        ORDER BY item.s3_key
       `;
-    return successResponse({ items: await db.oneOrNone(query, params) });
+    return successResponse({ item: await db.oneOrNone(query, params) });
   } catch (e) {
     console.log('/items/items.getById ERROR - ', e);
     return badRequestResponse();
@@ -326,13 +325,13 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
       lng_sw: Joi.number().required(),
       lng_ne: Joi.number().required()
     }));
-    const
+    let
       queryString = event.queryStringParameters, // Use default values if not supplied.
       params = [queryString.lat_sw, queryString.lng_sw, queryString.lat_ne, queryString.lng_ne],
       query = `
         SELECT *, ST_AsText(location) as geoJSON 
         FROM ${process.env.ITEMS_TABLE}
-        WHERE location && ST_MakeEnvelope($1, $2, $3, $4, 4326)
+        WHERE location && ST_MakeEnvelope($1, $2, $3,$4, 4326)
       `;
 
     return successResponse({ items: await db.any(query, params) });

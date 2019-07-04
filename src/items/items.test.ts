@@ -44,16 +44,15 @@ describe('Item tests', () => {
       response = await getBys3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.items.s3_key).toEqual('private/user/key2');
+    expect(results.item.s3_key).toEqual('private/user/key2');
   });
   test(`Check an item with a status of false isn't returned`, async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/user/key1'},
       response = await getBys3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    console.log('empt ', results.items);
 
-    expect(results.items).toEqual(null);
+    expect(results.item).toEqual(null);
   });
   test('Get a bad response when no tag is given', async () => {
     const

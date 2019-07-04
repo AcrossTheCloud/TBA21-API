@@ -49,7 +49,7 @@ describe('Collections', () => {
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.id).toEqual('2');
+    expect(result.collection.id).toEqual('2');
   });
 
   test('Get a bad response when no id is given', async () => {

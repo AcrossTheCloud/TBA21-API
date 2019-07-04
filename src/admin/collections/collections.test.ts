@@ -57,7 +57,7 @@ describe('Admin Collections', () => {
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.collections.id).toEqual('2');
+    expect(item.collection.id).toEqual('2');
   });
 
   test('Get a bad response when no id is given', async () => {

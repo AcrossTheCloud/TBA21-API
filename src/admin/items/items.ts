@@ -93,10 +93,9 @@ export const getBys3Key = async (event: APIGatewayEvent, context: Context): Prom
         WHERE item.s3_key=$1
         
         GROUP BY item.s3_key
-        ORDER BY item.s3_key
       `;
 
-    return successResponse({ items: await db.oneOrNone(query, params) });
+    return successResponse({ item: await db.oneOrNone(query, params) });
   } catch (e) {
     console.log('/items/items.getById ERROR - ', e);
     return badRequestResponse();
