@@ -30,6 +30,11 @@ custom:
     ttlInSeconds: 180 # 3 min
     dataEncrypted: true
 
+  # Avoid hitting the CF Resource limit by splitting them up.
+  splitStacks:
+    perFunction: true
+    perType: false
+
 provider:
   name: aws
   runtime: nodejs8.10
