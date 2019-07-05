@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
-import { get, getBys3Key, getByTag } from './items';
+import { get, getByS3Key, getByTag } from './items';
 
 describe('Admin Items', () => {
   afterAll( () => {
@@ -34,7 +34,7 @@ describe('Admin Items', () => {
   test('Get item with a specific s3 key', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/user/key2'},
-      response = await getBys3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await getByS3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
     console.log(result.item);
     expect(result.item.s3_key).toEqual('private/user/key2');

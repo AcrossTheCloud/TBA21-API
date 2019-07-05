@@ -65,7 +65,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
-export const getBys3Key = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getByS3Key = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     // VALIDATE first
     const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({s3Key:  Joi.string().required()}), { presence: 'required' });

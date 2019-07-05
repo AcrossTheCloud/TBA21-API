@@ -8,7 +8,7 @@ import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
 import {
   get,
-  getBys3Key,
+  getByS3Key,
   getByTag,
   getByPerson,
   getByType,
@@ -41,7 +41,7 @@ describe('Item tests', () => {
   test('Get item by its s3 key', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/user/key2'},
-      response = await getBys3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await getByS3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
     expect(results.item.s3_key).toEqual('private/user/key2');
@@ -49,7 +49,7 @@ describe('Item tests', () => {
   test(`Check an item with a status of false isn't returned`, async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/user/key1'},
-      response = await getBys3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await getByS3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
     expect(results.item).toEqual(null);
