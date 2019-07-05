@@ -14,17 +14,13 @@ const items = loadSQLFile('/schema/seeds/6.items.sql');
 const collectionsItems = loadSQLFile('/schema/seeds/7.collectionsItems.sql');
 
 export const reSeedDatabase = async () => {
-  // Wrapped in a task to prevent performance / locking
-  await db.task('Reseed DB', async () => {
-    await db.query(`DROP SCHEMA IF EXISTS tba21 CASCADE;`);
+  await db.query(`DROP SCHEMA IF EXISTS tba21 CASCADE;`);
 
-    await db.none(schema);
-    await db.none(collections);
-    await db.none(types);
-    await db.none(conceptTags);
-    await db.none(keywordTags);
-    await db.none(items);
-    await db.none(collectionsItems);
-    return;
-  });
+  await db.none(schema);
+  await db.none(collections);
+  await db.none(types);
+  await db.none(conceptTags);
+  await db.none(keywordTags);
+  await db.none(items);
+  await db.none(collectionsItems);
 };
