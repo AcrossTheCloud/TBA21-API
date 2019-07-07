@@ -22,6 +22,7 @@ plugins:
   - serverless-dotenv-plugin
   - serverless-offline
   - serverless-api-gateway-caching
+  - serverless-plugin-split-stacks
 
 custom:
   # Enable API GW caching with some global options set
@@ -29,6 +30,11 @@ custom:
     enabled: true # enabled but still needs to be turned on for each function
     ttlInSeconds: 180 # 3 min
     dataEncrypted: true
+
+  # Avoid hitting the CF Resource limit by splitting them up.
+  splitStacks:
+    perFunction: true
+    perType: false
 
 provider:
   name: aws
@@ -144,12 +150,12 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  getItemsBys3Key:
-    handler: src/items/items.getBys3Key
+  getItemsByS3Key:
+    handler: src/items/items.getByS3Key
     description: Returns items s3 key from the database.
     events:
       - http:
-          path: items/getBys3Key
+          path: items/getByS3Key
           method: get
           cors: true
           authorizer: aws_iam
@@ -200,7 +206,7 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.person
 
-  ChangeItemStatus:
+  changeItemStatus:
     handler: src/items/items.changeStatus
     description: Change the status of an item
     events:
@@ -220,7 +226,7 @@ functions:
     description: Get all items inside a bounding box
     events:
       - http:
-          path: items/getItemsOnMap
+          path: items/getItemsInBounds
           method: get
           cors: true
           authorizer: aws_iam
@@ -306,6 +312,26 @@ functions:
               - name: request.querystring.lng_sw
               - name: request.querystring.lng_ne
               - name: request.querystring.lat_nw
+
+  deleteItem:
+    handler: src/items/items.deleteItem
+    description: Deletes an item
+    events:
+      - http:
+          path: items/deleteItem
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+  deleteItemsFromCollection:
+    handler: src/items/items.deleteItemsFromCollection
+    description: Deletes items from a collection
+    events:
+      - http:
+          path: items/deleteItemsFromCollection
+          method: delete
+          cors: true
+          authorizer: aws_iam
 
   ###### ADMIN FUNCTIONS ######
 
@@ -396,12 +422,12 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  adminGetItemsBys3Key:
-    handler: src/admin/items/items.getBys3Key
-    description: Returns items s3 key from the database.
+  adminGetItemByS3Key:
+    handler: src/admin/items/items.getByS3Key
+    description: Returns a single item by s3 key from the database.
     events:
       - http:
-          path: admin/items/getBys3Key
+          path: admin/items/getByS3Key
           method: get
           cors: true
           authorizer: aws_iam
@@ -409,6 +435,16 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.s3Key
+
+  adminGetItemByS3KeyNoCache:
+    handler: src/admin/items/items.getByS3Key
+    description: Returns a single item by s3 key from the database and doesn't cache the results.
+    events:
+      - http:
+          path: admin/items/getByS3KeyNC
+          method: get
+          cors: true
+          authorizer: aws_iam
 
   adminGetItemsByTag:
     handler: src/admin/items/items.getByTag

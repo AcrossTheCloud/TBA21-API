@@ -102,7 +102,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
 
     // If we have items in SQL_SETS do the query.
     if (SQL_SETS.length) {
-      await db.any(query, params);
+      await db.any(query, [data.id, ...params]);
     } else {
       throw new Error('Nothing to update');
     }

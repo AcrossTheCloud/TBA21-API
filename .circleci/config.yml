@@ -34,19 +34,14 @@ jobs:
           name: npm install
           command: npm i && sudo npm i -g jest
 
-      # Clone the schema repo
-      - run:
-          name: Clone Schema Repo
-          command: git clone --branch dev https://github.com/AcrossTheCloud/TBA21-schema.git ~/project/docker/schema
-
       # Seed the database
       - run:
           name: Add Schema to DB
-          command: psql -d $TEST_DATABASE_URL -f ~/project/docker/schema/schema.sql
+          command: psql -d $TEST_DATABASE_URL -f ~/project/schema/schema.sql
       - run:
           name: Add Seeds to DB
           command:
-            for f in ~/project/docker/schema/seeds/*.sql;
+            for f in ~/project/schema/seeds/*.sql;
               do
                 psql -d $TEST_DATABASE_URL -f "$f";
               done;

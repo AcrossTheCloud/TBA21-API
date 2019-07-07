@@ -93,10 +93,9 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
         WHERE collections.id=$1
         
         GROUP BY collections.id
-        ORDER BY collections.id
       `;
 
-    return successResponse({ collections: await db.oneOrNone(query, params) });
+    return successResponse({ collection: await db.oneOrNone(query, params) });
   } catch (e) {
     console.log('/collections/collections.getById ERROR - ', e);
     return badRequestResponse();
