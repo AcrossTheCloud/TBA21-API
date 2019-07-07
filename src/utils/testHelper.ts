@@ -2,7 +2,7 @@ import { QueryFile } from 'pg-promise';
 import { db } from '../databaseConnect';
 
 const loadSQLFile = (file: string): QueryFile => {
-  return new QueryFile(process.cwd() + file, {minify: true});
+  return new QueryFile(process.cwd() + file, { minify: true });
 };
 
 const schema = loadSQLFile('/schema/schema.sql');
@@ -14,13 +14,14 @@ const items = loadSQLFile('/schema/seeds/6.items.sql');
 const collectionsItems = loadSQLFile('/schema/seeds/7.collectionsItems.sql');
 
 export const reSeedDatabase = async () => {
-  await db.query(`DROP SCHEMA IF EXISTS tba21 CASCADE;`);
-
-  await db.none(schema);
-  await db.none(collections);
-  await db.none(types);
-  await db.none(conceptTags);
-  await db.none(keywordTags);
-  await db.none(items);
-  await db.none(collectionsItems);
+  await db.task(async t => {
+    await t.any(`DROP SCHEMA IF EXISTS tba21 CASCADE;`);
+    await t.none(schema);
+    await t.none(collections);
+    await t.none(types);
+    await t.none(conceptTags);
+    await t.none(keywordTags);
+    await t.none(items);
+    await t.none(collectionsItems);
+  });
 };
