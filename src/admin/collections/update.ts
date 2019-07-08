@@ -38,35 +38,32 @@ import Joi from '@hapi/joi';
 
 export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    console.log(event.body);
-    const
-      data = JSON.parse(event.body),
-      result = await Joi.validate(data, Joi.object().keys(
-        {
-          id: Joi.number().integer().required(),
-          status: Joi.boolean(),
-          concept_tags: Joi.array().items(Joi.string()),
-          keyword_tags: Joi.array().items(Joi.string()),
-          place: Joi.string(),
-          country_or_ocean: Joi.string(),
-          creators: Joi.array().items(Joi.string()),
-          directors: Joi.array().items(Joi.string()),
-          writers: Joi.array().items(Joi.string()),
-          collaborators: Joi.string(),
-          exhibited_at: Joi.string(),
-          series: Joi.string(),
-          ISBN: Joi.number().integer(),
-          edition: Joi.number().integer(),
-          publisher: Joi.array().items(Joi.string()),
-          interviewers: Joi.array().items(Joi.string()),
-          interviewees: Joi.array().items(Joi.string()),
-          cast_: Joi.string(),
-          title: Joi.string(),
-          description: Joi.string(),
-          items: Joi.array().items(Joi.string())
-        }));
-    // will cause an exception if it is not valid
-    console.log(result); // to see the result
+    const data = JSON.parse(event.body);
+
+    await Joi.validate(data, Joi.object().keys(
+      {
+        id: Joi.number().integer().required(),
+        status: Joi.boolean(),
+        concept_tags: Joi.array().items(Joi.string()),
+        keyword_tags: Joi.array().items(Joi.string()),
+        place: Joi.string(),
+        country_or_ocean: Joi.string(),
+        creators: Joi.array().items(Joi.string()),
+        directors: Joi.array().items(Joi.string()),
+        writers: Joi.array().items(Joi.string()),
+        collaborators: Joi.string(),
+        exhibited_at: Joi.string(),
+        series: Joi.string(),
+        ISBN: Joi.number().integer(),
+        edition: Joi.number().integer(),
+        publisher: Joi.array().items(Joi.string()),
+        interviewers: Joi.array().items(Joi.string()),
+        interviewees: Joi.array().items(Joi.string()),
+        cast_: Joi.string(),
+        title: Joi.string(),
+        description: Joi.string(),
+        items: Joi.array().items(Joi.string())
+      }));
 
     let paramCounter = 0;
 
@@ -90,22 +87,23 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         WHERE id = $1 returning id;
       `;
 
-    console.log(query, params);
-
     if (SQL_SETS.length) {
       await db.task(async t => {
         // If we have items in SQL_SETS do the query.
         await t.one(query, params);
         // If we have items to assign to the collection
         if (data.items && data.items.length) {
-          let current_items = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
-          current_items = current_items.map(e => (e.item_s3_key));
-          let toBeAdded = data.items.filter((e) => (current_items.indexOf(e) < 0));
-          let toBeRemoved = current_items.filter((e) => (data.items.indexOf(e) < 0));
+          let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
+          currentItems = currentItems.map(e => (e.item_s3_key));
+
+          let toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0));
+          let toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
+
           if (toBeAdded.length > 0) {
             const SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
               return `($1, $${index + 2})`;
             });
+
             let addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`;
             let addParams = [data.id, ...toBeAdded];
             await t.any(addQuery, addParams);
@@ -129,11 +127,9 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         headers: headers,
         statusCode: 200
       };
-    }
-    else {
+    } else {
       throw new Error('Nothing to update');
     }
-
 
   } catch (e) {
     if (e.message === 'Nothing to update') {
