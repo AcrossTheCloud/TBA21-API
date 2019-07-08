@@ -6,7 +6,6 @@ require('dotenv').config(
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { db } from '../../databaseConnect';
-import { QueryStringParameters } from '../../types/_test_';
 import { reSeedDatabase } from '../../utils/testHelper';
 import { updateById } from './update';
 
@@ -23,11 +22,14 @@ describe('/admin/collections/update/updateByID', () => {
     const
       requestBody = {
         "id": "1",
-        "cast_": 'test'
+        "cast_": "test",
+        "items": ['private/user/key1','private/user/key2','private/user/key3'],
+        "place": "Ocean"
       },
       body: string = JSON.stringify(requestBody),
       response = await updateById({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
+      console.log(response);
 
     expect(responseBody).toBe(true);
   });
@@ -44,8 +46,9 @@ describe('/admin/collections/update/updateByID', () => {
 
   test('Get a bad response when no id is given', async () => {
     const
-      queryStringParameters: QueryStringParameters = {id: ''},
-      response = await updateById({queryStringParameters } as APIGatewayProxyEvent);
+      requestBody = { "id": "" },
+      body: string = JSON.stringify(requestBody),
+      response = await updateById({ body } as APIGatewayProxyEvent);
 
     expect(response.statusCode).toEqual(400);
   });
