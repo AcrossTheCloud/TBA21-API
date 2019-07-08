@@ -503,6 +503,15 @@ functions:
               - name: request.querystring.id
               - name: request.querystring.tag
 
+  adminUpdateItem:
+    handler: src/admin/items/update.updateByS3key
+    description: Admin updates an item
+    events:
+      - http:
+          path: admin/items/update
+          method: put
+          cors: true
+          authorizer: aws_iam
 
 # MAILCHIMP
   mailchimpGetSegments:
