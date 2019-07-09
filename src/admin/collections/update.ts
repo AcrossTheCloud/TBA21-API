@@ -98,10 +98,10 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         await t.one(query, params);
         // If we have items to assign to the collection
         if (data.items && data.items.length) {
-          let current_items = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
-          current_items = current_items.map(e => (e.item_s3_key));
-          let toBeAdded = data.items.filter((e) => (current_items.indexOf(e) < 0));
-          let toBeRemoved = current_items.filter((e) => (data.items.indexOf(e) < 0));
+          let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
+          currentItems = currentItems.map(e => (e.item_s3_key));
+          let toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0));
+          let toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
           if (toBeAdded.length > 0) {
             const SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
               return `($1, $${index + 2})`;
@@ -129,11 +129,9 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         headers: headers,
         statusCode: 200
       };
-    }
-    else {
+    } else {
       throw new Error('Nothing to update');
     }
-
 
   } catch (e) {
     if (e.message === 'Nothing to update') {
