@@ -32,7 +32,7 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
           name: npm install
-          command: npm i && sudo npm i -g jest tslint
+          command: npm i && sudo npm i -g jest
 
       # Seed the database
       - run:
@@ -47,10 +47,7 @@ jobs:
               done;
 
       - run:
-          name: Linting
-          command: npm run lint
-      - run:
-          name: Running Jest
+          name: Runing Jest
           command: jest -i --coverage
           environment:
             UPLOADS_TABLE: tba21.s3uploads

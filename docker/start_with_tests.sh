@@ -18,7 +18,6 @@ export PGPORT=5432
 export PGDATABASE=tba21
 export PGSSL=false
 
-npm run lint
 jest -i --coverage --detectOpenHandles
 
 echo -e '\033[0;33m#### STOPPING DOCKER ####\033[m'
