@@ -98,8 +98,6 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         WHERE s3_key = $1 returning s3_key;
       `;
 
-        //console.log(query, params);
-
         if (SQL_SETS.length) {
             let result = await db.one(query, params);
 
@@ -111,11 +109,9 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
                 headers: headers,
                 statusCode: 200
             };
-        }
-        else {
+        } else {
             throw new Error('Nothing to update');
         }
-
 
     } catch (e) {
         if ((e.message === 'Nothing to update') || (e.isJoi)) {
