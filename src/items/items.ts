@@ -15,13 +15,14 @@ import Joi from '@hapi/joi';
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
-      limit: Joi.number().integer(),
-      offset: Joi.number().integer()
-    }));
-    // will cause an exception if it is not valid
-    console.log(result); // to see the result
-
+    if (event.queryStringParameters) {
+      const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer()
+      }));
+      // will cause an exception if it is not valid
+      console.log(result); // to see the result
+    }
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues, // Use default values if not supplied.
@@ -69,7 +70,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 export const getByS3Key = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({s3Key:  Joi.string().required()}), { presence: 'required' });
+    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({ s3Key: Joi.string().required() }), { presence: 'required' });
     // will cause an exception if it is not valid
     console.log(result); // to see the result
 
@@ -294,7 +295,7 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
       params = [queryString.status, queryString.s3Key],
-        query = `
+      query = `
         UPDATE ${process.env.ITEMS_TABLE}
         SET status = $1 
         WHERE s3_key = $2 
