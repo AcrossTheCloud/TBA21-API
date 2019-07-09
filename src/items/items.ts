@@ -341,3 +341,51 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
   }
 
 };
+
+/**
+ *
+ * Gets an items Rekognition tags
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } Array of tags
+ */
+export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      s3key: Joi.string().required(),
+      confidence: Joi.number().integer(),
+    }));
+
+    const
+      params = [event.queryStringParameters.s3key],
+      confidenceLevel = event.queryStringParameters.confidence ? event.queryStringParameters.confidence : 70,
+      query = `
+        SELECT machine_recognition_tags as tags
+        FROM ${process.env.ITEMS_TABLE}
+        WHERE s3_key = $1
+      `,
+      result: any = await db.oneOrNone(query, params); // tslint:disable-line no-any
+
+    let tags = [];
+
+    // If we have no result at all, the item doesn't exist.
+    if (!result) {
+      return badRequestResponse('No item');
+    }
+
+    if (result.tags && result.tags.rekognition_labels) {
+      // Have tags, filter and map to an array
+      tags = result.tags.rekognition_labels.filter( c => c.Confidence >= confidenceLevel).map( n => n.Name);
+    } else {
+      // Otherwise we want an empty array.
+      tags = [];
+    }
+
+    return successResponse({ tags: tags});
+
+  } catch (e) {
+    console.log('/items/items.getRekognitionTags ERROR - ', e);
+    return badRequestResponse();
+  }
+};

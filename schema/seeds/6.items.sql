@@ -1,6 +1,7 @@
 -- START FIRST QUERY tba21.items
 INSERT INTO tba21.items(
   s3_key,
+  machine_recognition_tags,
   created_at,
   updated_at,
   time_produced,
@@ -31,6 +32,7 @@ INSERT INTO tba21.items(
 )
 VALUES (
   'private/user/key1',
+  null,
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -60,6 +62,102 @@ VALUES (
   '/some-url/'
 ), (
   'private/user/key2',
+
+  '{
+       "rekognition_labels": [
+           {
+               "Name": "Pet",
+               "Parents": [
+                   {
+                       "Name": "Animal"
+                   }
+               ],
+               "Instances": [],
+               "Confidence": 93.20275115966797
+           },
+           {
+               "Name": "Animal",
+               "Parents": [],
+               "Instances": [],
+               "Confidence": 92.20275115966797
+           },
+           {
+               "Name": "Cat",
+               "Parents": [
+                   {
+                       "Name": "Pet"
+                   },
+                   {
+                       "Name": "Mammal"
+                   },
+                   {
+                       "Name": "Animal"
+                   }
+               ],
+               "Instances": [
+                   {
+                       "Confidence": 89.06988525390625,
+                       "BoundingBox": {
+                           "Top": 0.015779059380292892,
+                           "Left": 0.06638608127832413,
+                           "Width": 0.8125336766242981,
+                           "Height": 0.9812089204788208
+                       }
+                   }
+               ],
+               "Confidence": 92.20275115966797
+           },
+           {
+               "Name": "Mammal",
+               "Parents": [
+                   {
+                       "Name": "Animal"
+                   }
+               ],
+               "Instances": [],
+               "Confidence": 92.20275115966797
+           },
+           {
+               "Name": "Abyssinian",
+               "Parents": [
+                   {
+                       "Name": "Pet"
+                   },
+                   {
+                       "Name": "Mammal"
+                   },
+                   {
+                       "Name": "Animal"
+                   },
+                   {
+                       "Name": "Cat"
+                   }
+               ],
+               "Instances": [],
+               "Confidence": 89.86946105957031
+           },
+           {
+               "Name": "Manx",
+               "Parents": [
+                   {
+                       "Name": "Pet"
+                   },
+                   {
+                       "Name": "Mammal"
+                   },
+                   {
+                       "Name": "Animal"
+                   },
+                   {
+                       "Name": "Cat"
+                   }
+               ],
+               "Instances": [],
+               "Confidence": 85.65826416015625
+           }
+       ]
+   }',
+
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -89,6 +187,7 @@ VALUES (
   '/some-url/'
 ), (
   'private/user/key3',
+  null,
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -118,6 +217,7 @@ VALUES (
   '/some-url/'
 ),(
   'private/user/key4',
+  null,
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -147,6 +247,7 @@ VALUES (
   '/some-url/'
 ),(
   'private/user/key5',
+  null,
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -177,6 +278,7 @@ VALUES (
 ),
 (
   'private/user/key6',
+  null,
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -207,6 +309,7 @@ VALUES (
 ),
  (
   'private/user/key7',
+  null,
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
