@@ -145,7 +145,7 @@ describe('Item tests', () => {
     expect(response.statusCode).toEqual(400);
   });
 
-  test('Get Rekognition Tags from item', async () => {
+  test('Get Rekognition Tags from item default confidence', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3key: 'private/user/key2'},
       response = await getRekognitionTags({ queryStringParameters } as APIGatewayProxyEvent),
@@ -156,6 +156,17 @@ describe('Item tests', () => {
     expect(response.statusCode).toEqual(200);
     expect(results.tags).toEqual([ 'Pet', 'Animal', 'Cat', 'Mammal', 'Abyssinian', 'Manx' ]);
   });
+  test('Get Rekognition Tags from item confidence of 92.20275115966797', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {s3key: 'private/user/key2', confidence: '93'},
+      response = await getRekognitionTags({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+
+    // Result [ 'Pet' ]
+
+    expect(response.statusCode).toEqual(200);
+    expect(results.tags).toEqual([ 'Pet' ]);
+  });
   test('Get Rekognition Tags from item with no tags', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3key: 'private/user/key3'},
@@ -164,6 +175,15 @@ describe('Item tests', () => {
 
     expect(response.statusCode).toEqual(200);
     expect(results.tags).toEqual([]);
+  });
+  test('Get Rekognition Tags s3key but no item in database', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {s3key: 'private/user/somethingthatdoesntexist'},
+      response = await getRekognitionTags({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+
+    expect(results.message).toEqual('No item');
+    expect(response.statusCode).toEqual(400);
   });
   test('Get Rekognition Tags no s3key', async () => {
     const response = await getRekognitionTags({} as APIGatewayProxyEvent);

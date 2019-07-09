@@ -73,7 +73,7 @@ VALUES (
                    }
                ],
                "Instances": [],
-               "Confidence": 92.20275115966797
+               "Confidence": 93.20275115966797
            },
            {
                "Name": "Animal",

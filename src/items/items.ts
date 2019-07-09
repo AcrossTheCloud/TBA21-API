@@ -353,22 +353,34 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
 export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
-      s3key: Joi.string().required()
+      s3key: Joi.string().required(),
+      confidence: Joi.number().integer(),
     }));
 
     const
       params = [event.queryStringParameters.s3key],
+      confidenceLevel = event.queryStringParameters.confidence ? event.queryStringParameters.confidence : 70,
       query = `
         SELECT machine_recognition_tags as tags
         FROM ${process.env.ITEMS_TABLE}
         WHERE s3_key = $1
       `,
-      result: any = await db.one(query, params); // tslint:disable-line no-any
-    console.log('RES', result);
-    const
-      tags = result.tags && result.tags.rekognition_labels ? result.tags.rekognition_labels.filter( c => c.Confidence > 70).map( n => n.Name) : [];
+      result: any = await db.oneOrNone(query, params); // tslint:disable-line no-any
 
-    console.log(tags);
+    let tags = [];
+
+    // If we have no result at all, the item doesn't exist.
+    if (!result) {
+      return badRequestResponse('No item');
+    }
+
+    if (result.tags && result.tags.rekognition_labels) {
+      // Have tags, filter and map to an array
+      tags = result.tags.rekognition_labels.filter( c => c.Confidence >= confidenceLevel).map( n => n.Name);
+    } else {
+      // Otherwise we want an empty array.
+      tags = [];
+    }
 
     return successResponse({ tags: tags});
 
