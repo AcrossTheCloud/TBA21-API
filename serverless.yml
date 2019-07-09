@@ -238,6 +238,20 @@ functions:
               - name: request.querystring.lng_ne
               - name: request.querystring.lat_nw
 
+  getItemsRekognitionTags:
+    handler: src/items/items.getRekognitionTags
+    description: Get the Rekognition Tags from an item.
+    events:
+      - http:
+          path: items/getRekognitionTags
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.s3key
+
 ### Collections
   getGetCollectionsByTag:
     handler: src/collections/collections.getByTag

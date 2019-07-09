@@ -13,7 +13,7 @@ import {
   getByPerson,
   getByType,
   changeStatus,
-  getItemsInBounds,
+  getItemsInBounds, getRekognitionTags,
 } from './items';
 
 describe('Item tests', () => {
@@ -142,6 +142,31 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {lat_sw: '28.620240545725636', lng_sw: '', lat_ne: '52.62108005994499', lng_ne: '38.16461563110352'},
       response = await getItemsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
+    expect(response.statusCode).toEqual(400);
+  });
+
+  test('Get Rekognition Tags from item', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {s3key: 'private/user/key2'},
+      response = await getRekognitionTags({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+
+    // Result [ 'Pet', 'Animal', 'Cat', 'Mammal', 'Abyssinian', 'Manx' ]
+
+    expect(response.statusCode).toEqual(200);
+    expect(results.tags).toEqual([ 'Pet', 'Animal', 'Cat', 'Mammal', 'Abyssinian', 'Manx' ]);
+  });
+  test('Get Rekognition Tags from item with no tags', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {s3key: 'private/user/key3'},
+      response = await getRekognitionTags({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+
+    expect(response.statusCode).toEqual(200);
+    expect(results.tags).toEqual([]);
+  });
+  test('Get Rekognition Tags no s3key', async () => {
+    const response = await getRekognitionTags({} as APIGatewayProxyEvent);
     expect(response.statusCode).toEqual(400);
   });
 });

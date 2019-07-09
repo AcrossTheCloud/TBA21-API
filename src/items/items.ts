@@ -341,3 +341,39 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
   }
 
 };
+
+/**
+ *
+ * Gets an items Rekognition tags
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } Array of tags
+ */
+export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      s3key: Joi.string().required()
+    }));
+
+    const
+      params = [event.queryStringParameters.s3key],
+      query = `
+        SELECT machine_recognition_tags as tags
+        FROM ${process.env.ITEMS_TABLE}
+        WHERE s3_key = $1
+      `,
+      result: any = await db.one(query, params); // tslint:disable-line no-any
+    console.log('RES', result);
+    const
+      tags = result.tags && result.tags.rekognition_labels ? result.tags.rekognition_labels.filter( c => c.Confidence > 70).map( n => n.Name) : [];
+
+    console.log(tags);
+
+    return successResponse({ tags: tags});
+
+  } catch (e) {
+    console.log('/items/items.getRekognitionTags ERROR - ', e);
+    return badRequestResponse();
+  }
+};
