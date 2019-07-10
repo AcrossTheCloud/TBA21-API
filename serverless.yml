@@ -364,7 +364,7 @@ functions:
               - name: request.querystring.query
   insertTags:
     handler: src/tags/tags.insert
-    description: Insert a tag
+    description: Insert a single tag or multiple tags
     events:
       - http:
           path: tags
