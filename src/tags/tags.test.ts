@@ -6,16 +6,19 @@ require('dotenv').config(
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
+import { reSeedDatabase } from '../utils/testHelper';
 import {
-  get
+  get,
+  insert
 } from './tags';
 
-describe('Tag tests', () => {
-  afterAll(() => {
-    // Close the database connection.
-    db.$pool.end();
-  });
+afterAll( async () => {
+  await reSeedDatabase();
+  // Close the database connection.
+  db.$pool.end();
+});
 
+describe('Tag tests', () => {
   test('Check that we have 3 keyword tags with the name of keyword.', async () => {
     const
       queryStringParameters: QueryStringParameters = {type: 'keyword', query: 'keyword'},
@@ -56,3 +59,39 @@ describe('Tag tests', () => {
     expect(statusCode).toEqual(400);
   });
 });
+
+describe('Tag insert tests', () => {
+  test('Insert 1 keyword tag and check the result', async () => {
+    const
+      requestBody = {
+        'type': 'keyword',
+        'tags': ['Whale']
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await insert({ body } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+
+    expect(responseBody.tags.length).toEqual(1);
+
+    expect(responseBody.tags[0]).toMatchObject({ "id": "4", "tag_name": 'whale' });
+  });
+
+  test('Insert 1 keyword that doesn\'t exist tag and check the results', async () => {
+    const
+      requestBody = {
+        'type': 'keyword',
+        'tags': ['Whale', 'dolphin']
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await insert({ body } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+
+    expect(responseBody.tags.length).toEqual(2);
+
+    console.log(responseBody.tags);
+
+    expect(responseBody.tags).toEqual(expect.arrayContaining([{ "id": "4", "tag_name": 'whale' }, { "id": "6", "tag_name": 'dolphin' }]));
+  });
+});
+
+
