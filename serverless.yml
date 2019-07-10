@@ -367,7 +367,7 @@ functions:
     description: Insert a single tag or multiple tags
     events:
       - http:
-          path: tags
+          path: admin/tags
           method: PUT
           cors: true
           authorizer: aws_iam
