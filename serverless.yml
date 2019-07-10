@@ -247,10 +247,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.s3key
 
 ### Collections
   getGetCollectionsByTag:
@@ -350,10 +346,23 @@ functions:
   ###### TAG FUNCTIONS ######
   getTags:
     handler: src/tags/tags.get
-    description: Get tags from the tag table based on a query
+    description: Get random tags
     events:
       - http:
           path: tags
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.query
+  searchTags:
+    handler: src/tags/tags.search
+    description: Get tags from the tag table based on a query
+    events:
+      - http:
+          path: tags/search
           method: get
           cors: true
           authorizer: aws_iam

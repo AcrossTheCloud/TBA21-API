@@ -3,6 +3,7 @@ import Joi from '@hapi/joi';
 
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
+import { limitQuery } from '../utils/queryHelpers';
 
 /**
  *
@@ -13,6 +14,40 @@ import { db } from '../databaseConnect';
  * @returns { Promise<APIGatewayProxyResult> } List of tags
  */
 export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      type: Joi.string().valid('keyword', 'concept').required(),
+      limit: Joi.number().integer()
+    }));
+
+    const
+      defaultValues = { limit: 15 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [limitQuery(queryString.limit, defaultValues.limit)],
+      sqlStatement = `
+        SELECT * 
+          FROM ${queryString.type === 'concept' ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE}
+        LIMIT $1
+      `;
+
+    const result = await db.manyOrNone(sqlStatement, params);
+
+    return successResponse({ tags: result ? result : [] });
+  } catch (e) {
+    console.log('/tags/tags.get ERROR - ', e);
+    return badRequestResponse();
+  }
+};
+
+/**
+ *
+ * Get an array of Tags
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } List of tags
+ */
+export const search = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
       type: Joi.string().valid('keyword', 'concept').required(),
