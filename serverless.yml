@@ -347,6 +347,22 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  ###### TAG FUNCTIONS ######
+  getTags:
+    handler: src/tags/tags.get
+    description: Get the Rekognition Tags from an item.
+    events:
+      - http:
+          path: tags
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.type
+              - name: request.querystring.query
+
   ###### ADMIN FUNCTIONS ######
 
 #### Collections
