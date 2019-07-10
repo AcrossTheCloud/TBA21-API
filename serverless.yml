@@ -247,10 +247,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.s3key
 
 ### Collections
   getGetCollectionsByTag:
@@ -350,7 +346,7 @@ functions:
   ###### TAG FUNCTIONS ######
   getTags:
     handler: src/tags/tags.get
-    description: Get tags from the tag table based on a query
+    description: Get random tags
     events:
       - http:
           path: tags
@@ -360,7 +356,19 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.type
+              - name: request.querystring.query
+  searchTags:
+    handler: src/tags/tags.search
+    description: Get tags from the tag table based on a query
+    events:
+      - http:
+          path: tags/search
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
               - name: request.querystring.query
   insertTags:
     handler: src/tags/tags.insert
@@ -371,14 +379,10 @@ functions:
           method: PUT
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.type
-              - name: request.querystring.tags
+
   updateTag:
     handler: src/tags/tags.update
-    description: Updates a tag 
+    description: Updates a tag
     events:
       - http:
           path: admin/tags
@@ -388,7 +392,7 @@ functions:
 
   reomveTag:
     handler: src/tags/tags.remove
-    description: Removes a tag 
+    description: Removes a tag
     events:
       - http:
           path: admin/tags
@@ -475,7 +479,7 @@ functions:
               Ref: ApiGatewayAuthorizer
   adminCreateCollection:
     handler: src/admin/collections/insert.createCollection
-    description: Creates a collection 
+    description: Creates a collection
     events:
       - http:
           path: admin/collections/create

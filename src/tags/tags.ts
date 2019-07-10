@@ -3,6 +3,7 @@ import Joi from '@hapi/joi';
 
 import { badRequestResponse, successResponse, internalServerErrorResponse } from '../common';
 import { db } from '../databaseConnect';
+import { limitQuery } from '../utils/queryHelpers';
 
 /**
  *
@@ -13,6 +14,40 @@ import { db } from '../databaseConnect';
  * @returns { Promise<APIGatewayProxyResult> } List of tags
  */
 export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      type: Joi.string().valid('keyword', 'concept').required(),
+      limit: Joi.number().integer()
+    }));
+
+    const
+      defaultValues = { limit: 15 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [limitQuery(queryString.limit, defaultValues.limit)],
+      sqlStatement = `
+        SELECT * 
+          FROM ${queryString.type === 'concept' ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE}
+        LIMIT $1
+      `;
+
+    const result = await db.manyOrNone(sqlStatement, params);
+
+    return successResponse({ tags: result ? result : [] });
+  } catch (e) {
+    console.log('/tags/tags.get ERROR - ', e);
+    return badRequestResponse();
+  }
+};
+
+/**
+ *
+ * Get an array of Tags
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } List of tags
+ */
+export const search = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
       type: Joi.string().valid('keyword', 'concept').required(),
@@ -65,7 +100,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         i AS
         (
           INSERT INTO ${tableName}(tag_name)
-            VALUES ( LOWER($1) ) ON CONFLICT (tag_name) DO NOTHING
+            VALUES ($1) ON CONFLICT (tag_name) DO NOTHING
           RETURNING id, tag_name
         )
 
@@ -88,7 +123,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
 /**
  *
- * Update a tag 
+ * Update a tag
  *
  * @param event {APIGatewayEvent}
  *
@@ -112,7 +147,6 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
           where id=$2
           RETURNING id, tag_name;`,
       sqlParams = [new_tag_name, Number(id)];
-    // console.log(sqlStatement, sqlParams);
 
     const result = await db.one(sqlStatement, sqlParams);
 
@@ -153,11 +187,9 @@ export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
           RETURNING id, tag_name;`,
       sqlParams = [Number(id)];
 
-    // console.log(sqlStatement, sqlParams);
-
     const result = await db.one(sqlStatement, sqlParams);
 
-    return successResponse({ reomvedTag: result });
+    return successResponse(!!result);
   } catch (e) {
     if (e.isJoi) {
       return badRequestResponse();
@@ -165,6 +197,5 @@ export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       console.log('/tags/tags.remove ERROR - ', e);
       return internalServerErrorResponse();
     }
-
   }
 };

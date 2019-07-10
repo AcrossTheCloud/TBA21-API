@@ -9,6 +9,7 @@ import { QueryStringParameters } from '../types/_test_';
 import { reSeedDatabase } from '../utils/testHelper';
 import {
   get,
+  search,
   insert,
   update,
   remove
@@ -20,11 +21,32 @@ afterAll(async () => {
   db.$pool.end();
 });
 
-describe('Tag tests', () => {
+describe('Tag get tests', () => {
   test('Check that we have 3 keyword tags with the name of keyword.', async () => {
     const
-      queryStringParameters: QueryStringParameters = { type: 'keyword', query: 'keyword' },
+      queryStringParameters: QueryStringParameters = { type: 'keyword'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+
+    expect(results.tags.length).toEqual(3);
+  });
+
+  test('Check that we have 1 keyword tag using limit with the name of keyword.', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {type: 'keyword', limit: '1' },
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+
+    expect(results.tags.length).toEqual(1);
+  });
+
+});
+
+describe('Tag search tests', () => {
+  test('Check that we have 3 keyword tags with the name of keyword.', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {type: 'keyword', query: 'keyword'},
+      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
     expect(results.tags.length).toEqual(3);
@@ -33,7 +55,7 @@ describe('Tag tests', () => {
   test('Check that we have 0 keyword tags by the name of QQQ', async () => {
     const
       queryStringParameters: QueryStringParameters = { type: 'keyword', query: 'QQQ' },
-      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
     expect(results.tags.length).toEqual(0);
@@ -42,7 +64,7 @@ describe('Tag tests', () => {
   test('Check that we have 3 concept tags with the name of concept.', async () => {
     const
       queryStringParameters: QueryStringParameters = { type: 'concept', query: 'concept' },
-      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
     expect(results.tags.length).toEqual(3);
@@ -50,7 +72,7 @@ describe('Tag tests', () => {
   test('Check that we have 0 concept tags by the name of QQQ', async () => {
     const
       queryStringParameters: QueryStringParameters = { type: 'concept', query: 'QQQ' },
-      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
     expect(results.tags.length).toEqual(0);
@@ -74,8 +96,7 @@ describe('Tag insert tests', () => {
       responseBody = JSON.parse(response.body);
 
     expect(responseBody.tags.length).toEqual(1);
-
-    expect(responseBody.tags[0]).toMatchObject({ "id": "4", "tag_name": 'whale' });
+    expect(responseBody.tags[0]).toMatchObject({ "id": "4", "tag_name": 'Whale' });
   });
 
   test('Insert 1 keyword that doesn\'t exist tag and check the results', async () => {
@@ -89,7 +110,7 @@ describe('Tag insert tests', () => {
       responseBody = JSON.parse(response.body);
 
     expect(responseBody.tags.length).toEqual(2);
-    expect(responseBody.tags).toEqual(expect.arrayContaining([{ "id": "4", "tag_name": 'whale' }, { "id": "6", "tag_name": 'dolphin' }]));
+    expect(responseBody.tags).toEqual(expect.arrayContaining([{ "id": "4", "tag_name": 'Whale' }, { "id": "6", "tag_name": 'dolphin' }]));
   });
 });
 
@@ -120,11 +141,9 @@ describe('Tag update and delete tests', () => {
       response = await remove({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
 
-    expect(responseBody.reomvedTag.id).toEqual('1');
+    expect(responseBody).toEqual(true);
 
   });
-
-
 });
 
 
