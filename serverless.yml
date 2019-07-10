@@ -370,10 +370,6 @@ functions:
           method: PUT
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.tags
 
   ###### ADMIN FUNCTIONS ######
 
