@@ -360,7 +360,6 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.type
               - name: request.querystring.query
   insertTags:
     handler: src/tags/tags.insert
@@ -374,7 +373,6 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.type
               - name: request.querystring.tags
 
   ###### ADMIN FUNCTIONS ######
@@ -456,7 +454,7 @@ functions:
               Ref: ApiGatewayAuthorizer
   adminCreateCollection:
     handler: src/admin/collections/insert.createCollection
-    description: Creates a collection 
+    description: Creates a collection
     events:
       - http:
           path: admin/collections/create
