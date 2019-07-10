@@ -25,7 +25,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       sqlStatement = `
         SELECT * 
           FROM ${type === 'concept' ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE}
-        WHERE tag_name LIKE '%' || LOWER($1) || '%'
+        WHERE Lower(tag_name) LIKE '%' || LOWER($1) || '%'
       `;
 
     const result = await db.any(sqlStatement, params);
