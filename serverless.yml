@@ -350,7 +350,7 @@ functions:
   ###### TAG FUNCTIONS ######
   getTags:
     handler: src/tags/tags.get
-    description: Get the Rekognition Tags from an item.
+    description: Get tags from the tag table based on a query
     events:
       - http:
           path: tags
@@ -362,6 +362,20 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.type
               - name: request.querystring.query
+  insertTags:
+    handler: src/tags/tags.insert
+    description: Insert a tag
+    events:
+      - http:
+          path: tags
+          method: PUT
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.type
+              - name: request.querystring.tags
 
   ###### ADMIN FUNCTIONS ######
 
