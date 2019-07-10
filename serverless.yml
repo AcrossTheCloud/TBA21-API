@@ -380,6 +380,26 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  updateTag:
+    handler: src/tags/tags.update
+    description: Updates a tag
+    events:
+      - http:
+          path: admin/tags
+          method: PATCH
+          cors: true
+          authorizer: aws_iam
+
+  reomveTag:
+    handler: src/tags/tags.remove
+    description: Removes a tag
+    events:
+      - http:
+          path: admin/tags
+          method: DELETE
+          cors: true
+          authorizer: aws_iam
+
   ###### ADMIN FUNCTIONS ######
 
 #### Collections

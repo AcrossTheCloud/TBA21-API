@@ -10,10 +10,12 @@ import { reSeedDatabase } from '../utils/testHelper';
 import {
   get,
   search,
-  insert
+  insert,
+  update,
+  remove
 } from './tags';
 
-afterAll( async () => {
+afterAll(async () => {
   await reSeedDatabase();
   // Close the database connection.
   db.$pool.end();
@@ -22,7 +24,7 @@ afterAll( async () => {
 describe('Tag get tests', () => {
   test('Check that we have 3 keyword tags with the name of keyword.', async () => {
     const
-      queryStringParameters: QueryStringParameters = {type: 'keyword'},
+      queryStringParameters: QueryStringParameters = { type: 'keyword'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
@@ -31,7 +33,7 @@ describe('Tag get tests', () => {
 
   test('Check that we have 1 keyword tag using limit with the name of keyword.', async () => {
     const
-      queryStringParameters: QueryStringParameters = {type: 'keyword', limit: '1'},
+      queryStringParameters: QueryStringParameters = {type: 'keyword', limit: '1' },
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
@@ -52,7 +54,7 @@ describe('Tag search tests', () => {
 
   test('Check that we have 0 keyword tags by the name of QQQ', async () => {
     const
-      queryStringParameters: QueryStringParameters = {type: 'keyword', query: 'QQQ'},
+      queryStringParameters: QueryStringParameters = { type: 'keyword', query: 'QQQ' },
       response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
@@ -61,7 +63,7 @@ describe('Tag search tests', () => {
 
   test('Check that we have 3 concept tags with the name of concept.', async () => {
     const
-      queryStringParameters: QueryStringParameters = {type: 'concept', query: 'concept'},
+      queryStringParameters: QueryStringParameters = { type: 'concept', query: 'concept' },
       response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
@@ -69,7 +71,7 @@ describe('Tag search tests', () => {
   });
   test('Check that we have 0 concept tags by the name of QQQ', async () => {
     const
-      queryStringParameters: QueryStringParameters = {type: 'concept', query: 'QQQ'},
+      queryStringParameters: QueryStringParameters = { type: 'concept', query: 'QQQ' },
       response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
@@ -77,7 +79,7 @@ describe('Tag search tests', () => {
   });
 
   test('400 when no queryStrings passed', async () => {
-    const { statusCode } = await search({ } as APIGatewayProxyEvent);
+    const { statusCode } = await get({} as APIGatewayProxyEvent);
     expect(statusCode).toEqual(400);
   });
 });
@@ -111,5 +113,38 @@ describe('Tag insert tests', () => {
     expect(responseBody.tags).toEqual(expect.arrayContaining([{ "id": "4", "tag_name": 'Whale' }, { "id": "6", "tag_name": 'dolphin' }]));
   });
 });
+
+describe('Tag update and delete tests', () => {
+  test('Update 1 keyword tag and check the result', async () => {
+    const
+      requestBody = {
+        'type': 'keyword',
+        'id': 1,
+        'new_tag_name': 'changed keyword tag'
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await update({ body } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+
+    expect(responseBody.updatedTag.tag_name).toEqual('changed keyword tag');
+    expect(responseBody.updatedTag.id).toEqual('1');
+
+  });
+
+  test('Delete 1 concept tag and check the result', async () => {
+    const
+      requestBody = {
+        'type': 'concept',
+        'id': 1
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await remove({ body } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+
+    expect(responseBody).toEqual(true);
+
+  });
+});
+
 
 
