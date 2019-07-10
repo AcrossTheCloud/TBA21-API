@@ -440,6 +440,18 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+  adminCreateCollection:
+    handler: src/admin/collections/insert.createCollection
+    description: Creates a collection 
+    events:
+      - http:
+          path: admin/collections/create
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
 #### Items
   adminGetItems:
