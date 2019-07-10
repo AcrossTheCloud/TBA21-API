@@ -73,7 +73,7 @@ describe('Tag insert tests', () => {
 
     expect(responseBody.tags.length).toEqual(1);
 
-    expect(responseBody.tags[0]).toMatchObject({ "id": "4", "tag_name": 'whale' });
+    expect(responseBody.tags[0]).toMatchObject({ "id": "4", "tag_name": 'Whale' });
   });
 
   test('Insert 1 keyword that doesn\'t exist tag and check the results', async () => {
@@ -90,7 +90,7 @@ describe('Tag insert tests', () => {
 
     console.log(responseBody.tags);
 
-    expect(responseBody.tags).toEqual(expect.arrayContaining([{ "id": "4", "tag_name": 'whale' }, { "id": "6", "tag_name": 'dolphin' }]));
+    expect(responseBody.tags).toEqual(expect.arrayContaining([{ "id": "4", "tag_name": 'Whale' }, { "id": "6", "tag_name": 'dolphin' }]));
   });
 });
 
