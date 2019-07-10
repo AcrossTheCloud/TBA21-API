@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import Joi from '@hapi/joi';
 
-import { badRequestResponse, successResponse } from '../common';
+import { badRequestResponse, successResponse, internalServerErrorResponse } from '../common';
 import { db } from '../databaseConnect';
 
 /**
@@ -83,5 +83,88 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   } catch (e) {
     console.log('/tags/tags.insert ERROR - ', e);
     return badRequestResponse();
+  }
+};
+
+/**
+ *
+ * Update a tag 
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } the updated tag object {id: number, tag_name: string}
+ */
+export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const data = JSON.parse(event.body);
+
+    await Joi.validate(data, Joi.object().keys({
+      id: Joi.number().integer().required(),
+      type: Joi.string().valid('keyword', 'concept').required(),
+      new_tag_name: Joi.string().required()
+    }));
+
+    const
+      { id, type, new_tag_name } = data,
+      tableName = ((type === 'concept') ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE),
+      sqlStatement = `UPDATE  ${tableName}
+          set tag_name = $1
+          where id=$2
+          RETURNING id, tag_name;`,
+      sqlParams = [new_tag_name, Number(id)];
+    // console.log(sqlStatement, sqlParams);
+
+    const result = await db.one(sqlStatement, sqlParams);
+
+    return successResponse({ updatedTag: result });
+  } catch (e) {
+    if (e.isJoi) {
+      return badRequestResponse();
+    } else {
+      console.log('/tags/tags.insert ERROR - ', e);
+      return internalServerErrorResponse();
+    }
+
+  }
+};
+
+/**
+ *
+ * Removes a tag from DB
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } the deleted tag object {id: number, tag_name: string}
+ */
+export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const data = JSON.parse(event.body);
+
+    await Joi.validate(data, Joi.object().keys({
+      id: Joi.number().integer().required(),
+      type: Joi.string().valid('keyword', 'concept').required()
+    }));
+
+    const
+      { id, type } = data,
+      tableName = ((type === 'concept') ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE),
+      sqlStatement = `DELETE from  ${tableName}
+          where id=$1
+          RETURNING id, tag_name;`,
+      sqlParams = [Number(id)];
+
+    // console.log(sqlStatement, sqlParams);
+
+    const result = await db.one(sqlStatement, sqlParams);
+
+    return successResponse({ reomvedTag: result });
+  } catch (e) {
+    if (e.isJoi) {
+      return badRequestResponse();
+    } else {
+      console.log('/tags/tags.remove ERROR - ', e);
+      return internalServerErrorResponse();
+    }
+
   }
 };
