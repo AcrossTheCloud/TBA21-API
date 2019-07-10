@@ -34,7 +34,7 @@ custom:
   # Avoid hitting the CF Resource limit by splitting them up.
   splitStacks:
     perFunction: true
-    perType: false
+    perType: true
 
 provider:
   name: aws
