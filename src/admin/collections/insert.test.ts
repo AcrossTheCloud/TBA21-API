@@ -40,8 +40,8 @@ describe('/admin/collections/insert/', () => {
       },
       body: string = JSON.stringify(requestBody),
       response = await createCollection({ body } as APIGatewayProxyEvent),
-      responseBody = JSON.parse(response.body);
-      let nItems= await db.one(`select count(1) from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`,[responseBody.id]);
+      responseBody = JSON.parse(response.body),
+      nItems = await db.one(`select count(1) from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`,[responseBody.id]);
 
     expect(nItems.count).toBe('3');
   });

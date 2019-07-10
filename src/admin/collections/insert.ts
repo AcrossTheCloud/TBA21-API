@@ -39,9 +39,8 @@ import Joi from '@hapi/joi';
 
 export const createCollection = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    // console.log(event.body);
-    const
-      data = JSON.parse(event.body);
+    const data = JSON.parse(event.body);
+
     await Joi.validate(data, Joi.object().keys(
       {
         status: Joi.boolean(),
@@ -69,36 +68,34 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
 
     let paramCounter = 0;
 
-    const params = [];
+    const
+      params = [],
+      sqlFields: string[] = Object.keys(data).filter(e => (e !== 'items')).map((key) => {
+        return `${key}`;
+      }),
+      sqlParams: string[] = Object.keys(data).filter(e => (e !== 'items')).map((key) => {
+        params[paramCounter++] = data[key];
+        return `$${paramCounter}`;
+      });
 
-    const sqlFields: string[] = Object.keys(data).filter(e => (e !== 'items')).map((key) => {
-      return `${key}`;
-    });
-    const sqlParams: string[] = Object.keys(data).filter(e => (e !== 'items')).map((key) => {
-      params[paramCounter++] = data[key];
-      return `$${paramCounter}`;
-    });
     sqlFields.push('created_at', 'updated_at');
     sqlParams.push('now()', 'now()');
-    let
-      query = `
-        INSERT INTO ${process.env.COLLECTIONS_TABLE} (${[...sqlFields]}) values (${[...sqlParams]}) returning id;`;
 
-    // console.log(query, params);
-    let insertResult = await db.task(async t => {
+    const query = `INSERT INTO ${process.env.COLLECTIONS_TABLE} (${[...sqlFields]}) VALUES (${[...sqlParams]}) RETURNING id;`;
 
-      let insertedObject = await t.one(query, params);
-      // If we have items 
+    const insertResult = await db.task(async t => {
+      const insertedObject = await t.one(query, params);
+
+      // If we have items
       if (data.items && data.items.length > 0) {
-        let toBeAdded = data.items;
-        const SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
-          return `($1, $${index + 2})`;
-        });
-        let addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`;
-        let addParams = [insertedObject.id, ...toBeAdded];
-        // console.log(addQuery, addParams);
+        const
+          SQL_INSERTS: string[] = data.items.map((item, index) => (`($1, $${index + 2})`)),
+          addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
+          addParams = [insertedObject.id, ...data.items];
+
         await t.any(addQuery, addParams);
       }
+
       return insertedObject;
     });
 
@@ -110,9 +107,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
 
   } catch (e) {
     if ((e.message === 'Nothing to update') || (e.isJoi)) {
-
       return badRequestResponse(e.message);
-
     } else {
       console.log('/admin/collections/update ERROR - ', e);
       return internalServerErrorResponse();
