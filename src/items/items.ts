@@ -1,8 +1,9 @@
 import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import Joi from '@hapi/joi';
+
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
-import Joi from '@hapi/joi';
 /**
  *
  * Gets all the items
@@ -371,16 +372,9 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
     let tags = [];
 
     // If we have no result at all, the item doesn't exist.
-    if (!result) {
-      return badRequestResponse('No item');
-    }
-
-    if (result.tags && result.tags.rekognition_labels) {
+    if (result && result.tags && result.tags.rekognition_labels) {
       // Have tags, filter and map to an array
       tags = result.tags.rekognition_labels.filter( c => c.Confidence >= confidenceLevel).map( n => n.Name);
-    } else {
-      // Otherwise we want an empty array.
-      tags = [];
     }
 
     return successResponse({ tags: tags});

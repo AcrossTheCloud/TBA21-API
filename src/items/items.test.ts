@@ -182,8 +182,8 @@ describe('Item tests', () => {
       response = await getRekognitionTags({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
-    expect(results.message).toEqual('No item');
-    expect(response.statusCode).toEqual(400);
+    expect(response.statusCode).toEqual(200);
+    expect(results.tags.length).toEqual(0);
   });
   test('Get Rekognition Tags no s3key', async () => {
     const response = await getRekognitionTags({} as APIGatewayProxyEvent);
