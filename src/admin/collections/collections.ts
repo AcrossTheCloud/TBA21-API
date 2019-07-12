@@ -216,3 +216,48 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     return badRequestResponse();
   }
 };
+
+/**
+ *
+ * Get a list of items in a collection
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ */
+export const getItemsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    // VALIDATE first
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+        id: Joi.number().required()
+      }));
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      query = `
+        SELECT
+          items.*
+        FROM
+          ${process.env.COLLECTIONS_ITEMS_TABLE} AS collections_items
+          INNER JOIN ${process.env.ITEMS_TABLE}
+          ON collections_items.item_s3_key = items.s3_key
+        
+        WHERE collection_id = $1
+          
+        ORDER BY collections_items.collection_id
+        
+        LIMIT $2
+        OFFSET $3
+      `;
+
+    return successResponse({ items: await db.any(query, params) });
+  } catch (e) {
+    console.log('/items/items.getByType ERROR - ', e);
+    return badRequestResponse();
+  }
+};

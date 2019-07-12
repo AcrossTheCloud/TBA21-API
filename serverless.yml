@@ -427,6 +427,16 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
 
+  getItemsInCollection:
+    handler: src/admin/collections/collections.getItemsInCollection
+    description: Returns the items in a collection
+    events:
+      - http:
+          path: admin/collections/getItemsInCollection
+          method: get
+          cors: true
+          authorizer: aws_iam
+
 #  adminGetCollectionsByTag:
 #    handler: src/admin/collections/collections.getByTag
 #    description: Returns collections by tag from the database.
