@@ -64,7 +64,13 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         description: Joi.string(),
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
       }));
-    // will cause an exception if it is not valid
+
+    if (data.keyword_tags) {
+      data.keyword_tags = data.keyword_tags.map( t => parseInt(t, 0));
+    }
+    if (data.concept_tags) {
+      data.concept_tags = data.concept_tags.map( t => parseInt(t, 0));
+    }
 
     let paramCounter = 0;
 
