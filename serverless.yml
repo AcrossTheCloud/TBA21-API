@@ -473,10 +473,7 @@ functions:
           path: admin/collections/update
           method: put
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          authorizer: aws_iam
 
   adminCreateCollection:
     handler: src/admin/collections/insert.createCollection
@@ -486,10 +483,7 @@ functions:
           path: admin/collections/create
           method: put
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          authorizer: aws_iam
 
 #### Items
   adminGetItems:
