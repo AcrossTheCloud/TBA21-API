@@ -1,0 +1,616 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "prod-tba21",
+    "version": "2019-02-01T11:13:56Z"
+  },
+  "servers": [
+    {
+      "url": "https://demo-api.oceanarchive.io"
+    }
+  ],
+  "paths": {
+    "/roles": {
+      "get": {
+        "security": [
+          {
+            "sigv4": []
+          }
+        ],
+        "x-postman-meta": {
+          "helperAttributes": {
+            "saveHelper": true,
+            "secretKey": "{{aws_secret_access_key}}",
+            "accessKey": "{{aws_access_key_id}}"
+          },
+          "headers": "Content-Type: application/json\n",
+          "currentHelper": "awsSigV4"
+        }
+      },
+      "options": {
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Credentials": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      }
+    },
+    "/items": {
+      "get": {
+        "description": "/items",
+        "responses": {
+          "200": {
+            "description": "Returns a list of items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/itemWithID"
+                      }
+                    }
+                  },
+                  "example":
+                  {
+                    "Items": [
+                      {
+                        "urls": [
+                          "https://demo-content.oceanarchive.io/public/767c4bf0-ce90-11e8-aee5-7b204b8165e3-humpback-whale.mp3"
+                        ],
+                        "ocean": "Atlantic",
+                        "privacy": false,
+                        "timestamp": 1539398090.828,
+                        "people": [
+                          {
+                            "personId": "e9b56750-8efd-11e8-95c6-cd405d1537e4",
+                            "roles": [
+                              "recorder",
+                              "navigator"
+                            ],
+                            "personName": "Matthew Berryman"
+                          }
+                        ],
+                        "itemId": "8f38b1b0-ce90-11e8-966b-f561b5f002b8",
+                        "description": "humpback whale recording",
+                        "position": [
+                          -48.09988700068249,
+                          34.437835491222124
+                        ],
+                        "tags": [
+                          "humpback",
+                          "whale"
+                        ]
+                      },
+                      {
+                        "urls": [
+                          "https://www.seriouseats.com/recipes/images/2016/08/20160826-sous-vide-salmon-46-1500x1125.jpg"
+                        ],
+                        "ocean": "Pacific",
+                        "timestamp": 1532408050.98,
+                        "people": [
+                          {
+                            "personId": "49c557a0-8efd-11e8-95c6-cd405d1537e4",
+                            "roles": [
+                              "fish farmer"
+                            ],
+                            "personName": "Salmon Grower"
+                          }
+                        ],
+                        "itemId": "9acd0e40-8efd-11e8-aa6f-25fa45076999",
+                        "description": "salmon",
+                        "position": [
+                          147.49900072780454,
+                          -43.08685992172019
+                        ],
+                        "tags": [
+                          "salmon",
+                          "fish"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "sigv4": []
+          }
+        ],
+        "x-postman-meta": {
+          "helperAttributes": {
+            "saveHelper": true,
+            "secretKey": "{{aws_secret_access_key}}",
+            "accessKey": "{{aws_access_key_id}}"
+          },
+          "headers": "Content-Type: application/json\n",
+          "currentHelper": "awsSigV4"
+        }
+      },
+      "options": {
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Credentials": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      }
+    },
+    "/tags": {
+      "get": {
+        "description": "/tags",
+        "responses": {
+          "200": {
+            "description": "Returns a list of all used tags across all items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "example": 
+                  [
+                    "fish farmer",
+                    "watcher",
+                    "photographer",
+                    "captain",
+                    "drone operator"
+                  ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "sigv4": []
+          }
+        ],
+        "x-postman-meta": {
+          "helperAttributes": {
+            "saveHelper": true,
+            "secretKey": "{{aws_secret_access_key}}",
+            "accessKey": "{{aws_access_key_id}}"
+          },
+          "headers": "Content-Type: application/json\n",
+          "currentHelper": "awsSigV4"
+        }
+      },
+      "options": {
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Credentials": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      }
+    },
+    "/item": {
+      "post": {
+        "description": "/item",
+        "requestBody": {
+          "description": "Item to be stored",
+          "required": "true",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/item"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "sigv4": []
+          }
+        ],
+        "x-postman-meta": {
+          "helperAttributes": {
+            "saveHelper": true,
+            "secretKey": "{{aws_secret_access_key}}",
+            "accessKey": "{{aws_access_key_id}}"
+          },
+          "headers": "Content-Type: application/json\n",
+          "currentHelper": "awsSigV4"
+        }
+      },
+      "options": {
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Credentials": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      }
+    },
+    "/imageTags": {
+      "get": {},
+      "options": {
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Credentials": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      }
+    },
+    "/people": {
+      "get": {
+        "security": [
+          {
+            "sigv4": []
+          }
+        ],
+        "x-postman-meta": {
+          "helperAttributes": {
+            "saveHelper": true,
+            "secretKey": "{{aws_secret_access_key}}",
+            "accessKey": "{{aws_access_key_id}}"
+          },
+          "headers": "Content-Type: application/json\n",
+          "currentHelper": "awsSigV4"
+        }
+      },
+      "options": {
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Credentials": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      }
+    },
+    "/itemsGraph": {
+      "get": {},
+      "options": {
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Credentials": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      }
+    },
+    "/person": {
+      "post": {
+        "description": "/person",
+        "requestBody": {
+          "description": "Person to be stored",
+          "required": "true",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/person"
+              },
+              "example": {
+                "name": "John Citizen",
+                "email": "john@example.net",
+                "telephone": "+61 491 570 156",
+                "biography": "The world's most boring biography",
+                "privacy": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "sigv4": []
+          }
+        ],
+        "x-postman-meta": {
+          "helperAttributes": {
+            "saveHelper": true,
+            "secretKey": "{{aws_secret_access_key}}",
+            "accessKey": "{{aws_access_key_id}}"
+          },
+          "headers": "Content-Type: application/json\n",
+          "currentHelper": "awsSigV4"
+        }
+      },
+      "options": {
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Credentials": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "sigv4": []
+          }
+        ],
+        "x-postman-meta": {
+          "helperAttributes": {
+            "saveHelper": true,
+            "secretKey": "{{aws_secret_access_key}}",
+            "accessKey": "{{aws_access_key_id}}"
+          },
+          "headers": "Content-Type: application/json\n",
+          "currentHelper": "awsSigV4"
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sigv4": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "x-amazon-apigateway-authtype": "awsSigv4"
+      }
+    },
+    "schemas": {
+      "item": {
+        "type": "object",
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ocean": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "number"
+          },
+          "people": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "personId": {
+                  "type": "string"
+                },
+                "roles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "personName": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "position": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "itemWithID": {
+        "allOf": 
+        [ 
+          {
+            "$ref": "#/components/schemas/item"
+          }, 
+          {
+            "type": "object",
+            "properties": {
+              "itemId": {
+               "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "person": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "telephone": {
+            "type": "string"
+          },
+          "privacy": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

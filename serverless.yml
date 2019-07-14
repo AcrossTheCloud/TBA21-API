@@ -115,6 +115,7 @@ resources:
                     - s3:GetObject
                   Resource:
                     - 'arn:aws:s3:::tba21-content*/*'
+                    - 'arn:aws:s3:::demo*.oceanarchive.io/*'
                 - Effect: Allow
                   Action:
                     - cognicity-idp:*
