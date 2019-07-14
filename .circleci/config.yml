@@ -1,0 +1,76 @@
+version: 2.1
+
+orbs:
+  codecov: codecov/codecov@1.0.4
+
+jobs:
+  build:
+
+    docker:
+      - image: circleci/node:lts
+        environment:
+          TEST_DATABASE_URL: postgresql://postgres@localhost/tba21
+      - image: circleci/postgres:11-alpine-postgis-ram
+        environment:
+          POSTGRES_DB: tba21
+          POSTGRES_PASSWORD: postgres
+    steps:
+      - checkout
+
+      # PG CLIENT
+      - run: curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+      - run: echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee  /etc/apt/sources.list.d/pgdg.list
+      - run: sudo apt update
+      - run: sudo apt -y upgrade
+      - run: sudo apt -y install postgresql-client
+
+      # NPM stuff
+      - run:
+          name: Update npm
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: npm install
+          command: npm i && sudo npm i -g jest tslint
+
+      # Seed the database
+      - run:
+          name: Add Schema to DB
+          command: psql -d $TEST_DATABASE_URL -f ~/project/schema/schema.sql
+      - run:
+          name: Add Seeds to DB
+          command:
+            for f in ~/project/schema/seeds/*.sql;
+              do
+                psql -d $TEST_DATABASE_URL -f "$f";
+              done;
+
+      - run:
+          name: Linting
+          command: npm run lint
+      - run:
+          name: Running Jest
+          command: jest -i --coverage
+          environment:
+            UPLOADS_TABLE: tba21.s3uploads
+            TYPES_TABLE: tba21.types
+            ITEMS_TABLE: tba21.items
+            COLLECTIONS_TABLE: tba21.collections
+            COLLECTIONS_ITEMS_TABLE: tba21.collections_items
+            CONCEPT_TAGS_TABLE: tba21.concept_tags
+            KEYWORD_TAGS_TABLE: tba21.keyword_tags
+            PGUSER: postgres
+            PGPASSWORD: postgres
+            PGHOST: localhost
+            PGPORT: 5432
+            PGDATABASE: tba21
+            PGSSL: false
+      - store_artifacts:
+          path: coverage
+      - codecov/upload:
+          file: coverage/coverage-final.json
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules

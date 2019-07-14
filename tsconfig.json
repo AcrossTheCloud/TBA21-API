@@ -1,0 +1,41 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "outDir": ".build/",
+        "rootDir": "src",
+        "module": "commonjs",
+        "target": "es5",
+        "lib": [
+            "es5",
+            "es6",
+            "esnext.asynciterable"
+        ],
+        "sourceMap": true,
+        "allowJs": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "moduleResolution": "node",
+        "rootDir": "src",
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitAny": false,
+        "strictNullChecks": false,
+        "suppressImplicitAnyIndexErrors": true,
+        "noUnusedLocals": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "resolveJsonModule": true
+    },
+    "exclude": [
+        "src/**/*.test.*",
+        "node_modules",
+        ".build",
+        ".serverless"
+    ],
+    "include": [
+        "src"
+    ]
+}
