@@ -38,35 +38,39 @@ import Joi from '@hapi/joi';
 
 export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    console.log(event.body);
-    const
-      data = JSON.parse(event.body),
-      result = await Joi.validate(data, Joi.object().keys(
-        {
-          id: Joi.number().integer().required(),
-          status: Joi.boolean(),
-          concept_tags: Joi.array().items(Joi.number().integer()),
-          keyword_tags: Joi.array().items(Joi.number().integer()),
-          place: Joi.string(),
-          country_or_ocean: Joi.string(),
-          creators: Joi.array().items(Joi.string()),
-          directors: Joi.array().items(Joi.string()),
-          writers: Joi.array().items(Joi.string()),
-          collaborators: Joi.string(),
-          exhibited_at: Joi.string(),
-          series: Joi.string(),
-          ISBN: Joi.number().integer(),
-          edition: Joi.number().integer(),
-          publisher: Joi.array().items(Joi.string()),
-          interviewers: Joi.array().items(Joi.string()),
-          interviewees: Joi.array().items(Joi.string()),
-          cast_: Joi.string(),
-          title: Joi.string(),
-          description: Joi.string(),
-          items: Joi.array().items(Joi.string())
-        }));
-    // will cause an exception if it is not valid
-    console.log(result); // to see the result
+    const data = JSON.parse(event.body);
+
+    await Joi.validate(data, Joi.object().keys(
+      {
+        id: Joi.number().integer().required(),
+        status: Joi.boolean(),
+        concept_tags: Joi.array().items(Joi.number().integer()),
+        keyword_tags: Joi.array().items(Joi.number().integer()),
+        place: Joi.string(),
+        country_or_ocean: Joi.string(),
+        creators: Joi.array().items(Joi.string()),
+        directors: Joi.array().items(Joi.string()),
+        writers: Joi.array().items(Joi.string()),
+        collaborators: Joi.string(),
+        exhibited_at: Joi.string(),
+        series: Joi.string(),
+        ISBN: Joi.number().integer(),
+        edition: Joi.number().integer(),
+        publisher: Joi.array().items(Joi.string()),
+        interviewers: Joi.array().items(Joi.string()),
+        interviewees: Joi.array().items(Joi.string()),
+        cast_: Joi.string(),
+        title: Joi.string(),
+        description: Joi.string(),
+        items: Joi.array().items(Joi.string())
+      }));
+
+    if (data.keyword_tags) {
+      data.keyword_tags = data.keyword_tags.map( t => parseInt(t, 0));
+    }
+    if (data.concept_tags) {
+      data.concept_tags = data.concept_tags.map( t => parseInt(t, 0));
+    }
 
     let paramCounter = 0;
 
@@ -90,8 +94,6 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         WHERE id = $1 returning id;
       `;
 
-    console.log(query, params);
-
     if (SQL_SETS.length) {
       await db.task(async t => {
         // If we have items in SQL_SETS do the query.
@@ -100,27 +102,32 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         if (data.items && data.items.length) {
           let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
           currentItems = currentItems.map(e => (e.item_s3_key));
-          let toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0));
-          let toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
+
+          const
+            toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0)),
+            toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
+
           if (toBeAdded.length > 0) {
-            const SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
-              return `($1, $${index + 2})`;
-            });
-            let addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`;
-            let addParams = [data.id, ...toBeAdded];
+            const
+              SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
+                return `($1, $${index + 2})`;
+              }),
+              addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
+              addParams = [data.id, ...toBeAdded];
+
             await t.any(addQuery, addParams);
           }
 
           if (toBeRemoved.length > 0) {
-            const SQL_REMOVES: string[] = toBeRemoved.map((item, index) => {
-              return `$${index + 2}`;
-            });
+            const
+              SQL_REMOVES: string[] = toBeRemoved.map((item, index) => {
+                return `$${index + 2}`;
+              }),
+              removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${[...SQL_REMOVES]})`,
+              removeParams = [data.id, ...toBeRemoved];
 
-            let removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${[...SQL_REMOVES]})`;
-            let removeParams = [data.id, ...toBeRemoved];
             await t.any(removeQuery, removeParams);
           }
-
         }
       });
 
