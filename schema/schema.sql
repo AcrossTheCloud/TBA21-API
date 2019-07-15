@@ -1,7 +1,6 @@
 -- SCHEMA: tba21
 
 --DROP SCHEMA IF EXISTS tba21 CASCADE;
-
 CREATE SCHEMA tba21
 AUTHORIZATION postgres;
 
@@ -21,7 +20,7 @@ CREATE TABLE tba21.types
 -- Items metadata table
 CREATE TABLE tba21.items
 (
-	s3_key varchar(1024) PRIMARY KEY NOT NULL ,
+	s3_key varchar(1024) PRIMARY KEY NOT NULL,
 	sha512 char(128),
     exif jsonb, -- for things that don't go into other columns
 	machine_recognition_tags jsonb,
@@ -33,26 +32,62 @@ CREATE TABLE tba21.items
 	status boolean, -- false=draft, true=public
 	concept_tags bigint[],
 	keyword_tags bigint[],
-	place varchar(128),
-	country_or_ocean varchar(128),
+	place varchar(128)[],
+	country_or_ocean varchar(128)[],
 	item_type bigint references tba21.types(id) ON DELETE CASCADE,
+	item_subtype bigint references tba21.types(id) ON DELETE CASCADE,
 	creators varchar(256)[],
 	contributor uuid,
 	directors varchar(256)[],
 	writers varchar(256)[],
+	editor varchar(256),
+    featured_in varchar(256),
 	collaborators varchar(256),
 	exhibited_at varchar(256),
 	series varchar(256),
 	ISBN numeric(13),
+	DOI int,
 	edition numeric(3),
+	volume_year numeric(4),
+	volume numeric(2),
+	pages numeric(4),
+	city_of_publication varchar(128),
+	disciplinary_field varchar(256),
 	publisher varchar(256)[],
 	interviewers varchar(256)[],
 	interviewees varchar(256)[],
 	cast_ varchar(256),
 	license tba21.licence_type,
 	title varchar(256),
+	subtitle varchar(256),
 	description varchar(256),
-	map_icon varchar(1024) -- path to s3 object
+	map_icon varchar(1024), -- path to s3 object
+    focus_arts numeric(1),
+    focus_action numeric(1),
+    focus_scitech numeric(1),
+    article_link varchar(256),
+    translated_from varchar(256),
+    language varchar(128),
+    author_birth_date date,
+    author_death_date date,
+    venue varchar(256),
+    screened_at varchar(256),
+    genre varchar(128),
+    news_outlet varchar(256),
+    institution varchar(256),
+    medium varchar(128),
+    dimensions varchar(128),
+    recording_technique varchar(256),
+    original_sound_credit varchar(256),
+    record_label varchar(256),
+    series_name varchar(256),
+    episode_name varchar(256),
+    episode_number numeric(3),
+    recording_name varchar(256),
+    speakers varchar(256)[],
+    performers varchar(256)[],
+    host_organization varchar(256),
+    radio_station varchar(256)
 );
 
 --Collections metadata
@@ -61,27 +96,80 @@ CREATE TABLE tba21.collections
 	ID bigserial PRIMARY KEY,
 	created_at timestamp with time zone NOT NULL,
 	updated_at timestamp with time zone NOT NULL,
+    series_start_date date,
+    series_end_date date,
+    event_start_date date,
+    event_end_date date,
+    expedition_start_date date,
+    expedition_end_date date,
+    installation_start_date date,
+    installation_end_date date,
 	time_produced timestamp with time zone,
 	status boolean,
 	concept_tags bigint[],
 	keyword_tags bigint[],
 	place varchar(128),
+	regional_focus varchar(128),
 	country_or_ocean varchar(128),
 	creators varchar(256)[],
-	contributor uuid,
+	contributors uuid[],
 	directors varchar(256)[],
 	writers varchar(256)[],
+	editor varchar(256),
 	collaborators varchar(256),
 	exhibited_at varchar(256),
 	series varchar(256),
 	ISBN numeric(13),
 	edition numeric(3),
 	publisher varchar(256)[],
+	series_name varchar(256),
 	interviewers varchar(256)[],
 	interviewees varchar(256)[],
 	cast_ varchar(256),
 	title varchar(256),
-	description varchar(256)
+	subtitle varchar(256),
+	description varchar(256),
+	copyright_holder varchar(256),
+	copyright_country varchar(256),
+	disciplinary_field varchar(256),
+    specialization varchar(256),
+    department varchar(256),
+    expedition_leader varchar(256),
+    institution varchar(256),
+    expedition_vessel varchar(256),
+    expedition_route varchar(256),
+    expedition_blog_link varchar(256),
+    participants varchar(256)[],
+    venue varchar(256),
+    curator varchar(265),
+    host varchar(256)[],
+    event_type bigint references tba21.types(id) ON DELETE CASCADE,
+    host_organization varchar(256),
+    focus_arts numeric(1),
+    focus_action numeric(1),
+    focus_scitech numeric(1),
+    url varchar(256)
+);
+
+--Contributor metadata
+CREATE TABLE tba21.profile
+(
+	ID bigserial PRIMARY KEY,
+    contributors uuid[],
+    profile_image varchar(1024),  -- path to s3 object
+    featured_image varchar(1024),  -- path to s3 object
+    full_name varchar(256),
+    field_expertise varchar(256),
+    city_country varchar(128),
+    biography varchar(256),
+    website varchar(128),
+    social_media varchar(128),
+    public_profile boolean,
+    affiliation varchar(256),
+    position varchar(256),
+    contact_person varchar (256),
+    contact_position varchar (256),
+    contact_email varchar (256)
 );
 
 -- Geo stuff
@@ -91,6 +179,12 @@ CREATE INDEX items_gix ON tba21.items USING GIST (location); -- items location G
 
 SELECT AddGeometryColumn ('tba21','collections','geom',4326,'LINESTRING',2); -- collections geom column
 CREATE INDEX collections_gix ON tba21.collections USING GIST (geom); -- collections geom GIST index
+
+SELECT AddGeometryColumn ('tba21','collections','expedition_start_point',4326,'POINT',2); -- items location column
+CREATE INDEX collections_start_gix ON tba21.collections USING GIST (geom); -- items location GIST index
+
+SELECT AddGeometryColumn ('tba21','collections','expedition_end_point',4326,'POINT',2); -- items location column
+CREATE INDEX collections_end_gix ON tba21.collections USING GIST (geom); -- items location GIST index
 
 -- Collection items cross-references
 CREATE TABLE tba21.collections_items
