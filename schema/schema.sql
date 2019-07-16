@@ -10,6 +10,9 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 --License
 CREATE TYPE tba21.licence_type AS ENUM ('CC BY', 'CC BY-SA', 'CC BY-ND', 'CC BY-NC', 'CC BY-NC-SA', 'CC BY-NC-ND', 'locked');
 
+--Table Types
+CREATE TYPE tba21.table_type AS ENUM ('profile', 'item', 'collection');
+
 --Types metadata
 CREATE TABLE tba21.types
 (
@@ -34,8 +37,8 @@ CREATE TABLE tba21.items
 	keyword_tags bigint[],
 	place varchar(128)[],
 	country_or_ocean varchar(128)[],
-	item_type bigint references tba21.types(id) ON DELETE CASCADE,
-	item_subtype bigint references tba21.types(id) ON DELETE CASCADE,
+	item_type bigint[],
+	item_subtype bigint[],
 	creators varchar(256)[],
 	contributor uuid,
 	directors varchar(256)[],
@@ -46,11 +49,12 @@ CREATE TABLE tba21.items
 	exhibited_at varchar(256),
 	series varchar(256),
 	ISBN numeric(13),
-	DOI int,
+	DOI varchar(1024),
 	edition numeric(3),
 	volume_year numeric(4),
-	volume numeric(2),
-	pages numeric(4),
+	volume numeric(4),
+	issue numeric(4),
+	pages numeric(5),
 	city_of_publication varchar(128),
 	disciplinary_field varchar(256),
 	publisher varchar(256)[],
@@ -122,7 +126,6 @@ CREATE TABLE tba21.collections
 	ISBN numeric(13),
 	edition numeric(3),
 	publisher varchar(256)[],
-	series_name varchar(256),
 	interviewers varchar(256)[],
 	interviewees varchar(256)[],
 	cast_ varchar(256),
@@ -143,7 +146,7 @@ CREATE TABLE tba21.collections
     venue varchar(256),
     curator varchar(265),
     host varchar(256)[],
-    event_type bigint references tba21.types(id) ON DELETE CASCADE,
+    event_type varchar(256),
     host_organization varchar(256),
     focus_arts numeric(1),
     focus_action numeric(1),
@@ -170,6 +173,14 @@ CREATE TABLE tba21.profile
     contact_person varchar (256),
     contact_position varchar (256),
     contact_email varchar (256)
+);
+
+--Table for making short urls
+CREATE TABLE tba21.short_paths
+(
+    ID bigserial PRIMARY KEY,
+    short_path varchar(256),
+    object_type tba21.table_type
 );
 
 -- Geo stuff

@@ -158,7 +158,6 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       console.log('/tags/tags.insert ERROR - ', e);
       return internalServerErrorResponse();
     }
-
   }
 };
 
