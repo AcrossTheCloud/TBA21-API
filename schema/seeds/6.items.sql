@@ -67,7 +67,8 @@ INSERT INTO tba21.items(
     speakers,
     performers,
     host_organization,
-    radio_station
+    radio_station,
+    location
 )
 VALUES (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad749e30-a6a0-11e9-b5d9-1726307e8330-photo-1518791841217-8f162f1e1131.jpeg',
@@ -115,7 +116,7 @@ VALUES (
   '{8,5,1}',
   '{Place}',
   '{Mediterranean Ocean}',
-  '{1}',
+  1,
   '{3,4}',
   '{Chris Alderton, Hilary Rawlings}',
   '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
@@ -168,7 +169,8 @@ VALUES (
   '{Speakers}',
   '{Performers1, Performers2}',
   'Host organization',
-  'Radio Station'
+  'Radio Station',
+   ST_GeomFromText('POINT(37.717474 161.204097)', 4326)
 ),
 
 (
@@ -213,7 +215,7 @@ VALUES (
   '{1,4,2,6}',
   '{Place}',
   '{Atlantic Ocean}',
-  '{5}',
+  5,
   '{3,4}',
    '{Ben Scotty, Tim Zerner}',
   'cfa81825-2716-41e2-a48d-8f010840b559',
@@ -266,7 +268,8 @@ VALUES (
   '{Speakers}',
   '{Performers1, Performers2}',
   'Host organization',
-  'Radio Station'
+  'Radio Station',
+  ST_GeomFromText('POINT(77.134788 4.835309)', 4326)
 ),
 
 (
@@ -311,7 +314,7 @@ VALUES (
   '{3}',
   '{Place}',
   '{Red Ocean}',
-  '{6}',
+  6,
   '{1,5}',
    '{Ben Scotty, Tim Zerner}',
   'cfa81825-2716-41e2-a48d-8f010840b559',
@@ -364,7 +367,8 @@ VALUES (
   '{Speakers}',
   '{Performers1, Performers2}',
   'Host organization',
-  'Radio Station'
+  'Radio Station',
+  ST_GeomFromText('POINT(66.073126 4.225375)', 4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg',
@@ -408,7 +412,7 @@ VALUES (
   '{7,8,9}',
   '{Place}',
   '{Mediterranean Ocean}',
-  '{5}',
+  5,
   '{2,3}',
   '{Chris Alderton, Hilary Rawlings}',
   '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
@@ -461,7 +465,8 @@ VALUES (
   '{Speakers}',
   '{Performers1, Performers2}',
   'Host organization',
-  'Radio Station'
+  'Radio Station',
+  ST_GeomFromText('POINT(32.7821795 -0.0075471)', 4326)
 ),
 (
    'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg',
@@ -509,7 +514,7 @@ VALUES (
   '{9,3}',
   '{Place}',
   '{Ocean}',
-  '{3}',
+  3,
   '{4,1}',
   '{Chris Alderton, Hilary Rawlings}',
   '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
@@ -562,44 +567,14 @@ VALUES (
   '{Speakers}',
   '{Performers1, Performers2}',
   'Host organization',
-  'Radio Station'
+  'Radio Station',
+  ST_GeomFromText('POINT(49.042218 7.528439)', 4326)
 ),
  (
    'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
   null,
-    '  {
-        "rekognition_labels": [
-            {
-                "Name": "Manx",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Cat",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Mammal",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Pet",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Animal",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Abyssinian",
-                "Confidence": 93.30171966552734
-            },
-            {
-                "Name": "Kitten",
-                "Confidence": 87.65930938720703
-            }
-        ]
-    }',
+    null,
     'a59b8656c03acc0c9745d2c515dc7364',
     '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
   '2011-07-01 06:30:30+05',
@@ -610,7 +585,7 @@ VALUES (
   '{5}',
   '{}',
   '{}',
-  '{1}',
+  1,
   '{3,4,6}',
   '{}',
   '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
@@ -663,6 +638,7 @@ VALUES (
   '{}',
   '{}',
   '',
-  ''
+  '',
+  ST_GeomFromText('POINT(-34.4708186 151.2997363)', 4326)
 );
 -- END FIRST QUERY tba21.items

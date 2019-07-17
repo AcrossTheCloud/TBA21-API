@@ -22,13 +22,13 @@ afterAll(async () => {
 });
 
 describe('Tag get tests', () => {
-  test('Check that we have 3 keyword tags with the name of keyword.', async () => {
+  test('Check that we have 1 keyword tags with the name of kitten.', async () => {
     const
       queryStringParameters: QueryStringParameters = { type: 'keyword'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
-    expect(results.tags.length).toEqual(3);
+    expect(results.tags.length).toEqual(9);
   });
 
   test('Check that we have 1 keyword tag using limit with the name of keyword.', async () => {
@@ -43,13 +43,13 @@ describe('Tag get tests', () => {
 });
 
 describe('Tag search tests', () => {
-  test('Check that we have 3 keyword tags with the name of keyword.', async () => {
+  test('Check that we have 3 keyword tags with the name of kitten.', async () => {
     const
-      queryStringParameters: QueryStringParameters = {type: 'keyword', query: 'keyword'},
+      queryStringParameters: QueryStringParameters = {type: 'keyword', query: 'kitten'},
       response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
-    expect(results.tags.length).toEqual(3);
+    expect(results.tags.length).toEqual(1);
   });
 
   test('Check that we have 0 keyword tags by the name of QQQ', async () => {
@@ -61,13 +61,13 @@ describe('Tag search tests', () => {
     expect(results.tags.length).toEqual(0);
   });
 
-  test('Check that we have 3 concept tags with the name of concept.', async () => {
+  test('Check that we have 1 concept tags with the name of Labor.', async () => {
     const
-      queryStringParameters: QueryStringParameters = { type: 'concept', query: 'concept' },
+      queryStringParameters: QueryStringParameters = { type: 'concept', query: 'labor' },
       response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
-    expect(results.tags.length).toEqual(3);
+    expect(results.tags.length).toEqual(1);
   });
   test('Check that we have 0 concept tags by the name of QQQ', async () => {
     const
@@ -89,28 +89,28 @@ describe('Tag insert tests', () => {
     const
       requestBody = {
         'type': 'keyword',
-        'tags': ['Whale']
+        'tags': ['Espeon']
       },
       body: string = JSON.stringify(requestBody),
       response = await insert({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
 
     expect(responseBody.tags.length).toEqual(1);
-    expect(responseBody.tags[0]).toMatchObject({ "id": "4", "tag_name": 'Whale' });
+    expect(responseBody.tags[0]).toMatchObject({ 'id': '10', 'tag_name': 'Espeon' });
   });
 
   test('Insert 1 keyword that doesn\'t exist tag and check the results', async () => {
     const
       requestBody = {
         'type': 'keyword',
-        'tags': ['Whale', 'dolphin']
+        'tags': ['Pikachu', 'Eevee']
       },
       body: string = JSON.stringify(requestBody),
       response = await insert({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
 
     expect(responseBody.tags.length).toEqual(2);
-    expect(responseBody.tags).toEqual(expect.arrayContaining([{ "id": "4", "tag_name": 'Whale' }, { "id": "6", "tag_name": 'dolphin' }]));
+    expect(responseBody.tags).toEqual(expect.arrayContaining([{ 'id': '11', 'tag_name': 'Pikachu'}, {'id': '12', 'tag_name': 'Eevee' }]));
   });
 });
 
@@ -145,6 +145,3 @@ describe('Tag update and delete tests', () => {
 
   });
 });
-
-
-

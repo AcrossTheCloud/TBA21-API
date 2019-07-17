@@ -55,7 +55,8 @@ INSERT INTO tba21.collections(
     focus_arts,
     focus_action,
     focus_scitech,
-    url
+    url,
+    geom
 )
 VALUES (
   '2011-07-01 06:30:30+05',
@@ -111,7 +112,8 @@ VALUES (
   '0',
   '2',
   '3',
-  'https://github.com/'
+  'https://github.com/',
+  ST_GeomFromText('LINESTRING(-71.160281 42.258729,-71.160837 42.259113,-71.161144 42.25932)', 4326)
 ),
 
 (
@@ -168,7 +170,8 @@ VALUES (
   '2',
   '3',
   '1',
-  'https://github.com/'
+  'https://github.com/',
+  ST_GeomFromText('LINESTRING(-71.160281 42.258729,-71.160837 42.259113,-71.161144 42.25932)', 4326)
 ),
 
 (
@@ -225,7 +228,8 @@ VALUES (
   2,
   0,
   1,
-  ''
+  '',
+  ST_GeomFromText('LINESTRING(-71.160281 42.258729,-71.160837 42.259113,-71.161144 42.25932)', 4326)
 );
 
 -- END FIRST QUERY tba21.collections

@@ -31,7 +31,7 @@ describe('Collections Update', () => {
     const getResponse = await get({} as APIGatewayProxyEvent, {} as Context),
       getResults = JSON.parse(getResponse.body);
 
-    expect(getResults.collections.length).toEqual(3);
+    expect(getResults.collections.length).toEqual(1);
   });
 
 });

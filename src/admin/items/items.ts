@@ -253,7 +253,7 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
         INNER JOIN ${process.env.ITEMS_TABLE} AS item ON item.item_type=itemtype.id,
         
         UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-        LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+        LEFT JOIN${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
         
         UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
         LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid

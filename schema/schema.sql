@@ -37,7 +37,7 @@ CREATE TABLE tba21.items
 	keyword_tags bigint[],
 	place varchar(128)[],
 	country_or_ocean varchar(128)[],
-	item_type bigint[],
+	item_type bigint references tba21.types(id) ON DELETE CASCADE,
 	item_subtype bigint[],
 	creators varchar(256)[],
 	contributor uuid,
