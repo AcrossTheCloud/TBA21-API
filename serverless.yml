@@ -79,7 +79,7 @@ provider:
           - ''
           - - 'arn:aws:s3:::'
             - Ref: ${env:S3_BUCKET}
-          - '/*'
+            - '/*'
 
 
     - Effect: 'Allow'
