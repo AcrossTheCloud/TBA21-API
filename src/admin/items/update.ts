@@ -133,8 +133,10 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         success: true,
         updated_key: result.s3_key
       };
-      // If we have a message, add it to the reponse.
-      Object.assign(bodyResponse, {message : message, success: false});
+      // If we have a message, add it to the response.
+      if (message.length > 1) {
+        Object.assign(bodyResponse, { message : message, success: false });
+      }
 
       return {
         body: JSON.stringify(bodyResponse),
