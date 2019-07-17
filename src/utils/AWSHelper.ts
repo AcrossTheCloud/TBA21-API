@@ -24,3 +24,19 @@ export const getEmailFromUUID = async (uuid: string): Promise<string> => {
     return `Error getting cognito user.`;
   }
 };
+
+export const changeS3ProtectionLevel = async (key: string, level: 'private' | 'public-read'): Promise<boolean> => {
+  try {
+    const s3 = new AWS.S3({apiVersion: '2006-03-01'});
+
+    await s3.putObjectAcl({
+      Bucket: process.env.S3_BUCKET,
+      Key: key,
+      ACL: level
+    }).promise();
+
+    return true;
+  } catch (e) {
+    return false;
+  }
+};

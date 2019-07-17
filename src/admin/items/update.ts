@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 import Joi from '@hapi/joi';
+import { changeS3ProtectionLevel } from '../../utils/AWSHelper';
 
 /**
  *
@@ -80,7 +81,20 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         description: Joi.string(),
         map_icon: Joi.string()
       }));
-      // will cause an exception if it is not valid
+
+    let message: string = '';
+    if (data.hasOwnProperty('status')) {
+      // Change the s3 level to Private or Public
+      const levelResponse = await changeS3ProtectionLevel(data.s3_key, data.status ? 'public-read' : 'private');
+      if (!levelResponse) {
+        // If we fail to set the level, console log
+        console.log(`Error updating S3 Protection Level for ${data.s3_key}`);
+
+        message = 'Couldn\'t set access level on file, this item has now been unpublished.';
+        // and set the level to unpublished.
+        data.status = false;
+      }
+    }
 
     if (data.keyword_tags) {
       data.keyword_tags = data.keyword_tags.map( t => parseInt(t, 0));
@@ -103,23 +117,27 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
           params[paramCounter++] = data[key];
           return `${key}=$${paramCounter}`;
       });
-    let
+    const
       query = `
         UPDATE ${process.env.ITEMS_TABLE}
           SET 
             updated_at='${new Date().toISOString()}',
             ${[...SQL_SETS]}
-        WHERE s3_key = $1 returning s3_key;
+        WHERE s3_key = $1 returning s3_key, status;
       `;
 
     if (SQL_SETS.length) {
-      let result = await db.one(query, params);
+      const result = await db.one(query, params);
+
+      const bodyResponse = {
+        success: true,
+        updated_key: result.s3_key
+      };
+      // If we have a message, add it to the reponse.
+      Object.assign(bodyResponse, {message : message, success: false});
 
       return {
-        body: JSON.stringify({
-          success: true,
-          updated_key: result.s3_key
-        }),
+        body: JSON.stringify(bodyResponse),
         headers: headers,
         statusCode: 200
       };
