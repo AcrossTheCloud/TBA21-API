@@ -207,8 +207,8 @@ CREATE TABLE tba21.profile
 --Table for making short urls
 CREATE TABLE tba21.short_paths
 (
-  ID bigserial PRIMARY KEY,
-  short_path varchar(256),
+  short_path varchar(256) PRIMARY KEY,
+  ID bigserial,
   object_type tba21.table_type
 );
 
@@ -251,4 +251,5 @@ CREATE TABLE tba21.keyword_tags
 --Updates to schema
 ALTER TABLE tba21.keyword_tags ADD CONSTRAINT keyword_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.concept_tags ADD CONSTRAINT concept_tag_name UNIQUE (tag_name);
+ALTER TABLE tba21.short_paths ADD CONSTRAINT short_path_name UNIQUE (short_path);
 
