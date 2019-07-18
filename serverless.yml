@@ -45,6 +45,9 @@ provider:
   environment:
     # AWS
     USER_POOL_ID: ${env:USER_POOL_ID}
+    # S3
+    S3_BUCKET: ${env:S3_BUCKET}
+
 
     # Database
     UPLOADS_TABLE: ${env:UPLOADS_TABLE}
@@ -66,7 +69,19 @@ provider:
     MC_DC: ${env:MC_DC}
     MC_APIKEY: ${env:MC_APIKEY}
     MC_AUDIENCE_ID: ${env:MC_AUDIENCE_ID}
+
   iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource:
+        Fn::Join:
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${env:S3_BUCKET}
+            - '/*'
+
+
     - Effect: 'Allow'
       Action:
         - 'lambda:InvokeFunction'
