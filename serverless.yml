@@ -78,7 +78,7 @@ provider:
         Fn::Join:
           - ''
           - - 'arn:aws:s3:::'
-            - Ref: ${env:S3_BUCKET}
+            - ${env:S3_BUCKET}
             - '/*'
 
 
