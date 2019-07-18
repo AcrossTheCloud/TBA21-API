@@ -1,113 +1,114 @@
 -- START FIRST QUERY tba21.items
 INSERT INTO tba21.items(
-    s3_key,
-	sha512,
-    exif,
-	machine_recognition_tags,
-	md5,
-	image_hash,
-	created_at,
-	updated_at,
-	time_produced,
-	status,
-	concept_tags,
-	keyword_tags,
-	place,
-	country_or_ocean,
-	item_type,
-	item_subtype,
-	creators,
-	contributor,
-	directors,
-	writers,
-	editor,
-    featured_in,
-	collaborators,
-	exhibited_at,
-	series,
-	ISBN,
-	DOI,
-	edition,
-	volume_year,
-	volume,
-	pages,
-	city_of_publication,
-	disciplinary_field,
-	publisher,
-	interviewers,
-	interviewees,
-	cast_ ,
-	license,
-	title,
-	subtitle,
-	description,
-	map_icon, -- path to s3 object
-    focus_arts,
-    focus_action,
-    focus_scitech,
-    article_link,
-    translated_from,
-    language,
-    author_birth_date,
-    author_death_date,
-    venue,
-    screened_at,
-    genre,
-    news_outlet,
-    institution ,
-    medium,
-    dimensions,
-    recording_technique,
-    original_sound_credit,
-    record_label,
-    series_name,
-    episode_name,
-    episode_number,
-    recording_name,
-    speakers,
-    performers,
-    host_organization,
-    radio_station,
-    location
+  s3_key,
+  sha512,
+  exif,
+  machine_recognition_tags,
+  md5,
+  image_hash,
+  created_at,
+  updated_at,
+  time_produced,
+  status,
+  concept_tags,
+  keyword_tags,
+  place,
+  country_or_ocean,
+  item_type,
+  item_subtype,
+  creators,
+  contributor,
+  directors,
+  writers,
+  editor,
+  featured_in,
+  collaborators,
+  exhibited_at,
+  series,
+  ISBN,
+  DOI,
+  edition,
+  year_produced,
+  volume,
+  pages,
+  city_of_publication,
+  disciplinary_field,
+  publisher,
+  interviewers,
+  interviewees,
+  cast_ ,
+  license,
+  title,
+  subtitle,
+  description,
+  map_icon, -- path to s3 object
+  focus_arts,
+  focus_action,
+  focus_scitech,
+  article_link,
+  translated_from,
+  language,
+  birth_date,
+  death_date,
+  venue,
+  screened_at,
+  genre,
+  news_outlet,
+  institution ,
+  medium,
+  dimensions,
+  recording_technique,
+  original_sound_credit,
+  record_label,
+  series_name,
+  episode_name,
+  episode_number,
+  recording_name,
+  speakers,
+  performers,
+  host_organization,
+  radio_station,
+  other_metadata,
+  location
 )
 VALUES (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad749e30-a6a0-11e9-b5d9-1726307e8330-photo-1518791841217-8f162f1e1131.jpeg',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
   null,
-    '  {
-        "rekognition_labels": [
-            {
-                "Name": "Manx",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Cat",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Mammal",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Pet",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Animal",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Abyssinian",
-                "Confidence": 93.30171966552734
-            },
-            {
-                "Name": "Kitten",
-                "Confidence": 87.65930938720703
-            }
-        ]
-    }',
-    'a59b8656c03acc0c9745d2c515dc7364',
-    '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
+  '  {
+  "rekognition_labels": [
+  {
+  "Name": "Manx",
+  "Confidence": 98.5950698852539
+  },
+  {
+  "Name": "Cat",
+  "Confidence": 98.5950698852539
+  },
+  {
+  "Name": "Mammal",
+  "Confidence": 98.5950698852539
+  },
+  {
+  "Name": "Pet",
+  "Confidence": 98.5950698852539
+  },
+  {
+  "Name": "Animal",
+  "Confidence": 98.5950698852539
+  },
+  {
+  "Name": "Abyssinian",
+  "Confidence": 93.30171966552734
+  },
+  {
+  "Name": "Kitten",
+  "Confidence": 87.65930938720703
+  }
+  ]
+  }',
+  'a59b8656c03acc0c9745d2c515dc7364',
+  '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -116,25 +117,25 @@ VALUES (
   '{8,5,1}',
   '{Place}',
   '{Mediterranean Ocean}',
-  1,
-  '{3,4}',
+  'Video',
+  '{Music, Sound Art}',
   '{Chris Alderton, Hilary Rawlings}',
   '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
   '{Grace Hanna, Ashley Brooke}',
   '{Andrea Woodruff, Wade Enyart}',
   '{Jessica Ryan, Alex Ling}',
   'featured in',
-  'collaborators',
+  '{collaborators}',
   'exhibited_at Art Gallery',
   'series 4',
-  8591988893,
+  '{8591988893}',
   'doi:10.1002/0470841559.ch1',
   5,
   1992,
   1,
-   7956,
-   'Published in city',
-   'Explosives',
+  7956,
+  'Published in city',
+  'Explosives',
   '{publisher Penguin}',
   '{Hannah Foster, Samantha Fox}',
   '{Dianna Lacey}',
@@ -149,10 +150,10 @@ VALUES (
   '3',
   'https://github.com/',
   null,
-  'English',
+  'en',
   null,
   null,
-  'venue',
+  '{venue}',
   'screened-at',
   'horror',
   'WIN-tv',
@@ -168,45 +169,45 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  'Host organization',
+  '{Host organization}',
   'Radio Station',
-   ST_GeomFromText('POINT(37.717474 161.204097)', 4326)
+  'Other Data',
+  ST_GeomFromText('POINT(37.717474 161.204097)', 4326)
 ),
-
 (
-'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg' ,
-'887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
+  'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg' ,
+  '887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
   null,
-    ' {
-    "rekognition_labels": [
-        {
-            "Name": "Whale",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Mammal",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Sea Life",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Animal",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Shark",
-            "Confidence": 73.06554412841797
-        },
-        {
-            "Name": "Fish",
-            "Confidence": 73.06554412841797
-        }
-    ]
-}',
-    'a59b8656c03acc0c9745d2c515dc7364',
-    '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
+  ' {
+  "rekognition_labels": [
+  {
+  "Name": "Whale",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Mammal",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Sea Life",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Animal",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Shark",
+  "Confidence": 73.06554412841797
+  },
+  {
+  "Name": "Fish",
+  "Confidence": 73.06554412841797
+  }
+  ]
+  }',
+  'a59b8656c03acc0c9745d2c515dc7364',
+  '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -215,25 +216,25 @@ VALUES (
   '{1,4,2,6}',
   '{Place}',
   '{Atlantic Ocean}',
-  5,
-  '{3,4}',
-   '{Ben Scotty, Tim Zerner}',
+  'Video',
+  '{Music, Sound Art}',
+  '{Ben Scotty, Tim Zerner}',
   'cfa81825-2716-41e2-a48d-8f010840b559',
   '{Naomi Elle, Jacky Chiang}',
   '{Maddie Rush, Jackson weeks}',
   '{Tim Dow, Cerie Tisch}',
   'featured in',
-  'collaborators',
-  'exhibited_at',
+  '{collaborators}',
+  'exhibited_at Art Gallery',
   'series 4',
-  8591988893,
+  '{8591988893}',
   'doi:10.1002/0470841559.ch1',
   5,
   1992,
   1,
-   7956,
-   'Published in city',
-   'Explosives',
+  7956,
+  'Published in city',
+  'Explosives',
   '{publisher Penguin}',
   '{Hannah Foster, Samantha Fox}',
   '{Dianna Lacey}',
@@ -248,10 +249,10 @@ VALUES (
   '3',
   'https://github.com/',
   null,
-  'English',
+  'en',
   null,
   null,
-  'venue',
+  '{venue}',
   'screened-at',
   'horror',
   'WIN-tv',
@@ -267,45 +268,45 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  'Host organization',
+  '{Host organization}',
   'Radio Station',
+  'Other Data',
   ST_GeomFromText('POINT(77.134788 4.835309)', 4326)
 ),
-
 (
- 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-cat-pet-animal-domestic-104827.jpeg',
-'887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
+  'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-cat-pet-animal-domestic-104827.jpeg',
+  '887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
   null,
-    ' {
-    "rekognition_labels": [
-        {
-            "Name": "Whale",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Mammal",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Sea Life",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Animal",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Shark",
-            "Confidence": 73.06554412841797
-        },
-        {
-            "Name": "Fish",
-            "Confidence": 73.06554412841797
-        }
-    ]
-}',
-    'a59b8656c03acc0c9745d2c515dc7364',
-    '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
+  ' {
+  "rekognition_labels": [
+  {
+  "Name": "Whale",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Mammal",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Sea Life",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Animal",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Shark",
+  "Confidence": 73.06554412841797
+  },
+  {
+  "Name": "Fish",
+  "Confidence": 73.06554412841797
+  }
+  ]
+  }',
+  'a59b8656c03acc0c9745d2c515dc7364',
+  '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -314,25 +315,25 @@ VALUES (
   '{3}',
   '{Place}',
   '{Red Ocean}',
-  6,
-  '{1,5}',
-   '{Ben Scotty, Tim Zerner}',
+  'Video',
+  '{Music, Sound Art}',
+  '{Ben Scotty, Tim Zerner}',
   'cfa81825-2716-41e2-a48d-8f010840b559',
   '{Naomi Elle, Jacky Chiang}',
   '{Maddie Rush, Jackson weeks}',
   '{Tim Dow, Cerie Tisch}',
   'featured in',
-  'collaborators',
-  'exhibited_at',
+  '{collaborators}',
+  'exhibited_at Art Gallery',
   'series 4',
-  8591988893,
+  '{8591988893}',
   'doi:10.1002/0470841559.ch1',
   5,
   1992,
   1,
-   7956,
-   'Published in city',
-   'Explosives',
+  7956,
+  'Published in city',
+  'Explosives',
   '{publisher Penguin}',
   '{Hannah Foster, Samantha Fox}',
   '{Dianna Lacey}',
@@ -347,10 +348,10 @@ VALUES (
   '3',
   'https://github.com/',
   null,
-  'English',
+  'en',
   null,
   null,
-  'venue',
+  '{venue}',
   'screened-at',
   'horror',
   'WIN-tv',
@@ -366,71 +367,72 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  'Host organization',
+  '{Host organization}',
   'Radio Station',
+  'Other Data',
   ST_GeomFromText('POINT(66.073126 4.225375)', 4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg',
-'887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
+  '887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
   null,
-    ' {
-    "rekognition_labels": [
-        {
-            "Name": "Whale",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Mammal",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Sea Life",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Animal",
-            "Confidence": 97.81773376464844
-        },
-        {
-            "Name": "Shark",
-            "Confidence": 73.06554412841797
-        },
-        {
-            "Name": "Fish",
-            "Confidence": 73.06554412841797
-        }
-    ]
-}',
-    'a59b8656c03acc0c9745d2c515dc7364',
-    '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
+  ' {
+  "rekognition_labels": [
+  {
+  "Name": "Whale",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Mammal",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Sea Life",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Animal",
+  "Confidence": 97.81773376464844
+  },
+  {
+  "Name": "Shark",
+  "Confidence": 73.06554412841797
+  },
+  {
+  "Name": "Fish",
+  "Confidence": 73.06554412841797
+  }
+  ]
+  }',
+  'a59b8656c03acc0c9745d2c515dc7364',
+  '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   'false',
   '{}',
-  '{7,8,9}',
+  '{}',
   '{Place}',
   '{Mediterranean Ocean}',
-  5,
-  '{2,3}',
+  'Video',
+  '{Music, Sound Art}',
   '{Chris Alderton, Hilary Rawlings}',
   '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
   '{Grace Hanna, Ashley Brooke}',
   '{Andrea Woodruff, Wade Enyart}',
   '{Jessica Ryan, Alex Ling}',
   'featured in',
-  'collaborators',
-  'exhibited_at',
+  '{collaborators}',
+  'exhibited_at Art Gallery',
   'series 4',
-  8591988893,
+  '{8591988893}',
   'doi:10.1002/0470841559.ch1',
   5,
   1992,
   1,
-   7956,
-   'Published in city',
-   'Explosives',
+  7956,
+  'Published in city',
+  'Explosives',
   '{publisher Penguin}',
   '{Hannah Foster, Samantha Fox}',
   '{Dianna Lacey}',
@@ -445,10 +447,10 @@ VALUES (
   '3',
   'https://github.com/',
   null,
-  'English',
+  'en',
   null,
   null,
-  'venue',
+  '{venue}',
   'screened-at',
   'horror',
   'WIN-tv',
@@ -464,75 +466,76 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  'Host organization',
+  '{Host organization}',
   'Radio Station',
+  'Other Data',
   ST_GeomFromText('POINT(32.7821795 -0.0075471)', 4326)
 ),
 (
-   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg',
+  'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
   null,
-    '  {
-        "rekognition_labels": [
-            {
-                "Name": "Manx",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Cat",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Mammal",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Pet",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Animal",
-                "Confidence": 98.5950698852539
-            },
-            {
-                "Name": "Abyssinian",
-                "Confidence": 93.30171966552734
-            },
-            {
-                "Name": "Kitten",
-                "Confidence": 87.65930938720703
-            }
-        ]
-    }',
-    'a59b8656c03acc0c9745d2c515dc7364',
-    '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
+  '  {
+  "rekognition_labels": [
+    {
+      "Name": "Manx",
+      "Confidence": 98.5950698852539
+    },
+    {
+      "Name": "Cat",
+      "Confidence": 98.5950698852539
+    },
+    {
+      "Name": "Mammal",
+      "Confidence": 98.5950698852539
+    },
+    {
+      "Name": "Pet",
+      "Confidence": 98.5950698852539
+    },
+    {
+      "Name": "Animal",
+      "Confidence": 98.5950698852539
+    },
+    {
+      "Name": "Abyssinian",
+      "Confidence": 93.30171966552734
+    },
+    {
+      "Name": "Kitten",
+      "Confidence": 87.65930938720703
+    }
+  ]
+  }',
+  'a59b8656c03acc0c9745d2c515dc7364',
+  '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   'false',
-  '{4,1,6}',
-  '{9,3}',
+  '{1,2,7,6}',
+  '{8,5,1}',
   '{Place}',
   '{Ocean}',
-  3,
-  '{4,1}',
+  'Video',
+  '{Music, Sound Art}',
   '{Chris Alderton, Hilary Rawlings}',
   '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
   '{Grace Hanna, Ashley Brooke}',
   '{Andrea Woodruff, Wade Enyart}',
   '{Jessica Ryan, Alex Ling}',
   'featured in',
-  'collaborators',
+  '{collaborators}',
   'exhibited_at Art Gallery',
   'series 4',
-  8591988893,
+  '{8591988893}',
   'doi:10.1002/0470841559.ch1',
   5,
   1992,
   1,
-   7956,
-   'Published in city',
-   'Explosives',
+  7956,
+  'Published in city',
+  'Explosives',
   '{publisher Penguin}',
   '{Hannah Foster, Samantha Fox}',
   '{Dianna Lacey}',
@@ -547,10 +550,10 @@ VALUES (
   '3',
   'https://github.com/',
   null,
-  'English',
+  'en',
   null,
   null,
-  'venue',
+  '{venue}',
   'screened-at',
   'horror',
   'WIN-tv',
@@ -566,17 +569,18 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  'Host organization',
+  '{Host organization}',
   'Radio Station',
+  'Other Data',
   ST_GeomFromText('POINT(49.042218 7.528439)', 4326)
 ),
- (
-   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg',
+(
+  'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
   null,
-    null,
-    'a59b8656c03acc0c9745d2c515dc7364',
-    '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
+  null,
+  'a59b8656c03acc0c9745d2c515dc7364',
+  '9ee38ee380e3a0e2e0f7f0e6d066d006fc0f9c07f007f803f000f000f034ffff',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
   '2011-07-01 06:30:30+05',
@@ -585,25 +589,25 @@ VALUES (
   '{5}',
   '{}',
   '{}',
-  1,
-  '{3,4,6}',
+  'Text',
+  '{Lecture}',
   '{}',
   '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
   '{}',
   '{}',
   '{}',
   '',
+  '{}',
   '',
   '',
-  '',
-  8591988893,
+  '{8591988893}',
   'doi:10.1002/0470841559.ch1',
   5,
   1992,
   1,
-   7956,
-   '',
-   '',
+  7956,
+  '',
+  '',
   '{}',
   '{}',
   '{}',
@@ -618,10 +622,10 @@ VALUES (
   '3',
   '',
   null,
-  'German',
+  'Ger',
   null,
   null,
-  '',
+  '{}',
   '',
   '',
   '',
@@ -635,6 +639,7 @@ VALUES (
   '',
   6,
   '',
+  '{}',
   '{}',
   '{}',
   '',
