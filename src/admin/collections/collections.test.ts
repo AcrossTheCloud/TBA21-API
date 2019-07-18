@@ -74,7 +74,7 @@ describe('Admin Collections', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.collections.length).toEqual(2);
+    expect(item.collections.length).toEqual(3);
   });
   test('Get a bad response when no tag is given', async () => {
     const

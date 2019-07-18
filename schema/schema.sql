@@ -46,7 +46,7 @@ CREATE TABLE tba21.items
 	item_type tba21.item_type, --ref to
 	item_subtype tba21.item_subtype[],
 	creators varchar(256)[],
-	contributor uuid[],
+	contributor uuid,
 	directors varchar(256)[],
 	writers varchar(256)[],
 	editor varchar(256),

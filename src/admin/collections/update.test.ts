@@ -22,9 +22,9 @@ describe('/admin/collections/update/updateByID', () => {
     const
       requestBody = {
         'id': '1',
-        'cast_': 'test',
+        'cast_': '{test}',
         'items': ['private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg'],
-        'place': 'Ocean'
+        'place': '{Sea of Kittens}'
       },
       body: string = JSON.stringify(requestBody),
       response = await updateById({ body } as APIGatewayProxyEvent),

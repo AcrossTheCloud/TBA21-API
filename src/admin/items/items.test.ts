@@ -36,7 +36,6 @@ describe('Admin Items', () => {
       queryStringParameters: QueryStringParameters = {s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg'},
       response = await getByS3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    console.log(result.item);
     expect(result.item.s3_key).toEqual('private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg');
   });
   test('Get a bad response when no key is given', async () => {
@@ -52,7 +51,7 @@ describe('Admin Items', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.items.length).toEqual(2);
+    expect(result.items.length).toEqual(1);
   });
   test('Get a bad response when no tag is given', async () => {
     const

@@ -228,7 +228,6 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  */
 export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALIDATE first
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),

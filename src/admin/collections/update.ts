@@ -12,36 +12,12 @@ import Joi from '@hapi/joi';
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
  */
 
-// created_at timestamp with time zone NOT NULL,
-// updated_at timestamp with time zone NOT NULL,
-// time_produced timestamp with time zone,
-// status boolean,
-// concept_tags bigint[],
-// keyword_tags bigint[],
-// place varchar(128),
-// country_or_ocean varchar(128),
-// creators varchar(256)[],
-// contributor uuid,
-// directors varchar(256)[],
-// writers varchar(256)[],
-// collaborators varchar(256),
-// exhibited_at varchar(256),
-// series varchar(256),
-// ISBN numeric(13),
-// edition numeric(3),
-// publisher varchar(256)[],
-// interviewers varchar(256)[],
-// interviewees varchar(256)[],
-// cast_ varchar(256),
-// title varchar(256),
-// description varchar(256)
-
 export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    console.log(event.body);
     const
-      data = JSON.parse(event.body),
-      result = await Joi.validate(data, Joi.object().keys(
+      data = JSON.parse(event.body);
+    
+    await Joi.validate(data, Joi.object().keys(
         {
           id: Joi.number().integer().required(),
           status: Joi.boolean(),
@@ -52,6 +28,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           creators: Joi.array().items(Joi.string()),
           directors: Joi.array().items(Joi.string()),
           writers: Joi.array().items(Joi.string()),
+          editor: Joi.string(),
           collaborators: Joi.string(),
           exhibited_at: Joi.string(),
           series: Joi.string(),
@@ -62,11 +39,35 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           interviewees: Joi.array().items(Joi.string()),
           cast_: Joi.string(),
           title: Joi.string(),
+          subtitle: Joi.string(),
           description: Joi.string(),
+          copyright_holder: Joi.string(),
+          copyright_country: Joi.string(),
+          disciplinary_field: Joi.string(),
+          specialization: Joi.string(),
+          department: Joi.string(),
+          expedition_leader: Joi.string(),
+          institution: Joi.string(),
+          expedition_vessel: Joi.string(),
+          expedition_route: Joi.string(),
+          expedition_blog_link: Joi.string(),
+          participants: Joi.array().items(Joi.string()),
+          venue: Joi.string(),
+          curator: Joi.string(),
+          host: Joi.array().items(Joi.string()),
+          event_type: Joi.string(),
+          host_organization: Joi.string(),
+          focus_arts: Joi.number().integer(),
+          focus_action: Joi.number().integer(),
+          focus_scitech: Joi.number().integer(),
+          url: Joi.string(),
+          related_material: Joi.array().items(Joi.string()),
+          license: Joi.string(),
+          location: Joi.string(),
+          other_metadata: Joi.string(),
           items: Joi.array().items(Joi.string())
         }));
     // will cause an exception if it is not valid
-    console.log(result); // to see the result
 
     let paramCounter = 0;
 
@@ -80,8 +81,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
       .map((key) => {
         params[paramCounter++] = data[key];
         return `${key}=$${paramCounter}`;
-      });
-    let
+      }),
       query = `
         UPDATE ${process.env.COLLECTIONS_TABLE}
         SET 
@@ -89,8 +89,6 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           ${[...SQL_SETS]}
         WHERE id = $1 returning id;
       `;
-
-    console.log(query, params);
 
     if (SQL_SETS.length) {
       await db.task(async t => {
@@ -100,8 +98,9 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         if (data.items && data.items.length) {
           let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
           currentItems = currentItems.map(e => (e.item_s3_key));
-          let toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0));
-          let toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
+          let
+            toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0)),
+            toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
           if (toBeAdded.length > 0) {
             const SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
               return `($1, $${index + 2})`;

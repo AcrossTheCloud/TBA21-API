@@ -21,7 +21,7 @@ describe('Collections', () => {
       response = await get({} as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.length).toEqual(2);
+    expect(result.collections.length).toEqual(3);
   });
 
   test('Check that we can limit the number of returned items.', async () => {
@@ -66,7 +66,7 @@ describe('Collections', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.length).toEqual(2);
+    expect(result.collections.length).toEqual(3);
   });
   test('Get a bad response when no tag is given', async () => {
     const

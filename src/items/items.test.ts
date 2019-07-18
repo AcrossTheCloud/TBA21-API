@@ -81,7 +81,7 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {person: 'Maddie'},
       response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-
+    console.log(results);
     expect(results.items.length).toEqual(2);
   });
   test('Get a bad response when no people are given', async () => {
@@ -91,17 +91,17 @@ describe('Item tests', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-  test('Get all items with a type of book', async () => {
+  test('Get all items with a type of video', async () => {
     const
-      queryStringParameters: QueryStringParameters = {type: 'book'},
+      queryStringParameters: QueryStringParameters = {type: 'video'},
       response = await getByType({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    console.log(results, results.items, 'get by type')
-    expect(results.items.length).toEqual(1);
+    console.log(results, results.items, 'get by type');
+    expect(results.items.length).toEqual(2);
   });
   test('Get a bad response when no type is given', async () => {
     const
-      queryStringParameters: QueryStringParameters = {person: ''},
+      queryStringParameters: QueryStringParameters = {type: ''},
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);
