@@ -172,6 +172,7 @@ CREATE TABLE tba21.collections
   expedition_vessel varchar(256),
   expedition_route varchar(256),
   expedition_blog_link varchar(256),
+  map_icon varchar(1024), -- path to s3 object
   participants varchar(256)[],
   venue varchar(256)[],
   curator varchar(265),
