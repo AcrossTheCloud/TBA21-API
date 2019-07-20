@@ -161,7 +161,7 @@ CREATE TABLE tba21.collections
 	cast_ varchar(256)[],
 	title varchar(256),
 	subtitle varchar(256),
-	description varchar(256),
+	description varchar(1024),
 	copyright_holder varchar(256),
 	copyright_country varchar(256),
 	disciplinary_field varchar(256),
