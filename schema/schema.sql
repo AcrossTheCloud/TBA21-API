@@ -38,7 +38,7 @@ CREATE TABLE tba21.items
   ID bigserial,
 	s3_key varchar(1024) PRIMARY KEY NOT NULL,
 	sha512 char(128),
-  exif jsonb, -- for things that don't go into other columns
+  exif jsonb, -- for exif data
 	machine_recognition_tags jsonb,
 	md5 char(32),
 	image_hash char(64),
