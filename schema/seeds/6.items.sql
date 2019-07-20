@@ -15,7 +15,7 @@ INSERT INTO tba21.items(
   place,
   country_or_ocean,
   item_type,
-  item_subtype,
+  item_subtypes,
   creators,
   contributor,
   directors,
