@@ -51,7 +51,7 @@ CREATE TABLE tba21.items
 	place varchar(128)[],
 	country_or_ocean varchar(128)[],
 	item_type tba21.item_type, --ref to
-	item_subtype tba21.item_subtype[],
+	item_subtypes tba21.item_subtype[],
 	creators varchar(256)[],
 	contributor uuid,
 	directors varchar(256)[],
@@ -78,13 +78,13 @@ CREATE TABLE tba21.items
 	title varchar(256),
 	subtitle varchar(256),
 	description varchar(1024),
-	map_icon varchar(1024), -- path to s3 object
+  map_icon varchar(1024), -- path to s3 object in client side code bucket
   focus_arts numeric(1),
   focus_action numeric(1),
   focus_scitech numeric(1),
   article_link varchar(256),
   translated_from varchar(256),
-  language varchar(5), --ref to iso codes
+  language varchar(32), -- https://tools.ietf.org/html/rfc5646#section-4.4.1
   birth_date date,
   death_date date,
   venue varchar(256)[],
@@ -172,7 +172,7 @@ CREATE TABLE tba21.collections
   expedition_vessel varchar(256),
   expedition_route varchar(256),
   expedition_blog_link varchar(256),
-  map_icon varchar(1024), -- path to s3 object
+  map_icon varchar(1024), -- path to s3 object in client side code bucket
   participants varchar(256)[],
   venue varchar(256)[],
   curator varchar(265),
