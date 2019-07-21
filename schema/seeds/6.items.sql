@@ -171,7 +171,7 @@ VALUES (
   '{Performers1, Performers2}',
   '{Host organization}',
   'Radio Station',
-  'Other Data',
+  '{"other":"Other Data"}',
   ST_GeomFromText('POINT(37.717474 161.204097)', 4326)
 ),
 (

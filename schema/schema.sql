@@ -105,7 +105,7 @@ CREATE TABLE tba21.items
   performers varchar(256)[],
   host_organization varchar(256)[],
   radio_station varchar(256),
-  other_metadata varchar(256),
+  other_metadata jsonb,
   item_name varchar(256),
   original_title varchar(256),
   related_event varchar(256),
@@ -190,7 +190,7 @@ CREATE TABLE tba21.collections
   related_material bigint[],
   license tba21.licence_type,
   location varchar(256),
-  other_metadata varchar(256)
+  other_metadata jsonb
 );
 
 --Contributor metadata
