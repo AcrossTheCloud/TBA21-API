@@ -51,7 +51,7 @@ CREATE TABLE tba21.items
 	place varchar(128)[],
 	country_or_ocean varchar(128)[],
 	item_type tba21.item_type, --ref to
-	item_subtypes tba21.item_subtype[],
+	item_subtype tba21.item_subtype,
 	creators varchar(256)[],
 	contributor uuid,
 	directors varchar(256)[],
