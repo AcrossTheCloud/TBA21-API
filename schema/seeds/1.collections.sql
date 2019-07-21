@@ -40,7 +40,7 @@ INSERT INTO tba21.collections(
   expedition_route,
   expedition_blog_link,
   participants,
-  venue,
+  venues,
   curator,
   host,
   type,

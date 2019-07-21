@@ -50,7 +50,7 @@ INSERT INTO tba21.items(
   language,
   birth_date,
   death_date,
-  venue,
+  venues,
   screened_at,
   genre,
   news_outlet,

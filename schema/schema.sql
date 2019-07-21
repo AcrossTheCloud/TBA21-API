@@ -8,7 +8,7 @@ AUTHORIZATION postgres;
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 --License
-CREATE TYPE tba21.licence_type AS ENUM ('CC BY', 'CC BY-SA', 'CC BY-ND', 'CC BY-NC', 'CC BY-NC-SA', 'CC BY-NC-ND', 'locked');
+CREATE TYPE tba21.licence_type AS ENUM ('CC BY', 'CC BY-SA', 'CC BY-ND', 'CC BY-NC', 'CC BY-NC-SA', 'CC BY-NC-ND', 'Ocean Archive');
 
 --Table Types
 CREATE TYPE tba21.table_type AS ENUM ('Profile', 'Item', 'Collection');
@@ -87,7 +87,7 @@ CREATE TABLE tba21.items
   language varchar(32), -- https://tools.ietf.org/html/rfc5646#section-4.4.1
   birth_date date,
   death_date date,
-  venue varchar(256)[],
+  venues varchar(256)[],
   screened_at varchar(256),
   genre varchar(128),
   news_outlet varchar(256),
@@ -172,9 +172,13 @@ CREATE TABLE tba21.collections
   expedition_vessel varchar(256),
   expedition_route varchar(256),
   expedition_blog_link varchar(256),
+  series_name varchar(256),
+  volume_in_series numeric(4),
+  pages numeric(5),
+  journal varchar(256),
   map_icon varchar(1024), -- path to s3 object in client side code bucket
   participants varchar(256)[],
-  venue varchar(256)[],
+  venues varchar(256)[],
   curator varchar(265),
   host varchar(256)[],
   type tba21.collection_type,
@@ -182,7 +186,7 @@ CREATE TABLE tba21.collections
   focus_arts numeric(1),
   focus_action numeric(1),
   focus_scitech numeric(1),
-  url varchar(256),
+  url varchar(2048),
   related_material bigint[],
   license tba21.licence_type,
   location varchar(256),
@@ -201,7 +205,7 @@ CREATE TABLE tba21.profile
   city varchar(128),
   country varchar(128),
   biography varchar(1024),
-  website varchar(256),
+  website varchar(2048),
   social_media varchar(256)[],
   public_profile boolean,
   affiliation varchar(256),
