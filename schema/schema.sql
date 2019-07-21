@@ -151,7 +151,7 @@ CREATE TABLE tba21.collections
 	directors varchar(256)[],
 	writers varchar(256)[],
 	editor varchar(256),
-	collaborators varchar(256),
+	collaborators varchar(256)[],
 	exhibited_at varchar(256),
 	series varchar(256),
 	ISBN numeric(13)[],
