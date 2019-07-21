@@ -21,14 +21,14 @@ describe('/admin/items/update/updateByS3key', () => {
     test('Update ID updateByS3key', async () => {
       const
         requestBody = {
-          's3_key': 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad749e30-a6a0-11e9-b5d9-1726307e8330-photo-1518791841217-8f162f1e1131.jpeg',
+          's3_key': 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg',
           'cast_': 'changed_cast',
           'title': 'changed_title'
         },
         body: string = JSON.stringify(requestBody),
         response = await updateByS3key({ body } as APIGatewayProxyEvent),
         responseBody = JSON.parse(response.body);
-
+      console.log(body, response, responseBody);
       expect(responseBody.success).toBe(true);
     });
 

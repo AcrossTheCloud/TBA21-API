@@ -75,7 +75,7 @@ INSERT INTO tba21.items(
 VALUES (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad749e30-a6a0-11e9-b5d9-1726307e8330-photo-1518791841217-8f162f1e1131.jpeg',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
-  '{John Jameson, John Jameson II}'
+  '{John Jameson, John Jameson II}',
   null,
   '  {
   "rekognition_labels": [
@@ -177,8 +177,9 @@ VALUES (
   ST_GeomFromText('POINT(37.717474 161.204097)', 4326)
 ),
 (
-  'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg' ,
+  'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg',
   '887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
+  '{John JamesonIII, John Jameson IV}',
   null,
   ' {
   "rekognition_labels": [
@@ -272,12 +273,13 @@ VALUES (
   '{Performers1, Performers2}',
   '{Host organization}',
   'Radio Station',
-  'Other Data',
+  '{"other":"Other Data"}',
   ST_GeomFromText('POINT(77.134788 4.835309)', 4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-cat-pet-animal-domestic-104827.jpeg',
   '887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
+  '{}',
   null,
   ' {
   "rekognition_labels": [
@@ -371,12 +373,13 @@ VALUES (
   '{Performers1, Performers2}',
   '{Host organization}',
   'Radio Station',
-  'Other Data',
+  '{"other":"Other Data"}',
   ST_GeomFromText('POINT(66.073126 4.225375)', 4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg',
   '887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
+  '{John JamesonIIV, John Jameson IIIV}',
   null,
   ' {
   "rekognition_labels": [
@@ -470,12 +473,13 @@ VALUES (
   '{Performers1, Performers2}',
   '{Host organization}',
   'Radio Station',
-  'Other Data',
+  '{"other":"Other Data"}',
   ST_GeomFromText('POINT(32.7821795 -0.0075471)', 4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
+  '{John Johningson, John J Jamieson}',
   null,
   '  {
   "rekognition_labels": [
@@ -573,12 +577,13 @@ VALUES (
   '{Performers1, Performers2}',
   '{Host organization}',
   'Radio Station',
-  'Other Data',
+  '{"other":"Other Data"}',
   ST_GeomFromText('POINT(49.042218 7.528439)', 4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
+  '{John Johningson II, John J Jamieson II}',
   null,
   null,
   'a59b8656c03acc0c9745d2c515dc7364',
@@ -645,7 +650,7 @@ VALUES (
   '{}',
   '{}',
   '',
-  '',
+  '{"other":"Other Data"}',
   ST_GeomFromText('POINT(-34.4708186 151.2997363)', 4326)
 );
 -- END FIRST QUERY tba21.items
