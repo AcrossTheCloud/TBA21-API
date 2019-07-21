@@ -77,13 +77,14 @@ CREATE TABLE tba21.items
 	license tba21.licence_type,
 	title varchar(256),
 	subtitle varchar(256),
+  in_title varchar(256), -- e.g. title of book an article/chapter is in
 	description varchar(1024),
   map_icon varchar(1024), -- path to s3 object in client side code bucket
   focus_arts numeric(1),
   focus_action numeric(1),
   focus_scitech numeric(1),
   article_link varchar(256),
-  translated_from varchar(256),
+  translated_from varchar(35), -- https://tools.ietf.org/html/rfc5646#section-4.4.1
   language varchar(32), -- https://tools.ietf.org/html/rfc5646#section-4.4.1
   birth_date date,
   death_date date,
