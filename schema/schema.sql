@@ -115,7 +115,7 @@ CREATE TABLE tba21.items
   TBA21_material boolean,
   OA_original boolean,
   lecturer varchar(256),
-  author varchar(256),
+  authors varchar(256)[],
   credit varchar(256),
   copyright_holder varchar(256),
 	copyright_country varchar(256),

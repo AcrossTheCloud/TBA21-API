@@ -2,6 +2,7 @@
 INSERT INTO tba21.items(
   s3_key,
   sha512,
+  authors,
   exif,
   machine_recognition_tags,
   md5,
@@ -74,6 +75,7 @@ INSERT INTO tba21.items(
 VALUES (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad749e30-a6a0-11e9-b5d9-1726307e8330-photo-1518791841217-8f162f1e1131.jpeg',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
+  '{John Jameson, John Jameson II}'
   null,
   '  {
   "rekognition_labels": [
