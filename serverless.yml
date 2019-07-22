@@ -531,10 +531,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.s3Key
 
   adminGetItemByS3KeyNoCache:
     handler: src/admin/items/items.getByS3Key
