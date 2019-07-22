@@ -28,7 +28,6 @@ describe('/admin/items/update/updateByS3key', () => {
         body: string = JSON.stringify(requestBody),
         response = await updateByS3key({ body } as APIGatewayProxyEvent),
         responseBody = JSON.parse(response.body);
-      console.log(body, response, responseBody);
       expect(responseBody.success).toBe(true);
     });
 

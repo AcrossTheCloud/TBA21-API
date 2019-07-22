@@ -13,39 +13,6 @@ import { changeS3ProtectionLevel } from '../../utils/AWSHelper';
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
  */
 
-// s3_key varchar(1024) PRIMARY KEY NOT NULL ,
-// sha512 char(128), ->  helpers update
-// exif jsonb, -- for things that don't go into other columns -> helpers
-// machine_recognition_tags jsonb, -> helpers
-// md5 char(32), -> helpers
-// image_hash char(64), -> helpers
-// created_at timestamp with time zone NOT NULL, -> helpers
-// updated_at timestamp with time zone NOT NULL, -> automtically updated
-// time_produced timestamp with time zone,
-// status boolean, -- false=draft, true=public
-// concept_tags bigint[],
-// keyword_tags bigint[],
-// place varchar(128),
-// country_or_ocean varchar(128),
-// item_type bigint references tba21.types(id) ON DELETE CASCADE,
-// creators varchar(256)[],
-// contributor uuid,
-// directors varchar(256)[],
-// writers varchar(256)[],
-// collaborators varchar(256),
-// exhibited_at varchar(256),
-// series varchar(256),
-// ISBN numeric(13),
-// edition numeric(3),
-// publisher varchar(256)[],
-// interviewers varchar(256)[],
-// interviewees varchar(256)[],
-// cast_ varchar(256),
-// license tba21.licence_type,
-// title varchar(256),
-// description varchar(256),
-// map_icon varchar(1024) -- path to s3 object
-
 export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const data = JSON.parse(event.body);
@@ -72,7 +39,9 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         exhibited_at: Joi.string(),
         series: Joi.string(),
         ISBN: Joi.number().integer(),
+        DOI: Joi.string(),
         edition: Joi.number().integer(),
+        year_produced: Joi.number().integer(),
         publisher: Joi.array().items(Joi.string()),
         interviewers: Joi.array().items(Joi.string()),
         interviewees: Joi.array().items(Joi.string()),
@@ -108,7 +77,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         performers: Joi.array().items(Joi.string()),
         host_organization: Joi.array().items(Joi.string()),
         radio_station: Joi.string(),
-        other_metadata: Joi.string(),
+        other_metadata: JSON,
         item_name: Joi.string(),
         original_title: Joi.string(),
         related_event: Joi.string(),
@@ -131,6 +100,11 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         event_title: Joi.string(),
         recording_studio: Joi.string(),
         original_text_credit: Joi.string(),
+        issue: Joi.number().integer(),
+        pages: Joi.number().integer(),
+        city_of_publication: Joi.string(),
+        disciplinary_field: Joi.string(),
+
       }));
 
     let message: string = '';
