@@ -49,7 +49,7 @@ CREATE TABLE tba21.items
 	concept_tags bigint[],
 	keyword_tags bigint[],
 	place varchar(128)[],
-	country_or_ocean varchar(128)[],
+	country_or_ocean varchar(128),
 	item_type tba21.item_type, --ref to
 	item_subtype tba21.subtype,
 	creators varchar(256)[],
