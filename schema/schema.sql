@@ -197,7 +197,7 @@ CREATE TABLE tba21.collections
 );
 
 --Contributor metadata
-CREATE TABLE tba21.profile
+CREATE TABLE tba21.profiles
 (
 	ID bigserial PRIMARY KEY,
   contributors uuid[],
