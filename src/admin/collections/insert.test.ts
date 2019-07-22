@@ -21,12 +21,22 @@ describe('/admin/collections/insert/', () => {
   test('Create an empty collection without items', async () => {
     const
       requestBody = {
-        'cast_': ['test1'],
-        'place': 'Ocean'
+        'year_produced': '1992',
+        'start_date': '2019-02-22 10:53',
+        'place': 'Wollongong',
+        'title': 'title',
+        'description': 'description',
+        'institution': 'Wollongong uni',
+        'type': 'Event',
+        'focus_arts': '1',
+        'focus_action': '2',
+        'focus_scitech': '3',
+        'concept_tags' : ['3']
       },
       body: string = JSON.stringify(requestBody),
       response = await createCollection({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
+    console.log(responseBody, body);
     expect(responseBody.success).toBe(true);
   });
 
@@ -35,7 +45,17 @@ describe('/admin/collections/insert/', () => {
       requestBody = {
         'cast_': ['test'],
         'items': ['private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg'],
-        'place': 'Ocean'
+        'year_produced': '1992',
+        'start_date': '2019-02-22 10:53',
+        'place': 'Wollongong',
+        'title': 'title',
+        'description': 'description',
+        'institution': 'Wollongong uni',
+        'type': 'Event',
+        'focus_arts': '1',
+        'focus_action': '2',
+        'focus_scitech': '3',
+        'concept_tags' : ['3']
       },
       body: string = JSON.stringify(requestBody),
       response = await createCollection({ body } as APIGatewayProxyEvent),

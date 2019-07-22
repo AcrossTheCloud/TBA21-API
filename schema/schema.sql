@@ -20,7 +20,7 @@ CREATE TYPE tba21.profile_type AS ENUM ('Individual', 'Collective', 'Institution
 CREATE TYPE tba21.item_type AS ENUM ('Video', 'Text', 'Audio', 'Image');
 
 --Item subtypes
-CREATE TYPE tba21.item_subtype AS ENUM (
+CREATE TYPE tba21.subtype AS ENUM (
   'Music', 'Performance', 'Sound Art', 'Lecture', 'Radio', 'Interview', 'Field Recording', 'Podcast',
   'Academic Public', 'Article', 'News', 'Policy Paper', 'Report', 'Book', 'Essay', 'Historical Text', 'Event Press', 'Toolkit', 'Other',
   'Movie', 'Documentary', 'Art', 'Journalism', 'Event Recording', 'Informational Video', 'Trailer',
@@ -51,7 +51,7 @@ CREATE TABLE tba21.items
 	place varchar(128)[],
 	country_or_ocean varchar(128)[],
 	item_type tba21.item_type, --ref to
-	item_subtype tba21.item_subtype,
+	item_subtype tba21.subtype,
 	creators varchar(256)[],
 	contributor uuid,
 	directors varchar(256)[],
@@ -191,7 +191,9 @@ CREATE TABLE tba21.collections
   related_material bigint[],
   license tba21.licence_type,
   location varchar(256),
-  other_metadata jsonb
+  other_metadata jsonb,
+  subtype tba21.subtype,
+  year_produced numeric(4)
 );
 
 --Contributor metadata
