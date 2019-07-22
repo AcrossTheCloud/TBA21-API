@@ -1,5 +1,5 @@
--- START FIRST QUERY tba21.profile
-INSERT INTO tba21.profile(
+-- START FIRST QUERY tba21.profiles
+INSERT INTO tba21.profiles(
     contributors,
     profile_image,  -- path to s3 object
     featured_image,  -- path to s3 object
