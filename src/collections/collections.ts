@@ -14,14 +14,12 @@ import Joi from '@hapi/joi';
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer()
       }));
     // will cause an exception if it is not valid
-    console.log(result); // to see the result
 
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -69,10 +67,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  */
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({id:  Joi.number().required()}), { presence: 'required' });
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({id:  Joi.number().required()}), { presence: 'required' });
     // will cause an exception if it is not valid
-    console.log(result); // to see the result
 
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
@@ -114,15 +110,13 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
        limit: Joi.number().integer(),
        offset: Joi.number().integer(),
        tag: Joi.string().required()
       }));
     // will cause an exception if it is not valid
-    console.log(result); // to see the result
 
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -176,7 +170,6 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
@@ -232,7 +225,6 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  */
 export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         id: Joi.string().required(),
@@ -245,7 +237,7 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
         UPDATE ${process.env.COLLECTIONS_TABLE}
         SET status = $1 
         WHERE id = $2 
-        RETURNING id,status
+        RETURNING id, status
       `;
 
     return successResponse({ updatedItem: await db.one(query, params) });
@@ -265,7 +257,6 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
  */
 export const getCollectionsInBounds = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         lat_sw: Joi.number().required(),
