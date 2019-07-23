@@ -29,8 +29,7 @@ CREATE TYPE tba21.subtype AS ENUM (
  );
 
 --Collection types
-CREATE TYPE tba21.collection_type AS ENUM (
-'Series', 'Area of research', 'Event', 'Edited Volume', 'Expedition', 'Collection', 'Convening', 'Performance', 'Installation', 'Other');
+CREATE TYPE tba21.collection_type AS ENUM ('Series', 'Area of research', 'Event', 'Edited Volume', 'Expedition', 'Collection', 'Convening', 'Performance', 'Installation', 'Other');
 
 -- Items metadata table
 CREATE TABLE tba21.items
@@ -144,7 +143,7 @@ CREATE TABLE tba21.collections
 	concept_tags bigint[],
 	keyword_tags bigint[],
 	place varchar(128),
-	regional_focus varchar(128),
+	regional_focus varchar(128), --change to region, add region to items
 	country_or_ocean varchar(128),
 	creators varchar(256)[],
 	contributors uuid[],
