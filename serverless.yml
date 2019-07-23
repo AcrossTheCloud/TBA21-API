@@ -598,6 +598,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  adminGetShortPath:
+    handler: src/admin/shortPaths/shortPaths.get
+    description:
+    events:
+      - http:
+          path: admin/shortPaths/get
+          method: get
+          cors: true
+          authorizer: aws_iam
+
 # MAILCHIMP
   mailchimpGetSegments:
     handler: src/mailchimp/mailchimp.getSegments

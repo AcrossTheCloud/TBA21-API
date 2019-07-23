@@ -12,6 +12,7 @@ const keywordTags = loadSQLFile('/schema/seeds/5.keywordTags.sql');
 const items = loadSQLFile('/schema/seeds/6.items.sql');
 const collectionsItems = loadSQLFile('/schema/seeds/7.collectionsItems.sql');
 const profiles = loadSQLFile('/schema/seeds/8.profiles.sql');
+const shortPaths = loadSQLFile('/schema/seeds/9.shortPaths.sql');
 
 export const reSeedDatabase = async () => {
   await db.task(async t => {
@@ -23,5 +24,6 @@ export const reSeedDatabase = async () => {
     await t.none(items);
     await t.none(collectionsItems);
     await t.none(profiles);
+    await t.none(shortPaths);
   });
 };
