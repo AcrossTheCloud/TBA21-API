@@ -35,7 +35,7 @@ CREATE TYPE tba21.collection_type AS ENUM (
 -- Items metadata table
 CREATE TABLE tba21.items
 (
-  ID bigserial,
+  ID bigserial UNIQUE,
 	s3_key varchar(1024) PRIMARY KEY NOT NULL,
 	sha512 char(128),
   exif jsonb, -- for exif data
