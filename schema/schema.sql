@@ -223,7 +223,7 @@ CREATE TABLE tba21.profiles
 CREATE TABLE tba21.short_paths
 (
   short_path varchar(256) PRIMARY KEY,
-  ID bigserial,
+  ID bigint,
   object_type tba21.table_type
 );
 
