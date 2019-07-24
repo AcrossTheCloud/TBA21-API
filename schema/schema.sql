@@ -224,7 +224,6 @@ CREATE TABLE tba21.collections
   license tba21.licence_type,
   location varchar(256),
   other_metadata jsonb,
-  subtype tba21.subtype,
   year_produced numeric(4)
 );
 
