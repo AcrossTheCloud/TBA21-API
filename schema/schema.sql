@@ -21,11 +21,43 @@ CREATE TYPE tba21.item_type AS ENUM ('Video', 'Text', 'Audio', 'Image');
 
 --Item subtypes
 CREATE TYPE tba21.subtype AS ENUM (
-  'Music', 'Performance', 'Sound Art', 'Lecture', 'Radio', 'Interview', 'Field Recording', 'Podcast',
-  'Academic Publication', 'Article', 'News', 'Policy Paper', 'Report', 'Book', 'Essay', 'Historical Text', 'Event Press', 'Toolkit', 'Other',
-  'Movie', 'Documentary', 'Art', 'Journalism', 'Event Recording', 'Informational Video', 'Trailer',
-  'Artwork Documentation', 'Raw Footage', 'Photograph', 'Research', 'Digital Art', 'Graphics', 'Map', 'Film Still', 'Sculpture',
-  'Painting', 'Illustration'
+  'Academic Publication',
+  'Article',
+  'News',
+  'Policy Paper',
+  'Report',
+  'Book',
+  'Essay',
+  'Historical Text',
+  'Event Press',
+  'Toolkit',
+  'Movie',
+  'Documentary',
+  'Research',
+  'Interview',
+  'Art',
+  'News / Journalism',
+  'Event Recording',
+  'Informational Video',
+  'Trailer',
+  'Artwork Documentation',
+  'Raw Footage',
+  'Photograph',
+  'Digital Art',
+  'Graphics',
+  'Map',
+  'Film Still',
+  'Sculpture',
+  'Painting',
+  'Illustration',
+  'Field Recording',
+  'Sound Art',
+  'Music',
+  'Podcast',
+  'Lecture',
+  'Radio',
+  'Performance Poetry',
+  'Other'
  );
 
 --Collection types
