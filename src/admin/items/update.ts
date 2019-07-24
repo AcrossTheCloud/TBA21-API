@@ -103,7 +103,14 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         issue: Joi.number().integer(),
         pages: Joi.number().integer(),
         city_of_publication: Joi.string(),
-        disciplinary_field: Joi.string()
+        disciplinary_field: Joi.string(),
+        related_project: Joi.string(),
+        location: Joi.string(),
+        participants: Joi.array().items(Joi.string()),
+        produced_by: Joi.array().items(Joi.string()),
+        projection: Joi.string(),
+        related_ISBN: Joi.number().integer(),
+        edition_uploaded: Joi.number().integer()
       }));
 
     let message: string = '';
