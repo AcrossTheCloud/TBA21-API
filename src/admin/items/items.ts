@@ -14,14 +14,11 @@ import Joi from '@hapi/joi';
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
        limit: Joi.number().integer(),
        offset: Joi.number().integer()
       }));
-    // will cause an exception if it is not valid
-    console.log(result); // to see the result
 
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -52,7 +49,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.get ERROR - ', e);
+    console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -67,10 +64,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  */
 export const getByS3Key = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({s3Key:  Joi.string().required()}), { presence: 'required' });
-    // will cause an exception if it is not valid
-    console.log(result); // to see the result
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({s3Key:  Joi.string().required()}), { presence: 'required' });
 
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
@@ -97,7 +91,7 @@ export const getByS3Key = async (event: APIGatewayEvent, context: Context): Prom
 
     return successResponse({ item: await db.oneOrNone(query, params) });
   } catch (e) {
-    console.log('/items/items.getById ERROR - ', e);
+    console.log('/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -113,15 +107,12 @@ export const getByS3Key = async (event: APIGatewayEvent, context: Context): Prom
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALIDATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
         tag: Joi.string().required()
       }));
-    // will cause an exception if it is not valid
-    console.log(result); // to see the result
 
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -157,7 +148,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByTag ERROR - ', e);
+    console.log('/items/items.getByTag ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -213,7 +204,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByPerson ERROR - ', e);
+    console.log('/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -268,7 +259,7 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByType ERROR - ', e);
+    console.log('/items/items.getByType ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

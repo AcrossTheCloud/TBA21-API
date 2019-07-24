@@ -21,7 +21,7 @@ export const getSegments: Handler = async (event: APIGatewayEvent, context: Cont
     const response = await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/segments`, { headers: headers });
     return successResponse(response.data.segments.map( tag => tag.name ));
   } catch (e) {
-    console.log('getSegments: ', e);
+    console.log('getSegments: ', !e.isJoi ? e : e.details);
     return internalServerErrorResponse('MC0001');
   }
 };
@@ -57,7 +57,7 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
       if (e.response.status === 404) {
         return successResponse([]);
       }
-      console.log('getSubscriberTags: ', e);
+      console.log('getSubscriberTags: ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse('MC0002');
     }
   } else {
@@ -101,7 +101,7 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
         await axios.post( url + `/lists/${process.env.MC_AUDIENCE_ID}/members`, data, { headers: headers });
         return successResponse(true);
       } catch (e) {
-        console.log('postSubscriberAddTag: ', e);
+        console.log('postSubscriberAddTag: ', !e.isJoi ? e : e.details);
         return internalServerErrorResponse(`We've had an issue processing your request. (MC0004)`);
       }
     }
@@ -121,22 +121,22 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
                 await addTagToSubscriber(email, segment[0].id);
                 return successResponse(true);
               } catch (e) {
-                console.log('postSubscriberAddTag: ', e);
+                console.log('postSubscriberAddTag: ', !e.isJoi ? e : e.details);
                 return internalServerErrorResponse(`We had trouble updating your preferences. (MC0005)`);
               }
 
             } else {
-              console.log('postSubscriberAddTag: ', e);
+              console.log('postSubscriberAddTag: ', !e.isJoi ? e : e.details);
               return internalServerErrorResponse(`We had trouble processing your request. (MC0006)`);
             }
           } else {
-            console.log('postSubscriberAddTag: ', e);
+            console.log('postSubscriberAddTag: ', !e.isJoi ? e : e.details);
             return internalServerErrorResponse(`Something went wrong. (MC0007)`);
           }
         }
       }
       // No error matched what we expected, fail.
-      console.log('postSubscriberAddTag: ', e);
+      console.log('postSubscriberAddTag: ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse(`Something went wrong. (MC0008)`);
     }
 
@@ -181,25 +181,25 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
                   await addTagToSubscriber(email, segment[0].id);
                   return successResponse(true);
                 } catch (e) {
-                  console.log('deleteSubscriberRemoveTag: ', e);
+                  console.log('deleteSubscriberRemoveTag: ', !e.isJoi ? e : e.details);
                   return internalServerErrorResponse(`We had trouble processing your request. (MC0008)`);
                 }
 
               } else {
-                console.log('deleteSubscriberRemoveTag: ', e);
+                console.log('deleteSubscriberRemoveTag: ', !e.isJoi ? e : e.details);
                 return internalServerErrorResponse(`We had trouble processing your request. (MC0009)`);
               }
             } else {
-              console.log('deleteSubscriberRemoveTag: ', e);
+              console.log('deleteSubscriberRemoveTag: ', !e.isJoi ? e : e.details);
               return internalServerErrorResponse(`We've had a bit of an issue. (MC0010)`);
             }
           }
         }
         // No error matched what we expected, fail.
-        console.log('deleteSubscriberRemoveTag: ', e);
+        console.log('deleteSubscriberRemoveTag: ', !e.isJoi ? e : e.details);
         return internalServerErrorResponse(`Something went wrong. (MC0011)`);
       }
-      console.log('deleteSubscriberRemoveTag: ', e);
+      console.log('deleteSubscriberRemoveTag: ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse(`Something went wrong. (MC0011)`);
     }
   } else {
@@ -266,7 +266,7 @@ const changeSubscriberStatus = async (email: string, status: string): Promise<bo
     await axios.put(url + `/lists/${process.env.MC_AUDIENCE_ID}/members/${hashEmail(email)}`, { status: 'subscribed' }, { headers: headers });
     return true;
   } catch (e) {
-    console.log('changeSubscriberStatus: ', e);
+    console.log('changeSubscriberStatus: ', !e.isJoi ? e : e.details);
     throw e;
   }
 };
@@ -281,7 +281,7 @@ const userIsASubscriber = async (email: string): Promise<boolean> => {
     await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/members/${hashEmail(email)}`, {headers: headers});
     return true;
   } catch (e) {
-    console.log('userIsASubscriber: ', e);
+    console.log('userIsASubscriber: ', !e.isJoi ? e : e.details);
     return false;
   }
 };
@@ -300,7 +300,7 @@ const getSegmentsWithId = async (): Promise< { id: string, name: string }[] | nu
       name: tag.name
     }));
   } catch (e) {
-    console.log('getSegmentsWithId: ', e);
+    console.log('getSegmentsWithId: ', !e.isJoi ? e : e.details);
     return null;
   }
 };

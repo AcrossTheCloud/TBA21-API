@@ -34,7 +34,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
     return successResponse({ tags: result ? result : [] });
   } catch (e) {
-    console.log('/tags/tags.get ERROR - ', e);
+    console.log('/tags/tags.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -67,7 +67,7 @@ export const search = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     return successResponse({ tags: result ? result : [] });
   } catch (e) {
-    console.log('/tags/tags.get ERROR - ', e);
+    console.log('/tags/tags.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -116,7 +116,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     return successResponse({ tags: results });
   } catch (e) {
-    console.log('/tags/tags.insert ERROR - ', e);
+    console.log('/tags/tags.insert ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -155,7 +155,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     if (e.isJoi) {
       return badRequestResponse();
     } else {
-      console.log('/tags/tags.insert ERROR - ', e);
+      console.log('/tags/tags.insert ERROR - ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse();
     }
   }
@@ -193,7 +193,7 @@ export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     if (e.isJoi) {
       return badRequestResponse();
     } else {
-      console.log('/tags/tags.remove ERROR - ', e);
+      console.log('/tags/tags.remove ERROR - ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse();
     }
   }

@@ -171,10 +171,10 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
       throw new Error('Nothing to update');
     }
   } catch (e) {
-    if ((e.message === 'Nothing to update') || (e.isJoi)) {
+    if ((e.message === 'Nothing to update')) {
       return successResponse(e.message);
     } else {
-      console.log('/admin/items/update ERROR - ', e);
+      console.log('/admin/items/update ERROR - ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse();
     }
   }

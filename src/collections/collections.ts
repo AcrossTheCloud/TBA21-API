@@ -52,7 +52,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 
     return successResponse({ collections: await db.any(query, params) });
   } catch (e) {
-    console.log('/collections/collections.get ERROR - ', e);
+    console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -95,7 +95,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
 
     return successResponse({ collection: await db.oneOrNone(query, params) });
   } catch (e) {
-    console.log('/collections/collections.getById ERROR - ', e);
+    console.log('/collections/collections.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -154,7 +154,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
 
     return successResponse({ collections: await db.any(query, params) });
   } catch (e) {
-    console.log('/collections/collections.getByTag ERROR - ', e);
+    console.log('/collections/collections.getByTag ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -210,7 +210,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
 
     return successResponse({ collections: await db.any(query, params) });
   } catch (e) {
-    console.log('/collections/collections.getByPerson ERROR - ', e);
+    console.log('/collections/collections.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -242,7 +242,7 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
 
     return successResponse({ updatedItem: await db.one(query, params) });
   } catch (e) {
-    console.log('/collections/collections.changeStatus ERROR - ', e);
+    console.log('/collections/collections.changeStatus ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -275,7 +275,7 @@ export const getCollectionsInBounds = async (event: APIGatewayEvent, context: Co
 
     return successResponse({ collections: await db.any(query, params) });
   } catch (e) {
-    console.log('/collections/collections.getCollectionsInBounds ERROR - ', e);
+    console.log('/collections/collections.getCollectionsInBounds ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

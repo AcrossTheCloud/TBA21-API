@@ -22,7 +22,7 @@ export const deleteItem = async (event: APIGatewayEvent, context: Context): Prom
     await db.any(query, params);
     return successResponse(true );
   } catch (e) {
-    console.log('/items/items.deleteItem ERROR - ', e);
+    console.log('/items/items.deleteItem ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -59,7 +59,7 @@ export const deleteItemsFromCollection = async (event: APIGatewayEvent, context:
     await db.any(query, params);
     return successResponse(true);
   } catch (e) {
-    console.log('/items/items.deleteItemsFromCollection ERROR - ', e);
+    console.log('/items/items.deleteItemsFromCollection ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
