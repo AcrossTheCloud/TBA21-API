@@ -83,9 +83,9 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         related_event: Joi.string(),
         volume_in_series: Joi.number().integer(),
         organisation: Joi.string(),
-        OA_highlight: Joi.boolean(),
-        TBA21_material: Joi.boolean(),
-        OA_original: Joi.boolean(),
+        oa_highlight: Joi.boolean(),
+        tba21_material: Joi.boolean(),
+        oa_original: Joi.boolean(),
         lecturer: Joi.string(),
         authors: Joi.array().items(Joi.string()),
         credit: Joi.string(),
@@ -103,8 +103,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         issue: Joi.number().integer(),
         pages: Joi.number().integer(),
         city_of_publication: Joi.string(),
-        disciplinary_field: Joi.string(),
-
+        disciplinary_field: Joi.string()
       }));
 
     let message: string = '';
@@ -172,10 +171,10 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
       throw new Error('Nothing to update');
     }
   } catch (e) {
-    if ((e.message === 'Nothing to update') || (e.isJoi)) {
+    if ((e.message === 'Nothing to update')) {
       return successResponse(e.message);
     } else {
-      console.log('/admin/items/update ERROR - ', e);
+      console.log('/admin/items/update ERROR - ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse();
     }
   }

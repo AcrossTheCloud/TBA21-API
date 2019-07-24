@@ -127,7 +127,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
     if ((e.message === 'Nothing to update') || (e.isJoi)) {
       return badRequestResponse(e.message);
     } else {
-      console.log('/admin/collections/update ERROR - ', e);
+      console.log('/admin/collections/update ERROR - ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse();
     }
   }

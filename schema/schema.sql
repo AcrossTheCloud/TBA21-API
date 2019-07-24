@@ -21,11 +21,43 @@ CREATE TYPE tba21.item_type AS ENUM ('Video', 'Text', 'Audio', 'Image');
 
 --Item subtypes
 CREATE TYPE tba21.subtype AS ENUM (
-  'Music', 'Performance', 'Sound Art', 'Lecture', 'Radio', 'Interview', 'Field Recording', 'Podcast',
-  'Academic Public', 'Article', 'News', 'Policy Paper', 'Report', 'Book', 'Essay', 'Historical Text', 'Event Press', 'Toolkit', 'Other',
-  'Movie', 'Documentary', 'Art', 'Journalism', 'Event Recording', 'Informational Video', 'Trailer',
-  'Artwork Documentation', 'Raw Footage', 'Photograph', 'Research', 'Digital Art', 'Graphics', 'Map', 'Film Still', 'Sculpture',
-  'Painting', 'Illustration'
+  'Academic Publication',
+  'Article',
+  'News',
+  'Policy Paper',
+  'Report',
+  'Book',
+  'Essay',
+  'Historical Text',
+  'Event Press',
+  'Toolkit',
+  'Movie',
+  'Documentary',
+  'Research',
+  'Interview',
+  'Art',
+  'News / Journalism',
+  'Event Recording',
+  'Informational Video',
+  'Trailer',
+  'Artwork Documentation',
+  'Raw Footage',
+  'Photograph',
+  'Digital Art',
+  'Graphics',
+  'Map',
+  'Film Still',
+  'Sculpture',
+  'Painting',
+  'Illustration',
+  'Field Recording',
+  'Sound Art',
+  'Music',
+  'Podcast',
+  'Lecture',
+  'Radio',
+  'Performance Poetry',
+  'Other'
  );
 
 --Collection types
@@ -34,7 +66,7 @@ CREATE TYPE tba21.collection_type AS ENUM ('Series', 'Area of research', 'Event'
 -- Items metadata table
 CREATE TABLE tba21.items
 (
-  ID bigserial,
+  ID bigserial UNIQUE,
 	s3_key varchar(1024) PRIMARY KEY NOT NULL,
 	sha512 char(128),
   exif jsonb, -- for exif data
@@ -222,7 +254,7 @@ CREATE TABLE tba21.profiles
 CREATE TABLE tba21.short_paths
 (
   short_path varchar(256) PRIMARY KEY,
-  ID bigserial,
+  ID bigint,
   object_type tba21.table_type
 );
 

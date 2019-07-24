@@ -146,7 +146,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
     if (e.message === 'Nothing to update') {
       return badRequestResponse(e.message);
     } else {
-      console.log('/admin/collections/update ERROR - ', e);
+      console.log('/admin/collections/update ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
   }

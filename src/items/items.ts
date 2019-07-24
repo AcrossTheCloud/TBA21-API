@@ -53,7 +53,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.get ERROR - ', e);
+    console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -95,7 +95,7 @@ export const getByS3Key = async (event: APIGatewayEvent, context: Context): Prom
       `;
     return successResponse({ item: await db.oneOrNone(query, params) });
   } catch (e) {
-    console.log('/items/items.getById ERROR - ', e);
+    console.log('/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -154,7 +154,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByTag ERROR - ', e);
+    console.log('/items/items.getByTag ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -206,7 +206,7 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByType ERROR - ', e);
+    console.log('/items/items.getByType ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -261,7 +261,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByPerson ERROR - ', e);
+    console.log('/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -292,7 +292,7 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
 
     return successResponse({ updatedItem: await db.one(query, params) });
   } catch (e) {
-    console.log('/items/items.changeStatus ERROR - ', e);
+    console.log('/items/items.changeStatus ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -324,7 +324,7 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getItemsOnMap ERROR - ', e);
+    console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 
@@ -366,7 +366,7 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
     return successResponse({ tags: tags});
 
   } catch (e) {
-    console.log('/items/items.getRekognitionTags ERROR - ', e);
+    console.log('/items/items.getRekognitionTags ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

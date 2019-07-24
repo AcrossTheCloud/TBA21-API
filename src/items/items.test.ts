@@ -81,7 +81,7 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {person: 'Maddie'},
       response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    console.log(results);
+
     expect(results.items.length).toEqual(2);
   });
   test('Get a bad response when no people are given', async () => {
@@ -96,7 +96,6 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {type: 'video'},
       response = await getByType({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    console.log(results, results.items, 'get by type');
     expect(results.items.length).toEqual(2);
   });
   test('Get a bad response when no type is given', async () => {
@@ -111,9 +110,11 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {status: 'true', s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg'},
       response = await changeStatus({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
+
     expect(results);
-    response = await get({} as APIGatewayProxyEvent, {} as Context),
-      results = JSON.parse(response.body);
+
+    response = await get({} as APIGatewayProxyEvent, {} as Context);
+    results = JSON.parse(response.body);
 
     expect(results.items.length).toEqual(4);
   });

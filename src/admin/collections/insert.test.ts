@@ -36,7 +36,7 @@ describe('/admin/collections/insert/', () => {
       body: string = JSON.stringify(requestBody),
       response = await createCollection({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    console.log(responseBody, body);
+
     expect(responseBody.success).toBe(true);
   });
 

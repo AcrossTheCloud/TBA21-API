@@ -37,7 +37,7 @@ export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
       statusCode: 200
     };
   } catch (e) {
-    console.log('/admin/collections/delete ERROR - ', e);
+    console.log('/admin/collections/delete ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
