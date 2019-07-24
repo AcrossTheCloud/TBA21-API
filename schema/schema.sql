@@ -93,7 +93,7 @@ CREATE TABLE tba21.items
 	collaborators varchar(256)[],
 	exhibited_at varchar(256),
 	series varchar(256),
-	ISBN numeric(13)[],
+	ISBN numeric(13),
 	DOI varchar(1024),
 	edition numeric(3),
 	year_produced numeric(4),
@@ -160,7 +160,14 @@ CREATE TABLE tba21.items
   journal varchar(256),
   event_title varchar(256),
   recording_studio varchar(256),
-  original_text_credit varchar(256)
+  original_text_credit varchar(256),
+  related_project varchar(256),
+  location varchar(256),
+  participants varchar(256)[],
+  produced_by varchar(256)[],
+  projection varchar(256),
+  related_ISBN numeric(13),
+  edition_uploaded numeric(3)
 );
 
 --Collections metadata
@@ -224,7 +231,6 @@ CREATE TABLE tba21.collections
   license tba21.licence_type,
   location varchar(256),
   other_metadata jsonb,
-  subtype tba21.subtype,
   year_produced numeric(4)
 );
 
@@ -261,8 +267,8 @@ CREATE TABLE tba21.short_paths
 
 -- Geo stuff
 
-SELECT AddGeometryColumn ('tba21','items','location',4326,'POINT',2); -- items location column
-CREATE INDEX items_gix ON tba21.items USING GIST (location); -- items location GIST index
+SELECT AddGeometryColumn ('tba21','items','geom',4326,'POINT',2); -- items location column
+CREATE INDEX items_gix ON tba21.items USING GIST (geom); -- items location GIST index
 
 SELECT AddGeometryColumn ('tba21','collections','geom',4326,'LINESTRING',2); -- collections geom column
 CREATE INDEX collections_gix ON tba21.collections USING GIST (geom); -- collections geom GIST index

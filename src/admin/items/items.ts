@@ -30,7 +30,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
           item.*,
           COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(item.location) as geoJSON
+          ST_AsGeoJSON(item.geom) as geoJSON
         FROM 
           ${process.env.ITEMS_TABLE} AS item,
             
@@ -74,7 +74,7 @@ export const getByS3Key = async (event: APIGatewayEvent, context: Context): Prom
           item.*,
           COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(item.location) as geoJSON 
+          ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
           ${process.env.ITEMS_TABLE} AS item,
             
@@ -124,7 +124,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
          item.*,
          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-         ST_AsGeoJSON(item.location) as geoJSON
+         ST_AsGeoJSON(item.geom) as geoJSON
       FROM 
         ${process.env.ITEMS_TABLE} AS item,
             
@@ -181,7 +181,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
            item.*,
            COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
            COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-           ST_AsGeoJSON(item.location) as geoJSON 
+           ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
           ${process.env.ITEMS_TABLE} AS item
             INNER JOIN ${process.env.TYPES_TABLE} AS item_type ON item.item_type = item_type,
@@ -236,7 +236,7 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
         item.*,
         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-        ST_AsGeoJSON(item.location) as geoJSON
+        ST_AsGeoJSON(item.geom) as geoJSON
         
         
         FROM ${process.env.TYPES_TABLE} as itemtype
