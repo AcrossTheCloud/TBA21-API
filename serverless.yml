@@ -416,6 +416,21 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  getProfile:
+    handler: src/profiles/profiles.get
+    description: Get a profile
+    events:
+      - http:
+          path: profiles/get
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.query
+
+
   ###### ADMIN FUNCTIONS ######
 
 #### Collections
