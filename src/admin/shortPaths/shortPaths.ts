@@ -6,17 +6,17 @@ import Joi from '@hapi/joi';
 export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
-      table: Joi.string().valid('Profile', 'Collection', 'Item'),
+      table: Joi.any().valid('Profile', 'Collection', 'Item'),
       short_path: Joi.string().required()
     }));
     const queryString = event.queryStringParameters;
     let table = process.env.ITEMS_TABLE;
 
     switch (queryString.table) {
-      case 'profiles':
+      case 'Profiles':
         table =  process.env.PROFILES_TABLE;
         break;
-      case 'collections':
+      case 'Collections':
         table =  process.env.COLLECTIONS_TABLE;
         break;
       default:

@@ -27,7 +27,6 @@ describe('admin/shortPaths/shortpaths/get', () => {
       },
       response = await get({queryStringParameters} as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    console.log(response, responseBody, );
     expect(responseBody);
   });
   test('insert for short paths', async () => {
