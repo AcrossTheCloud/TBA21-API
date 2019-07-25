@@ -72,17 +72,14 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       RETURNING ${process.env.SHORT_PATHS_TABLE}.short_path;
     `;
 
-    const insertResult = await db.task(async t => {
-      return await t.one(query, params);
-    });
+    const insertResult = await db.one(query, params);
     return {
       body: JSON.stringify({ success: true, short_path: insertResult }),
       headers: headers,
       statusCode: 200
     };
   } catch (e) {
-    console.log('/profiles/shortPaths.insert ERROR - ', e);
+    console.log('admin/profiles/shortPaths.insert ERROR - ', e);
     return badRequestResponse(e.message);
     }
 };
-//

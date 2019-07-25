@@ -597,21 +597,26 @@ functions:
           authorizer: aws_iam
 
   getShortPath:
-    handler: src/admin/shortPaths/shortPaths.get
+    handler: src/shortPaths/shortPaths.get
     description:
     events:
       - http:
-          path: admin/shortPaths/get
+          path: shortpaths
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.short_path
+              - name: request.querystring.table
 
-  insertShortPath:
+  adminInsertShortPath:
     handler: src/admin/shortPaths/shortPaths.insert
     description:
     events:
       - http:
-          path: admin/shortPaths/insert
+          path: admin/shortpaths
           method: put
           cors: true
           authorizer: aws_iam
