@@ -29,8 +29,8 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
         SELECT *
         FROM (
           SELECT * 
-          FROM ${process.env.SHORT_PATHS}
-          WHERE ${process.env.SHORT_PATHS}.short_path = $2
+          FROM ${process.env.SHORT_PATHS_TABLE}
+          WHERE ${process.env.SHORT_PATHS_TABLE}.short_path = $2
         ) AS short_paths
           JOIN ${table}
           AS id_ on short_paths.id = id_.id
@@ -56,9 +56,9 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const
       params = [data.short_path, data.id, data.object_type],
       query = `
-      INSERT INTO ${process.env.SHORT_PATHS} (short_path,ID,object_type)
+      INSERT INTO ${process.env.SHORT_PATHS_TABLE} (short_path,ID,object_type)
       VALUES ($1, $2, $3)
-      RETURNING ${process.env.SHORT_PATHS}.short_path;
+      RETURNING ${process.env.SHORT_PATHS_TABLE}.short_path;
     `;
 
     const insertResult = await db.task(async t => {
