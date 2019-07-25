@@ -50,41 +50,30 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       {
         short_path: Joi.string().required(),
         id: Joi.number().required(),
-        object_type: Joi.string()
+        object_type: Joi.any().valid('Profile', 'Collection', 'Item').required(),
       }));
 
-    let paramCounter = 0;
-
     const
-      params = [],
-      sqlFields: string[] = Object.keys(data).map((key) => {
-        return `${key}`;
-      }),
-      sqlParams: string[] = Object.keys(data).map((key) => {
-        params[paramCounter++] = data[key];
-        return `$${paramCounter}`;
-      });
-
-    const query = `
-      INSERT INTO ${process.env.SHORT_PATHS} (${[...sqlFields]})
-      VALUES (${[...sqlParams]})
+      params = [data.short_path, data.id, data.object_type],
+      query = `
+      INSERT INTO ${process.env.SHORT_PATHS} (short_path,ID,object_type)
+      VALUES ($1, $2, $3)
       RETURNING ${process.env.SHORT_PATHS}.short_path;
     `;
 
     const insertResult = await db.task(async t => {
       return await t.one(query, params);
     });
-    console.log(query);
     return {
       body: JSON.stringify({ success: true, short_path: insertResult }),
       headers: headers,
       statusCode: 200
     };
-    } catch (e) {
-    if ((e.message === 'Nothing to update') || (e.isJoi)) {
+  } catch (e) {
+    if ((e.message === 'Nothing to insert') || (e.isJoi)) {
       return badRequestResponse(e.message);
     } else {
-      console.log('/admin/collections/update ERROR - ', e);
+      console.log('/admin/shortPaths ERROR - ', e);
       return internalServerErrorResponse();
     }
   }
