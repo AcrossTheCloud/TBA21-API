@@ -19,9 +19,8 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         WHERE id = $1
       `;
 
-    const result = await db.manyOrNone(sqlStatement, params);
+    return successResponse({ profile: await db.any(sqlStatement, params) });
 
-    return successResponse({ profile: result });
   } catch (e) {
     console.log('/profile/profile.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
