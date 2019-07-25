@@ -1,8 +1,14 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../../common';
+import { badRequestResponse, headers, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 import Joi from '@hapi/joi';
 
+/**
+ *
+ * Get an item/profile/collection by its short_path
+ *
+ * @param event
+ */
 export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
@@ -41,7 +47,12 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
     return badRequestResponse();
   }
 };
-
+/**
+ *
+ * Insert a short path
+ *
+ * @param event
+ */
 export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const data = JSON.parse(event.body);
@@ -70,11 +81,8 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       statusCode: 200
     };
   } catch (e) {
-    if ((e.message === 'Nothing to insert') || (e.isJoi)) {
-      return badRequestResponse(e.message);
-    } else {
-      console.log('/admin/shortPaths ERROR - ', e);
-      return internalServerErrorResponse();
+    console.log('/profiles/shortPaths.insert ERROR - ', e);
+    return badRequestResponse(e.message);
     }
-  }
 };
+//
