@@ -23,11 +23,11 @@ describe('admin/shortPaths/shortpaths/get', () => {
     const
       queryStringParameters: QueryStringParameters = {
         'table': 'Item',
-        'short_path': 'Kitten'
+        'id': '1'
       },
       response = await get({queryStringParameters} as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    expect(responseBody);
+    expect(responseBody.short_path);
   });
   test('insert for short paths', async () => {
     const
