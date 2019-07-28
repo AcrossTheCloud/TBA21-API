@@ -17,4 +17,9 @@ VALUES (
   'Whale Expedition',
   3,
   'Collection'
+),
+(
+  'Persian_Kitten',
+  1,
+  'Item'
 );

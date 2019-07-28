@@ -13,7 +13,7 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
       table: Joi.any().valid('Profile', 'Collection', 'Item'),
-      short_path: Joi.string().required()
+      id: Joi.string().required()
     }));
     const queryString = event.queryStringParameters;
     let table = process.env.ITEMS_TABLE;
@@ -30,16 +30,18 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
     }
 
     const
-      params = [queryString.table, queryString.short_path],
+      params = [queryString.table, queryString.id],
       sqlStatement = `
         SELECT *
         FROM (
           SELECT * 
           FROM ${process.env.SHORT_PATHS_TABLE}
-          WHERE ${process.env.SHORT_PATHS_TABLE}.short_path = $2
+          WHERE ${process.env.SHORT_PATHS_TABLE}.id = $2
+          AND ${process.env.SHORT_PATHS_TABLE}.object_type = $1
         ) AS short_paths
           JOIN ${table}
           AS id_ on short_paths.id = id_.id
+          ORDER BY short_path DESC
       `;
     return successResponse({short_path: await db.any(sqlStatement, params)});
   } catch (e) {
