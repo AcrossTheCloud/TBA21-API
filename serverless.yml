@@ -430,6 +430,15 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.query
 
+  insertProfile:
+    handler: src/profiles/profiles.insert
+    description: Insert a profile
+    events:
+      - http:
+          path: profiles/insert
+          method: put
+          cors: true
+          authorizer: aws_iam
 
   ###### ADMIN FUNCTIONS ######
 
