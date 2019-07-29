@@ -67,7 +67,7 @@ INSERT INTO tba21.items(
   recording_name,
   speakers,
   performers,
-  host_organization,
+  host_organisation,
   radio_station,
   other_metadata,
   geom
@@ -171,7 +171,7 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  '{Host organization}',
+  '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
   ST_GeomFromText('POINT(37.717474 161.204097)', 4326)
@@ -271,7 +271,7 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  '{Host organization}',
+  '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
   ST_GeomFromText('POINT(77.134788 4.835309)', 4326)
@@ -371,7 +371,7 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  '{Host organization}',
+  '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
   ST_GeomFromText('POINT(66.073126 4.225375)', 4326)
@@ -471,7 +471,7 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  '{Host organization}',
+  '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
   ST_GeomFromText('POINT(32.7821795 -0.0075471)', 4326)
@@ -575,7 +575,7 @@ VALUES (
   'Recording name',
   '{Speakers}',
   '{Performers1, Performers2}',
-  '{Host organization}',
+  '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
   ST_GeomFromText('POINT(49.042218 7.528439)', 4326)
