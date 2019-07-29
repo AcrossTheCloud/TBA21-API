@@ -5,11 +5,11 @@ import Joi from '@hapi/joi';
 
 /**
  *
- * Get an item/profile/collection by its short_path
+ * Get an item/profile/collection by its id
  *
  * @param event
  */
-export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const getById = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
       table: Joi.any().valid('Profile', 'Collection', 'Item'),
@@ -42,6 +42,50 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
           JOIN ${table}
           AS id_ on short_paths.id = id_.id
           ORDER BY short_path DESC
+      `;
+    return successResponse({short_path: await db.any(sqlStatement, params)});
+  } catch (e) {
+    console.log('/profiles/shortPaths.get ERROR - ', e);
+    return badRequestResponse();
+  }
+};
+/**
+ *
+ * Get an item/profile/collection by its short_path
+ *
+ * @param event
+ */
+export const getByShortPath = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      table: Joi.any().valid('Profile', 'Collection', 'Item'),
+      short_path: Joi.string().required()
+    }));
+    const queryString = event.queryStringParameters;
+    let table = process.env.ITEMS_TABLE;
+
+    switch (queryString.table) {
+      case 'Profiles':
+        table =  process.env.PROFILES_TABLE;
+        break;
+      case 'Collections':
+        table =  process.env.COLLECTIONS_TABLE;
+        break;
+      default:
+        break;
+    }
+
+    const
+      params = [queryString.short_path],
+      sqlStatement = `
+        SELECT *
+        FROM (
+          SELECT * 
+          FROM ${process.env.SHORT_PATHS_TABLE}
+          WHERE ${process.env.SHORT_PATHS_TABLE}.short_path = $1
+        ) AS short_paths
+          JOIN ${table}
+          AS id_ on short_paths.id = id_.id
       `;
     return successResponse({short_path: await db.any(sqlStatement, params)});
   } catch (e) {

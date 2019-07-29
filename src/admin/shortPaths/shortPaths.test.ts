@@ -9,7 +9,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { reSeedDatabase } from '../../utils/testHelper';
-import { get, insert } from './shortPaths';
+import { getById, getByShortPath, insert } from './shortPaths';
 
 describe('admin/shortPaths/shortpaths/get', () => {
   // AfterAll tests reseed the DB
@@ -23,9 +23,19 @@ describe('admin/shortPaths/shortpaths/get', () => {
     const
       queryStringParameters: QueryStringParameters = {
         'table': 'Item',
+        'short_path': 'kitten'
+      },
+      response = await getByShortPath({queryStringParameters} as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+    expect(responseBody.short_path);
+  });
+  test('get for short paths by id', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {
+        'table': 'Item',
         'id': '1'
       },
-      response = await get({queryStringParameters} as APIGatewayProxyEvent),
+      response = await getById({queryStringParameters} as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
     expect(responseBody.short_path);
   });

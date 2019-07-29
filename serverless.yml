@@ -596,12 +596,27 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  getShortPath:
-    handler: src/admin/shortPaths/shortPaths.get
+  getByShortPath:
+    handler: src/admin/shortPaths/shortPaths.getByShortPath
     description:
     events:
       - http:
-          path: admin/shortpaths/get
+          path: admin/shortpaths/getByShortPath
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.short_path
+              - name: request.querystring.table
+
+  getShortPathById:
+    handler: src/admin/shortPaths/shortPaths.getById
+    description:
+    events:
+      - http:
+          path: admin/shortpaths/getById
           method: get
           cors: true
           authorizer: aws_iam
