@@ -64,7 +64,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         curator: Joi.string(),
         host: Joi.array().items(Joi.string()),
         type: Joi.string().required(),
-        host_organization: Joi.string(),
+        host_organisation: Joi.string(),
         focus_arts: Joi.number().integer().required(),
         focus_action: Joi.number().integer().required(),
         focus_scitech: Joi.number().integer().required(),
