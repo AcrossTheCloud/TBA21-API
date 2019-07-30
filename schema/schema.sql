@@ -143,7 +143,7 @@ CREATE TABLE tba21.items
   original_title varchar(256),
   related_event varchar(256),
   volume_in_series numeric(4),
-  organisation varchar(256),
+  organisation varchar(256)[],
   OA_highlight boolean,
   TBA21_material boolean,
   OA_original boolean,
