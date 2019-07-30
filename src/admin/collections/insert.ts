@@ -50,7 +50,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         specialization: Joi.string(),
         department: Joi.string(),
         expedition_leader: Joi.string(),
-        institution: Joi.string().required(),
+        institution: Joi.string(),
         expedition_vessel: Joi.string(),
         expedition_route: Joi.string(),
         expedition_blog_link: Joi.string(),
@@ -73,7 +73,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         license: Joi.string(),
         location: Joi.string(),
         other_metadata: Joi.object(),
-        year_produced: Joi.number().required(),
+        year_produced: Joi.number(),
         media_type: Joi.string(),
         city_of_publication: Joi.string(),
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
