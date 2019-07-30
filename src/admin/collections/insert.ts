@@ -74,6 +74,8 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         location: Joi.string(),
         other_metadata: Joi.object(),
         year_produced: Joi.number().required(),
+        media_type: Joi.string(),
+        city_of_publication: Joi.string(),
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
       }));
 

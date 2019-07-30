@@ -232,7 +232,9 @@ CREATE TABLE tba21.collections
   license tba21.licence_type,
   location varchar(256),
   other_metadata jsonb,
-  year_produced numeric(4)
+  year_produced numeric(4),
+  media_type varchar(256),
+  city_of_publication varchar(128)
 );
 
 --Contributor metadata
