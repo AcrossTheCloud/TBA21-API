@@ -111,7 +111,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
     }
 
     // If we have items to assign to the collection
-    if (data.items && data.items.length) {
+    if (data.items) {
       await db.task(async t => {
 
         let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
