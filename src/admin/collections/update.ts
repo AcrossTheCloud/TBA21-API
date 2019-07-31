@@ -14,8 +14,7 @@ import Joi from '@hapi/joi';
 
 export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const
-      data = JSON.parse(event.body);
+    const data = JSON.parse(event.body);
 
     await Joi.validate(data, Joi.object().keys(
         {
@@ -98,51 +97,55 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         WHERE id = $1 returning id;
       `;
 
-    if (SQL_SETS.length) {
-      await db.task(async t => {
-        // If we have items in SQL_SETS do the query.
-        await t.one(query, params);
-        // If we have items to assign to the collection
-        if (data.items && data.items.length) {
-          let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
-          currentItems = currentItems.map(e => (e.item_s3_key));
-
-          const
-            toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0)),
-            toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
-
-          if (toBeAdded.length > 0) {
-            const
-              SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
-                return `($1, $${index + 2})`;
-              }),
-              addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
-              addParams = [data.id, ...toBeAdded];
-
-            await t.any(addQuery, addParams);
-          }
-
-          if (toBeRemoved.length > 0) {
-            const
-              SQL_REMOVES: string[] = toBeRemoved.map((item, index) => {
-                return `$${index + 2}`;
-              }),
-              removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${[...SQL_REMOVES]})`,
-              removeParams = [data.id, ...toBeRemoved];
-
-            await t.any(removeQuery, removeParams);
-          }
-        }
-      });
-
-      return {
-        body: JSON.stringify({ success: true }),
-        headers: headers,
-        statusCode: 200
-      };
-    } else {
-      throw new Error('Nothing to update');
+    if (!SQL_SETS.length && (!data.items || !data.items.length)) {
+      return badRequestResponse('Nothing to update');
     }
+
+    // If we have items in SQL_SETS do the query.
+    if (SQL_SETS.length) {
+      await db.one(query, params);
+    }
+
+    // If we have items to assign to the collection
+    if (data.items && data.items.length) {
+      await db.task(async t => {
+
+        let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
+        currentItems = currentItems.map(e => (e.item_s3_key));
+
+        const
+          toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0)),
+          toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
+
+        if (toBeAdded.length > 0) {
+          const
+            SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
+              return `($1, $${index + 2})`;
+            }),
+            addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
+            addParams = [data.id, ...toBeAdded];
+
+          await t.any(addQuery, addParams);
+        }
+
+        if (toBeRemoved.length > 0) {
+          const
+            SQL_REMOVES: string[] = toBeRemoved.map((item, index) => {
+              return `$${index + 2}`;
+            }),
+            removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${[...SQL_REMOVES]})`,
+            removeParams = [data.id, ...toBeRemoved];
+
+          await t.any(removeQuery, removeParams);
+        }
+
+      });
+    }
+    return {
+      body: JSON.stringify({ success: true }),
+      headers: headers,
+      statusCode: 200
+    };
 
   } catch (e) {
     if (e.message === 'Nothing to update') {
