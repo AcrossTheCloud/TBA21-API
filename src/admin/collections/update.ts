@@ -32,7 +32,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           collaborators: Joi.string(),
           exhibited_at: Joi.array().items(Joi.string()),
           series: Joi.string(),
-          ISBN: Joi.number().integer(),
+          isbn: Joi.number().integer(),
           edition: Joi.number().integer(),
           publisher: Joi.array().items(Joi.string()),
           interviewers: Joi.array().items(Joi.string()),
