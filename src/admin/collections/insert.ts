@@ -20,7 +20,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
       {
         created_at: Joi.date().raw(),
         updated_at: Joi.date().raw(),
-        start_date: Joi.date().raw().required(),
+        start_date: Joi.date().raw(),
         end_date: Joi.date().raw(),
         time_produced: Joi.date().timestamp(),
         status: Joi.boolean(),
