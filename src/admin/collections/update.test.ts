@@ -30,7 +30,7 @@ describe('/admin/collections/update/updateByID', () => {
       response = await updateById({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
 
-    expect(responseBody).toBe(true);
+    expect(responseBody.success).toBe(true);
   });
 
   test('Check that supplying just the id returns a 400', async () => {
