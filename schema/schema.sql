@@ -235,7 +235,11 @@ CREATE TABLE tba21.collections
   year_produced numeric(4),
   media_type varchar(256),
   city_of_publication varchar(128),
-  digital_only boolean
+  digital_only boolean,
+  related_event varchar(256),
+	volume numeric(4),
+	number numeric(5),
+	event_type varchar(256)
 );
 
 --Contributor metadata
@@ -243,7 +247,7 @@ CREATE TABLE tba21.profiles
 (
 	ID bigserial PRIMARY KEY,
   contributors uuid[],
-  profile_image varchar(1024),  -- path to s3 object
+  profile_image varchar(1024),  -- pathi to s3 object
   featured_image varchar(1024),  -- path to s3 object
   full_name varchar(256),
   field_expertise varchar(256),

@@ -18,7 +18,7 @@ describe('/admin/collections/update/updateByID', () => {
     db.$pool.end();
   });
 
-  test('Update ID 1', async () => {
+  test('Update everything with an ID 1', async () => {
     const
       requestBody = {
         'id': '1',
@@ -32,7 +32,18 @@ describe('/admin/collections/update/updateByID', () => {
 
     expect(responseBody.success).toBe(true);
   });
+  test('Update one item in the collection with an ID 1', async () => {
+    const
+      requestBody = {
+        'id': '1',
+        'items': ['private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg'],
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await updateById({ body } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
 
+    expect(responseBody.success).toBe(true);
+  });
   test('Check that supplying just the id returns a 400', async () => {
     const
       requestBody = { 'id': '1' },
