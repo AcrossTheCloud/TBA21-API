@@ -67,6 +67,10 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           year_produced: Joi.number().integer(),
           media_type: Joi.string(),
           city_of_publication: Joi.string(),
+          digital_only: Joi.boolean(),
+          related_event: Joi.string(),
+          volume: Joi.number().integer(),
+          number: Joi.number().integer(),
           items: Joi.array().items(Joi.string())
         }));
 
