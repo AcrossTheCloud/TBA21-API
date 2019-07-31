@@ -206,7 +206,7 @@ CREATE TABLE tba21.collections
 	copyright_holder varchar(256),
 	copyright_country varchar(256),
 	disciplinary_field varchar(256),
-  specialization varchar(256),
+  specialisation varchar(256),
   department varchar(256),
   expedition_leader varchar(256),
   institution varchar(256),
@@ -234,7 +234,8 @@ CREATE TABLE tba21.collections
   other_metadata jsonb,
   year_produced numeric(4),
   media_type varchar(256),
-  city_of_publication varchar(128)
+  city_of_publication varchar(128),
+  digital_only boolean
 );
 
 --Contributor metadata

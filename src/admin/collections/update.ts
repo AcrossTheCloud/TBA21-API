@@ -44,7 +44,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           copyright_holder: Joi.string(),
           copyright_country: Joi.string(),
           disciplinary_field: Joi.string(),
-          specialization: Joi.string(),
+          specialisation: Joi.string(),
           department: Joi.string(),
           expedition_leader: Joi.string(),
           institution: Joi.string(),
