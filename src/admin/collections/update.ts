@@ -136,7 +136,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
       });
 
       return {
-        body: 'true',
+        body: JSON.stringify({ success: true }),
         headers: headers,
         statusCode: 200
       };
