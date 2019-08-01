@@ -92,7 +92,19 @@ describe('/admin/collections/update/updateByID', () => {
 
     expect(responseBody.success).toBe(true);
   });
-  test('Update two item in the collection with an ID 1', async () => {
+  test('Remove all items from collection ID 1', async () => {
+    const
+      requestBody = {
+        'id': '1',
+        'items': [],
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await updateById({ body } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+
+    expect(responseBody.success).toBe(true);
+  });
+  test('Update collection ID 1 with two items', async () => {
     const
       requestBody = {
         'id': '1',

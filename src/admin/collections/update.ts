@@ -101,7 +101,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         WHERE id = $1 returning id;
       `;
 
-    if (!SQL_SETS.length && !data.item) {
+    if (!SQL_SETS.length && !data.items) {
       return badRequestResponse('Nothing to update');
     }
 
@@ -145,6 +145,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
 
       });
     }
+
     return {
       body: JSON.stringify({ success: true }),
       headers: headers,
