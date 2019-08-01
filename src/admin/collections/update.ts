@@ -101,7 +101,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         WHERE id = $1 returning id;
       `;
 
-    if (!SQL_SETS.length && (!data.items || !data.items.length)) {
+    if (!SQL_SETS.length && !data.item) {
       return badRequestResponse('Nothing to update');
     }
 
