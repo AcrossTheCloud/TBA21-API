@@ -1,8 +1,14 @@
-import { QueryStringParameters } from '../types/_test_';
+require('dotenv').config(
+  {
+    DEBUG: true
+  }
+);
+
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { get, insert } from './profiles';
-import { reSeedDatabase } from '../utils/testHelper';
+import { QueryStringParameters } from '../types/_test_';
 import { db } from '../databaseConnect';
+import { reSeedDatabase } from '../utils/testHelper';
 
 describe('Profile get tests', () => {
   // AfterAll tests reseed the DB
@@ -12,13 +18,12 @@ describe('Profile get tests', () => {
     db.$pool.end();
   });
 
-  test('Check that we have 1 profile with an id of 1.', async () => {
+  test('Check that we have a profile', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '1'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
-      results = JSON.parse(response.body);
-    console.log(response, results, queryStringParameters);
-    expect(results.profile.id).toEqual(1);
+      profile = JSON.parse(response.body);
+    expect(profile);
   });
 
   test('Create a profile', async () => {
@@ -33,7 +38,6 @@ describe('Profile get tests', () => {
       body: string = JSON.stringify(requestBody),
       response = await insert({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    console.log(responseBody, response);
     expect(responseBody.success).toBe(true);
 });
 });
