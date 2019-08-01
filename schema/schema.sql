@@ -143,7 +143,7 @@ CREATE TABLE tba21.items
   original_title varchar(256),
   related_event varchar(256),
   volume_in_series numeric(4),
-  organisation varchar(256),
+  organisation varchar(256)[],
   OA_highlight boolean,
   TBA21_material boolean,
   OA_original boolean,
@@ -206,7 +206,7 @@ CREATE TABLE tba21.collections
 	copyright_holder varchar(256),
 	copyright_country varchar(256),
 	disciplinary_field varchar(256),
-  specialization varchar(256),
+  specialisation varchar(256),
   department varchar(256),
   expedition_leader varchar(256),
   institution varchar(256),
@@ -232,7 +232,14 @@ CREATE TABLE tba21.collections
   license tba21.licence_type,
   location varchar(256),
   other_metadata jsonb,
-  year_produced numeric(4)
+  year_produced numeric(4),
+  media_type varchar(256),
+  city_of_publication varchar(128),
+  digital_only boolean,
+  related_event varchar(256),
+	volume numeric(4),
+	number numeric(5),
+	event_type varchar(256)
 );
 
 --Contributor metadata
@@ -240,7 +247,7 @@ CREATE TABLE tba21.profiles
 (
 	ID bigserial PRIMARY KEY,
   contributors uuid[],
-  profile_image varchar(1024),  -- path to s3 object
+  profile_image varchar(1024),  -- pathi to s3 object
   featured_image varchar(1024),  -- path to s3 object
   full_name varchar(256),
   field_expertise varchar(256),
