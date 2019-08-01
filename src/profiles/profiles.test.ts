@@ -5,7 +5,7 @@ require('dotenv').config(
 );
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { get, insert } from './profiles';
+import { get, insert, update } from './profiles';
 import { QueryStringParameters } from '../types/_test_';
 import { db } from '../databaseConnect';
 import { reSeedDatabase } from '../utils/testHelper';
@@ -40,4 +40,18 @@ describe('Profile get tests', () => {
       responseBody = JSON.parse(response.body);
     expect(responseBody.success).toBe(true);
 });
+  test('update a profile', async () => {
+    const
+      requestBody = {
+        'id': '2',
+        'full_name': 'Glynn Zara',
+        'country': 'America',
+        'public_profile': 'false',
+        'profile_type': 'Collective'
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await update({ body } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+    expect(responseBody).toBe(true);
+  });
 });
