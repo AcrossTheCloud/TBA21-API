@@ -440,6 +440,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  updateProfile:
+    handler: src/profiles/profiles.update
+    description: Update a profile
+    events:
+      - http:
+          path: profiles/update
+          method: patch
+          cors: true
+          authorizer: aws_iam
+
   ###### ADMIN FUNCTIONS ######
 
 #### Collections

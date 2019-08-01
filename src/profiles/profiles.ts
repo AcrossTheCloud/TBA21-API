@@ -11,8 +11,8 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       }));
 
     const
-      queryString = event.queryStringParameters,
-      params = [queryString.id],
+      queryStringParameters = event.queryStringParameters,
+      params = [queryStringParameters.id],
       sqlStatement = `
         SELECT * 
         FROM ${process.env.PROFILES_TABLE}
@@ -61,7 +61,12 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         return `$${paramCounter}`;
       });
 
-    const query = `INSERT INTO ${process.env.PROFILES_TABLE} (${[...sqlFields]}) VALUES (${[...sqlParams]}) RETURNING id;`;
+    const query = `
+      INSERT INTO ${process.env.PROFILES_TABLE} 
+        (${[...sqlFields]}) 
+      VALUES 
+        (${[...sqlParams]}) 
+      RETURNING id;`;
 
     const insertResult = await db.task(async t => {
       return await t.one(query, params);
@@ -82,16 +87,17 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     }
   }
 };
-export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const
       data = JSON.parse(event.body);
 
     await Joi.validate(data, Joi.object().keys(
       {
+        id: Joi.number().integer().required(),
         profile_image: Joi.string(),
         featured_image: Joi.string(),
-        full_name: Joi.string(),
+        full_name: Joi.string().required(),
         field_expertise: Joi.string(),
         city: Joi.string(),
         country: Joi.string(),
@@ -104,7 +110,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         contact_person: Joi.string(),
         contact_position: Joi.string(),
         contact_email: Joi.string(),
-        profile_type: Joi.any().valid('Individual', 'Collective', 'Institution')
+        profile_type: Joi.any().valid('Individual', 'Collective', 'Institution').required()
       }));
 
     let paramCounter = 0;
@@ -123,53 +129,14 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         WHERE id = $1 returning id;
       `;
 
-    if (SQL_SETS.length) {
-      await db.task(async t => {
-        // If we have items in SQL_SETS do the query.
-        await t.one(query, params);
-        // If we have items to assign to the collection
-        if (data.items && data.items.length) {
-          let currentItems = await db.any(`select item_s3_key from ${process.env.PROFILES_TABLE} where collection_id=$1`, [data.id]);
-          currentItems = currentItems.map(e => (e.item_s3_key));
+    await db.one(query, params);
 
-          const
-            toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0)),
-            toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
-
-          if (toBeAdded.length > 0) {
-            const
-              SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
-                return `($1, $${index + 2})`;
-              }),
-              addQuery = `INSERT INTO ${process.env.PROFILES_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
-              addParams = [data.id, ...toBeAdded];
-
-            await t.any(addQuery, addParams);
-          }
-
-          if (toBeRemoved.length > 0) {
-            const
-              SQL_REMOVES: string[] = toBeRemoved.map((item, index) => {
-                return `$${index + 2}`;
-              }),
-              removeQuery = `DELETE from ${process.env.PROFILES_TABLE}  where collection_id =$1 and item_s3_key in (${[...SQL_REMOVES]})`,
-              removeParams = [data.id, ...toBeRemoved];
-
-            await t.any(removeQuery, removeParams);
-          }
-        }
-      });
-
-      return {
+    return {
         body: 'true',
         headers: headers,
         statusCode: 200
       };
-    } else {
-      throw new Error('Nothing to update');
-    }
-
-  } catch (e) {
+    } catch (e) {
     if (e.message === 'Nothing to update') {
       return badRequestResponse(e.message);
     } else {
