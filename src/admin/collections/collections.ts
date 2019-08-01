@@ -248,7 +248,7 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
         
         WHERE collection_id = $1
           
-        ORDER BY collections_items.collection_id
+        GROUP BY items.s3_key
         
         LIMIT $2
         OFFSET $3
