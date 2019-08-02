@@ -23,6 +23,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         SELECT * 
         FROM ${process.env.PROFILES_TABLE}
         WHERE id = $1
+        AND public_profile = true
       `;
 
     return successResponse({ profile: await db.any(sqlStatement, params) });

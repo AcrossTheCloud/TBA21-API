@@ -32,6 +32,14 @@ describe('Profile get tests', () => {
       responseBody = JSON.parse(response.body);
     expect(responseBody.profile);
   });
+  test('Check that we have a private profile isnt returned', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {id: '1'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+    console.log(responseBody.profile);
+    expect(responseBody.profile).toEqual([]);
+  });
   test('Create a profile', async () => {
     const
       requestBody = {
@@ -49,7 +57,7 @@ describe('Profile get tests', () => {
   test('update a profile', async () => {
     const
       requestBody = {
-        'id': '2',
+        'id': '3',
         'full_name': 'Glynn Zara',
         'country': 'America',
         'public_profile': 'false',
@@ -59,5 +67,36 @@ describe('Profile get tests', () => {
       response = await update({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
     expect(responseBody).toBe(true);
+  });
+  test('update a profile completely', async () => {
+    const
+      requestBody = {
+        'id': '3',
+        'full_name': 'update',
+        'field_expertise': 'cats',
+        'city': 'new city',
+        'country': 'new country',
+        'public_profile': 'true',
+        'profile_type': 'Institution',
+        'biography': 'updated biography',
+        'website': 'updated website',
+        'social_media': ['new facebook'],
+        'affiliation': 'updated affiliation',
+        'position': 'updated position',
+        'contact_person': 'updated contact person',
+        'contact_email': 'updated email'
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await update({ body } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+    expect(responseBody).toBe(true);
+  });
+  test('Get a bad response when no id is given', async () => {
+    const
+      requestBody = { 'id': '' },
+      body: string = JSON.stringify(requestBody),
+      response = await update({ body } as APIGatewayProxyEvent);
+
+    expect(response.statusCode).toEqual(400);
   });
 });
