@@ -191,7 +191,6 @@ export const search = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
           LOWER(full_name) LIKE LOWER($1) || '%'
         AND public_profile = true
       `;
-    console.log(sqlStatement);
     const result = await db.any(sqlStatement, params);
 
     return successResponse({ profile: result ? result : [] });
