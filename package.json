@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm run clean && npm run lint && ./docker/start_with_tests.sh",
     "test-localdb": "npm run clean && npm run lint && jest -i --coverage --detectOpenHandles",
-    "offline": "npm run clean && npm run lint && export SLS_DEBUG=true && sls offline start --port 8080",
+    "offline": "npm run clean && npm run lint && export SLS_DEBUG=* && sls offline start --verbose --port 8080",
     "offline-win": "npm run clean && npm run lint && sls offline start --port 8080",
     "test-win-localdb": "npm run clean && npm run lint && jest -i --coverage --detectOpenHandles",
     "docker-start": "./docker/start.sh",
@@ -29,14 +29,14 @@
   "dependencies": {
     "@hapi/joi": "^15.0.3",
     "axios": "^0.19.0",
-    "pg-promise": "^8.7.2"
+    "pg-promise": "^8.7.5"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.26",
-    "@types/jest": "^24.0.13",
-    "@types/node": "^12.0.2",
+    "@types/aws-lambda": "^8.10.31",
+    "@types/jest": "^24.0.16",
+    "@types/node": "^12.6.9",
     "aws-lambda": "^0.1.2",
-    "aws-sdk": "^2.477.0",
+    "aws-sdk": "^2.503.0",
     "dotenv": "^8.0.0",
     "jest": "^24.8.0",
     "rimraf": "^2.6.3",
@@ -45,8 +45,8 @@
     "serverless-aws-documentation": "^1.1.0",
     "serverless-dotenv-plugin": "^2.1.1",
     "serverless-offline": "^4.10.6",
-    "serverless-plugin-split-stacks": "^1.8.0",
-    "serverless-plugin-typescript": "^1.1.7",
+    "serverless-plugin-split-stacks": "^1.9.0",
+    "serverless-plugin-typescript": "^1.1.9",
     "ts-jest": "^24.0.2",
     "ts-loader": "^6.0.1",
     "ts-node": "^8.0.3",

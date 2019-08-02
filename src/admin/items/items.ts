@@ -16,14 +16,70 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
-       limit: Joi.number().integer(),
-       offset: Joi.number().integer()
+        inputQuery: Joi.string(),
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer()
       }));
 
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues, // Use default values if not supplied.
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+
+    let searchQuery = '';
+
+    if (event.queryStringParameters && (event.queryStringParameters.inputQuery && event.queryStringParameters.inputQuery.length > 0)) {
+      params.push(event.queryStringParameters.inputQuery);
+      searchQuery = `
+        WHERE 
+          LOWER(title) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(original_title) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(event_title) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(subtitle) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(description) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(institution) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(news_outlet) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(country_or_ocean) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(location) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(city_of_publication) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(featured_in) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(editor) LIKE '%' || LOWER($3) || '%' OR
+      
+          ISBN::text LIKE '%whal%' OR
+          related_ISBN::text LIKE '%whal%' OR
+          LOWER(DOI) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(cast_) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(lecturer) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(project) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(record_label) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%'
+      `;
+    }
+
+    const
       query = `
         SELECT
           COUNT ( item.s3_key ) OVER (),
@@ -40,16 +96,18 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
           UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
             
+        ${searchQuery}         
+            
         GROUP BY item.s3_key
         ORDER BY item.s3_key
-        
+
         LIMIT $1 
         OFFSET $2 
       `;
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);
+    console.log('admin/items/items.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -91,7 +149,7 @@ export const getByS3Key = async (event: APIGatewayEvent, context: Context): Prom
 
     return successResponse({ item: await db.oneOrNone(query, params) });
   } catch (e) {
-    console.log('/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
+    console.log('admin/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -148,7 +206,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByTag ERROR - ', !e.isJoi ? e : e.details);
+    console.log('admin/items/items.getByTag ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -204,7 +262,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
+    console.log('admin/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -259,7 +317,7 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByType ERROR - ', !e.isJoi ? e : e.details);
+    console.log('admin/items/items.getByType ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

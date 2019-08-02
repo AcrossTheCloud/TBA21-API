@@ -22,7 +22,7 @@ afterAll(async () => {
 });
 
 describe('Tag get tests', () => {
-  test('Check that we have 1 keyword tags with the name of kitten.', async () => {
+  test('Check that we have 9 keyword tags with the name of kitten.', async () => {
     const
       queryStringParameters: QueryStringParameters = { type: 'keyword'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
