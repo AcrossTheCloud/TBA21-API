@@ -181,13 +181,17 @@ export const search = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       { query } = event.queryStringParameters,
       params = [query],
       sqlStatement = `
-        SELECT *
-          FROM tba21.profiles
+        SELECT 
+          profiles.id,
+          profiles.full_name,
+          profiles.profile_type,
+          profiles.affiliation
+        FROM ${process.env.PROFILES_TABLE}
         WHERE 
-          LOWER(full_name) LIKE '%' || LOWER($1) || '%'
+          LOWER(full_name) LIKE LOWER($1) || '%'
         AND public_profile = true
       `;
-//        AND profile_type = Institution
+    console.log(sqlStatement);
     const result = await db.any(sqlStatement, params);
 
     return successResponse({ profile: result ? result : [] });
