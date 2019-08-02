@@ -431,6 +431,20 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.query
 
+  searchProfile:
+    handler: src/profiles/profiles.search
+    description: Search for a profile
+    events:
+      - http:
+          path: profiles/search
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.query
+
   insertProfile:
     handler: src/profiles/profiles.insert
     description: Insert a profile

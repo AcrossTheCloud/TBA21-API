@@ -3,6 +3,12 @@ import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
 import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../common';
 
+/**
+ *
+ * Get a profile by its id
+ *
+ * @param event
+ */
 export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
@@ -25,7 +31,12 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     return badRequestResponse();
   }
 };
-
+/**
+ *
+ * Create a profile
+ *
+ * @param event
+ */
 export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const data = JSON.parse(event.body);
@@ -87,6 +98,12 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     }
   }
 };
+/**
+ *
+ * Update a profile
+ *
+ * @param event
+ */
 export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const
@@ -97,7 +114,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         id: Joi.number().integer().required(),
         profile_image: Joi.string(),
         featured_image: Joi.string(),
-        full_name: Joi.string().required(),
+        full_name: Joi.string(),
         field_expertise: Joi.string(),
         city: Joi.string(),
         country: Joi.string(),
@@ -110,7 +127,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         contact_person: Joi.string(),
         contact_position: Joi.string(),
         contact_email: Joi.string(),
-        profile_type: Joi.any().valid('Individual', 'Collective', 'Institution').required()
+        profile_type: Joi.any().valid('Individual', 'Collective', 'Institution')
       }));
 
     let paramCounter = 0;
@@ -143,5 +160,39 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       console.log('/profile/profiles/update ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
+  }
+};
+
+/**
+ *
+ * Search profiles
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } List of profiles
+ */
+export const search = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      query: Joi.string().required()
+    }));
+
+    const
+      { query } = event.queryStringParameters,
+      params = [query],
+      sqlStatement = `
+        SELECT *
+          FROM tba21.profiles
+        WHERE 
+          LOWER(full_name) LIKE '%' || LOWER($1) || '%'
+        AND public_profile = true
+      `;
+//        AND profile_type = Institution
+    const result = await db.any(sqlStatement, params);
+
+    return successResponse({ profile: result ? result : [] });
+  } catch (e) {
+    console.log('/profile/profile.get ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
   }
 };
