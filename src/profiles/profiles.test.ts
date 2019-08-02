@@ -5,7 +5,7 @@ require('dotenv').config(
 );
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { get, insert, update } from './profiles';
+import { get, insert, search, update } from './profiles';
 import { QueryStringParameters } from '../types/_test_';
 import { db } from '../databaseConnect';
 import { reSeedDatabase } from '../utils/testHelper';
@@ -25,7 +25,13 @@ describe('Profile get tests', () => {
       profile = JSON.parse(response.body);
     expect(profile);
   });
-
+  test('Check that we have a profile with the full_name starting with r', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {query: 'r'},
+      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+    expect(responseBody.profile);
+  });
   test('Create a profile', async () => {
     const
       requestBody = {
