@@ -255,7 +255,7 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
 
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
-    console.log('/items/items.getByType ERROR - ', !e.isJoi ? e : e.details);
+    console.log('/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

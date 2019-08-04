@@ -68,8 +68,6 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({id:  Joi.number().required()}), { presence: 'required' });
-    // will cause an exception if it is not valid
-
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
       params = [queryString.id],

@@ -88,7 +88,6 @@ describe('Admin Collections', () => {
       queryStringParameters: QueryStringParameters = {person: 'tim'},
       response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
-
     expect(item.collections.length).toEqual(2);
   });
   test('Get items in a collection', async () => {
