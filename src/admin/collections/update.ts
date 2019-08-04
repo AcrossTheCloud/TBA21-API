@@ -14,8 +14,7 @@ import Joi from '@hapi/joi';
 
 export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const
-      data = JSON.parse(event.body);
+    const data = JSON.parse(event.body);
 
     await Joi.validate(data, Joi.object().keys(
         {
@@ -29,44 +28,56 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           directors: Joi.array().items(Joi.string()),
           writers: Joi.array().items(Joi.string()),
           editor: Joi.string(),
-          collaborators: Joi.string(),
-          exhibited_at: Joi.string(),
+          collaborators: Joi.array().items(Joi.string()),
+          exhibited_at: Joi.array().items(Joi.string()),
           series: Joi.string(),
-          ISBN: Joi.number().integer(),
+          isbn: Joi.array().items(Joi.number().integer()),
           edition: Joi.number().integer(),
           publisher: Joi.array().items(Joi.string()),
           interviewers: Joi.array().items(Joi.string()),
           interviewees: Joi.array().items(Joi.string()),
-          cast_: Joi.string(),
+          cast_: Joi.array().items(Joi.string()),
           title: Joi.string(),
           subtitle: Joi.string(),
           description: Joi.string(),
           copyright_holder: Joi.string(),
           copyright_country: Joi.string(),
           disciplinary_field: Joi.string(),
-          specialization: Joi.string(),
+          specialisation: Joi.string(),
           department: Joi.string(),
           expedition_leader: Joi.string(),
           institution: Joi.string(),
           expedition_vessel: Joi.string(),
           expedition_route: Joi.string(),
           expedition_blog_link: Joi.string(),
+          series_name: Joi.string(),
+          volume_in_series: Joi.number(),
+          pages: Joi.number().integer(),
+          journal: Joi.string(),
+          map_icon: Joi.string(),
           participants: Joi.array().items(Joi.string()),
-          venue: Joi.string(),
+          venues: Joi.array().items(Joi.string()),
           curator: Joi.string(),
           host: Joi.array().items(Joi.string()),
+          type: Joi.string(),
           event_type: Joi.string(),
-          host_organization: Joi.string(),
+          host_organisation: Joi.array().items(Joi.string()),
           focus_arts: Joi.number().integer(),
           focus_action: Joi.number().integer(),
           focus_scitech: Joi.number().integer(),
           url: Joi.string(),
-          related_material: Joi.array().items(Joi.string()),
+          related_material: Joi.array().items(Joi.number()),
           license: Joi.string(),
           location: Joi.string(),
           other_metadata: Joi.object(),
           year_produced: Joi.number().integer(),
-          items: Joi.array().items(Joi.string())
+          media_type: Joi.string(),
+          city_of_publication: Joi.string(),
+          digital_only: Joi.boolean(),
+          related_event: Joi.string(),
+          volume: Joi.number().integer(),
+          number: Joi.number().integer(),
+          items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
         }));
 
     if (data.keyword_tags) {
@@ -96,51 +107,56 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         WHERE id = $1 returning id;
       `;
 
-    if (SQL_SETS.length) {
-      await db.task(async t => {
-        // If we have items in SQL_SETS do the query.
-        await t.one(query, params);
-        // If we have items to assign to the collection
-        if (data.items && data.items.length) {
-          let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
-          currentItems = currentItems.map(e => (e.item_s3_key));
-
-          const
-            toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0)),
-            toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
-
-          if (toBeAdded.length > 0) {
-            const
-              SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
-                return `($1, $${index + 2})`;
-              }),
-              addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
-              addParams = [data.id, ...toBeAdded];
-
-            await t.any(addQuery, addParams);
-          }
-
-          if (toBeRemoved.length > 0) {
-            const
-              SQL_REMOVES: string[] = toBeRemoved.map((item, index) => {
-                return `$${index + 2}`;
-              }),
-              removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${[...SQL_REMOVES]})`,
-              removeParams = [data.id, ...toBeRemoved];
-
-            await t.any(removeQuery, removeParams);
-          }
-        }
-      });
-
-      return {
-        body: 'true',
-        headers: headers,
-        statusCode: 200
-      };
-    } else {
-      throw new Error('Nothing to update');
+    if (!SQL_SETS.length && !data.items) {
+      return badRequestResponse('Nothing to update');
     }
+
+    // If we have items in SQL_SETS do the query.
+    if (SQL_SETS.length) {
+      await db.one(query, params);
+    }
+
+    // If we have items to assign to the collection
+    if (data.items) {
+      await db.task(async t => {
+
+        let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [data.id]);
+        currentItems = currentItems.map(e => (e.item_s3_key));
+
+        const
+          toBeAdded = data.items.filter((e) => (currentItems.indexOf(e) < 0)),
+          toBeRemoved = currentItems.filter((e) => (data.items.indexOf(e) < 0));
+
+        if (toBeAdded.length > 0) {
+          const
+            SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
+              return `($1, $${index + 2})`;
+            }),
+            addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
+            addParams = [data.id, ...toBeAdded];
+
+          await t.any(addQuery, addParams);
+        }
+
+        if (toBeRemoved.length > 0) {
+          const
+            SQL_REMOVES: string[] = toBeRemoved.map((item, index) => {
+              return `$${index + 2}`;
+            }),
+            removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${[...SQL_REMOVES]})`,
+            removeParams = [data.id, ...toBeRemoved];
+
+          await t.any(removeQuery, removeParams);
+        }
+
+      });
+    }
+
+    return {
+      body: JSON.stringify({ success: true }),
+      headers: headers,
+      statusCode: 200
+    };
 
   } catch (e) {
     if (e.message === 'Nothing to update') {

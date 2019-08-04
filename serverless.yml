@@ -361,6 +361,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  getItemsInCollection:
+    handler: src/collections/collections.getItemsInCollection
+    description: Returns the items in a collection
+    events:
+      - http:
+          path: collections/getItemsInCollection
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   ###### TAG FUNCTIONS ######
   getTags:
     handler: src/tags/tags.get
@@ -445,7 +455,7 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
 
-  getItemsInCollection:
+  adminGetItemsInCollection:
     handler: src/admin/collections/collections.getItemsInCollection
     description: Returns the items in a collection
     events:
@@ -519,27 +529,35 @@ functions:
     description: Returns items from the database.
     events:
       - http:
-          path: admin/items/get
+          path: admin/items
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.inputQuery
 
   adminGetItemByS3Key:
     handler: src/admin/items/items.getByS3Key
     description: Returns a single item by s3 key from the database.
     events:
       - http:
-          path: admin/items/getByS3Key
+          path: admin/items/byS3Key
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.s3Key
 
   adminGetItemByS3KeyNoCache:
     handler: src/admin/items/items.getByS3Key
     description: Returns a single item by s3 key from the database and doesn't cache the results.
     events:
       - http:
-          path: admin/items/getByS3KeyNC
+          path: admin/items/byS3KeyNC
           method: get
           cors: true
           authorizer: aws_iam

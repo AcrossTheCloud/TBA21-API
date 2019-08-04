@@ -90,7 +90,7 @@ CREATE TABLE tba21.items
 	editor varchar(256),
   featured_in varchar(256),
 	collaborators varchar(256)[],
-	exhibited_at varchar(256),
+	exhibited_at varchar(256)[],
 	series varchar(256),
 	ISBN numeric(13),
 	DOI varchar(1024),
@@ -135,14 +135,14 @@ CREATE TABLE tba21.items
   recording_name varchar(256),
   speakers varchar(256)[],
   performers varchar(256)[],
-  host_organization varchar(256)[],
+  host_organisation varchar(256)[],
   radio_station varchar(256),
   other_metadata jsonb,
   item_name varchar(256),
   original_title varchar(256),
   related_event varchar(256),
   volume_in_series numeric(4),
-  organisation varchar(256),
+  organisation varchar(256)[],
   OA_highlight boolean,
   TBA21_material boolean,
   OA_original boolean,
@@ -191,7 +191,7 @@ CREATE TABLE tba21.collections
 	writers varchar(256)[],
 	editor varchar(256),
 	collaborators varchar(256)[],
-	exhibited_at varchar(256),
+	exhibited_at varchar(256)[],
 	series varchar(256),
 	ISBN numeric(13)[],
 	edition numeric(3),
@@ -205,7 +205,7 @@ CREATE TABLE tba21.collections
 	copyright_holder varchar(256),
 	copyright_country varchar(256),
 	disciplinary_field varchar(256),
-  specialization varchar(256),
+  specialisation varchar(256),
   department varchar(256),
   expedition_leader varchar(256),
   institution varchar(256),
@@ -222,7 +222,7 @@ CREATE TABLE tba21.collections
   curator varchar(265),
   host varchar(256)[],
   type tba21.collection_type,
-  host_organization varchar(256)[],
+  host_organisation varchar(256)[],
   focus_arts numeric(1),
   focus_action numeric(1),
   focus_scitech numeric(1),
@@ -231,7 +231,14 @@ CREATE TABLE tba21.collections
   license tba21.licence_type,
   location varchar(256),
   other_metadata jsonb,
-  year_produced numeric(4)
+  year_produced numeric(4),
+  media_type varchar(256),
+  city_of_publication varchar(128),
+  digital_only boolean,
+  related_event varchar(256),
+	volume numeric(4),
+	number numeric(5),
+	event_type varchar(256)
 );
 
 --Contributor metadata
@@ -239,7 +246,7 @@ CREATE TABLE tba21.profiles
 (
 	ID bigserial PRIMARY KEY,
   contributors uuid[],
-  profile_image varchar(1024),  -- path to s3 object
+  profile_image varchar(1024),  -- pathi to s3 object
   featured_image varchar(1024),  -- path to s3 object
   full_name varchar(256),
   field_expertise varchar(256),
