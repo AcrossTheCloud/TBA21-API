@@ -359,6 +359,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  getItemsInCollection:
+    handler: src/collections/collections.getItemsInCollection
+    description: Returns the items in a collection
+    events:
+      - http:
+          path: collections/getItemsInCollection
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   ###### TAG FUNCTIONS ######
   getTags:
     handler: src/tags/tags.get
@@ -443,7 +453,7 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
 
-  getItemsInCollection:
+  adminGetItemsInCollection:
     handler: src/admin/collections/collections.getItemsInCollection
     description: Returns the items in a collection
     events:

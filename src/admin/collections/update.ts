@@ -36,7 +36,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           publisher: Joi.array().items(Joi.string()),
           interviewers: Joi.array().items(Joi.string()),
           interviewees: Joi.array().items(Joi.string()),
-          cast_: Joi.string(),
+          cast_: Joi.array().items(Joi.string()),
           title: Joi.string(),
           subtitle: Joi.string(),
           description: Joi.string(),
@@ -50,10 +50,16 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           expedition_vessel: Joi.string(),
           expedition_route: Joi.string(),
           expedition_blog_link: Joi.string(),
+          series_name: Joi.string(),
+          volume_in_series: Joi.number(),
+          pages: Joi.number().integer(),
+          journal: Joi.string(),
+          map_icon: Joi.string(),
           participants: Joi.array().items(Joi.string()),
           venues: Joi.array().items(Joi.string()),
           curator: Joi.string(),
           host: Joi.array().items(Joi.string()),
+          type: Joi.string(),
           event_type: Joi.string(),
           host_organisation: Joi.array().items(Joi.string()),
           focus_arts: Joi.number().integer(),
@@ -71,7 +77,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           related_event: Joi.string(),
           volume: Joi.number().integer(),
           number: Joi.number().integer(),
-          items: Joi.array().items(Joi.string())
+          items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
         }));
 
     if (data.keyword_tags) {
