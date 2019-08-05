@@ -13,13 +13,11 @@ import Joi from '@hapi/joi';
  */
 export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         id: Joi.number().integer().required()
       }));
     // will cause an exception if it is not valid
-    console.log(result); // to see the result
 
     const
       params = [event.queryStringParameters.id],
@@ -39,7 +37,7 @@ export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
       statusCode: 200
     };
   } catch (e) {
-    console.log('/admin/collections/delete ERROR - ', e);
+    console.log('/admin/collections/delete ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
-import { get, getById, getByPerson, getByTag, changeStatus, getCollectionsInBounds } from './collections';
+import { get, getById, getByPerson, getByTag, changeStatus, getCollectionsInBounds, getItemsInCollection } from './collections';
 
 describe('Collections', () => {
 
@@ -21,7 +21,7 @@ describe('Collections', () => {
       response = await get({} as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.length).toEqual(4);
+    expect(result.collections.length).toEqual(3);
   });
 
   test('Check that we can limit the number of returned items.', async () => {
@@ -40,7 +40,7 @@ describe('Collections', () => {
       result = JSON.parse(response.body);
 
     expect(result.collections.length).toEqual(1);
-    expect(result.collections[0].title).toEqual('Detonation');
+    expect(result.collections[0].title).toEqual('The Decisive Moment');
   });
 
   test('Get collection by id of 2', async () => {
@@ -60,13 +60,13 @@ describe('Collections', () => {
     expect(response.statusCode).toEqual(400);
   });
 
-  test('Get all collections with a tag of con', async () => {
+  test('Get all collections with a tag of justice', async () => {
     const
-      queryStringParameters: QueryStringParameters = {tag: 'con'},
+      queryStringParameters: QueryStringParameters = {tag: 'justice'},
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.length).toEqual(2);
+    expect(result.collections.length).toEqual(3);
   });
   test('Get a bad response when no tag is given', async () => {
     const
@@ -81,7 +81,7 @@ describe('Collections', () => {
       queryStringParameters: QueryStringParameters = {person: 'Tim'},
       response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.collections.length).toEqual(1);
+    expect(result.collections.length).toEqual(2);
   });
   test('Get a bad response when no person is given', async () => {
     const
@@ -112,7 +112,7 @@ describe('Collections', () => {
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.collections.length).toEqual(4);
+    expect(results.collections.length).toEqual(3);
 
   });
   test('Get a bad response when a boundary is missing', async () => {
@@ -121,5 +121,11 @@ describe('Collections', () => {
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
     expect(response.statusCode).toEqual(400);
   });
-
+  test('Check function doesnt return an item where the status is false', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {id: '2'},
+      response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      item = JSON.parse(response.body);
+    expect(item.items.length).toEqual(1);
+  });
 });

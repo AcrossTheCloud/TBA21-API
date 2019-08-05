@@ -14,14 +14,12 @@ import Joi from '@hapi/joi';
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer()
       }));
     // will cause an exception if it is not valid
-    console.log(result); // to see the result
 
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -54,7 +52,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 
     return successResponse({ collections: await db.any(query, params) });
   } catch (e) {
-    console.log('/collections/collections.get ERROR - ', e);
+    console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -69,11 +67,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  */
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys({id:  Joi.number().required()}), { presence: 'required' });
-    // will cause an exception if it is not valid
-    console.log(result); // to see the result
-
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({id:  Joi.number().required()}), { presence: 'required' });
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
       params = [queryString.id],
@@ -99,7 +93,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
 
     return successResponse({ collection: await db.oneOrNone(query, params) });
   } catch (e) {
-    console.log('/collections/collections.getById ERROR - ', e);
+    console.log('/collections/collections.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -114,15 +108,12 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
-    const result = await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
        limit: Joi.number().integer(),
        offset: Joi.number().integer(),
        tag: Joi.string().required()
       }));
-    // will cause an exception if it is not valid
-    console.log(result); // to see the result
 
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -160,7 +151,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
 
     return successResponse({ collections: await db.any(query, params) });
   } catch (e) {
-    console.log('/collections/collections.getByTag ERROR - ', e);
+    console.log('/collections/collections.getByTag ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -176,7 +167,6 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
@@ -217,7 +207,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
 
     return successResponse({ collections: await db.any(query, params) });
   } catch (e) {
-    console.log('/collections/collections.getByPerson ERROR - ', e);
+    console.log('/collections/collections.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -232,7 +222,6 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  */
 export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         id: Joi.string().required(),
@@ -245,12 +234,12 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
         UPDATE ${process.env.COLLECTIONS_TABLE}
         SET status = $1 
         WHERE id = $2 
-        RETURNING id,status
+        RETURNING id, status
       `;
 
     return successResponse({ updatedItem: await db.one(query, params) });
   } catch (e) {
-    console.log('/collections/collections.changeStatus ERROR - ', e);
+    console.log('/collections/collections.changeStatus ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -265,7 +254,6 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
  */
 export const getCollectionsInBounds = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALidATE first
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         lat_sw: Joi.number().required(),
@@ -284,7 +272,59 @@ export const getCollectionsInBounds = async (event: APIGatewayEvent, context: Co
 
     return successResponse({ collections: await db.any(query, params) });
   } catch (e) {
-    console.log('/collections/collections.getCollectionsInBounds ERROR - ', e);
+    console.log('/collections/collections.getCollectionsInBounds ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+};
+/**
+ *
+ * Get a list of items in a collection
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ */
+export const getItemsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+        id: Joi.number().required()
+      }));
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      query = `
+        SELECT
+          items.*,
+          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          ST_AsGeoJSON(items.geom) as geoJSON 
+        FROM
+          ${process.env.COLLECTIONS_ITEMS_TABLE} AS collections_items
+          INNER JOIN ${process.env.ITEMS_TABLE}
+          ON collections_items.item_s3_key = items.s3_key,
+          
+          UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
+                  
+          UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
+            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
+        
+        WHERE collection_id = $1
+          AND status = true
+        GROUP BY items.s3_key
+        
+        LIMIT $2
+        OFFSET $3
+      `;
+
+    return successResponse({ items: await db.any(query, params) });
+  } catch (e) {
+    console.log('/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

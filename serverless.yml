@@ -45,6 +45,9 @@ provider:
   environment:
     # AWS
     USER_POOL_ID: ${env:USER_POOL_ID}
+    # S3
+    S3_BUCKET: ${env:S3_BUCKET}
+
 
     # Database
     UPLOADS_TABLE: ${env:UPLOADS_TABLE}
@@ -66,7 +69,19 @@ provider:
     MC_DC: ${env:MC_DC}
     MC_APIKEY: ${env:MC_APIKEY}
     MC_AUDIENCE_ID: ${env:MC_AUDIENCE_ID}
+
   iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource:
+        Fn::Join:
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${env:S3_BUCKET}
+            - '/*'
+
+
     - Effect: 'Allow'
       Action:
         - 'lambda:InvokeFunction'
@@ -344,6 +359,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  getItemsInCollection:
+    handler: src/collections/collections.getItemsInCollection
+    description: Returns the items in a collection
+    events:
+      - http:
+          path: collections/getItemsInCollection
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   ###### TAG FUNCTIONS ######
   getTags:
     handler: src/tags/tags.get
@@ -428,7 +453,7 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
 
-  getItemsInCollection:
+  adminGetItemsInCollection:
     handler: src/admin/collections/collections.getItemsInCollection
     description: Returns the items in a collection
     events:
@@ -502,17 +527,21 @@ functions:
     description: Returns items from the database.
     events:
       - http:
-          path: admin/items/get
+          path: admin/items
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.inputQuery
 
   adminGetItemByS3Key:
     handler: src/admin/items/items.getByS3Key
     description: Returns a single item by s3 key from the database.
     events:
       - http:
-          path: admin/items/getByS3Key
+          path: admin/items/byS3Key
           method: get
           cors: true
           authorizer: aws_iam
@@ -526,7 +555,7 @@ functions:
     description: Returns a single item by s3 key from the database and doesn't cache the results.
     events:
       - http:
-          path: admin/items/getByS3KeyNC
+          path: admin/items/byS3KeyNC
           method: get
           cors: true
           authorizer: aws_iam

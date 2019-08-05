@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
-import { get, getById, getByTag } from './collections';
+import { get, getById, getByPerson, getByTag, getItemsInCollection } from './collections';
 
 describe('Admin Collections', () => {
 
@@ -21,7 +21,7 @@ describe('Admin Collections', () => {
       response = await get({} as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.collections.length).toEqual(4);
+    expect(item.collections.length).toEqual(3);
   });
 
   test('Check we have a COUNT of 4 with status of true', async () => {
@@ -29,7 +29,7 @@ describe('Admin Collections', () => {
       response = await get({} as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.collections[0].count).toEqual('4');
+    expect(item.collections[0].count).toEqual('3');
   });
 
   test('Check that we can limit the number of returned items.', async () => {
@@ -48,7 +48,7 @@ describe('Admin Collections', () => {
       item = JSON.parse(response.body);
 
     expect(item.collections.length).toEqual(1);
-    expect(item.collections[0].title).toEqual('Detonation');
+    expect(item.collections[0].title).toEqual('The Decisive Moment');
   });
 
   test('Get collection by id of 2', async () => {
@@ -68,13 +68,13 @@ describe('Admin Collections', () => {
     expect(response.statusCode).toEqual(400);
   });
 
-  test('Get all collections with a tag of con', async () => {
+  test('Get all collections with a tag of justice', async () => {
     const
-      queryStringParameters: QueryStringParameters = {tag: 'con'},
+      queryStringParameters: QueryStringParameters = {tag: 'justice'},
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
-    expect(item.collections.length).toEqual(2);
+    expect(item.collections.length).toEqual(3);
   });
   test('Get a bad response when no tag is given', async () => {
     const
@@ -82,5 +82,19 @@ describe('Admin Collections', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);
+  });
+  test('Get collection by person', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {person: 'tim'},
+      response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      item = JSON.parse(response.body);
+    expect(item.collections.length).toEqual(2);
+  });
+  test('Get items in a collection', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {id: '3'},
+      response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      item = JSON.parse(response.body);
+    expect(item.items.length).toEqual(2);
   });
 });
