@@ -24,7 +24,7 @@ describe('/admin/collections/insert/', () => {
         'year_produced': '1992',
         'start_date': '2019-02-22 10:53',
         'title': 'title',
-        'place': 'place',
+        'regional_focus': 'regional_Arctic Ocean',
         'description': 'description',
         'institution': 'Wollongong uni',
         'type': 'Event',
@@ -46,7 +46,7 @@ describe('/admin/collections/insert/', () => {
         'cast_': ['test'],
         'items': ['private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg'],
         'year_produced': '1992',
-        'place': 'Place',
+        'regional_focus': 'Arctic Ocean',
         'start_date': '2019-02-22 10:53',
         'title': 'title',
         'description': 'description',
@@ -70,7 +70,7 @@ describe('/admin/collections/insert/', () => {
 
       requestBody = {
         'start_date': '2019-02-22 10:53',
-        'place': 'Place',
+        'regional_focus': 'Arctic Ocean',
         'status': 'true' ,
         'concept_tags': [3, 4],
         'keyword_tags': [1, 3],
