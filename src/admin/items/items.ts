@@ -75,7 +75,11 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
           LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($3) || '%' OR
       
           LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%'
+          LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
+          
+          LOWER(concept_tag.tag_name) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($3) || '%' 
+
       `;
     }
 
