@@ -48,7 +48,20 @@ describe('Admin Items', () => {
 
     expect(result.items.length).toEqual(5);
   });
-
+  test('Search for ben in creators and expect 2 results', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {inputQuery: 'ben'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+    expect(result.items.length).toEqual(2);
+  });
+  test('Search for ocean in creators and expect 5 results', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {inputQuery: 'ocean'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+    expect(result.items.length).toEqual(5);
+  });
   test('Get item with a specific s3 key', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg'},

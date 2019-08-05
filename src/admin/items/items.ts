@@ -49,8 +49,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       
           LOWER(editor) LIKE '%' || LOWER($3) || '%' OR
       
-          ISBN::text LIKE '%whal%' OR
-          related_ISBN::text LIKE '%whal%' OR
+          ISBN::text LIKE '%' || ($3) || '%' OR
+          related_ISBN::text LIKE '%' || ($3) || '%' OR
           LOWER(DOI) LIKE '%' || LOWER($3) || '%' OR
       
           LOWER(cast_) LIKE '%' || LOWER($3) || '%' OR
