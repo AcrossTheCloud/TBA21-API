@@ -100,7 +100,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         i AS
         (
           INSERT INTO ${tableName}(tag_name)
-            VALUES ($1) ON CONFLICT (tag_name) DO NOTHING
+            VALUES (LOWER($1)) ON CONFLICT (tag_name) DO NOTHING
           RETURNING id, tag_name
         )
 
