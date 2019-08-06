@@ -107,7 +107,10 @@ describe('/admin/items/update/updateByS3key', () => {
           'projection': 'projection',
           'related_ISBN': '1234',
           'edition_uploaded': '4',
-          'first_edition_year': '1990'
+          'first_edition_year': '1990',
+          'editor': 'editor',
+          'featured_in': 'featured in',
+          'volume': '2'
         },
         body: string = JSON.stringify(requestBody),
         response = await updateByS3key({ body } as APIGatewayProxyEvent),

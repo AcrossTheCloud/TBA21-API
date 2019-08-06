@@ -115,7 +115,10 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         projection: Joi.string(),
         related_ISBN: Joi.number().integer(),
         edition_uploaded: Joi.number().integer(),
-        first_edition_year: Joi.number().integer()
+        first_edition_year: Joi.number().integer(),
+        editor: Joi.string(),
+        featured_in: Joi.string(),
+        volume: Joi.number()
       }));
 
     let message: string = '';
