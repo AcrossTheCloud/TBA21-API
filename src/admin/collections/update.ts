@@ -79,6 +79,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           related_event: Joi.string(),
           volume: Joi.number().integer(),
           number: Joi.number().integer(),
+          contributors: Joi.array().items(Joi.string().uuid()),
           items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
         }));
 
