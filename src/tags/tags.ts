@@ -100,7 +100,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         i AS
         (
           INSERT INTO ${tableName}(tag_name)
-            VALUES (LOWER($1)) ON CONFLICT (tag_name) DO NOTHING
+            VALUES ($1) ON CONFLICT (tag_name) DO NOTHING
           RETURNING id, tag_name
         )
 
@@ -110,7 +110,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const results = [];
     // Loop through each tag and do a query, returning the tag object and pushing it into a final array
     for (const tag of tags) {
-      const result = await db.one(sqlStatement, tag);
+      const result = await db.any(sqlStatement, tag);
       results.push(result);
     }
 
