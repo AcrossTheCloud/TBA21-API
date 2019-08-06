@@ -20,6 +20,8 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         {
           id: Joi.number().integer().required(),
           status: Joi.boolean(),
+          start_date: Joi.date().raw(),
+          end_date: Joi.date().raw(),
           concept_tags: Joi.array().items(Joi.number().integer()),
           keyword_tags: Joi.array().items(Joi.number().integer()),
           regional_focus: Joi.string(),
