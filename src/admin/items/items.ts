@@ -99,7 +99,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         ${searchQuery}         
             
         GROUP BY item.s3_key
-        ORDER BY item.s3_key
+        ORDER BY item.updated_at DESC NULLS LAST
 
         LIMIT $1 
         OFFSET $2 
