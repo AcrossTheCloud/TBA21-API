@@ -42,6 +42,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         DOI: Joi.string(),
         edition: Joi.number().integer(),
         year_produced: Joi.number().integer(),
+        time_produced: Joi.date().raw(),
         publisher: Joi.array().items(Joi.string()),
         interviewers: Joi.array().items(Joi.string()),
         interviewees: Joi.array().items(Joi.string()),
@@ -58,8 +59,10 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         article_link: Joi.string(),
         translated_from: Joi.string(),
         language: Joi.string(),
-        birth_date: Joi.string(),
-        death_date: Joi.string(),
+
+        birth_date: Joi.date().raw(),
+        death_date: Joi.date().raw(),
+
         venues: Joi.array().items(Joi.string()),
         screened_at: Joi.string(),
         genre: Joi.string(),
