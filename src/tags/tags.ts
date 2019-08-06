@@ -110,7 +110,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const results = [];
     // Loop through each tag and do a query, returning the tag object and pushing it into a final array
     for (const tag of tags) {
-      const result = await db.any(sqlStatement, tag);
+      const result = await db.one(sqlStatement, tag);
       results.push(result);
     }
 
