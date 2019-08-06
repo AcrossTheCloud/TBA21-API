@@ -27,7 +27,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         status: Joi.boolean(), // -- false=draft, true=public
         concept_tags: Joi.array().items(Joi.number().integer()),
         keyword_tags: Joi.array().items(Joi.number().integer()),
-        place: Joi.string(),
+        place: Joi.array().items(Joi.string()),
         country_or_ocean: Joi.string(),
         item_type: Joi.string(),
         item_subtype: Joi.string(),
@@ -93,7 +93,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         copyright_holder: Joi.string(),
         copyright_country: Joi.string(),
         created_for: Joi.string(),
-        duration: Joi.string(),
+        duration: Joi.number(),
         interface: Joi.string(),
         document_code: Joi.string(),
         project: Joi.string(),

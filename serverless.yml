@@ -416,7 +416,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  reomveTag:
+  removeTag:
     handler: src/tags/tags.remove
     description: Removes a tag
     events:
