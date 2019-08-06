@@ -96,7 +96,7 @@ describe('Tag insert tests', () => {
       responseBody = JSON.parse(response.body);
 
     expect(responseBody.tags.length).toEqual(1);
-    expect(responseBody.tags[0]).toEqual([{ 'id': '10', 'tag_name': 'Espeon'}]);
+    expect(responseBody.tags[0]).toMatchObject({ 'id': '10', 'tag_name': 'Espeon' });
   });
 
   test('Insert 1 keyword that doesn\'t exist tag and check the results', async () => {
@@ -110,7 +110,7 @@ describe('Tag insert tests', () => {
       responseBody = JSON.parse(response.body);
 
     expect(responseBody.tags.length).toEqual(2);
-    expect(responseBody).toEqual({'tags': [[{'id': '11', 'tag_name': 'Pikachu'}], [{'id': '12', 'tag_name': 'Eevee'}]]});
+    expect(responseBody.tags).toEqual(expect.arrayContaining([{ 'id': '11', 'tag_name': 'Pikachu'}, {'id': '12', 'tag_name': 'Eevee' }]));
   });
 });
 
