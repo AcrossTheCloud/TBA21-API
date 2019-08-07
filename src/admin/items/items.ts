@@ -88,8 +88,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         SELECT
           COUNT ( item.s3_key ) OVER (),
           item.*,
-          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsGeoJSON(item.geom) as geoJSON
         FROM 
           ${process.env.ITEMS_TABLE} AS item,
@@ -103,7 +103,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         ${searchQuery}         
             
         GROUP BY item.s3_key
-        ORDER BY item.s3_key
+        ORDER BY item.updated_at DESC NULLS LAST
 
         LIMIT $1 
         OFFSET $2 
@@ -134,8 +134,8 @@ export const getByS3Key = async (event: APIGatewayEvent, context: Context): Prom
       query = `
         SELECT
           item.*,
-          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
           ${process.env.ITEMS_TABLE} AS item,
@@ -184,8 +184,8 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       SELECT
         COUNT ( item.s3_key ) OVER (),
          item.*,
-         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+         COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
          ST_AsGeoJSON(item.geom) as geoJSON
       FROM 
         ${process.env.ITEMS_TABLE} AS item,
@@ -241,8 +241,8 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         SELECT
           COUNT ( item.s3_key ) OVER (),
            item.*,
-           COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-           COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
            ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
           ${process.env.ITEMS_TABLE} AS item
@@ -296,8 +296,8 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
         COUNT ( item.s3_key ) OVER (),
         itemtype.ID,
         item.*,
-        COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+        COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
         ST_AsGeoJSON(item.geom) as geoJSON
         
         

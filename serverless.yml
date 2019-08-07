@@ -416,7 +416,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  reomveTag:
+  removeTag:
     handler: src/tags/tags.remove
     description: Removes a tag
     events:
@@ -531,10 +531,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.inputQuery
 
   adminGetItemByS3Key:
     handler: src/admin/items/items.getByS3Key

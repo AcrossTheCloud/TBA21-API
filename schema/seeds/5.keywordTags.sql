@@ -3,7 +3,7 @@ INSERT INTO tba21.keyword_tags(tag_name)
 VALUES
 ('Whale'),
 ('Fish'),
-('Kitten'),
+('kitten'),
 ('Ocelot'),
 ('Eel'),
 ('Shark'),

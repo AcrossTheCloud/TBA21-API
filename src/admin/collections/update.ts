@@ -20,9 +20,11 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         {
           id: Joi.number().integer().required(),
           status: Joi.boolean(),
+          start_date: Joi.date().raw(),
+          end_date: Joi.date().raw(),
           concept_tags: Joi.array().items(Joi.number().integer()),
           keyword_tags: Joi.array().items(Joi.number().integer()),
-          place: Joi.string(),
+          regional_focus: Joi.string(),
           country_or_ocean: Joi.string(),
           creators: Joi.array().items(Joi.string()),
           directors: Joi.array().items(Joi.string()),
@@ -77,6 +79,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           related_event: Joi.string(),
           volume: Joi.number().integer(),
           number: Joi.number().integer(),
+          contributors: Joi.array().items(Joi.string().uuid()),
           items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
         }));
 

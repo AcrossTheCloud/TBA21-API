@@ -27,7 +27,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         status: Joi.boolean(), // -- false=draft, true=public
         concept_tags: Joi.array().items(Joi.number().integer()),
         keyword_tags: Joi.array().items(Joi.number().integer()),
-        place: Joi.string(),
+        place: Joi.array().items(Joi.string()),
         country_or_ocean: Joi.string(),
         item_type: Joi.string(),
         item_subtype: Joi.string(),
@@ -42,6 +42,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         DOI: Joi.string(),
         edition: Joi.number().integer(),
         year_produced: Joi.number().integer(),
+        time_produced: Joi.date().raw(),
         publisher: Joi.array().items(Joi.string()),
         interviewers: Joi.array().items(Joi.string()),
         interviewees: Joi.array().items(Joi.string()),
@@ -58,8 +59,10 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         article_link: Joi.string(),
         translated_from: Joi.string(),
         language: Joi.string(),
-        birth_date: Joi.string(),
-        death_date: Joi.string(),
+
+        birth_date: Joi.date().raw(),
+        death_date: Joi.date().raw(),
+
         venues: Joi.array().items(Joi.string()),
         screened_at: Joi.string(),
         genre: Joi.string(),
@@ -72,7 +75,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         record_label: Joi.string(),
         series_name: Joi.string(),
         episode_name: Joi.string(),
-        episode_number: Joi.boolean(),
+        episode_number: Joi.number(),
         recording_name: Joi.string(),
         speakers: Joi.array().items(Joi.string()),
         performers: Joi.array().items(Joi.string()),
@@ -93,7 +96,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         copyright_holder: Joi.string(),
         copyright_country: Joi.string(),
         created_for: Joi.string(),
-        duration: Joi.string(),
+        duration: Joi.number(),
         interface: Joi.string(),
         document_code: Joi.string(),
         project: Joi.string(),
@@ -112,7 +115,10 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         projection: Joi.string(),
         related_ISBN: Joi.number().integer(),
         edition_uploaded: Joi.number().integer(),
-        first_edition_year: Joi.number().integer()
+        first_edition_year: Joi.number().integer(),
+        editor: Joi.string(),
+        featured_in: Joi.string(),
+        volume: Joi.number()
       }));
 
     let message: string = '';
