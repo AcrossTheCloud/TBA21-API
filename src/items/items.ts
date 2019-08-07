@@ -30,8 +30,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         SELECT
           COUNT ( item.s3_key ) OVER (),
           item.*,
-          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsGeoJSON(item.geom) as geoJSON
         FROM 
           ${process.env.ITEMS_TABLE} AS item,
@@ -77,8 +77,8 @@ export const getByS3Key = async (event: APIGatewayEvent, context: Context): Prom
       query = `
         SELECT
           item.*,
-          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
           ${process.env.ITEMS_TABLE} AS item,
@@ -126,8 +126,8 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       SELECT
         COUNT ( item.s3_key ) OVER (),
          item.*,
-         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+         COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
          ST_AsGeoJSON(item.geom) as geoJSON
       FROM 
         ${process.env.ITEMS_TABLE} AS item,
@@ -182,8 +182,8 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
         SELECT 
         items.id,
         items.*,
-        COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+        COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
         ST_AsGeoJSON(items.geom) as geoJSON
         
         FROM ${process.env.ITEMS_TABLE},
@@ -235,8 +235,8 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         SELECT
           COUNT ( item.s3_key ) OVER (),
            item.*,
-           COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-           COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
            ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
           ${process.env.ITEMS_TABLE} AS item,

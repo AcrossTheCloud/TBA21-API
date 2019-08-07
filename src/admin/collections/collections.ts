@@ -28,8 +28,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         SELECT
           COUNT ( collections.id ) OVER (),
           collections.*,
-          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsGeoJSON(collections.geom) as geoJSON
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
@@ -72,8 +72,8 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
       query = `
         SELECT
           collections.*,
-          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsGeoJSON(collections.geom) as geoJSON 
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
@@ -122,8 +122,8 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       SELECT
         COUNT ( collections.id ) OVER (),
          collections.*,
-         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+         COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
          ST_AsGeoJSON(collections.geom) as geoJSON
       FROM 
         ${process.env.COLLECTIONS_TABLE} AS collections,
@@ -178,8 +178,8 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         SELECT
           COUNT ( collections.id ) OVER (),
            collections.*,
-           COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-           COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
            ST_AsGeoJSON(collections.geom) as geoJSON 
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
@@ -231,8 +231,8 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
       query = `
         SELECT
           items.*,
-          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsGeoJSON(items.geom) as geoJSON 
         FROM
           ${process.env.COLLECTIONS_ITEMS_TABLE} AS collections_items

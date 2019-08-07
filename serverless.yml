@@ -418,7 +418,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  reomveTag:
+  removeTag:
     handler: src/tags/tags.remove
     description: Removes a tag
     events:
@@ -427,6 +427,47 @@ functions:
           method: DELETE
           cors: true
           authorizer: aws_iam
+
+  getByShortPath:
+    handler: src/shortPaths/shortPaths.getByShortPath
+    description:
+    events:
+      - http:
+          path: shortpaths/get
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.short_path
+              - name: request.querystring.table
+
+  getShortPathById:
+    handler: src/shortPaths/shortPaths.getById
+    description:
+    events:
+      - http:
+          path: shortpaths/getById
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+              - name: request.querystring.table
+
+  insertShortPath:
+    handler: src/shortPaths/shortPaths.insert
+    description:
+    events:
+      - http:
+          path: shortpaths/insert
+          method: put
+          cors: true
+          authorizer: aws_iam
+
 
   ###### ADMIN FUNCTIONS ######
 
@@ -533,10 +574,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.inputQuery
 
   adminGetItemByS3Key:
     handler: src/admin/items/items.getByS3Key
@@ -610,46 +647,6 @@ functions:
     events:
       - http:
           path: admin/items/update
-          method: put
-          cors: true
-          authorizer: aws_iam
-
-  getByShortPath:
-    handler: src/admin/shortPaths/shortPaths.getByShortPath
-    description:
-    events:
-      - http:
-          path: admin/shortpaths/getByShortPath
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.short_path
-              - name: request.querystring.table
-
-  getShortPathById:
-    handler: src/admin/shortPaths/shortPaths.getById
-    description:
-    events:
-      - http:
-          path: admin/shortpaths/getById
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-              - name: request.querystring.table
-
-  adminInsertShortPath:
-    handler: src/admin/shortPaths/shortPaths.insert
-    description:
-    events:
-      - http:
-          path: admin/shortpaths/insert
           method: put
           cors: true
           authorizer: aws_iam

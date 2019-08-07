@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { badRequestResponse, headers, successResponse } from '../../common';
-import { db } from '../../databaseConnect';
+import { badRequestResponse, headers, successResponse } from '../common';
+import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
 
 /**
@@ -55,7 +55,7 @@ export const getById = async(event: APIGatewayProxyEvent): Promise<APIGatewayPro
  *
  * @param event
  */
-export const getByShortPath = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
       table: Joi.any().valid('Profile', 'Collection', 'Item'),
@@ -125,7 +125,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       statusCode: 200
     };
   } catch (e) {
-    console.log('admin/profiles/shortPaths.insert ERROR - ', e);
-    return badRequestResponse(e.message);
+    console.log('shortpath/shortPaths.insert ERROR - ', e);
+    return badRequestResponse();
     }
 };
