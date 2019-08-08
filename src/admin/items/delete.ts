@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { badRequestResponse, successResponse } from '../common';
-import { db } from '../databaseConnect';
+import { badRequestResponse, successResponse } from '../../common';
+import { db } from '../../databaseConnect';
 /**
  *
  * Delete an item

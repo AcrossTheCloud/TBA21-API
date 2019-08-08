@@ -4,9 +4,9 @@ require('dotenv').config(
   });
 
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { db } from '../databaseConnect';
-import { QueryStringParameters } from '../types/_test_';
-import { reSeedDatabase } from '../utils/testHelper';
+import { db } from '../../databaseConnect';
+import { QueryStringParameters } from '../../types/_test_';
+import { reSeedDatabase } from '../../utils/testHelper';
 import {
   deleteItem,
   deleteItemsFromCollection
