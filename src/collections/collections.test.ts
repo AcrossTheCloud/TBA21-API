@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
-import { get, getById, getByPerson, getByTag, changeStatus, getCollectionsInBounds } from './collections';
+import { get, getById, getByPerson, getByTag, changeStatus, getCollectionsInBounds, getItemsInCollection } from './collections';
 
 describe('Collections', () => {
 
@@ -121,5 +121,11 @@ describe('Collections', () => {
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
     expect(response.statusCode).toEqual(400);
   });
-
+  test('Check function doesnt return an item where the status is false', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {id: '2'},
+      response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      item = JSON.parse(response.body);
+    expect(item.items.length).toEqual(1);
+  });
 });
