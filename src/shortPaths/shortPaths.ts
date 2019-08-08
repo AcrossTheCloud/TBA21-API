@@ -5,64 +5,22 @@ import Joi from '@hapi/joi';
 
 /**
  *
- * Get an item/profile/collection by its id
- *
- * @param event
- */
-export const getById = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
-      table: Joi.any().valid('Profile', 'Collection', 'Item'),
-      id: Joi.string().required()
-    }));
-    const queryString = event.queryStringParameters;
-    let table = process.env.ITEMS_TABLE;
-
-    switch (queryString.table) {
-      case 'Profiles':
-        table =  process.env.PROFILES_TABLE;
-        break;
-      case 'Collections':
-        table =  process.env.COLLECTIONS_TABLE;
-        break;
-      default:
-        break;
-    }
-
-    const
-      params = [queryString.table, queryString.id],
-      sqlStatement = `
-        SELECT *
-        FROM (
-          SELECT * 
-          FROM ${process.env.SHORT_PATHS_TABLE}
-          WHERE ${process.env.SHORT_PATHS_TABLE}.id = $2
-          AND ${process.env.SHORT_PATHS_TABLE}.object_type = $1
-        ) AS short_paths
-          JOIN ${table}
-          AS id_ on short_paths.id = id_.id
-          ORDER BY short_path DESC
-      `;
-    return successResponse({short_path: await db.any(sqlStatement, params)});
-  } catch (e) {
-    console.log('/profiles/shortPaths.get ERROR - ', e);
-    return badRequestResponse();
-  }
-};
-/**
- *
- * Get an item/profile/collection by its short_path
+ * Get an item/profile/collection by its id or its short path
  *
  * @param event
  */
 export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
-      table: Joi.any().valid('Profile', 'Collection', 'Item'),
-      short_path: Joi.string().required()
+      table: Joi.string().valid('Profile', 'Collection', 'Item'),
+      column: Joi.any().valid('short_path', 'id').required(),
+      params: Joi.any().required()
     }));
-    const queryString = event.queryStringParameters;
-    let table = process.env.ITEMS_TABLE;
+    const 
+      queryString = event.queryStringParameters;
+    let
+      table = process.env.ITEMS_TABLE,
+      column = '';
 
     switch (queryString.table) {
       case 'Profiles':
@@ -75,18 +33,32 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
         break;
     }
 
+    switch (queryString.column) {
+      case 'short_path':
+        column = 'short_path';
+        break;
+      case 'id':
+        column = 'id';
+        break;
+      default:
+        break;
+    }
+
     const
-      params = [queryString.short_path],
+      params = [queryString.table, queryString.params],
       sqlStatement = `
         SELECT *
         FROM (
           SELECT * 
           FROM ${process.env.SHORT_PATHS_TABLE}
-          WHERE ${process.env.SHORT_PATHS_TABLE}.short_path = $1
+          WHERE ${process.env.SHORT_PATHS_TABLE}.${column} = $2
+          AND ${process.env.SHORT_PATHS_TABLE}.object_type = $1
         ) AS short_paths
           JOIN ${table}
           AS id_ on short_paths.id = id_.id
+          ORDER BY short_path DESC
       `;
+    console.log(sqlStatement, params);
     return successResponse({short_path: await db.any(sqlStatement, params)});
   } catch (e) {
     console.log('/profiles/shortPaths.get ERROR - ', e);

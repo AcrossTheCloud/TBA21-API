@@ -429,11 +429,11 @@ functions:
           authorizer: aws_iam
 
   getByShortPath:
-    handler: src/shortPaths/shortPaths.getByShortPath
+    handler: src/shortPaths/shortPaths.get
     description:
     events:
       - http:
-          path: shortpaths/get
+          path: shortpaths
           method: get
           cors: true
           authorizer: aws_iam
@@ -443,27 +443,12 @@ functions:
               - name: request.querystring.short_path
               - name: request.querystring.table
 
-  getShortPathById:
-    handler: src/shortPaths/shortPaths.getById
-    description:
-    events:
-      - http:
-          path: shortpaths/getById
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-              - name: request.querystring.table
-
   insertShortPath:
     handler: src/shortPaths/shortPaths.insert
     description:
     events:
       - http:
-          path: shortpaths/insert
+          path: shortpaths
           method: put
           cors: true
           authorizer: aws_iam
