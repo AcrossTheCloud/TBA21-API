@@ -444,15 +444,14 @@ functions:
               - name: request.querystring.table
 
   insertShortPath:
-    handler: src/shortPaths/shortPaths.insert
+    handler: src/admin/shortPaths/shortPaths.insert
     description:
     events:
       - http:
-          path: shortpaths
+          path: admin/shortpaths
           method: put
           cors: true
           authorizer: aws_iam
-
 
   ###### ADMIN FUNCTIONS ######
 

@@ -8,7 +8,7 @@ import { QueryStringParameters } from '../types/_test_';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { reSeedDatabase } from '../utils/testHelper';
-import { get, insert } from './shortPaths';
+import { get } from './shortPaths';
 
 describe('shortPaths/shortpaths/get', () => {
   // AfterAll tests reseed the DB
@@ -48,17 +48,5 @@ describe('shortPaths/shortpaths/get', () => {
       response = await get({queryStringParameters} as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
     expect(responseBody.message).toEqual('Bad request, invalid query parameter.');
-  });
-  test('insert for short paths', async () => {
-    const
-      requestBody = {
-        'short_path': 'new',
-        'id': '6',
-        'object_type': 'Profile'
-      },
-      body: string = JSON.stringify(requestBody),
-      response = await insert({ body } as APIGatewayProxyEvent),
-      responseBody = JSON.parse(response.body);
-    expect(responseBody.short_path).toEqual({'short_path': 'new'});
   });
 });
