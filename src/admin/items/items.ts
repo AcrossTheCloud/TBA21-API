@@ -49,8 +49,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       
           LOWER(editor) LIKE '%' || LOWER($3) || '%' OR
       
-          ISBN::text LIKE '%whal%' OR
-          related_ISBN::text LIKE '%whal%' OR
+          ISBN::text LIKE '%' || ($3) || '%' OR
+          related_ISBN::text LIKE '%' || ($3) || '%' OR
           LOWER(DOI) LIKE '%' || LOWER($3) || '%' OR
       
           LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
@@ -75,7 +75,11 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
           LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($3) || '%' OR
       
           LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%'
+          LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
+          
+          LOWER(concept_tag.tag_name) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($3) || '%' 
+
       `;
     }
 
