@@ -105,7 +105,7 @@ CREATE TABLE tba21.items
   publisher varchar(256)[],
   interviewers varchar(256)[],
   interviewees varchar(256)[],
-  cast_ varchar(1024),
+  cast_ varchar(256)[],
   license tba21.licence_type,
   title varchar(256),
   subtitle varchar(256),

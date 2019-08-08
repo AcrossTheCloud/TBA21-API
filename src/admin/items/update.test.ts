@@ -41,7 +41,7 @@ describe('/admin/items/update/updateByS3key', () => {
           'publisher': ['publisher'],
           'interviewers': ['interviewers'],
           'interviewees': ['interviewees'],
-          'cast_': 'cast',
+          'cast_': ['cast'],
           'license': 'CC BY',
           'title': 'title',
           'subtitle': 'subtitle',
