@@ -22,8 +22,8 @@ describe('Profile get tests', () => {
     const
       queryStringParameters: QueryStringParameters = {id: '1'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
-      profile = JSON.parse(response.body);
-    expect(profile);
+      responseBody = JSON.parse(response.body);
+    expect(responseBody.profile);
   });
   test('Check that we have a profile with the full_name starting with r', async () => {
     const
@@ -37,7 +37,6 @@ describe('Profile get tests', () => {
       queryStringParameters: QueryStringParameters = {id: '1'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    console.log(responseBody.profile);
     expect(responseBody.profile).toEqual([]);
   });
   test('Create a profile', async () => {

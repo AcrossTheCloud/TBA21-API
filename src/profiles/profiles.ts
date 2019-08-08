@@ -194,7 +194,7 @@ export const search = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       `;
     const result = await db.any(sqlStatement, params);
 
-    return successResponse({ profile: result ? result : [] });
+    return successResponse({ profiles: result ? result : [] });
   } catch (e) {
     console.log('/profile/profile.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
