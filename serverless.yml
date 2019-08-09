@@ -57,6 +57,8 @@ provider:
     COLLECTIONS_ITEMS_TABLE: ${env:COLLECTIONS_ITEMS_TABLE}
     CONCEPT_TAGS_TABLE: ${env:CONCEPT_TAGS_TABLE}
     KEYWORD_TAGS_TABLE: ${env:KEYWORD_TAGS_TABLE}
+    PROFILE_TABLE: ${env:PROFILES_TABLE}
+    SHORT_PATHS_TABLE: ${env:SHORT_PATHS_TABLE}
 
     PGUSER: ${env:PGUSER}
     PGPASSWORD: ${env:PGPASSWORD}
@@ -423,6 +425,31 @@ functions:
       - http:
           path: admin/tags
           method: DELETE
+          cors: true
+          authorizer: aws_iam
+
+  getByShortPath:
+    handler: src/shortPaths/shortPaths.get
+    description:
+    events:
+      - http:
+          path: shortpaths
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.short_path
+              - name: request.querystring.table
+
+  insertShortPath:
+    handler: src/admin/shortPaths/shortPaths.insert
+    description:
+    events:
+      - http:
+          path: admin/shortpaths
+          method: put
           cors: true
           authorizer: aws_iam
 

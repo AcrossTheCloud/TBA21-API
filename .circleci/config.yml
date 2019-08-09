@@ -60,6 +60,8 @@ jobs:
             COLLECTIONS_ITEMS_TABLE: tba21.collections_items
             CONCEPT_TAGS_TABLE: tba21.concept_tags
             KEYWORD_TAGS_TABLE: tba21.keyword_tags
+            PROFILE_TABLE: tba21.profiles
+            SHORT_PATHS_TABLE: tba21.short_paths
             PGUSER: postgres
             PGPASSWORD: postgres
             PGHOST: localhost
