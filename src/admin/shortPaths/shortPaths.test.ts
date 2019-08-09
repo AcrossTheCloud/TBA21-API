@@ -28,6 +28,6 @@ describe('admin/shortpaths/insert', () => {
     response = await insert({ body } as APIGatewayProxyEvent),
     responseBody = JSON.parse(response.body);
   console.log(responseBody);
-  expect(responseBody.short_path).toEqual({'short_path': 'new'});
+  expect(responseBody.short_path).toEqual('new');
   });
 });
