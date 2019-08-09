@@ -22,8 +22,7 @@ describe('shortPaths/shortpaths/get', () => {
     const
       queryStringParameters: QueryStringParameters = {
         'table': 'Profile',
-        'column': 'id',
-        'params': '2'
+        'id': '2'
       },
       response = await get({queryStringParameters} as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
@@ -33,8 +32,7 @@ describe('shortPaths/shortpaths/get', () => {
     const
       queryStringParameters: QueryStringParameters = {
         'table': 'Item',
-        'column': 'short_path',
-        'params': 'Kitten'
+        'short_path': 'Kitten'
       },
       response = await get({queryStringParameters} as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);

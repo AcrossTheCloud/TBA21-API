@@ -30,7 +30,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     const insertResult = await db.one(query, params);
     return {
-      body: JSON.stringify({ success: true, short_path: insertResult }),
+      body: JSON.stringify({ success: true, ...insertResult }),
       headers: headers,
       statusCode: 200
     };
