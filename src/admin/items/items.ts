@@ -226,7 +226,6 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    // VALIDATE first
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
@@ -245,7 +244,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
            ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
-          ${process.env.ITEMS_TABLE} AS item
+          ${process.env.ITEMS_TABLE} AS item,
                        
           UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,

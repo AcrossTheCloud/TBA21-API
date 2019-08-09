@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
-import { get, getByS3Key, getByTag, getByType } from './items';
+import { get, getByPerson, getByS3Key, getByTag, getByType } from './items';
 
 describe('Admin Items', () => {
   afterAll( () => {
@@ -98,5 +98,13 @@ describe('Admin Items', () => {
       result = JSON.parse(response.body);
 
     expect(result.items.length).toEqual(5);
+  });
+  test('Get items by their person', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {person: 'Tim'},
+      response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+
+    expect(result.items.length).toEqual(2);
   });
 });

@@ -20,7 +20,6 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         limit: Joi.number().integer(),
         offset: Joi.number().integer()
       }));
-      // will cause an exception if it is not valid
     }
     const
       defaultValues = { limit: 15, offset: 0 },
