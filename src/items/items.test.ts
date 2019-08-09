@@ -93,7 +93,7 @@ describe('Item tests', () => {
   });
   test('Get all items with a type of video', async () => {
     const
-      queryStringParameters: QueryStringParameters = {type: 'video'},
+      queryStringParameters: QueryStringParameters = {type: 'Video'},
       response = await getByType({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
     expect(results.items.length).toEqual(2);

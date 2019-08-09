@@ -246,7 +246,6 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
            ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
           ${process.env.ITEMS_TABLE} AS item
-            INNER JOIN ${process.env.TYPES_TABLE} AS item_type ON item.item_type = item_type,
                        
           UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
@@ -293,27 +292,23 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
       params = [queryString.type, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
       query = `
         SELECT 
-        COUNT ( item.s3_key ) OVER (),
-        itemtype.ID,
-        item.*,
+        items.*,
         COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-        ST_AsGeoJSON(item.geom) as geoJSON
+        COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+        ST_AsGeoJSON(items.geom) as geoJSON
         
+        FROM ${process.env.ITEMS_TABLE},
         
-        FROM ${process.env.TYPES_TABLE} as itemtype
-        INNER JOIN ${process.env.ITEMS_TABLE} AS item ON item.item_type=itemtype.id,
+        UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
+        LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
         
-        UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-        LEFT JOIN${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-        
-        UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+        UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
         LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         
-        WHERE LOWER(type_name) LIKE '%' || LOWER($1) || '%' 
+        WHERE items.item_type::varchar = $1 
         
-        GROUP BY itemtype.ID, item.s3_key
-        ORDER BY item.s3_key
+        GROUP BY items.s3_key
+        ORDER BY items.s3_key
   
         LIMIT $2
         OFFSET $3

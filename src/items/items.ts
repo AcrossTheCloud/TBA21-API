@@ -180,21 +180,20 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
       params = [queryString.type, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
       query = `
         SELECT 
-        items.id,
         items.*,
         COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+        COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
         ST_AsGeoJSON(items.geom) as geoJSON
         
         FROM ${process.env.ITEMS_TABLE},
         
         UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
-        LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+        LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
         
         UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
         LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         
-        WHERE LOWER(items.item_type::varchar) LIKE '%' || LOWER($1) || '%' 
+        WHERE items.item_type::varchar = $1 
         AND status=true
         
         GROUP BY items.s3_key
