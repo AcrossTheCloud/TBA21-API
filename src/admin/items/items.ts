@@ -117,20 +117,34 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 };
 /**
  *
- * Gets the item by their id
+ * Gets the item by their id or s3key
  *
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
-export const getByS3Key = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({s3Key:  Joi.string().required()}), { presence: 'required' });
+    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+      Joi.object().keys({
+          s3Key: Joi.string(),
+          id: Joi.string()
+        })));
+
+    const queryString = event.queryStringParameters; // Use default values if not supplied.
+
+    let
+      column = 's3_key',
+      params = [queryString.s3Key];
+
+    // If we've passed in id instead of s3key, change the column and params to use id
+    if (queryString.hasOwnProperty('id')) {
+      column = 'id';
+      params = [queryString.id];
+    }
 
     const
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.s3Key],
       query = `
         SELECT
           item.*,
@@ -146,7 +160,7 @@ export const getByS3Key = async (event: APIGatewayEvent, context: Context): Prom
           UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         
-        WHERE item.s3_key=$1
+        WHERE item.${column}=$1
         
         GROUP BY item.s3_key
       `;

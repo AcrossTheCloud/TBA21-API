@@ -169,11 +169,11 @@ functions:
           authorizer: aws_iam
 
   getItemsByS3Key:
-    handler: src/items/items.getByS3Key
+    handler: src/items/items.getItem
     description: Returns items s3 key from the database.
     events:
       - http:
-          path: items/getByS3Key
+          path: items/getItem
           method: get
           cors: true
           authorizer: aws_iam
@@ -560,7 +560,7 @@ functions:
           authorizer: aws_iam
 
   adminGetItemByS3Key:
-    handler: src/admin/items/items.getByS3Key
+    handler: src/admin/items/items.getItem
     description: Returns a single item by s3 key from the database.
     events:
       - http:
@@ -574,7 +574,7 @@ functions:
               - name: request.querystring.s3Key
 
   adminGetItemByS3KeyNoCache:
-    handler: src/admin/items/items.getByS3Key
+    handler: src/admin/items/items.getItem
     description: Returns a single item by s3 key from the database and doesn't cache the results.
     events:
       - http:
