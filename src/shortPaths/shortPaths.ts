@@ -56,7 +56,7 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
         ) AS short_paths
           JOIN ${table}
           AS id_ on short_paths.id = id_.id
-          ORDER BY short_path DESC
+          ORDER BY short_paths.created_at DESC
       `;
 
     return successResponse({short_path: await db.any(sqlStatement, params)});

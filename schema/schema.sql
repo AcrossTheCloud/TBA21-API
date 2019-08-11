@@ -269,7 +269,8 @@ CREATE TABLE tba21.short_paths
 (
   short_path varchar(256) PRIMARY KEY,
   ID bigint,
-  object_type tba21.table_type
+  object_type tba21.table_type,
+  created_at timestamp with time zone NOT NULL
 );
 
 -- Geo stuff
