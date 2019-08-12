@@ -22,22 +22,8 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
         id: Joi.string().required()
       })));
 
-    const
-      queryString = event.queryStringParameters;
-    let
-      table = process.env.ITEMS_TABLE,
-      column = 'short_path'; // set the default column name to short_path
-
-    switch (queryString.table) {
-      case 'Profiles':
-        table =  process.env.PROFILES_TABLE;
-        break;
-      case 'Collections':
-        table =  process.env.COLLECTIONS_TABLE;
-        break;
-      default:
-        break;
-    }
+    const queryString = event.queryStringParameters;
+    let column = 'short_path'; // set the default column name to short_path
 
     // If we've passed in id instead of short_path, change the column to use id
     if (queryString.hasOwnProperty('id')) {
@@ -47,15 +33,11 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
     const
       params = [queryString.table, queryString[column]], // $1 table name, $2 queryString id or short_path
       sqlStatement = `
-        SELECT *
-        FROM (
+
           SELECT * 
           FROM ${process.env.SHORT_PATHS_TABLE}
           WHERE ${process.env.SHORT_PATHS_TABLE}.${column} = $2
           AND ${process.env.SHORT_PATHS_TABLE}.object_type = $1
-        ) AS short_paths
-          JOIN ${table}
-          AS id_ on short_paths.id = id_.id
           ORDER BY short_paths.created_at DESC
       `;
 
