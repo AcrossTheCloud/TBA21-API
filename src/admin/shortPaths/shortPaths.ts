@@ -29,6 +29,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     `;
 
     const insertResult = await db.one(query, params);
+
     return {
       body: JSON.stringify({ success: true, ...insertResult }),
       headers: headers,
@@ -36,6 +37,13 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     };
   } catch (e) {
     console.log('shortpath/shortPaths.insert ERROR - ', e);
+    if (e.toString().includes('duplicate key')) {
+      return {
+        body: JSON.stringify({ conflict: true }),
+        headers: headers,
+        statusCode: 409
+      }
+    }
     return badRequestResponse();
   }
 };
