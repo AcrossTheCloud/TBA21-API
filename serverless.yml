@@ -57,6 +57,7 @@ provider:
     COLLECTIONS_ITEMS_TABLE: ${env:COLLECTIONS_ITEMS_TABLE}
     CONCEPT_TAGS_TABLE: ${env:CONCEPT_TAGS_TABLE}
     KEYWORD_TAGS_TABLE: ${env:KEYWORD_TAGS_TABLE}
+    SHORT_PATHS_TABLE: ${env:SHORT_PATHS_TABLE}
     PROFILES_TABLE: ${env.PROFILES_TABLE}
 
     PGUSER: ${env:PGUSER}
@@ -167,12 +168,12 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  getItemsByS3Key:
-    handler: src/items/items.getByS3Key
-    description: Returns items s3 key from the database.
+  getItem:
+    handler: src/items/items.getItem
+    description: Returns items s3 key or id from the database.
     events:
       - http:
-          path: items/getByS3Key
+          path: items/getItem
           method: get
           cors: true
           authorizer: aws_iam
@@ -180,6 +181,7 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.s3Key
+              - name: request.querystring.id
 
 #  getItemsByTag:
 #    handler: src/items/items.getByTag
@@ -427,6 +429,26 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  getShortPath:
+    handler: src/shortPaths/shortPaths.get
+    description:
+    events:
+      - http:
+          path: shortpaths
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  insertShortPath:
+    handler: src/admin/shortPaths/shortPaths.insert
+    description:
+    events:
+      - http:
+          path: admin/shortpaths
+          method: put
+          cors: true
+          authorizer: aws_iam
+
   getProfile:
     handler: src/profiles/profiles.get
     description: Get a profile
@@ -581,12 +603,12 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  adminGetItemByS3Key:
-    handler: src/admin/items/items.getByS3Key
-    description: Returns a single item by s3 key from the database.
+  adminGetItem:
+    handler: src/admin/items/items.getItem
+    description: Returns a single item by s3 key or id from the database.
     events:
       - http:
-          path: admin/items/byS3Key
+          path: admin/items/getItem
           method: get
           cors: true
           authorizer: aws_iam
@@ -594,13 +616,14 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.s3Key
+              - name: request.querystring.id
 
-  adminGetItemByS3KeyNoCache:
-    handler: src/admin/items/items.getByS3Key
-    description: Returns a single item by s3 key from the database and doesn't cache the results.
+  adminGetItemNoCache:
+    handler: src/admin/items/items.getItem
+    description: Returns a single item by s3 key or id from the database and doesn't cache the results.
     events:
       - http:
-          path: admin/items/byS3KeyNC
+          path: admin/items/getItemNC
           method: get
           cors: true
           authorizer: aws_iam
