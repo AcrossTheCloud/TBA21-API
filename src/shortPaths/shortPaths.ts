@@ -42,7 +42,7 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
           ORDER BY short_paths.created_at DESC
       `;
 
-    return successResponse({short_paths: await db.any(sqlStatement, params)});
+    return successResponse({short_paths: await db.any(sqlStatement, params) });
   } catch (e) {
     console.log('/shortPaths.get ERROR - ', e);
     return badRequestResponse();
