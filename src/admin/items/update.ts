@@ -162,7 +162,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
           SET 
             updated_at='${new Date().toISOString()}',
             ${[...SQL_SETS]}
-        WHERE s3_key = $1 returning s3_key, status;
+        WHERE s3_key = $1 returning s3_key, status, id;
       `;
 
     if (SQL_SETS.length) {
@@ -170,7 +170,8 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
 
       const bodyResponse = {
         success: true,
-        updated_key: result.s3_key
+        updated_key: result.s3_key,
+        id: result.id
       };
       // If we have a message, add it to the response.
       if (message.length > 1) {
