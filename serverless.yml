@@ -575,12 +575,12 @@ functions:
               - name: request.querystring.s3Key
               - name: request.querystring.id
 
-  adminGetItemsNoCache:
+  adminGetItemNoCache:
     handler: src/admin/items/items.getItem
     description: Returns a single item by s3 key or id from the database and doesn't cache the results.
     events:
       - http:
-          path: admin/items/byS3KeyNC
+          path: admin/items/getItemNC
           method: get
           cors: true
           authorizer: aws_iam
