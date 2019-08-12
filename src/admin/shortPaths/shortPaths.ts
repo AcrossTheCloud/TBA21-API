@@ -42,7 +42,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         body: JSON.stringify({ conflict: true }),
         headers: headers,
         statusCode: 409
-      }
+      };
     }
     return badRequestResponse();
   }
