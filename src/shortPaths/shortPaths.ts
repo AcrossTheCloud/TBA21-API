@@ -35,7 +35,7 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
       sqlStatement = `
 
           SELECT 
-          short_path, id,, object_type
+          short_path, id, object_type
           FROM ${process.env.SHORT_PATHS_TABLE}
           WHERE ${process.env.SHORT_PATHS_TABLE}.${column} = $2
           AND ${process.env.SHORT_PATHS_TABLE}.object_type = $1
