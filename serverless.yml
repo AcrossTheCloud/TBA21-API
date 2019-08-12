@@ -443,6 +443,7 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.short_path
               - name: request.querystring.table
+              - name: request.querystring.id
 
   insertShortPath:
     handler: src/admin/shortPaths/shortPaths.insert
