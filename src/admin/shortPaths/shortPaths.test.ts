@@ -22,13 +22,11 @@ describe('admin/shortpaths/insert', () => {
     requestBody = {
       'short_path': 'new',
       'id': '6',
-      'object_type': 'Profile',
-      'created_at': '2019-02-22 10:53',
+      'object_type': 'Profile'
     },
     body: string = JSON.stringify(requestBody),
     response = await insert({ body } as APIGatewayProxyEvent),
     responseBody = JSON.parse(response.body);
-  console.log(responseBody);
   expect(responseBody.short_path).toEqual('new');
   });
 });

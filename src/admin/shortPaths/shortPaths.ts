@@ -18,14 +18,13 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         short_path: Joi.string().required(),
         id: Joi.number().required(),
         object_type: Joi.any().valid('Profile', 'Collection', 'Item').required(),
-        created_at: Joi.date().raw().required()
       }));
 
     const
-      params = [data.short_path, data.id, data.object_type, data.created_at],
+      params = [data.short_path, data.id, data.object_type],
       query = `
       INSERT INTO ${process.env.SHORT_PATHS_TABLE} (short_path, ID, object_type, created_at)
-      VALUES ($1, $2, $3, $4)
+      VALUES ($1, $2, $3, now())
       RETURNING ${process.env.SHORT_PATHS_TABLE}.short_path;
     `;
 
