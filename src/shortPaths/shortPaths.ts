@@ -34,14 +34,15 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
       params = [queryString.table, queryString[column]], // $1 table name, $2 queryString id or short_path
       sqlStatement = `
 
-          SELECT * 
+          SELECT 
+          short_path, id,, object_type
           FROM ${process.env.SHORT_PATHS_TABLE}
           WHERE ${process.env.SHORT_PATHS_TABLE}.${column} = $2
           AND ${process.env.SHORT_PATHS_TABLE}.object_type = $1
           ORDER BY short_paths.created_at DESC
       `;
 
-    return successResponse({short_path: await db.any(sqlStatement, params)});
+    return successResponse({short_paths: await db.any(sqlStatement, params)});
   } catch (e) {
     console.log('/shortPaths.get ERROR - ', e);
     return badRequestResponse();

@@ -17,7 +17,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       {
         short_path: Joi.string().required(),
         id: Joi.number().required(),
-        object_type: Joi.any().valid('Profile', 'Collection', 'Item').required(),
+        object_type: Joi.any().valid('Profile', 'Collection', 'Item').required()
       }));
 
     const
