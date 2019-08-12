@@ -168,9 +168,9 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  getItemsByS3Key:
+  getItem:
     handler: src/items/items.getItem
-    description: Returns items s3 key from the database.
+    description: Returns items s3 key or id from the database.
     events:
       - http:
           path: items/getItem
@@ -181,6 +181,7 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.s3Key
+              - name: request.querystring.id
 
 #  getItemsByTag:
 #    handler: src/items/items.getByTag
@@ -574,9 +575,9 @@ functions:
               - name: request.querystring.s3Key
               - name: request.querystring.id
 
-  adminGetItemByS3KeyNoCache:
+  adminGetItemsNoCache:
     handler: src/admin/items/items.getItem
-    description: Returns a single item by s3 key from the database and doesn't cache the results.
+    description: Returns a single item by s3 key or id from the database and doesn't cache the results.
     events:
       - http:
           path: admin/items/byS3KeyNC
