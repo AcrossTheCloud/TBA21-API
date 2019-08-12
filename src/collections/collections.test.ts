@@ -7,7 +7,16 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { QueryStringParameters } from '../types/_test_';
-import { get, getById, getByPerson, getByTag, changeStatus, getCollectionsInBounds, getItemsInCollection } from './collections';
+import {
+  get,
+  getById,
+  getByPerson,
+  getByTag,
+  changeStatus,
+  getCollectionsInBounds,
+  getItemsInCollection,
+  getCollectionsByItem
+} from './collections';
 
 describe('Collections', () => {
 
@@ -113,19 +122,28 @@ describe('Collections', () => {
       results = JSON.parse(response.body);
 
     expect(results.collections.length).toEqual(3);
-
   });
-  test('Get a bad response when a boundary is missing', async () => {
+  test
+  ('Get a bad response when a boundary is missing', async () => {
     const
       queryStringParameters: QueryStringParameters = {lat_sw: '-90', lng_sw: '', lat_ne: '90', lng_ne: '180'},
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
     expect(response.statusCode).toEqual(400);
   });
+
   test('Check function doesnt return an item where the status is false', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '2'},
       response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
     expect(item.items.length).toEqual(1);
+  });
+
+  test('Get all the collections an item belongs to', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg'},
+      response = await getCollectionsByItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+    expect(result.collections.length).toEqual(2);
   });
 });
