@@ -372,6 +372,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  getCollectionsByItem:
+    handler: src/collections/collections.getCollectionsByItem
+    description: Returns the collections an item is in
+    events:
+      - http:
+          path: collections/getCollectionsByItem
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   ###### TAG FUNCTIONS ######
   getTags:
     handler: src/tags/tags.get
