@@ -13,7 +13,7 @@ import {
   getByPerson,
   getByType,
   changeStatus,
-  getItemsInBounds, getRekognitionTags,
+  getItemsInBounds, getRekognitionTags, getHomePageItem,
 } from './items';
 
 describe('Item tests', () => {
@@ -193,5 +193,12 @@ describe('Item tests', () => {
   test('Get Rekognition Tags no s3key', async () => {
     const response = await getRekognitionTags({} as APIGatewayProxyEvent);
     expect(response.statusCode).toEqual(400);
+  });
+  test('Get a home page item', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {column: 'item_type', query: 'Video'},
+      response = await getHomePageItem({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+    expect(results.items.length).toEqual(1);
   });
 });

@@ -341,7 +341,6 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
   }
 
 };
-
 /**
  *
  * Gets an items Rekognition tags
@@ -381,4 +380,91 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
     console.log('/items/items.getRekognitionTags ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
+};
+/**
+ *
+ * Gets the items for the home page, either by their type, sub type or oa highlight
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } Array of tags
+ */
+export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+      Joi.object().keys({
+                          column: Joi.string().valid('item_type').required(),
+                          query: Joi.string().valid('Video', 'Text', 'Audio', 'Image').required(),
+                        }),
+      Joi.object().keys({
+                          column: Joi.string().valid('item_subtype').required(),
+                          query: Joi.string().valid(
+                            'Academic Publication',
+                            'Article',
+                            'News',
+                            'Policy Paper',
+                            'Report',
+                            'Book',
+                            'Essay',
+                            'Historical Text',
+                            'Event Press',
+                            'Toolkit',
+                            'Movie',
+                            'Documentary',
+                            'Research',
+                            'Interview',
+                            'Art',
+                            'News / Journalism',
+                            'Event Recording',
+                            'Informational Video',
+                            'Trailer',
+                            'Artwork Documentation',
+                            'Raw Footage',
+                            'Photograph',
+                            'Digital Art',
+                            'Graphics',
+                            'Map',
+                            'Film Still',
+                            'Sculpture',
+                            'Painting',
+                            'Illustration',
+                            'Field Recording',
+                            'Sound Art',
+                            'Music',
+                            'Podcast',
+                            'Lecture',
+                            'Radio',
+                            'Performance Poetry',
+                            'Other').required()
+                        })
+    ));
+    
+    const
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      defaultValues = { limit: 1, offset: 0 };
+
+    let column  = 'item_type';
+
+    if (queryString.hasOwnProperty('item_subtype')) {
+      column = 'item_subtype';
+    }
+
+    const
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString[column], queryString.query],
+      query = `
+        SELECT *
+        FROM ${process.env.ITEMS_TABLE}
+        WHERE ${column} = $3
+        AND status = true
+        ORDER BY items.created_at DESC
+        LIMIT $1 
+        OFFSET $2
+      `;
+
+    return successResponse({ items: await db.any(query, params) });
+  } catch (e) {
+    console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+
 };

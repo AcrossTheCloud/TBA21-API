@@ -459,6 +459,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  getHomePageItem:
+    handler: src/admin/shortPaths/shortPaths.insert
+    description:
+    events:
+      - http:
+          path: items/getHomePageItem
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   ###### ADMIN FUNCTIONS ######
 
 #### Collections
