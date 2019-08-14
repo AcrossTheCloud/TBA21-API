@@ -7,7 +7,7 @@ const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3
 
 /**
  *
- * Get profile(s) by either it's id, cognito_uuid or search by full_name
+ * Get profile(s) by either it's id, uuid or search by full_name
  *
  * @param event
  */
@@ -15,14 +15,14 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
-                          id: Joi.number().integer()
-                        }),
+        id: Joi.number().integer()
+      }),
       Joi.object().keys({
-                          cognito_uuid: Joi.string().regex(uuidRegex)
-                        }),
+        uuid: Joi.string().regex(uuidRegex)
+      }),
       Joi.object().keys({
-                          full_name: Joi.string()
-                        })
+        full_name: Joi.string()
+      })
     ));
 
     const
@@ -34,7 +34,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       params.push(queryStringParameters.id);
       whereStatement = 'WHERE id = $1';
     }
-    if (queryStringParameters.hasOwnProperty('cognito_uuid')) {
+    if (queryStringParameters.hasOwnProperty('uuid')) {
       params.push(queryStringParameters.cognito_uuid);
       whereStatement = 'WHERE cognito_uuid = $1';
     }
