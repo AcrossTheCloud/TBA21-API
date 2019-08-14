@@ -471,9 +471,9 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - id: request.querystring.query
-              - cognito_uuid: request.querystring.query
-              - full_name: request.querystring.query
+              - name: request.querystring.id
+              - name: request.querystring.uuid
+              - name: request.querystring.fullname
 
   insertProfile:
     handler: src/admin/profiles/profiles.insert

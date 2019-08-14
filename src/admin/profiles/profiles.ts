@@ -21,7 +21,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         uuid: Joi.string().regex(uuidRegex)
       }),
       Joi.object().keys({
-        full_name: Joi.string()
+        fullname: Joi.string()
       })
     ));
 
@@ -38,8 +38,8 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       params.push(queryStringParameters.uuid);
       whereStatement = 'WHERE cognito_uuid = $1';
     }
-    if (queryStringParameters.hasOwnProperty('full_name')) {
-      params.push(queryStringParameters.full_name);
+    if (queryStringParameters.hasOwnProperty('fullname')) {
+      params.push(queryStringParameters.fullname);
       whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
     }
     const sqlStatement = `
@@ -51,7 +51,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         FROM ${process.env.PROFILES_TABLE}
         ${whereStatement}
       `;
-    return successResponse({ profile: await db.any(sqlStatement, params) });
+    return successResponse({ profiles: await db.any(sqlStatement, params) });
   } catch (e) {
     console.log('/profile/profile.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
