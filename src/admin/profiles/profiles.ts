@@ -51,7 +51,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         FROM ${process.env.PROFILES_TABLE}
         ${whereStatement}
       `;
-    return successResponse({ profile: await db.any(sqlStatement, params) });
+    return successResponse({ profiles: await db.any(sqlStatement, params) });
   } catch (e) {
     console.log('/profile/profile.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
