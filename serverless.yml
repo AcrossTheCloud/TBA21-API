@@ -460,6 +460,49 @@ functions:
           authorizer: aws_iam
 
   getProfile:
+    handler: src/profiles/profiles.get
+    description: Get a profile
+    events:
+      - http:
+          path: profiles
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+              - name: request.querystring.uuid
+              - name: request.querystring.fullname
+
+  InsertProfile:
+    handler: src/profiles/profiles.insert
+    description: Insert a profile
+    events:
+      - http:
+          path: profiles
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+  updateProfile:
+    handler: src/profiles/profiles.update
+    description: Update a profile
+    events:
+      - http:
+          path: profiles
+          method: patch
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+  ###### ADMIN FUNCTIONS ######
+
+  ### Profiles
+  adminGetProfile:
     handler: src/admin/profiles/profiles.get
     description: Get a profile
     events:
@@ -475,7 +518,7 @@ functions:
               - name: request.querystring.uuid
               - name: request.querystring.fullname
 
-  insertProfile:
+  adminInsertProfile:
     handler: src/admin/profiles/profiles.insert
     description: Insert a profile
     events:
@@ -485,7 +528,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  updateProfile:
+  adminUpdateProfile:
     handler: src/admin/profiles/profiles.update
     description: Update a profile
     events:
@@ -495,9 +538,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  ###### ADMIN FUNCTIONS ######
-
-#### Collections
+  #### Collections
   adminGetCollections:
     handler: src/admin/collections/collections.get
     description: Returns collections from the database.
