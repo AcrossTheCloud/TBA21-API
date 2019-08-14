@@ -45,7 +45,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     const sqlStatement = `
         SELECT 
           profiles.id,
-          profiles.fullname,
+          profiles.full_name,
           profiles.profile_type,
           profiles.cognito_uuid
         FROM ${process.env.PROFILES_TABLE}
