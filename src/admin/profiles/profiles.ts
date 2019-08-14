@@ -35,7 +35,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       whereStatement = 'WHERE id = $1';
     }
     if (queryStringParameters.hasOwnProperty('uuid')) {
-      params.push(queryStringParameters.cognito_uuid);
+      params.push(queryStringParameters.uuid);
       whereStatement = 'WHERE cognito_uuid = $1';
     }
     if (queryStringParameters.hasOwnProperty('full_name')) {
@@ -65,12 +65,12 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
  */
 export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const
-      data = JSON.parse(event.body);
+    const data = JSON.parse(event.body);
+
     await Joi.validate(data, Joi.object().keys(
       {
         contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
-        cognito_uuid: Joi.string().regex(uuidRegex),
+        uuid: Joi.string().regex(uuidRegex),
         profile_image: Joi.string(),
         featured_image: Joi.string(),
         full_name: Joi.string().required(),
@@ -93,6 +93,9 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const
       params = [],
       sqlFields: string[] = Object.keys(data).map((key) => {
+        if (key === 'uuid') {
+          return `cognito_uuid`;
+        }
         return `${key}`;
       }),
       sqlParams: string[] = Object.keys(data).map((key) => {
@@ -145,8 +148,8 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     await Joi.validate(data, Joi.object().keys(
       {
         id: Joi.number().integer().required(),
+        uuid: Joi.string().regex(uuidRegex),
         contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
-        cognito_uuid: Joi.string().regex(uuidRegex),
         profile_image: Joi.string(),
         featured_image: Joi.string(),
         full_name: Joi.string(),
@@ -173,6 +176,10 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const SQL_SETS: string[] = Object.keys(data)
         .map((key) => {
           params[paramCounter++] = data[key];
+          if (key === 'uuid') {
+            return `cognito_uuid=$${paramCounter}`;
+          }
+
           if (key === 'contributors') {
             return `${key}=$${paramCounter}::uuid[]`;
           }
