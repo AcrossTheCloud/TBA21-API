@@ -464,7 +464,7 @@ functions:
     description: Get a profile
     events:
       - http:
-          path: profiles
+          path: admin/profiles
           method: get
           cors: true
           authorizer: aws_iam
@@ -480,17 +480,17 @@ functions:
     description: Insert a profile
     events:
       - http:
-          path: profiles
+          path: admin/profiles
           method: put
           cors: true
           authorizer: aws_iam
 
   updateProfile:
-    handler: src/admin/profiles/profiles.update
+    handler: src/profiles/profiles.update
     description: Update a profile
     events:
       - http:
-          path: profiles
+          path: admin/profiles
           method: patch
           cors: true
           authorizer: aws_iam
