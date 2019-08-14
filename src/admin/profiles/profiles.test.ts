@@ -23,21 +23,21 @@ describe('Profile get tests', () => {
       queryStringParameters: QueryStringParameters = {id: '2'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    expect(responseBody.profile[0].id).toEqual('2');
+    expect(responseBody.profiles[0].id).toEqual('2');
   });
   test('Get a profile by its uuid', async () => {
     const
       queryStringParameters: QueryStringParameters = {uuid: '81d16d9b-e7da-4d6e-aa13-176820851491'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    expect(responseBody.profile[0].cognito_uuid).toEqual('81d16d9b-e7da-4d6e-aa13-176820851491');
+    expect(responseBody.profiles[0].cognito_uuid).toEqual('81d16d9b-e7da-4d6e-aa13-176820851491');
   });
   test('Check that we have a profile with the fullname starting with r', async () => {
     const
       queryStringParameters: QueryStringParameters = {fullname: 'I'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    expect(responseBody.profile[0].full_name).toEqual('Richie Kirkbridge');
+    expect(responseBody.profiles[0].full_name).toEqual('Richie Kirkbridge');
   });
   test('Create a profile', async () => {
     const
