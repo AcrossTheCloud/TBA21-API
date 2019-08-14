@@ -115,12 +115,11 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       VALUES 
         (${[...sqlParams]}) 
       RETURNING id;`;
-    const insertResult = await db.task(async t => {
-      return await t.one(query, params);
-    });
+
+    const result = await db.one(query, params);
 
     return {
-      body: JSON.stringify({ success: true, id: insertResult.id }),
+      body: JSON.stringify({ success: true, id: result.id }),
       headers: headers,
       statusCode: 200
     };

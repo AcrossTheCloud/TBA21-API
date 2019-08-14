@@ -486,7 +486,7 @@ functions:
           authorizer: aws_iam
 
   updateProfile:
-    handler: src/profiles/profiles.update
+    handler: src/admin/profiles/profiles.update
     description: Update a profile
     events:
       - http:
