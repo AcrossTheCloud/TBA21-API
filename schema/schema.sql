@@ -245,8 +245,9 @@ CREATE TABLE tba21.collections
 CREATE TABLE tba21.profiles
 (
   ID bigserial PRIMARY KEY,
+  cognito_uuid uuid,
   contributors uuid[],
-  profile_image varchar(1024),  -- pathi to s3 object
+  profile_image varchar(1024),  -- path to s3 object
   featured_image varchar(1024),  -- path to s3 object
   full_name varchar(256),
   field_expertise varchar(256),

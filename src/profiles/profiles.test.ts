@@ -18,12 +18,19 @@ describe('Profile get tests', () => {
     db.$pool.end();
   });
 
-  test('Check that we have a profile', async () => {
+  test('Get a profile by its id', async () => {
     const
-      queryStringParameters: QueryStringParameters = {id: '1'},
+      queryStringParameters: QueryStringParameters = {id: '2'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    expect(responseBody.profile);
+    expect(responseBody.profile[0].id).toEqual('2');
+  });
+  test('Get a profile by its uuid', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {cognito_uuid: '81d16d9b-e7da-4d6e-aa13-176820851491'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+    expect(responseBody.profile[0].cognito_uuid).toEqual('81d16d9b-e7da-4d6e-aa13-176820851491');
   });
   test('Check that we have a profile with the full_name starting with r', async () => {
     const
@@ -71,6 +78,7 @@ describe('Profile get tests', () => {
     const
       requestBody = {
         'id': '3',
+        'cognito_uuid' : '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
         'full_name': 'update',
         'field_expertise': 'cats',
         'city': 'new city',
@@ -95,7 +103,6 @@ describe('Profile get tests', () => {
       requestBody = { 'id': '' },
       body: string = JSON.stringify(requestBody),
       response = await update({ body } as APIGatewayProxyEvent);
-
     expect(response.statusCode).toEqual(400);
   });
 });

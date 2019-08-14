@@ -3,9 +3,11 @@ import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
 import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../common';
 
+const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$/i;
+
 /**
  *
- * Get a profile by its id
+ * Get a profile by its id or its cognito_uuid
  *
  * @param event
  */
@@ -13,16 +15,26 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
-        id: Joi.number().integer().required()
+        id: Joi.number().integer(),
+        cognito_uuid: Joi.string().regex(uuidRegex),
       }));
 
     const
       queryStringParameters = event.queryStringParameters,
-      params = [queryStringParameters.id],
-      sqlStatement = `
+      params = [];
+    let column = '';
+    if (queryStringParameters.hasOwnProperty('id')) {
+      params.push(queryStringParameters.id);
+      column = 'id';
+    } else {
+      params.push(queryStringParameters.cognito_uuid);
+      column = 'cognito_uuid';
+    }
+
+    const sqlStatement = `
         SELECT * 
         FROM ${process.env.PROFILES_TABLE}
-        WHERE id = $1
+        WHERE ${column} = $1
         AND public_profile = true
       `;
 
@@ -40,10 +52,12 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
  */
 export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const data = JSON.parse(event.body);
-
+    const
+      data = JSON.parse(event.body);
     await Joi.validate(data, Joi.object().keys(
       {
+        contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
+        cognito_uuid: Joi.string().regex(uuidRegex),
         profile_image: Joi.string(),
         featured_image: Joi.string(),
         full_name: Joi.string().required(),
@@ -70,6 +84,12 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       }),
       sqlParams: string[] = Object.keys(data).map((key) => {
         params[paramCounter++] = data[key];
+        if (key === 'contributors') {
+          return `$${paramCounter}::uuid[]`;
+        }
+        if (key === 'cognito_uuid') {
+          return `$${paramCounter}::uuid`;
+        }
         return `$${paramCounter}`;
       });
 
@@ -79,7 +99,6 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       VALUES 
         (${[...sqlParams]}) 
       RETURNING id;`;
-
     const insertResult = await db.task(async t => {
       return await t.one(query, params);
     });
@@ -113,6 +132,8 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     await Joi.validate(data, Joi.object().keys(
       {
         id: Joi.number().integer().required(),
+        contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
+        cognito_uuid: Joi.string().regex(uuidRegex),
         profile_image: Joi.string(),
         featured_image: Joi.string(),
         full_name: Joi.string(),
@@ -135,9 +156,16 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     const params = [];
     params[paramCounter++] = data.id;
+
     const SQL_SETS: string[] = Object.keys(data)
         .map((key) => {
           params[paramCounter++] = data[key];
+          if (key === 'contributors') {
+            return `${key}=$${paramCounter}::uuid[]`;
+          }
+          if (key === 'cognito_uuid') {
+            return `${key}=$${paramCounter}::uuid`;
+          }
           return `${key}=$${paramCounter}`;
         }),
       query = `
