@@ -177,14 +177,10 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         .map((key) => {
           params[paramCounter++] = data[key];
           if (key === 'uuid') {
-            return `cognito_uuid=$${paramCounter}`;
+            return `cognito_uuid=$${paramCounter}::uuid`;
           }
-
           if (key === 'contributors') {
             return `${key}=$${paramCounter}::uuid[]`;
-          }
-          if (key === 'cognito_uuid') {
-            return `${key}=$${paramCounter}::uuid`;
           }
           return `${key}=$${paramCounter}`;
         }),
