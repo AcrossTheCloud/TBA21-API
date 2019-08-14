@@ -21,7 +21,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         uuid: Joi.string().regex(uuidRegex)
       }),
       Joi.object().keys({
-        full_name: Joi.string()
+        fullname: Joi.string()
       })
     ));
 
@@ -38,14 +38,14 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       params.push(queryStringParameters.uuid);
       whereStatement = 'WHERE cognito_uuid = $1';
     }
-    if (queryStringParameters.hasOwnProperty('full_name')) {
-      params.push(queryStringParameters.full_name);
+    if (queryStringParameters.hasOwnProperty('fullname')) {
+      params.push(queryStringParameters.fullname);
       whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
     }
     const sqlStatement = `
         SELECT 
           profiles.id,
-          profiles.full_name,
+          profiles.fullname,
           profiles.profile_type,
           profiles.cognito_uuid
         FROM ${process.env.PROFILES_TABLE}
