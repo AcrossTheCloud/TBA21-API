@@ -15,7 +15,8 @@ INSERT INTO tba21.profiles(
     position,
     contact_person,
     contact_position,
-    contact_email
+    contact_email,
+    cognito_uuid
 )
 VALUES (
    '{1848329f-004f-4f98-b77a-82992871a539, 236c0d78-bfcc-4645-8383-ef632afcb7c7, 468d8382-54c0-4107-a622-104d8a1134ae}',
@@ -33,7 +34,8 @@ VALUES (
     'position',
     'contact_person',
     'contact_position',
-    'contact_email'
+    'contact_email',
+    '4b5981b0-6897-46de-b36e-1ebd125fc1cb'
 ),
 (
    '{4b5981b0-6897-46de-b36e-1ebd125fc1cb}',
@@ -51,7 +53,8 @@ VALUES (
     'position',
     'Dan Wood',
     'Mail man',
-    'danwood@email.com'
+    'danwood@email.com',
+    '81d16d9b-e7da-4d6e-aa13-176820851491'
 ),
 (
    '{81d16d9b-e7da-4d6e-aa13-176820851491}',
@@ -69,7 +72,8 @@ VALUES (
     '',
     '',
     '',
-    ''
+    '',
+    '4b5981b0-6897-46de-b36e-1ebd125fc1cb'
 );
 -- END FIRST QUERY tba21.profile
 

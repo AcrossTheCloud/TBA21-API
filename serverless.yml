@@ -57,8 +57,8 @@ provider:
     COLLECTIONS_ITEMS_TABLE: ${env:COLLECTIONS_ITEMS_TABLE}
     CONCEPT_TAGS_TABLE: ${env:CONCEPT_TAGS_TABLE}
     KEYWORD_TAGS_TABLE: ${env:KEYWORD_TAGS_TABLE}
-    PROFILE_TABLE: ${env:PROFILES_TABLE}
     SHORT_PATHS_TABLE: ${env:SHORT_PATHS_TABLE}
+    PROFILES_TABLE: ${env:PROFILES_TABLE}
 
     PGUSER: ${env:PGUSER}
     PGPASSWORD: ${env:PGPASSWORD}
@@ -459,15 +459,52 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  getHomePageItem:
-    handler: src/admin/shortPaths/shortPaths.insert
-    description:
+  getProfile:
+    handler: src/admin/profiles/profiles.get
+    description: Get a profile
     events:
       - http:
-          path: items/getHomePageItem
+          path: admin/profiles
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+              - name: request.querystring.uuid
+              - name: request.querystring.fullname
+
+  insertProfile:
+    handler: src/admin/profiles/profiles.insert
+    description: Insert a profile
+    events:
+      - http:
+          path: admin/profiles
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  updateProfile:
+    handler: src/admin/profiles/profiles.update
+    description: Update a profile
+    events:
+      - http:
+          path: admin/profiles
+          method: patch
+          cors: true
+          authorizer: aws_iam
+
+  getHomePageItems:
+    handler: src/items/items.getHomePageItem
+    description:
+    events:
+      - http:
+          path: items/getHomePageItems
+          method: get
+          cors: true
+          authorizer: aws_iam
+
 
   ###### ADMIN FUNCTIONS ######
 

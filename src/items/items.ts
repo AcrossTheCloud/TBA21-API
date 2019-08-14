@@ -397,6 +397,10 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
                           query: Joi.string().valid('Video', 'Text', 'Audio', 'Image').required(),
                         }),
       Joi.object().keys({
+                          column: Joi.string().valid('oa_highlight').required(),
+                          query: Joi.string().valid('true').required(),
+                        }),
+      Joi.object().keys({
                           column: Joi.string().valid('item_subtype').required(),
                           query: Joi.string().valid(
                             'Academic Publication',
@@ -441,7 +445,7 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
     
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
-      defaultValues = { limit: 1, offset: 0 };
+      defaultValues = { limit: 1 };
 
     let column  = 'item_type';
 
@@ -455,10 +459,9 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
         SELECT *
         FROM ${process.env.ITEMS_TABLE}
         WHERE ${column} = $3
-        AND status = true
+        AND status = true        
         ORDER BY items.created_at DESC
         LIMIT $1 
-        OFFSET $2
       `;
 
     return successResponse({ items: await db.any(query, params) });

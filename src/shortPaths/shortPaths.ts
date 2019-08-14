@@ -14,11 +14,11 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
     // We expect either short_path or id and it is required
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
-        table: Joi.string().valid('Profile', 'Collection', 'Item'),
+        table: Joi.string().valid('Profile', 'Collection', 'Item').required(),
         short_path: Joi.string().required()
       }),
       Joi.object().keys({
-        table: Joi.string().valid('Profile', 'Collection', 'Item'),
+        table: Joi.string().valid('Profile', 'Collection', 'Item').required(),
         id: Joi.string().required()
       })));
 
