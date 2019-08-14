@@ -480,7 +480,7 @@ functions:
     description: Insert a profile
     events:
       - http:
-          path: profiles/insert
+          path: profiles
           method: put
           cors: true
           authorizer: aws_iam
@@ -490,7 +490,7 @@ functions:
     description: Update a profile
     events:
       - http:
-          path: profiles/update
+          path: profiles
           method: patch
           cors: true
           authorizer: aws_iam
