@@ -460,7 +460,7 @@ functions:
           authorizer: aws_iam
 
   getProfile:
-    handler: src/profiles/profiles.get
+    handler: src/admin/profiles/profiles.get
     description: Get a profile
     events:
       - http:
@@ -471,24 +471,12 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.query
-
-  searchProfile:
-    handler: src/profiles/profiles.search
-    description: Search for a profile
-    events:
-      - http:
-          path: profiles/search
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.query
+              - id: request.querystring.query
+              - cognito_uuid: request.querystring.query
+              - full_name: request.querystring.query
 
   insertProfile:
-    handler: src/profiles/profiles.insert
+    handler: src/admin/profiles/profiles.insert
     description: Insert a profile
     events:
       - http:
@@ -498,7 +486,7 @@ functions:
           authorizer: aws_iam
 
   updateProfile:
-    handler: src/profiles/profiles.update
+    handler: src/admin/profiles/profiles.update
     description: Update a profile
     events:
       - http:

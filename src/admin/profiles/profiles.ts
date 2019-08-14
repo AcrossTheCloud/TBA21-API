@@ -1,43 +1,56 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { db } from '../databaseConnect';
+import { db } from '../../databaseConnect';
 import Joi from '@hapi/joi';
-import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../common';
+import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../../common';
 
 const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$/i;
 
 /**
  *
- * Get a profile by its id or its cognito_uuid
+ * Get profile(s) by either it's id, cognito_uuid or search by full_name
  *
  * @param event
  */
 export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
-      {
-        id: Joi.number().integer(),
-        cognito_uuid: Joi.string().regex(uuidRegex),
-      }));
+    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+      Joi.object().keys({
+                          id: Joi.number().integer()
+                        }),
+      Joi.object().keys({
+                          cognito_uuid: Joi.string().regex(uuidRegex)
+                        }),
+      Joi.object().keys({
+                          full_name: Joi.string()
+                        })
+    ));
 
     const
       queryStringParameters = event.queryStringParameters,
       params = [];
-    let column = '';
+    let whereStatement = '';
+    // checks to see what has been passed through, and changing the WHERE statement to suit as well as pushing queryStringParameters in to params[]
     if (queryStringParameters.hasOwnProperty('id')) {
       params.push(queryStringParameters.id);
-      column = 'id';
-    } else {
-      params.push(queryStringParameters.cognito_uuid);
-      column = 'cognito_uuid';
+      whereStatement = 'WHERE id = $1';
     }
-
+    if (queryStringParameters.hasOwnProperty('cognito_uuid')) {
+      params.push(queryStringParameters.cognito_uuid);
+      whereStatement = 'WHERE cognito_uuid = $1';
+    }
+    if (queryStringParameters.hasOwnProperty('full_name')) {
+      params.push(queryStringParameters.full_name);
+      whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
+    }
     const sqlStatement = `
-        SELECT * 
+        SELECT 
+          profiles.id,
+          profiles.full_name,
+          profiles.profile_type,
+          profiles.cognito_uuid
         FROM ${process.env.PROFILES_TABLE}
-        WHERE ${column} = $1
-        AND public_profile = true
+        ${whereStatement}
       `;
-
     return successResponse({ profile: await db.any(sqlStatement, params) });
   } catch (e) {
     console.log('/profile/profile.get ERROR - ', !e.isJoi ? e : e.details);
@@ -189,42 +202,5 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       console.log('/profile/profiles/update ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
-  }
-};
-
-/**
- *
- * Search profiles
- *
- * @param event {APIGatewayEvent}
- *
- * @returns { Promise<APIGatewayProxyResult> } List of profiles
- */
-export const search = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
-      query: Joi.string().required()
-    }));
-
-    const
-      { query } = event.queryStringParameters,
-      params = [query],
-      sqlStatement = `
-        SELECT 
-          profiles.id,
-          profiles.full_name,
-          profiles.profile_type,
-          profiles.affiliation
-        FROM ${process.env.PROFILES_TABLE}
-        WHERE 
-          LOWER(full_name) LIKE LOWER($1) || '%'
-        AND public_profile = true
-      `;
-    const result = await db.any(sqlStatement, params);
-
-    return successResponse({ profiles: result ? result : [] });
-  } catch (e) {
-    console.log('/profile/profile.get ERROR - ', !e.isJoi ? e : e.details);
-    return badRequestResponse();
   }
 };

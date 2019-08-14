@@ -5,10 +5,10 @@ require('dotenv').config(
 );
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { get, insert, search, update } from './profiles';
-import { QueryStringParameters } from '../types/_test_';
-import { db } from '../databaseConnect';
-import { reSeedDatabase } from '../utils/testHelper';
+import { get, insert, update } from './profiles';
+import { QueryStringParameters } from '../../types/_test_';
+import { db } from '../../databaseConnect';
+import { reSeedDatabase } from '../../utils/testHelper';
 
 describe('Profile get tests', () => {
   // AfterAll tests reseed the DB
@@ -34,17 +34,10 @@ describe('Profile get tests', () => {
   });
   test('Check that we have a profile with the full_name starting with r', async () => {
     const
-      queryStringParameters: QueryStringParameters = {query: 'r'},
-      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
-      responseBody = JSON.parse(response.body);
-    expect(responseBody.profile);
-  });
-  test('Check that we have a private profile isnt returned', async () => {
-    const
-      queryStringParameters: QueryStringParameters = {id: '1'},
+      queryStringParameters: QueryStringParameters = {full_name: 'I'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    expect(responseBody.profile).toEqual([]);
+    expect(responseBody.profile[0].full_name).toEqual('Richie Kirkbridge');
   });
   test('Create a profile', async () => {
     const
