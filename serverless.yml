@@ -473,7 +473,7 @@ functions:
             cacheKeyParameters:
               - id: request.querystring.id
               - uuid: request.querystring.uuid
-              - full_name: request.querystring.full_name
+              - fullname: request.querystring.full_name
 
   insertProfile:
     handler: src/admin/profiles/profiles.insert
