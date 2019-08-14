@@ -464,7 +464,7 @@ functions:
     description: Get a profile
     events:
       - http:
-          path: profiles/get
+          path: profiles
           method: get
           cors: true
           authorizer: aws_iam
