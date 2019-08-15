@@ -383,7 +383,7 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
 };
 /**
  *
- * Gets the items for the home page, either by their type, sub type or oa highlight
+ *  Returns items between two dates in random order.
  *
  * @param event {APIGatewayEvent}
  *
@@ -393,75 +393,26 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
-                          column: Joi.string().valid('item_type').required(),
-                          query: Joi.string().valid('Video', 'Text', 'Audio', 'Image').required(),
-                        }),
-      Joi.object().keys({
-                          column: Joi.string().valid('oa_highlight').required(),
-                          query: Joi.string().valid('true').required(),
-                        }),
-      Joi.object().keys({
-                          column: Joi.string().valid('item_subtype').required(),
-                          query: Joi.string().valid(
-                            'Academic Publication',
-                            'Article',
-                            'News',
-                            'Policy Paper',
-                            'Report',
-                            'Book',
-                            'Essay',
-                            'Historical Text',
-                            'Event Press',
-                            'Toolkit',
-                            'Movie',
-                            'Documentary',
-                            'Research',
-                            'Interview',
-                            'Art',
-                            'News / Journalism',
-                            'Event Recording',
-                            'Informational Video',
-                            'Trailer',
-                            'Artwork Documentation',
-                            'Raw Footage',
-                            'Photograph',
-                            'Digital Art',
-                            'Graphics',
-                            'Map',
-                            'Film Still',
-                            'Sculpture',
-                            'Painting',
-                            'Illustration',
-                            'Field Recording',
-                            'Sound Art',
-                            'Music',
-                            'Podcast',
-                            'Lecture',
-                            'Radio',
-                            'Performance Poetry',
-                            'Other').required()
-                        })
+        limit: Joi.number().integer(),
+        start_date: Joi.date().raw(),
+        end_date: Joi.date().raw()
+      })
     ));
     
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
-      defaultValues = { limit: 1 };
-
-    let column  = 'item_type';
-
-    if (queryString.hasOwnProperty('item_subtype')) {
-      column = 'item_subtype';
-    }
+      defaultValues = { limit: 50 };
 
     const
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString[column], queryString.query],
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.start_date, queryString.end_date],
       query = `
-        SELECT *
+        SELECT id, title, s3_key
         FROM ${process.env.ITEMS_TABLE}
-        WHERE ${column} = $3
-        AND status = true        
-        ORDER BY items.created_at DESC
-        LIMIT $1 
+        WHERE  created_at >= $2::date
+        AND    created_at <= $3::date
+        AND status = true
+        ORDER BY random()
+        LIMIT $1
       `;
 
     return successResponse({ items: await db.any(query, params) });

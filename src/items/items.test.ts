@@ -194,11 +194,12 @@ describe('Item tests', () => {
     const response = await getRekognitionTags({} as APIGatewayProxyEvent);
     expect(response.statusCode).toEqual(400);
   });
-  test('Get a home page item', async () => {
+  test('Get items between dates', async () => {
     const
-      queryStringParameters: QueryStringParameters = {column: 'item_type', query: 'Video'},
+      queryStringParameters: QueryStringParameters = {start_date: '2011-07-01', end_date: '2015-07-01'},
       response = await getHomePageItem({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(1);
+    console.log(results);
+    expect(results.items.length).toEqual(3);
   });
 });
