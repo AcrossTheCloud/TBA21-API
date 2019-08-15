@@ -3,6 +3,8 @@ import { badRequestResponse, headers, internalServerErrorResponse } from '../../
 import { db } from '../../databaseConnect';
 import Joi from '@hapi/joi';
 
+const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$/i;
+
 /**
  *
  * Insert a new collection
@@ -20,13 +22,13 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
       {
         created_at: Joi.date().raw(),
         updated_at: Joi.date().raw(),
-        start_date: Joi.date().raw().required(),
+        start_date: Joi.date().raw(),
         end_date: Joi.date().raw(),
         time_produced: Joi.date().timestamp(),
         status: Joi.boolean(),
         concept_tags: Joi.array().items(Joi.number().integer()).required(),
         keyword_tags: Joi.array().items(Joi.number().integer()),
-        place: Joi.string().required(),
+        regional_focus: Joi.string(),
         country_or_ocean: Joi.string(),
         creators: Joi.array().items(Joi.string()),
         directors: Joi.array().items(Joi.string()),
@@ -50,7 +52,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         specialisation: Joi.string(),
         department: Joi.string(),
         expedition_leader: Joi.string(),
-        institution: Joi.string().required(),
+        institution: Joi.string(),
         expedition_vessel: Joi.string(),
         expedition_route: Joi.string(),
         expedition_blog_link: Joi.string(),
@@ -74,13 +76,14 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         license: Joi.string(),
         location: Joi.string(),
         other_metadata: Joi.object(),
-        year_produced: Joi.number().integer().required(),
+        year_produced: Joi.number().integer(),
         media_type: Joi.string(),
         city_of_publication: Joi.string(),
         digital_only: Joi.boolean(),
         related_event: Joi.string(),
         volume: Joi.number().integer(),
         number: Joi.number().integer(),
+        contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
       }));
 
@@ -96,10 +99,16 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
     const
       params = [],
       sqlFields: string[] = Object.keys(data).filter(e => (e !== 'items')).map((key) => {
-        return `${key}`;
+       if (key === 'contributors') {
+         return `contributors`;
+       }
+       return `${key}`;
       }),
       sqlParams: string[] = Object.keys(data).filter(e => (e !== 'items')).map((key) => {
         params[paramCounter++] = data[key];
+        if (key === 'contributors') {
+          return `$${paramCounter}::uuid[]`;
+        }
         return `$${paramCounter}`;
       });
 
@@ -134,7 +143,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
     if ((e.message === 'Nothing to update') || (e.isJoi)) {
       return badRequestResponse(e.message);
     } else {
-      console.log('/admin/collections/update ERROR - ', !e.isJoi ? e : e.details);
+      console.log('/admin/collections/insert ERROR - ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse();
     }
   }

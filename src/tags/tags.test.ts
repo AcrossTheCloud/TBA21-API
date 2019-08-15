@@ -63,7 +63,7 @@ describe('Tag search tests', () => {
 
   test('Check that we have 1 concept tags with the name of Labor.', async () => {
     const
-      queryStringParameters: QueryStringParameters = { type: 'concept', query: 'labor' },
+      queryStringParameters: QueryStringParameters = { type: 'concept', query: 'Labor' },
       response = await search({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 

@@ -20,7 +20,6 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         limit: Joi.number().integer(),
         offset: Joi.number().integer()
       }));
-      // will cause an exception if it is not valid
     }
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -30,8 +29,8 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         SELECT
           COUNT ( item.s3_key ) OVER (),
           item.*,
-          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsGeoJSON(item.geom) as geoJSON
         FROM 
           ${process.env.ITEMS_TABLE} AS item,
@@ -66,19 +65,32 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
-export const getByS3Key = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({ s3Key: Joi.string().required() }), { presence: 'required' });
-    // will cause an exception if it is not valid
+    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+      Joi.object().keys({
+                          s3Key: Joi.string(),
+                          id: Joi.string()
+                        })));
+
+    const queryString = event.queryStringParameters; // Use default values if not supplied.
+
+    let
+      column = 's3_key',
+      params = [queryString.s3Key];
+
+    // If we've passed in id instead of s3key, change the column and params to use id
+    if (queryString.hasOwnProperty('id')) {
+      column = 'id';
+      params = [queryString.id];
+    }
 
     const
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.s3Key],
       query = `
         SELECT
           item.*,
-          COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
           ${process.env.ITEMS_TABLE} AS item,
@@ -89,13 +101,14 @@ export const getByS3Key = async (event: APIGatewayEvent, context: Context): Prom
           UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         
-        WHERE status=true AND item.s3_key=$1
-        
+        WHERE item.${column}=$1
+        AND status = true
         GROUP BY item.s3_key
       `;
+
     return successResponse({ item: await db.oneOrNone(query, params) });
   } catch (e) {
-    console.log('/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
+    console.log('admin/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -126,8 +139,8 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       SELECT
         COUNT ( item.s3_key ) OVER (),
          item.*,
-         COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-         COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+         COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
          ST_AsGeoJSON(item.geom) as geoJSON
       FROM 
         ${process.env.ITEMS_TABLE} AS item,
@@ -180,21 +193,20 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
       params = [queryString.type, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
       query = `
         SELECT 
-        items.id,
         items.*,
-        COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-        COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+        COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+        COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
         ST_AsGeoJSON(items.geom) as geoJSON
         
         FROM ${process.env.ITEMS_TABLE},
         
         UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
-        LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+        LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
         
         UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
         LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         
-        WHERE LOWER(items.item_type::varchar) LIKE '%' || LOWER($1) || '%' 
+        WHERE items.item_type::varchar = $1 
         AND status=true
         
         GROUP BY items.s3_key
@@ -235,8 +247,8 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         SELECT
           COUNT ( item.s3_key ) OVER (),
            item.*,
-           COALESCE(json_agg(concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-           COALESCE(json_agg(keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
            ST_AsGeoJSON(item.geom) as geoJSON 
         FROM 
           ${process.env.ITEMS_TABLE} AS item,

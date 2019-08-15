@@ -17,7 +17,6 @@ export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
       {
         id: Joi.number().integer().required()
       }));
-    // will cause an exception if it is not valid
 
     const
       params = [event.queryStringParameters.id],

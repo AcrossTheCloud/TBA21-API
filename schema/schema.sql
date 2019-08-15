@@ -61,56 +61,55 @@ CREATE TYPE tba21.subtype AS ENUM (
  );
 
 --Collection types
-CREATE TYPE tba21.collection_type AS ENUM (
-'Series', 'Area of research', 'Event', 'Edited Volume', 'Expedition', 'Collection', 'Convening', 'Performance', 'Installation', 'Other');
+CREATE TYPE tba21.collection_type AS ENUM ('Series', 'Area of research', 'Event', 'Edited Volume', 'Expedition', 'Collection', 'Convening', 'Performance', 'Installation', 'Other');
 
 -- Items metadata table
 CREATE TABLE tba21.items
 (
   ID bigserial UNIQUE,
-	s3_key varchar(1024) PRIMARY KEY NOT NULL,
-	sha512 char(128),
+  s3_key varchar(1024) PRIMARY KEY NOT NULL,
+  sha512 char(128),
   exif jsonb, -- for exif data
-	machine_recognition_tags jsonb,
-	md5 char(32),
-	image_hash char(64),
-	created_at timestamp with time zone NOT NULL,
-	updated_at timestamp with time zone NOT NULL,
-	time_produced timestamp with time zone,
-	status boolean, -- false=draft, true=public
-	concept_tags bigint[],
-	keyword_tags bigint[],
-	place varchar(128)[],
-	country_or_ocean varchar(128),
-	item_type tba21.item_type, --ref to
-	item_subtype tba21.subtype,
-	creators varchar(256)[],
-	contributor uuid,
-	directors varchar(256)[],
-	writers varchar(256)[],
-	editor varchar(256),
+  machine_recognition_tags jsonb,
+  md5 char(32),
+  image_hash char(64),
+  created_at timestamp with time zone NOT NULL,
+  updated_at timestamp with time zone NOT NULL,
+  time_produced timestamp with time zone,
+  status boolean, -- false=draft, true=public
+  concept_tags bigint[],
+  keyword_tags bigint[],
+  place varchar(128)[],
+  country_or_ocean varchar(128),
+  item_type tba21.item_type, --ref to
+  item_subtype tba21.subtype,
+  creators varchar(256)[],
+  contributor uuid,
+  directors varchar(256)[],
+  writers varchar(256)[],
+  editor varchar(256),
   featured_in varchar(256),
-	collaborators varchar(256)[],
-	exhibited_at varchar(256)[],
-	series varchar(256),
-	ISBN numeric(13),
-	DOI varchar(1024),
-	edition numeric(3),
-	year_produced numeric(4),
-	volume numeric(4),
-	issue numeric(4),
-	pages numeric(5),
-	city_of_publication varchar(128),
-	disciplinary_field varchar(256),
-	publisher varchar(256)[],
-	interviewers varchar(256)[],
-	interviewees varchar(256)[],
-	cast_ varchar(1024),
-	license tba21.licence_type,
-	title varchar(256),
-	subtitle varchar(256),
+  collaborators varchar(256)[],
+  exhibited_at varchar(256)[],
+  series varchar(256),
+  ISBN numeric(13),
+  DOI varchar(1024),
+  edition numeric(3),
+  year_produced numeric(4),
+  volume numeric(4),
+  issue numeric(4),
+  pages numeric(5),
+  city_of_publication varchar(128),
+  disciplinary_field varchar(256),
+  publisher varchar(256)[],
+  interviewers varchar(256)[],
+  interviewees varchar(256)[],
+  cast_ varchar(256)[],
+  license tba21.licence_type,
+  title varchar(256),
+  subtitle varchar(256),
   in_title varchar(256), -- e.g. title of book an article/chapter is in
-	description varchar(1024),
+  description varchar(1024),
   map_icon varchar(1024), -- path to s3 object in client side code bucket
   focus_arts numeric(1),
   focus_action numeric(1),
@@ -151,9 +150,9 @@ CREATE TABLE tba21.items
   authors varchar(256)[],
   credit varchar(256),
   copyright_holder varchar(256),
-	copyright_country varchar(256),
-	created_for varchar(256),
-	duration numeric(4),
+  copyright_country varchar(256),
+  created_for varchar(256),
+  duration numeric(4),
   interface varchar(256),
   document_code varchar(256),
   project varchar(256),
@@ -174,9 +173,9 @@ CREATE TABLE tba21.items
 --Collections metadata
 CREATE TABLE tba21.collections
 (
-	ID bigserial PRIMARY KEY,
-	created_at timestamp with time zone NOT NULL,
-	updated_at timestamp with time zone NOT NULL,
+  ID bigserial PRIMARY KEY,
+  created_at timestamp with time zone NOT NULL,
+  updated_at timestamp with time zone NOT NULL,
   start_date date,
   end_date date,
 	time_produced timestamp with time zone,
@@ -237,17 +236,18 @@ CREATE TABLE tba21.collections
   city_of_publication varchar(128),
   digital_only boolean,
   related_event varchar(256),
-	volume numeric(4),
-	number numeric(5),
-	event_type varchar(256)
+  volume numeric(4),
+  number numeric(5),
+  event_type varchar(256)
 );
 
 --Contributor metadata
 CREATE TABLE tba21.profiles
 (
-	ID bigserial PRIMARY KEY,
+  ID bigserial PRIMARY KEY,
+  cognito_uuid uuid,
   contributors uuid[],
-  profile_image varchar(1024),  -- pathi to s3 object
+  profile_image varchar(1024),  -- path to s3 object
   featured_image varchar(1024),  -- path to s3 object
   full_name varchar(256),
   field_expertise varchar(256),
@@ -270,7 +270,8 @@ CREATE TABLE tba21.short_paths
 (
   short_path varchar(256) PRIMARY KEY,
   ID bigint,
-  object_type tba21.table_type
+  object_type tba21.table_type,
+  created_at timestamp with time zone NOT NULL
 );
 
 -- Geo stuff
@@ -297,15 +298,15 @@ CREATE TABLE tba21.collections_items
 --Concept tags metadata
 CREATE TABLE tba21.concept_tags
 (
-	ID bigserial PRIMARY KEY,
-	tag_name varchar(128)
+  ID bigserial PRIMARY KEY,
+  tag_name varchar(128)
 );
 
 --Keyword tags metadata
 CREATE TABLE tba21.keyword_tags
 (
-	ID bigserial PRIMARY KEY,
-	tag_name varchar(128)
+  ID bigserial PRIMARY KEY,
+  tag_name varchar(128)
 );
 
 

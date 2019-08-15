@@ -3,6 +3,8 @@ import { badRequestResponse, headers } from '../../common';
 import { db } from '../../databaseConnect';
 import Joi from '@hapi/joi';
 
+const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$/i;
+
 /**
  *
  * Update a collection by it's ID
@@ -20,9 +22,12 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         {
           id: Joi.number().integer().required(),
           status: Joi.boolean(),
+          start_date: Joi.date().raw(),
+          end_date: Joi.date().raw(),
           concept_tags: Joi.array().items(Joi.number().integer()),
           keyword_tags: Joi.array().items(Joi.number().integer()),
-          place: Joi.string(),
+          contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
+          regional_focus: Joi.string(),
           country_or_ocean: Joi.string(),
           creators: Joi.array().items(Joi.string()),
           directors: Joi.array().items(Joi.string()),
@@ -88,7 +93,6 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
     }
     let paramCounter = 0;
 
-    // NOTE: contributor is inserted on create, uuid from claims
     const params = [];
     params[paramCounter++] = data.id;
     // pushed into from SQL SET map
@@ -97,6 +101,9 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
       .filter(e => ((e !== 'id') && (e !== 'items'))) // remove id and items
       .map((key) => {
         params[paramCounter++] = data[key];
+        if (key === 'contributors') {
+          return `${key}=$${paramCounter}::uuid[]`;
+        }
         return `${key}=$${paramCounter}`;
       }),
       query = `

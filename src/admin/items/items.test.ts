@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
-import { get, getByS3Key, getByTag } from './items';
+import { get, getByPerson, getItem, getByTag, getByType } from './items';
 
 describe('Admin Items', () => {
   afterAll( () => {
@@ -40,12 +40,41 @@ describe('Admin Items', () => {
 
     expect(result.items.length).toEqual(3);
   });
+  test('Search for justice in tags and expect 5 results', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {inputQuery: 'justice'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+
+    expect(result.items.length).toEqual(5);
+  });
+  test('Search for ben in creators and expect 2 results', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {inputQuery: 'ben'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+    expect(result.items.length).toEqual(2);
+  });
+  test('Search for ocean in creators and expect 5 results', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {inputQuery: 'ocean'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+    expect(result.items.length).toEqual(5);
+  });
   test('Get item with a specific s3 key', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg'},
-      response = await getByS3Key({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await getItem({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
     expect(result.item.s3_key).toEqual('private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg');
+  });
+  test('Get item by its id', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {id: '1'},
+      response = await getItem({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+    expect(result.item.id).toEqual('1');
   });
   test('Get a bad response when no key is given', async () => {
     const
@@ -68,5 +97,21 @@ describe('Admin Items', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);
+  });
+  test('Get items by their type', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {type: 'Video'},
+      response = await getByType({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+
+    expect(result.items.length).toEqual(5);
+  });
+  test('Get items by their person', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {person: 'Tim'},
+      response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+
+    expect(result.items.length).toEqual(2);
   });
 });
