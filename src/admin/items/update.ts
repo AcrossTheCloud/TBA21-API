@@ -32,7 +32,6 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         item_type: Joi.string(),
         item_subtype: Joi.string(),
         creators: Joi.array().items(Joi.string()),
-        contributor: Joi.string().uuid(),
         directors: Joi.array().items(Joi.string()),
         writers: Joi.array().items(Joi.string()),
         collaborators: Joi.array().items(Joi.string()),
