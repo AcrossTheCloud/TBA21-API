@@ -22,6 +22,7 @@ describe('/admin/collections/update/updateByID', () => {
     const
       requestBody = {
         'id': '1',
+        'contributors' : ['1f89f9b6-39bc-416e-899e-ef1a8d656f24'],
         'status': 'true' ,
         'concept_tags': [3, 4],
         'keyword_tags': [1, 3],

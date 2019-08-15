@@ -44,6 +44,7 @@ describe('/admin/collections/insert/', () => {
     const
       requestBody = {
         'cast_': ['test'],
+        'contributors' : ['1f89f9b6-39bc-416e-899e-ef1a8d656f24'],
         'items': ['private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg'],
         'year_produced': '1992',
         'regional_focus': 'Arctic Ocean',
