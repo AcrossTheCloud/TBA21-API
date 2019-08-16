@@ -8,7 +8,7 @@ AUTHORIZATION postgres;
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 --License
-CREATE TYPE tba21.licence_type AS ENUM ('CC BY', 'CC BY-SA', 'CC BY-ND', 'CC BY-NC', 'CC BY-NC-SA', 'CC BY-NC-ND', 'Ocean Archive');
+CREATE TYPE tba21.licence_type AS ENUM ('CC BY', 'CC BY-SA', 'CC BY-ND', 'CC BY-NC', 'CC BY-NC-SA', 'CC BY-NC-ND', 'Ocean Archive', 'Locked');
 
 --Table Types
 CREATE TYPE tba21.table_type AS ENUM ('Profile', 'Item', 'Collection');
@@ -61,7 +61,19 @@ CREATE TYPE tba21.subtype AS ENUM (
  );
 
 --Collection types
-CREATE TYPE tba21.collection_type AS ENUM ('Series', 'Area of research', 'Event', 'Edited Volume', 'Expedition', 'Collection', 'Convening', 'Performance', 'Installation', 'Other');
+CREATE TYPE tba21.collection_type AS ENUM (
+'Series',
+'Area of research',
+'Event',
+'Event Series',
+'Edited Volume',
+'Expedition',
+'Collection',
+'Convening',
+'Performance',
+'Installation',
+'Other'
+);
 
 -- Items metadata table
 CREATE TABLE tba21.items
