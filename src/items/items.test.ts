@@ -13,7 +13,9 @@ import {
   getByPerson,
   getByType,
   changeStatus,
-  getItemsInBounds, getRekognitionTags, getHomePageItem,
+  getItemsInBounds,
+  getRekognitionTags,
+  getHomePageItem,
 } from './items';
 
 describe('Item tests', () => {
