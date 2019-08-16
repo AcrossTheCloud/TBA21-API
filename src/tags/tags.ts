@@ -85,13 +85,12 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const data = JSON.parse(event.body);
 
     await Joi.validate(data, Joi.object().keys({
-      type: Joi.string().valid('keyword', 'concept').required(),
       tags: Joi.array().items(Joi.string()).required()
     }));
 
     const
-      { type, tags } = data,
-      tableName = type === 'concept' ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE,
+      { tags } = data,
+      tableName = process.env.KEYWORD_TAGS_TABLE,
       sqlStatement = `
         WITH tag AS
         (
@@ -135,13 +134,12 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     await Joi.validate(data, Joi.object().keys({
       id: Joi.number().integer().required(),
-      type: Joi.string().valid('keyword', 'concept').required(),
       new_tag_name: Joi.string().required()
     }));
 
     const
-      { id, type, new_tag_name } = data,
-      tableName = ((type === 'concept') ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE),
+      { id, new_tag_name } = data,
+      tableName = process.env.KEYWORD_TAGS_TABLE,
       sqlStatement = `UPDATE  ${tableName}
           set tag_name = $1
           where id=$2
@@ -174,13 +172,12 @@ export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const data = JSON.parse(event.body);
 
     await Joi.validate(data, Joi.object().keys({
-      id: Joi.number().integer().required(),
-      type: Joi.string().valid('keyword', 'concept').required()
+      id: Joi.number().integer().required()
     }));
 
     const
-      { id, type } = data,
-      tableName = ((type === 'concept') ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE),
+      { id } = data,
+      tableName = process.env.KEYWORD_TAGS_TABLE,
       sqlStatement = `DELETE from  ${tableName}
           where id=$1
           RETURNING id, tag_name;`,
