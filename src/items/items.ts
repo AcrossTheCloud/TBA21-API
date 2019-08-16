@@ -393,8 +393,7 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         limit: Joi.number().integer(),
-        start_date: Joi.date().raw(),
-        end_date: Joi.date().raw()
+        date: Joi.date().raw(),
       })
     ));
     
@@ -403,12 +402,12 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
       defaultValues = { limit: 50 };
 
     const
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.start_date, queryString.end_date],
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.date],
       query = `
         SELECT id, title, s3_key
         FROM ${process.env.ITEMS_TABLE}
         WHERE  created_at >= $2::date
-        AND    created_at <= $3::date
+        AND    created_at <= now()
         AND status = true
         ORDER BY random()
         LIMIT $1

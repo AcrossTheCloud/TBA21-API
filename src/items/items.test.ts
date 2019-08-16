@@ -198,10 +198,10 @@ describe('Item tests', () => {
   });
   test('Get items between dates', async () => {
     const
-      queryStringParameters: QueryStringParameters = {start_date: '2011-07-01', end_date: '2015-07-01'},
+      queryStringParameters: QueryStringParameters = {date: '2011-07-01'},
       response = await getHomePageItem({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
     console.log(results);
-    expect(results.items.length).toEqual(3);
+    expect(results.items.length).toEqual(4);
   });
 });
