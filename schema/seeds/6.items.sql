@@ -14,7 +14,7 @@ INSERT INTO tba21.items(
   concept_tags,
   keyword_tags,
   place,
-  country_or_ocean,
+  regions,
   item_type,
   item_subtype,
   creators,

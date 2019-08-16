@@ -129,7 +129,6 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       offset: Joi.number().integer(),
       tag: Joi.string().required()
     }));
-    // will cause an exception if it is not valid
 
     const
       defaultValues = { limit: 15, offset: 0 },

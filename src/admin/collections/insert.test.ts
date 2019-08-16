@@ -75,7 +75,7 @@ describe('/admin/collections/insert/', () => {
         'status': 'true' ,
         'concept_tags': [3, 4],
         'keyword_tags': [1, 3],
-        'country_or_ocean': 'Atlantic' ,
+        'regions': ['Atlantic'] ,
         'creators': ['creators'] ,
         'directors': ['directors1, directors2'],
         'writers': ['writers'],

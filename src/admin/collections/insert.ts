@@ -29,7 +29,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         concept_tags: Joi.array().items(Joi.number().integer()).required(),
         keyword_tags: Joi.array().items(Joi.number().integer()),
         regional_focus: Joi.string(),
-        country_or_ocean: Joi.string(),
+        regions: Joi.array().items(Joi.string()),
         creators: Joi.array().items(Joi.string()),
         directors: Joi.array().items(Joi.string()),
         writers: Joi.array().items(Joi.string()),

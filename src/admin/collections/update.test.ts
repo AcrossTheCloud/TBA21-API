@@ -26,7 +26,7 @@ describe('/admin/collections/update/updateByID', () => {
         'status': 'true' ,
         'concept_tags': [3, 4],
         'keyword_tags': [1, 3],
-        'country_or_ocean': 'Atlantic' ,
+        'regions': ['Atlantic'] ,
         'regional_focus': 'Arctic Ocean' ,
         'creators': ['creators'] ,
         'directors': ['directors1, directors2'],
