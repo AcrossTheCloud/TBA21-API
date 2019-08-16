@@ -392,19 +392,18 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
-        limit: Joi.number().integer(),
-        date: Joi.date().raw(),
+        itemsLimit: Joi.number().integer(),
+        collectionsLimit: Joi.number().integer(),
+        date: Joi.date().raw().required(),
       })
     ));
-    
-    const
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      defaultValues = { limit: 50 };
 
     const
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.date],
-      query = `
-        SELECT id, title, s3_key
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      defaultValues = { itemsLimit: 50 },
+      params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date],
+      itemsQuery = `
+        SELECT id, title, s3_key, item_subtype
         FROM ${process.env.ITEMS_TABLE}
         WHERE  created_at >= $2::date
         AND    created_at <= now()
@@ -413,7 +412,28 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
         LIMIT $1
       `;
 
-    return successResponse({ items: await db.any(query, params) });
+    // if we dont get a limit for collections, set it to 5
+    if (queryString.hasOwnProperty('collectionsLimit')) {
+        params.push(queryString.collectionsLimit);
+      } else { params.push(5); }
+    const collectionsQuery = `
+      SELECT *, COUNT(*) FROM
+      (
+        SELECT id, title, type
+        FROM ${process.env.COLLECTIONS_TABLE}
+          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON collections.id = collections_items.collection_id
+        WHERE created_at >= $2::date
+        AND created_at <=  now()
+        AND status = true
+      ) as id
+      GROUP BY id.id, id.title, id.type
+      LIMIT $3
+      `;
+
+    return successResponse({
+     items: await db.any(itemsQuery, params),
+     collections: await db.any(collectionsQuery, params)
+    });
   } catch (e) {
     console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

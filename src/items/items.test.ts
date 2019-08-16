@@ -196,12 +196,20 @@ describe('Item tests', () => {
     const response = await getRekognitionTags({} as APIGatewayProxyEvent);
     expect(response.statusCode).toEqual(400);
   });
-  test('Get items between dates', async () => {
+  test('Get items and collections between dates', async () => {
     const
       queryStringParameters: QueryStringParameters = {date: '2011-07-01'},
       response = await getHomePageItem({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    console.log(results);
     expect(results.items.length).toEqual(4);
+    expect(results.collections.length).toEqual(3);
+  });
+  test('Test we can limit whats returned', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {date: '2011-07-01', itemsLimit: '1', collectionsLimit: '1'},
+      response = await getHomePageItem({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+    expect(results.items.length).toEqual(1);
+    expect(results.collections.length).toEqual(1);
   });
 });
