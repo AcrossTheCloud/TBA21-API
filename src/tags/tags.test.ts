@@ -88,7 +88,6 @@ describe('Tag insert tests', () => {
   test('Insert 1 keyword tag and check the result', async () => {
     const
       requestBody = {
-        'type': 'keyword',
         'tags': ['Espeon']
       },
       body: string = JSON.stringify(requestBody),
@@ -102,7 +101,6 @@ describe('Tag insert tests', () => {
   test('Insert 1 keyword that doesn\'t exist tag and check the results', async () => {
     const
       requestBody = {
-        'type': 'keyword',
         'tags': ['Pikachu', 'Eevee']
       },
       body: string = JSON.stringify(requestBody),
@@ -118,7 +116,6 @@ describe('Tag update and delete tests', () => {
   test('Update 1 keyword tag and check the result', async () => {
     const
       requestBody = {
-        'type': 'keyword',
         'id': 1,
         'new_tag_name': 'changed keyword tag'
       },
@@ -131,10 +128,9 @@ describe('Tag update and delete tests', () => {
 
   });
 
-  test('Delete 1 concept tag and check the result', async () => {
+  test('Delete 1 keyword tag and check the result', async () => {
     const
       requestBody = {
-        'type': 'concept',
         'id': 1
       },
       body: string = JSON.stringify(requestBody),
