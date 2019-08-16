@@ -41,7 +41,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
           LOWER(institution) LIKE '%' || LOWER($3) || '%' OR
           LOWER(news_outlet) LIKE '%' || LOWER($3) || '%' OR
       
-          LOWER(country_or_ocean) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($3) || '%' OR
           LOWER(location) LIKE '%' || LOWER($3) || '%' OR
           LOWER(city_of_publication) LIKE '%' || LOWER($3) || '%' OR
       

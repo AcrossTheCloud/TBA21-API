@@ -80,7 +80,7 @@ CREATE TABLE tba21.items
   concept_tags bigint[],
   keyword_tags bigint[],
   place varchar(128)[],
-  country_or_ocean varchar(128),
+  regions varchar(128)[],
   item_type tba21.item_type, --ref to
   item_subtype tba21.subtype,
   creators varchar(256)[],
@@ -184,7 +184,7 @@ CREATE TABLE tba21.collections
 	keyword_tags bigint[],
 	place varchar(128),
 	regional_focus varchar(128),
-	country_or_ocean varchar(128),
+	regions varchar(128)[],
 	creators varchar(256)[],
 	contributors uuid[],
 	directors varchar(256)[],

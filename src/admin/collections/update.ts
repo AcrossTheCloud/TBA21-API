@@ -28,7 +28,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
           keyword_tags: Joi.array().items(Joi.number().integer()),
           contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
           regional_focus: Joi.string(),
-          country_or_ocean: Joi.string(),
+          regions: Joi.array().items(Joi.string()),
           creators: Joi.array().items(Joi.string()),
           directors: Joi.array().items(Joi.string()),
           writers: Joi.array().items(Joi.string()),

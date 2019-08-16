@@ -25,7 +25,7 @@ describe('/admin/items/update/updateByS3key', () => {
         'concept_tags': [3, 4],
         'keyword_tags': [1, 3],
         'place': ['place'],
-        'country_or_ocean': 'Ocean',
+        'regions': ['Ocean'],
         'item_type': 'Text',
         'item_subtype': 'Sculpture',
         'creators': ['Zara', 'Dan'],
