@@ -382,7 +382,7 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
 };
 /**
  *
- *  Returns items between two dates in random order.
+ *  Returns items and collections between two dates(the date passed in and now()) in random order.
  *
  * @param event {APIGatewayEvent}
  *
@@ -405,9 +405,9 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
       itemsQuery = `
         SELECT id, title, s3_key, item_subtype
         FROM ${process.env.ITEMS_TABLE}
-        WHERE  created_at >= $2::date
-        AND    created_at <= now()
-        AND status = true
+        WHERE created_at >= $2::date
+          AND created_at <= now()
+          AND status = true
         ORDER BY random()
         LIMIT $1
       `;
@@ -417,17 +417,16 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
         params.push(queryString.collectionsLimit);
       } else { params.push(5); }
     const collectionsQuery = `
-      SELECT *, COUNT(*) FROM
-      (
-        SELECT id, title, type
+
+        SELECT id, title, type, COUNT(*)
         FROM ${process.env.COLLECTIONS_TABLE}
           INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON collections.id = collections_items.collection_id
         WHERE created_at >= $2::date
-        AND created_at <=  now()
-        AND status = true
-      ) as id
-      GROUP BY id.id, id.title, id.type
-      LIMIT $3
+          AND created_at <=  now()
+          AND status = true
+        GROUP BY id, title, type
+        ORDER BY random()
+        LIMIT $3
       `;
 
     return successResponse({
