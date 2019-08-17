@@ -64,3 +64,6 @@ typings/
 .idea
 
 docker/schema
+
+# input concept tag file
+schema/*.csv
