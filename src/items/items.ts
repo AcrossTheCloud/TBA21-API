@@ -388,7 +388,7 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
  *
  * @returns { Promise<APIGatewayProxyResult> } Array of tags
  */
-export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
@@ -413,11 +413,9 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
       `;
 
     // if we dont get a limit for collections, set it to 5
-    if (queryString.hasOwnProperty('collectionsLimit')) {
-        params.push(queryString.collectionsLimit);
-      } else { params.push(5); }
-    const collectionsQuery = `
+    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 5;
 
+    const collectionsQuery = `
         SELECT id, title, type, COUNT(*)
         FROM ${process.env.COLLECTIONS_TABLE}
           INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON collections.id = collections_items.collection_id
@@ -426,7 +424,7 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
           AND status = true
         GROUP BY id, title, type
         ORDER BY random()
-        LIMIT $3
+        LIMIT ${collectionLimit}
       `;
 
     return successResponse({
@@ -434,7 +432,7 @@ export const getHomePageItem = async (event: APIGatewayEvent): Promise<APIGatewa
      collections: await db.any(collectionsQuery, params)
     });
   } catch (e) {
-    console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
+    console.log('/items/items.homepage ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 
