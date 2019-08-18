@@ -32,6 +32,8 @@ try:
   concept_insert_sql = 'INSERT INTO tba21.concept_tags (tag_name) VALUES ' 
   keyword_insert_sql = 'INSERT INTO tba21.keyword_tags (tag_name) VALUES ' 
 
+  inserting_new_keywords = False
+
   with open('tags.csv') as csv_file:
       csv_reader = csv.reader(csv_file, delimiter=',')
       next(csv_reader) # skip first line = header
@@ -45,12 +47,14 @@ try:
         if keyword_tag not in keyword_tags and keyword_tag != '': # something new
           keyword_insert_sql += "('" + keyword_tag +"')" + ','
           keyword_tags[keyword_tag] = True
+          inserting_new_keywords = True
 
   concept_insert_sql = concept_insert_sql[:-1] + ';' # remove last ',' and add ';'
   keyword_insert_sql = keyword_insert_sql[:-1] + ';' 
 
   cursor.execute(concept_insert_sql)
-  cursor.execute(keyword_insert_sql)
+  if inserting_new_keywords:
+    cursor.execute(keyword_insert_sql)
 
   conn.commit()
   conn.close()
