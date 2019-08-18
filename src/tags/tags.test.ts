@@ -9,7 +9,6 @@ import { QueryStringParameters } from '../types/_test_';
 import { reSeedDatabase } from '../utils/testHelper';
 import {
   get,
-  search,
   insert,
   update,
   remove
@@ -42,11 +41,11 @@ describe('Tag get tests', () => {
 
 });
 
-describe('Tag search tests', () => {
+describe('Tag get tests', () => {
   test('Check that we have 3 keyword tags with the name of kitten.', async () => {
     const
       queryStringParameters: QueryStringParameters = {type: 'keyword', query: 'kitten'},
-      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
     expect(results.tags.length).toEqual(1);
@@ -55,7 +54,7 @@ describe('Tag search tests', () => {
   test('Check that we have 0 keyword tags by the name of QQQ', async () => {
     const
       queryStringParameters: QueryStringParameters = { type: 'keyword', query: 'QQQ' },
-      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
     expect(results.tags.length).toEqual(0);
@@ -64,7 +63,7 @@ describe('Tag search tests', () => {
   test('Check that we have 1 concept tags with the name of Labor.', async () => {
     const
       queryStringParameters: QueryStringParameters = { type: 'concept', query: 'Labor' },
-      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
     expect(results.tags.length).toEqual(1);
@@ -72,7 +71,7 @@ describe('Tag search tests', () => {
   test('Check that we have 0 concept tags by the name of QQQ', async () => {
     const
       queryStringParameters: QueryStringParameters = { type: 'concept', query: 'QQQ' },
-      response = await search({ queryStringParameters } as APIGatewayProxyEvent),
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
 
     expect(results.tags.length).toEqual(0);

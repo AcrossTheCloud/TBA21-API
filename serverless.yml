@@ -396,19 +396,6 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.query
-  searchTags:
-    handler: src/tags/tags.search
-    description: Get tags from the tag table based on a query
-    events:
-      - http:
-          path: tags/search
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.query
   insertTags:
     handler: src/tags/tags.insert
     description: Insert a single tag or multiple tags
