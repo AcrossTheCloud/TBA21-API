@@ -340,7 +340,6 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
   }
 
 };
-
 /**
  *
  * Gets an items Rekognition tags
@@ -380,4 +379,61 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
     console.log('/items/items.getRekognitionTags ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
+};
+/**
+ *
+ *  Returns items and collections between two dates(the date passed in and now()) in random order.
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } Array of tags
+ */
+export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+      Joi.object().keys({
+        itemsLimit: Joi.number().integer(),
+        collectionsLimit: Joi.number().integer(),
+        date: Joi.date().raw().required(),
+      })
+    ));
+
+    const
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      defaultValues = { itemsLimit: 50 },
+      params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date],
+      itemsQuery = `
+        SELECT id, title, s3_key, item_subtype
+        FROM ${process.env.ITEMS_TABLE}
+        WHERE created_at >= $2::date
+          AND created_at <= now()
+          AND status = true
+        ORDER BY random()
+        LIMIT $1
+      `;
+
+    // if we dont get a limit for collections, set it to 5
+    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 5;
+
+    const collectionsQuery = `
+        SELECT id, title, type, COUNT(*)
+        FROM ${process.env.COLLECTIONS_TABLE}
+          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON collections.id = collections_items.collection_id
+        WHERE created_at >= $2::date
+          AND created_at <=  now()
+          AND status = true
+        GROUP BY id, title, type
+        ORDER BY random()
+        LIMIT ${collectionLimit}
+      `;
+
+    return successResponse({
+     items: await db.any(itemsQuery, params),
+     collections: await db.any(collectionsQuery, params)
+    });
+  } catch (e) {
+    console.log('/items/items.homepage ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+
 };

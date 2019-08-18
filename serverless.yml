@@ -538,6 +538,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  homepages:
+    handler: src/items/items.homepage
+    description:
+    events:
+      - http:
+          path: items/homepages
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   #### Collections
   adminGetCollections:
     handler: src/admin/collections/collections.get
