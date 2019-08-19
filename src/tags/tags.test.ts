@@ -12,7 +12,6 @@ import {
   search,
   insert,
   update,
-  remove
 } from './tags';
 
 afterAll(async () => {
@@ -125,19 +124,6 @@ describe('Tag update and delete tests', () => {
 
     expect(responseBody.updatedTag.tag_name).toEqual('changed keyword tag');
     expect(responseBody.updatedTag.id).toEqual('1');
-
-  });
-
-  test('Delete 1 keyword tag and check the result', async () => {
-    const
-      requestBody = {
-        'id': 1
-      },
-      body: string = JSON.stringify(requestBody),
-      response = await remove({ body } as APIGatewayProxyEvent),
-      responseBody = JSON.parse(response.body);
-
-    expect(responseBody).toEqual(true);
 
   });
 });

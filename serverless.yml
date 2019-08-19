@@ -430,7 +430,7 @@ functions:
           authorizer: aws_iam
 
   removeTag:
-    handler: src/tags/tags.remove
+    handler: src/admin/tags/tags.remove
     description: Removes a tag
     events:
       - http:
