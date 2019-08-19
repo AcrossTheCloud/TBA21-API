@@ -394,6 +394,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       Joi.object().keys({
         itemsLimit: Joi.number().integer(),
         collectionsLimit: Joi.number().integer(),
+        oaHighlightLimit: Joi.number().integer(),
         date: Joi.date().raw().required(),
       })
     ));
@@ -427,9 +428,24 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
         LIMIT ${collectionLimit}
       `;
 
+    // if we dont get a limit for oa_highlight, set it to 2
+    const oaHighlightLimit = queryString.hasOwnProperty('oaHighlightLimit') ? queryString.collectionsLimit : 2;
+
+    const oaHighlightQuery = `
+        SELECT id, title, s3_key, item_subtype, created_at
+        FROM tba21.items
+        WHERE created_at >= $2::date
+          AND created_at <= now()
+          AND status = true
+          AND oa_highlight = true
+        ORDER BY random()
+        LIMIT ${oaHighlightLimit}
+    `;
+
     return successResponse({
-     items: await db.any(itemsQuery, params),
-     collections: await db.any(collectionsQuery, params)
+      items: await db.any(itemsQuery, params),
+      collections: await db.any(collectionsQuery, params),
+      oa_highlight: await db.any(oaHighlightQuery, params)
     });
   } catch (e) {
     console.log('/items/items.homepage ERROR - ', !e.isJoi ? e : e.details);
