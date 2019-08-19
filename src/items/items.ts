@@ -403,7 +403,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       defaultValues = { itemsLimit: 50 },
       params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date],
       itemsQuery = `
-        SELECT id, title, s3_key, item_subtype
+        SELECT id, title, s3_key, item_subtype, created_at
         FROM ${process.env.ITEMS_TABLE}
         WHERE created_at >= $2::date
           AND created_at <= now()
@@ -413,10 +413,10 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       `;
 
     // if we dont get a limit for collections, set it to 5
-    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 5;
+    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 50;
 
     const collectionsQuery = `
-        SELECT id, title, type, COUNT(*)
+        SELECT id, title, type, created_at, COUNT(*)
         FROM ${process.env.COLLECTIONS_TABLE}
           INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON collections.id = collections_items.collection_id
         WHERE created_at >= $2::date
