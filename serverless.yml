@@ -396,21 +396,8 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.query
-  searchTags:
-    handler: src/tags/tags.search
-    description: Get tags from the tag table based on a query
-    events:
-      - http:
-          path: tags/search
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.query
   insertTags:
-    handler: src/tags/tags.insert
+    handler: src/admin/tags/tags.insert
     description: Insert a single tag or multiple tags
     events:
       - http:
@@ -420,7 +407,7 @@ functions:
           authorizer: aws_iam
 
   updateTag:
-    handler: src/tags/tags.update
+    handler: src/admin/tags/tags.update
     description: Updates a tag
     events:
       - http:
@@ -430,7 +417,7 @@ functions:
           authorizer: aws_iam
 
   removeTag:
-    handler: src/tags/tags.remove
+    handler: src/admin/tags/tags.remove
     description: Removes a tag
     events:
       - http:
@@ -535,6 +522,16 @@ functions:
       - http:
           path: admin/profiles
           method: patch
+          cors: true
+          authorizer: aws_iam
+
+  homepages:
+    handler: src/items/items.homepage
+    description:
+    events:
+      - http:
+          path: items/homepages
+          method: get
           cors: true
           authorizer: aws_iam
 
