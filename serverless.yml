@@ -397,7 +397,7 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.query
   insertTags:
-    handler: src/tags/tags.insert
+    handler: src/admin/tags/tags.insert
     description: Insert a single tag or multiple tags
     events:
       - http:
@@ -407,7 +407,7 @@ functions:
           authorizer: aws_iam
 
   updateTag:
-    handler: src/tags/tags.update
+    handler: src/admin/tags/tags.update
     description: Updates a tag
     events:
       - http:
