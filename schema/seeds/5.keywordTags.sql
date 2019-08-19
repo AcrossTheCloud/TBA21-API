@@ -9,5 +9,6 @@ VALUES
 ('Shark'),
 ('Echidna'),
 ('Octopus'),
-('Mermaid');
+('Mermaid'),
+('deleteMe');
 -- END FIRST QUERY tba21.keyword_tags
