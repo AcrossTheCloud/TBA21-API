@@ -179,7 +179,8 @@ CREATE TABLE tba21.items
   projection varchar(256),
   related_ISBN numeric(13),
   edition_uploaded numeric(3),
-  first_edition_year numeric(4)
+  first_edition_year numeric(4),
+  provenance varchar(1024)[]
 );
 
 --Collections metadata
