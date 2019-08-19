@@ -417,15 +417,17 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
     const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 50;
 
     const collectionsQuery = `
-        SELECT id, title, type, created_at, COUNT(*)
-        FROM ${process.env.COLLECTIONS_TABLE}
-          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON collections.id = collections_items.collection_id
-        WHERE created_at >= $2::date
-          AND created_at <=  now()
-          AND status = true
-        GROUP BY id, title, type
-        ORDER BY random()
-        LIMIT ${collectionLimit}
+      SELECT COUNT(*), ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id, ${process.env.COLLECTIONS_TABLE}.type, 
+        COALESCE(json_agg(DISTINCT items.s3_key) FILTER (WHERE s3_key IS NOT NULL), '[]') AS aggregated_s3_key
+      FROM tba21.${process.env.COLLECTIONS_TABLE}
+        INNER JOIN tba21.${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
+        INNER JOIN tba21.${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
+      WHERE ${process.env.COLLECTIONS_TABLE}.created_at >= '2011-07-01'::date
+        AND ${process.env.COLLECTIONS_TABLE}.created_at <=  now()
+        AND ${process.env.COLLECTIONS_TABLE}.status = true
+      GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
+      ORDER BY random()
+      LIMIT ${collectionLimit}
       `;
 
     // if we dont get a limit for oa_highlight, set it to 2
@@ -433,7 +435,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
 
     const oaHighlightQuery = `
         SELECT id, title, s3_key, item_subtype, created_at
-        FROM tba21.items
+        FROM tba21.${process.env.ITEMS_TABLE}
         WHERE created_at >= $2::date
           AND created_at <= now()
           AND status = true
