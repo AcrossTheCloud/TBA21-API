@@ -20,12 +20,14 @@ export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
          id: Joi.number().integer().required()
       }));
 
-    const { id } = data;
-    if ( isNaN(id )) {
+    const
+      { id } = data,
+      idToNumber = Number(id);
+    if (isNaN(idToNumber)) {
       return badRequestResponse('id must be a number');
     }
     const
-      sqlParams = [Number(id)],
+      sqlParams = [idToNumber],
       itemsSql = `
           SELECT id
           FROM ${process.env.ITEMS_TABLE}
