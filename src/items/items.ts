@@ -409,6 +409,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
         WHERE created_at >= $2::date
           AND created_at <= now()
           AND status = true
+          AND oa_highlight = false
         ORDER BY random()
         LIMIT $1
       `;
@@ -421,7 +422,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
         ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id as id, 
         ${process.env.COLLECTIONS_TABLE}.type, 
         ${process.env.COLLECTIONS_TABLE}.created_at as date, 
-        COALESCE(json_agg(DISTINCT ${process.env.ITEMS_TABLE}.s3_key) FILTER (WHERE s3_key IS NOT NULL), '[]') AS aggregated_s3_key
+        COALESCE(json_agg(DISTINCT ${process.env.ITEMS_TABLE}.s3_key) FILTER (WHERE s3_key IS NOT NULL), '[]') AS s3_key
       FROM tba21.${process.env.COLLECTIONS_TABLE}
         INNER JOIN tba21.${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
         INNER JOIN tba21.${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
@@ -450,7 +451,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
     return successResponse({
       items: await db.any(itemsQuery, params),
       collections: await db.any(collectionsQuery, params),
-      oa_highlight: await db.any(oaHighlightQuery, params)
+      oa_highlight: [await db.any(oaHighlightQuery, params)]
     });
   } catch (e) {
     console.log('/items/items.homepage ERROR - ', !e.isJoi ? e : e.details);
