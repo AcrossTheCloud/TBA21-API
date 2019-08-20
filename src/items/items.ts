@@ -404,7 +404,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       defaultValues = { itemsLimit: 50 },
       params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date],
       itemsQuery = `
-        SELECT id, title, s3_key, item_subtype, created_at
+        SELECT id, title, s3_key, item_subtype as type, created_at as date
         FROM ${process.env.ITEMS_TABLE}
         WHERE created_at >= $2::date
           AND created_at <= now()
@@ -417,8 +417,11 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
     const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 50;
 
     const collectionsQuery = `
-      SELECT COUNT(*), ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id, ${process.env.COLLECTIONS_TABLE}.type, 
-        COALESCE(json_agg(DISTINCT items.s3_key) FILTER (WHERE s3_key IS NOT NULL), '[]') AS aggregated_s3_key
+      SELECT COUNT(*), 
+        ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id, 
+        ${process.env.COLLECTIONS_TABLE}.type, 
+        ${process.env.COLLECTIONS_TABLE}.created_at as date, 
+        COALESCE(json_agg(DISTINCT ${process.env.ITEMS_TABLE}.s3_key) FILTER (WHERE s3_key IS NOT NULL), '[]') AS aggregated_s3_key
       FROM tba21.${process.env.COLLECTIONS_TABLE}
         INNER JOIN tba21.${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
         INNER JOIN tba21.${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
@@ -434,7 +437,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
     const oaHighlightLimit = queryString.hasOwnProperty('oaHighlightLimit') ? queryString.collectionsLimit : 2;
 
     const oaHighlightQuery = `
-        SELECT id, title, s3_key, item_subtype, created_at
+        SELECT id, title, s3_key, item_subtype as type, created_at as date
         FROM tba21.${process.env.ITEMS_TABLE}
         WHERE created_at >= $2::date
           AND created_at <= now()
