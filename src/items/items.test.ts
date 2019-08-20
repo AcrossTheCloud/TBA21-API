@@ -196,6 +196,14 @@ describe('Item tests', () => {
     const response = await getRekognitionTags({} as APIGatewayProxyEvent);
     expect(response.statusCode).toEqual(400);
   });
+  test('Get items and collections between dates except items id 1 and 2', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {date: '2011-07-01', id: '[1, 2, 3]'},
+      response = await homepage({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+    expect(results.items.length).toEqual(2);
+    expect(results.collections.length).toEqual(3);
+  });
   test('Get items and collections between dates', async () => {
     const
       queryStringParameters: QueryStringParameters = {date: '2011-07-01'},
@@ -204,12 +212,12 @@ describe('Item tests', () => {
     expect(results.items.length).toEqual(4);
     expect(results.collections.length).toEqual(3);
   });
-  test('Test we can limit whats returned', async () => {
+  test('Test we can limit what we get back', async () => {
     const
-      queryStringParameters: QueryStringParameters = {date: '2011-07-01', itemsLimit: '1', collectionsLimit: '1'},
+      queryStringParameters: QueryStringParameters = {date: '2011-07-01', itemsLimit: '1'},
       response = await homepage({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
     expect(results.items.length).toEqual(1);
-    expect(results.collections.length).toEqual(1);
+    expect(results.collections.length).toEqual(3);
   });
 });

@@ -390,46 +390,79 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
  */
 export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
-      Joi.object().keys({
-        itemsLimit: Joi.number().integer(),
-        collectionsLimit: Joi.number().integer(),
-        date: Joi.date().raw().required(),
-      })
-    ));
+
+    const ids = event.multiValueQueryStringParameters.id ? {id: event.multiValueQueryStringParameters.id} : {};
+    const eventParams = {
+      ...event.queryStringParameters,
+      ...ids
+    };
+
+    await Joi.validate(eventParams, Joi.object().keys({
+      itemsLimit: Joi.number().integer(),
+      collectionsLimit: Joi.number().integer(),
+      oaHighlightLimit: Joi.number().integer(),
+      date: Joi.date().raw().required(),
+      id: Joi.array().items(Joi.number().integer())
+    }));
 
     const
-      queryString = event.queryStringParameters, // Use default values if not supplied.
+      queryString = event.queryStringParameters,
       defaultValues = { itemsLimit: 50 },
-      params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date],
+      params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date];
+
+    let whereStatement = ``;
+    if (eventParams.id && eventParams.id.length) {
+      whereStatement = eventParams.id.map( id => `AND id <> ${id}`).toString().replace(/,/g, ' ');
+    }
+    const
       itemsQuery = `
-        SELECT id, title, s3_key, item_subtype
+        SELECT id, title, s3_key, item_subtype as type, created_at as date
         FROM ${process.env.ITEMS_TABLE}
         WHERE created_at >= $2::date
           AND created_at <= now()
           AND status = true
-        ORDER BY random()
+          ${whereStatement} ORDER BY random()
         LIMIT $1
       `;
 
     // if we dont get a limit for collections, set it to 5
-    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 5;
+    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 50;
 
     const collectionsQuery = `
-        SELECT id, title, type, COUNT(*)
-        FROM ${process.env.COLLECTIONS_TABLE}
-          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON collections.id = collections_items.collection_id
-        WHERE created_at >= $2::date
-          AND created_at <=  now()
-          AND status = true
-        GROUP BY id, title, type
-        ORDER BY random()
-        LIMIT ${collectionLimit}
+      SELECT COUNT(*), 
+        ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id as id, 
+        ${process.env.COLLECTIONS_TABLE}.type, 
+        ${process.env.COLLECTIONS_TABLE}.created_at as date, 
+        COALESCE(json_agg(DISTINCT ${process.env.ITEMS_TABLE}.s3_key) FILTER (WHERE s3_key IS NOT NULL), '[]') AS s3_key
+      FROM tba21.${process.env.COLLECTIONS_TABLE}
+        INNER JOIN tba21.${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
+        INNER JOIN tba21.${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
+      WHERE ${process.env.COLLECTIONS_TABLE}.created_at >= '2011-07-01'::date
+        AND ${process.env.COLLECTIONS_TABLE}.created_at <=  now()
+        AND ${process.env.COLLECTIONS_TABLE}.status = true
+      GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
+      ORDER BY random()
+      LIMIT ${collectionLimit}
       `;
 
+    // if we dont get a limit for oa_highlight, set it to 2
+    const oaHighlightLimit = queryString.hasOwnProperty('oaHighlightLimit') ? queryString.collectionsLimit : 3;
+
+    const oaHighlightQuery = `
+        SELECT id, title, s3_key, item_subtype as type, created_at as date
+        FROM tba21.${process.env.ITEMS_TABLE}
+        WHERE created_at >= $2::date
+          AND created_at <= now()
+          AND status = true
+          AND oa_highlight = true
+        ORDER BY random()
+        LIMIT ${oaHighlightLimit}
+    `;
+
     return successResponse({
-     items: await db.any(itemsQuery, params),
-     collections: await db.any(collectionsQuery, params)
+      items: await db.any(itemsQuery, params),
+      collections: await db.any(collectionsQuery, params),
+      oa_highlight: await db.any(oaHighlightQuery, params)
     });
   } catch (e) {
     console.log('/items/items.homepage ERROR - ', !e.isJoi ? e : e.details);
