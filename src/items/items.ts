@@ -418,13 +418,12 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
         WHERE created_at >= $2::date
           AND created_at <= now()
           AND status = true
-          ${whereStatement}
-        ORDER BY random()
+          ${whereStatement} ORDER BY random()
         LIMIT $1
       `;
 
     // if we dont get a limit for collections, set it to 5
-    const collectionLimit = data.hasOwnProperty('collectionsLimit') ? data.collectionsLimit : 50;
+    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 50;
 
     const collectionsQuery = `
       SELECT COUNT(*), 
