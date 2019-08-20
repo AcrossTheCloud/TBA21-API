@@ -424,7 +424,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       `;
 
     // if we dont get a limit for collections, set it to 5
-    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 50;
+    const collectionLimit = data.hasOwnProperty('collectionsLimit') ? data.collectionsLimit : 50;
 
     const collectionsQuery = `
       SELECT COUNT(*), 
