@@ -1,3 +1,4 @@
+
 require('dotenv').config(
   {
     DEBUG: true
@@ -18,11 +19,20 @@ describe('Items Delete', () => {
     db.$pool.end();
   });
 
-  test('Delete an item with an key of key4', async () => {
-    const
-      queryStringParameters: QueryStringParameters = {s3_key: 'key4'},
+  test('Delete an item with an id of 1 then check the short path was deleted', async () => {
+    let
+      queryStringParameters: QueryStringParameters = {id: '2'},
       response = await deleteItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
     expect(results).toBe(true);
+    
+    queryStringParameters = {
+        table: 'Item',
+        id: '2'
+      },
+      response = await get({queryStringParameters} as APIGatewayProxyEvent);
+    results = JSON.parse(response.body);
+    
+    expect(results.short_paths).toEqual([]);
   });
 });
