@@ -7,10 +7,8 @@ import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
 import { reSeedDatabase } from '../../utils/testHelper';
-import {
-  deleteItem,
-  deleteItemsFromCollection
-} from './delete';
+import { deleteItem } from './delete';
+import { get } from '../../shortPaths/shortPaths';
 
 describe('Items Delete', () => {
   // AfterAll tests reseed the DB
@@ -27,18 +25,4 @@ describe('Items Delete', () => {
       results = JSON.parse(response.body);
     expect(results).toBe(true);
   });
-
-  test('Delete an item from a collection with an key of key6', async () => {
-    const
-      requestBody = {
-        'id': '1',
-        's3_keys': ['user/key6']
-      },
-      body: string = JSON.stringify(requestBody),
-      response = await deleteItemsFromCollection({ body } as APIGatewayProxyEvent, {} as Context),
-      responseBody = JSON.parse(response.body);
-
-    expect(responseBody).toBe(true);
-  });
-
 });
