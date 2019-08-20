@@ -390,9 +390,8 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
  */
 export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.alternatives().try(
+    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         itemsLimit: Joi.number().integer(),
         collectionsLimit: Joi.number().integer(),
@@ -403,13 +402,14 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
     ));
 
     const
+      queryString = event.queryStringParameters,
       defaultValues = { itemsLimit: 50 },
-      params = [limitQuery(data.itemsLimit, defaultValues.itemsLimit), data.date];
+      params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date];
 
     let whereStatement = ``;
-    if (data.id && data.id.length) {
-      data.id = data.id.map( id => `AND id <> ${id}`).toString().replace(/,/g, ' ');
-      whereStatement = data.id;
+    if (queryString.id && queryString.id.length) {
+      queryString.id = queryString.id.replace(/[/\s\[\]',]+/g, '');
+      whereStatement = Array.from(queryString.id).map( id => `AND id <> ${id}`).toString().replace(/,/g, ' ');
     }
     const
       itemsQuery = `
@@ -424,7 +424,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       `;
 
     // if we dont get a limit for collections, set it to 5
-    const collectionLimit = data.hasOwnProperty('collectionsLimit') ? data.collectionsLimit : 50;
+    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 50;
 
     const collectionsQuery = `
       SELECT COUNT(*), 
@@ -444,7 +444,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       `;
 
     // if we dont get a limit for oa_highlight, set it to 2
-    const oaHighlightLimit = data.hasOwnProperty('oaHighlightLimit') ? data.collectionsLimit : 3;
+    const oaHighlightLimit = queryString.hasOwnProperty('oaHighlightLimit') ? queryString.collectionsLimit : 3;
 
     const oaHighlightQuery = `
         SELECT id, title, s3_key, item_subtype as type, created_at as date
