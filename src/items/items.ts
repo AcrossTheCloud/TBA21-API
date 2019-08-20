@@ -418,7 +418,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
 
     const collectionsQuery = `
       SELECT COUNT(*), 
-        ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id, 
+        ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id as id, 
         ${process.env.COLLECTIONS_TABLE}.type, 
         ${process.env.COLLECTIONS_TABLE}.created_at as date, 
         COALESCE(json_agg(DISTINCT ${process.env.ITEMS_TABLE}.s3_key) FILTER (WHERE s3_key IS NOT NULL), '[]') AS aggregated_s3_key
