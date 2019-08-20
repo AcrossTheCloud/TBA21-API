@@ -5,7 +5,7 @@ require('dotenv').config(
 
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../databaseConnect';
-import { QueryStringParameters } from '../types/_test_';
+import { MultiQueryStringParameters, QueryStringParameters } from '../types/_test_';
 import {
   get,
   getItem,
@@ -198,10 +198,11 @@ describe('Item tests', () => {
   });
   test('Get items and collections between dates except items id 1 and 2', async () => {
     const
-      queryStringParameters: QueryStringParameters = {date: '2011-07-01', id: '[1, 2, 3]'},
-      response = await homepage({ queryStringParameters } as APIGatewayProxyEvent),
+      queryStringParameters: QueryStringParameters = {date: '2011-07-01'},
+      multiValueQueryStringParameters: MultiQueryStringParameters = {id: ['1', '2']},
+      response = await homepage({ queryStringParameters, multiValueQueryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(2);
+    expect(results.items.length).toEqual(3);
     expect(results.collections.length).toEqual(3);
   });
   test('Get items and collections between dates', async () => {

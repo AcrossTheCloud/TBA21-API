@@ -32,7 +32,6 @@ describe('Items Delete', () => {
       },
       response = await get({queryStringParameters} as APIGatewayProxyEvent);
     results = JSON.parse(response.body);
-    
     expect(results.short_paths).toEqual([]);
   });
 });

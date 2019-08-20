@@ -391,7 +391,7 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
 export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
 
-    const ids = event.multiValueQueryStringParameters.id ? {id: event.multiValueQueryStringParameters.id} : {};
+    const ids = event.multiValueQueryStringParameters && event.multiValueQueryStringParameters.hasOwnProperty('id') ? {id: event.multiValueQueryStringParameters.id} : {};
     const eventParams = {
       ...event.queryStringParameters,
       ...ids
@@ -411,7 +411,7 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date];
 
     let whereStatement = ``;
-    if (eventParams.id && eventParams.id.length) {
+    if (eventParams.hasOwnProperty('id') && eventParams.id.length) {
       whereStatement = eventParams.id.map( id => `AND id <> ${id}`).toString().replace(/,/g, ' ');
     }
     const
@@ -421,7 +421,8 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
         WHERE created_at >= $2::date
           AND created_at <= now()
           AND status = true
-          ${whereStatement} ORDER BY random()
+          ${whereStatement} 
+          ORDER BY random()
         LIMIT $1
       `;
 
