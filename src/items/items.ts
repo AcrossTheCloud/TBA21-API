@@ -391,15 +391,19 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
 export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
 
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
-      Joi.object().keys({
-        itemsLimit: Joi.number().integer(),
-        collectionsLimit: Joi.number().integer(),
-        oaHighlightLimit: Joi.number().integer(),
-        date: Joi.date().raw().required(),
-        id: Joi.array().items(Joi.number().integer())
-      })
-    ));
+    const ids = event.multiValueQueryStringParameters.id ? {id: event.multiValueQueryStringParameters.id} : {};
+    const eventParams = {
+      ...event.queryStringParameters,
+      ...ids
+    };
+
+    await Joi.validate(eventParams, Joi.object().keys({
+      itemsLimit: Joi.number().integer(),
+      collectionsLimit: Joi.number().integer(),
+      oaHighlightLimit: Joi.number().integer(),
+      date: Joi.date().raw().required(),
+      id: Joi.array().items(Joi.number().integer())
+    }));
 
     const
       queryString = event.queryStringParameters,
@@ -407,9 +411,8 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date];
 
     let whereStatement = ``;
-    if (queryString.id && queryString.id.length) {
-      queryString.id = queryString.id.replace(/[/\s\[\]',]+/g, '');
-      whereStatement = Array.from(queryString.id).map( id => `AND id <> ${id}`).toString().replace(/,/g, ' ');
+    if (eventParams.id && eventParams.id.length) {
+      whereStatement = eventParams.id.map( id => `AND id <> ${id}`).toString().replace(/,/g, ' ');
     }
     const
       itemsQuery = `
