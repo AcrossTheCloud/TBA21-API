@@ -6,7 +6,8 @@ import Joi from '@hapi/joi';
 
 /**
  *
- *  Returns items and collections between two dates(the date passed in and now()) in random order.
+ *  Returns items and collections between a given date and now or an oa highlight between a given date
+ *  and now if oa_highlight is true. Everything is returned in random order.
  *
  * @param event {APIGatewayEvent}
  *
