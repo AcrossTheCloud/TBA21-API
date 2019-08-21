@@ -198,7 +198,7 @@ describe('Item tests', () => {
   });
   test('Get items and collections between dates except items id 1 and 2', async () => {
     const
-      queryStringParameters: QueryStringParameters = {date: '2011-07-01'},
+      queryStringParameters: QueryStringParameters = {date: '2011-07-01', oa_highlight: 'false'},
       multiValueQueryStringParameters: MultiQueryStringParameters = {id: ['1', '2']},
       response = await homepage({ queryStringParameters, multiValueQueryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
@@ -207,15 +207,16 @@ describe('Item tests', () => {
   });
   test('Get items and collections between dates', async () => {
     const
-      queryStringParameters: QueryStringParameters = {date: '2011-07-01'},
+      queryStringParameters: QueryStringParameters = {date: '2011-07-01', oa_highlight: 'false'},
       response = await homepage({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
+    console.log(results);
     expect(results.items.length).toEqual(4);
     expect(results.collections.length).toEqual(3);
   });
   test('Test we can limit what we get back', async () => {
     const
-      queryStringParameters: QueryStringParameters = {date: '2011-07-01', itemsLimit: '1'},
+      queryStringParameters: QueryStringParameters = {date: '2011-07-01', itemsLimit: '1', oa_highlight: 'false'},
       response = await homepage({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
     expect(results.items.length).toEqual(1);

@@ -402,34 +402,58 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       collectionsLimit: Joi.number().integer(),
       oaHighlightLimit: Joi.number().integer(),
       date: Joi.date().raw().required(),
-      id: Joi.array().items(Joi.number().integer())
+      id: Joi.array().items(Joi.number().integer()),
+      oa_highlight: Joi.boolean().required()
     }));
 
     const
       queryString = event.queryStringParameters,
       defaultValues = { itemsLimit: 50 },
       params = [limitQuery(queryString.itemsLimit, defaultValues.itemsLimit), queryString.date];
+    let
+      itemsQuery,
+      collectionsQuery,
+      oaHighlightQuery;
 
-    let whereStatement = ``;
-    if (eventParams.hasOwnProperty('id') && eventParams.id.length) {
-      whereStatement = eventParams.id.map( id => `AND id <> ${id}`).toString().replace(/,/g, ' ');
-    }
-    const
+    if (queryString.oa_highlight && queryString.oa_highlight.includes('true')) {
+      // if we dont get a limit for oa_highlight, set it to 2
+      const oaHighlightLimit = queryString.hasOwnProperty('oaHighlightLimit') ? queryString.collectionsLimit : 3;
+
+      oaHighlightQuery = `
+        SELECT id, title, s3_key, item_subtype as type, created_at as date
+        FROM tba21.${process.env.ITEMS_TABLE}
+        WHERE created_at >= $2::date
+          AND created_at <= now()
+          AND status = true
+          AND oa_highlight = true
+        ORDER BY random()
+        LIMIT ${oaHighlightLimit}
+    `;
+      return successResponse(
+        {
+                 oa_highlight: await db.any(oaHighlightQuery, params)
+               });
+    } else {
+      let whereStatement = ``;
+      if (eventParams.hasOwnProperty('id') && eventParams.id.length) {
+          whereStatement = eventParams.id.map( id => `AND id <> ${id}`).toString().replace(/,/g, ' ');
+      }
       itemsQuery = `
         SELECT id, title, s3_key, item_subtype as type, created_at as date
         FROM ${process.env.ITEMS_TABLE}
         WHERE created_at >= $2::date
           AND created_at <= now()
           AND status = true
-          ${whereStatement} 
-          ORDER BY random()
+          AND oa_highlight IS NOT TRUE
+          ${whereStatement}
+        ORDER BY random()
         LIMIT $1
       `;
+      
+      // if we dont get a limit for collections, set it to 5
+      const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 50;
 
-    // if we dont get a limit for collections, set it to 5
-    const collectionLimit = queryString.hasOwnProperty('collectionsLimit') ? queryString.collectionsLimit : 50;
-
-    const collectionsQuery = `
+      collectionsQuery = `
       SELECT COUNT(*), 
         ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id as id, 
         ${process.env.COLLECTIONS_TABLE}.type, 
@@ -445,26 +469,13 @@ export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyR
       ORDER BY random()
       LIMIT ${collectionLimit}
       `;
+      return successResponse(
+        {
+               items: await db.any(itemsQuery, params),
+               collections: await db.any(collectionsQuery, params)
+             });
+    }
 
-    // if we dont get a limit for oa_highlight, set it to 2
-    const oaHighlightLimit = queryString.hasOwnProperty('oaHighlightLimit') ? queryString.collectionsLimit : 3;
-
-    const oaHighlightQuery = `
-        SELECT id, title, s3_key, item_subtype as type, created_at as date
-        FROM tba21.${process.env.ITEMS_TABLE}
-        WHERE created_at >= $2::date
-          AND created_at <= now()
-          AND status = true
-          AND oa_highlight = true
-        ORDER BY random()
-        LIMIT ${oaHighlightLimit}
-    `;
-
-    return successResponse({
-      items: await db.any(itemsQuery, params),
-      collections: await db.any(collectionsQuery, params),
-      oa_highlight: await db.any(oaHighlightQuery, params)
-    });
   } catch (e) {
     console.log('/items/items.homepage ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
