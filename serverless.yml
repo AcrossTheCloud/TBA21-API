@@ -526,11 +526,11 @@ functions:
           authorizer: aws_iam
 
   homepage:
-    handler: src/homepage/homepage.homepage
+    handler: src/pages/homepage.get
     description:
     events:
       - http:
-          path: homepage/homepage
+          path: pages/homepage
           method: get
           cors: true
           authorizer: aws_iam

@@ -13,7 +13,7 @@ import Joi from '@hapi/joi';
  *
  * @returns { Promise<APIGatewayProxyResult> } Array of tags
  */
-export const homepage = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
 
     const ids = event.multiValueQueryStringParameters && event.multiValueQueryStringParameters.hasOwnProperty('id') ? {id: event.multiValueQueryStringParameters.id} : {};
