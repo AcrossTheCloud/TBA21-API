@@ -182,7 +182,8 @@ CREATE TABLE tba21.items
   related_ISBN numeric(13),
   edition_uploaded numeric(3),
   first_edition_year numeric(4),
-  provenance varchar(1024)[]
+  provenance varchar(1024)[],
+  file_dimensions varchar(128)
 );
 
 --Collections metadata
