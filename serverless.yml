@@ -525,12 +525,12 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  homepages:
-    handler: src/items/items.homepage
+  homepage:
+    handler: src/homepage/homepage.homepage
     description:
     events:
       - http:
-          path: items/homepages
+          path: homepage/homepage
           method: get
           cors: true
           authorizer: aws_iam
