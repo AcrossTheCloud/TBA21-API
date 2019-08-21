@@ -57,6 +57,8 @@ CREATE TYPE tba21.subtype AS ENUM (
   'Lecture',
   'Radio',
   'Performance Poetry',
+  'Video',
+  'Drawing',
   'Other'
  );
 
