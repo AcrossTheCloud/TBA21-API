@@ -63,7 +63,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           AND status = true
           AND oa_highlight = true
         ORDER BY random()
-        LIMIT $2
+        LIMIT $2:raw
     `;
      return successResponse({
          oa_highlight: await db.any(oaHighlightQuery, params)
@@ -82,7 +82,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           AND oa_highlight IS NOT TRUE
           $5:raw
         ORDER BY random()
-        LIMIT $1
+        LIMIT $1:raw
       `;
       if ( queryString.date && queryString.date.length ) {
           collectionsDate = `
@@ -102,20 +102,26 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           ${process.env.COLLECTIONS_TABLE}.title,
           ${process.env.COLLECTIONS_TABLE}.type, 
           ${process.env.COLLECTIONS_TABLE}.created_at as date, 
-          COALESCE(json_agg(DISTINCT ${process.env.ITEMS_TABLE}.s3_key) FILTER (WHERE s3_key IS NOT NULL), '[]') AS s3_key
+          COALESCE(json_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key
         FROM tba21.${process.env.COLLECTIONS_TABLE}
           INNER JOIN tba21.${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
-          INNER JOIN tba21.${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
           $6:raw
           AND ${process.env.COLLECTIONS_TABLE}.status = true
         GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
         ORDER BY random()
-        LIMIT $3
+        LIMIT $3:raw
       `;
+
+      // Pulling the s3_key out of its array so it returns in a string
+      let collections = await db.any(collectionsQuery, params);
+      if (collections.length) {
+        collections.map( a => a.s3_key = a.s3_key[0]);
+      }
+
       return successResponse(
         {
           items: await db.any(itemsQuery, params),
-          collections: await db.any(collectionsQuery, params)
+          collections: collections
         });
     }
 
