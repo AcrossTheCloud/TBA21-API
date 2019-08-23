@@ -65,6 +65,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         created_at as date,
         creators,
         file_dimensions,
+        duration,
         COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
         COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
 
@@ -98,7 +99,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           item_subtype as type,
           created_at as date,
           creators,
-          file_dimensions
+          file_dimensions,
+          duration
 
         FROM ${process.env.ITEMS_TABLE}
           $4:raw
@@ -128,13 +130,14 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           ${process.env.COLLECTIONS_TABLE}.created_at as date, 
           COALESCE(json_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
           ${process.env.COLLECTIONS_TABLE}.creators,
-          ${process.env.ITEMS_TABLE}.file_dimensions
+          ${process.env.ITEMS_TABLE}.file_dimensions,
+          ${process.env.ITEMS_TABLE}.duration
         FROM tba21.${process.env.COLLECTIONS_TABLE}
           INNER JOIN tba21.${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
           INNER JOIN tba21.${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
           $6:raw
           AND ${process.env.COLLECTIONS_TABLE}.status = true
-        GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id, ${process.env.ITEMS_TABLE}.file_dimensions
+        GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id, ${process.env.ITEMS_TABLE}.file_dimensions, ${process.env.ITEMS_TABLE}.duration
         ORDER BY random()
         LIMIT $3:raw
       `;
