@@ -36,7 +36,6 @@ describe('homepage tests', () => {
       queryStringParameters: QueryStringParameters = {date: '2011-07-01', itemsLimit: '1', oa_highlight: 'false'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    console.log(results);
     expect(results.items.length).toEqual(1);
     expect(results.collections.length).toEqual(3);
   });

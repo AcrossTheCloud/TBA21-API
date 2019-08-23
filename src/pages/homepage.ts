@@ -57,7 +57,14 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     if (queryString.oa_highlight && queryString.oa_highlight === 'true') {
 
      const oaHighlightQuery = `
-        SELECT id, title, s3_key, item_subtype as type, created_at as date
+        SELECT 
+        id,
+        title,
+        s3_key,
+        item_subtype as type,
+        created_at as date,
+        creators
+
         FROM tba21.${process.env.ITEMS_TABLE}
           $4:raw
           AND status = true
@@ -75,7 +82,14 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       }
       params.push(whereStatement);
       const itemsQuery = `
-        SELECT id, title, s3_key, item_subtype as type, created_at as date
+        SELECT 
+          id,
+          title,
+          s3_key,
+          item_subtype as type,
+          created_at as date,
+          creators
+
         FROM ${process.env.ITEMS_TABLE}
           $4:raw
           AND status = true
@@ -102,7 +116,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           ${process.env.COLLECTIONS_TABLE}.title,
           ${process.env.COLLECTIONS_TABLE}.type, 
           ${process.env.COLLECTIONS_TABLE}.created_at as date, 
-          COALESCE(json_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key
+          COALESCE(json_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
+          ${process.env.COLLECTIONS_TABLE}.creators
         FROM tba21.${process.env.COLLECTIONS_TABLE}
           INNER JOIN tba21.${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
           $6:raw
@@ -112,7 +127,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         LIMIT $3:raw
       `;
 
-      // Pulling the s3_key out of its array so it returns in a string
+      // Pulling the s3_key out of the array and returning it in a string
       let collections = await db.any(collectionsQuery, params);
       if (collections.length) {
         collections.map( a => a.s3_key = a.s3_key[0]);
