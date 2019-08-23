@@ -58,17 +58,25 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
      const oaHighlightQuery = `
         SELECT 
-        id,
+        items.id,
         title,
         s3_key,
         item_subtype as type,
         created_at as date,
-        creators
+        creators,
+        COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
+        COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
 
-        FROM tba21.${process.env.ITEMS_TABLE}
+        FROM tba21.${process.env.ITEMS_TABLE},
+          UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
+          
+          UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
+            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
           $4:raw
           AND status = true
           AND oa_highlight = true
+        GROUP BY items.id, title, s3_key, concept_tag.tag_name, keyword_tag.tag_name
         ORDER BY random()
         LIMIT $2:raw
     `;
