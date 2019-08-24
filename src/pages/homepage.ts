@@ -70,7 +70,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
         COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
 
-        FROM tba21.${process.env.ITEMS_TABLE},
+        FROM ${process.env.ITEMS_TABLE},
           UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
           
@@ -135,9 +135,9 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           ${process.env.ITEMS_TABLE}.file_dimensions,
           ${process.env.ITEMS_TABLE}.duration,
           ${process.env.COLLECTIONS_TABLE}.regions
-        FROM tba21.${process.env.COLLECTIONS_TABLE}
-          INNER JOIN tba21.${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
-          INNER JOIN tba21.${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
+        FROM ${process.env.COLLECTIONS_TABLE}
+          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
+          INNER JOIN ${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
           $6:raw
           AND ${process.env.COLLECTIONS_TABLE}.status = true
         GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id, ${process.env.ITEMS_TABLE}.file_dimensions, ${process.env.ITEMS_TABLE}.duration
