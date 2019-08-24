@@ -343,7 +343,7 @@ functions:
 #              - name: request.querystring.lat_nw
 
   deleteItem:
-    handler: src/items/items.deleteItem
+    handler: src/admin/items/delete.deleteItem
     description: Deletes an item
     events:
       - http:
@@ -525,12 +525,12 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  homepages:
-    handler: src/items/items.homepage
+  homepage:
+    handler: src/pages/homepage.get
     description:
     events:
       - http:
-          path: items/homepages
+          path: pages/homepage
           method: get
           cors: true
           authorizer: aws_iam
