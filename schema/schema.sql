@@ -166,7 +166,7 @@ CREATE TABLE tba21.items
   copyright_holder varchar(256),
   copyright_country varchar(256),
   created_for varchar(256),
-  duration numeric(4),
+  duration numeric(6),
   interface varchar(256),
   document_code varchar(256),
   project varchar(256),

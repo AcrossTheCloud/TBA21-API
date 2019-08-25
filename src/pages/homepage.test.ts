@@ -9,6 +9,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { db } from '../databaseConnect';
 
 describe('homepage tests', () => {
+  // AfterAll tests reseed the DB
   afterAll( () => {
     // Close the database connection.
     db.$pool.end();
