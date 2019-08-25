@@ -18,10 +18,6 @@ describe('Collections Update', () => {
     db.$pool.end();
   });
 
-  afterEach( async () => {
-    await reSeedDatabase();
-  });
-
   test('Change the status of a collection', async () => {
     const
       queryStringParameters: QueryStringParameters = {status: 'false', id: '1'},
