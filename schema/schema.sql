@@ -290,6 +290,16 @@ CREATE TABLE tba21.short_paths
   created_at timestamp with time zone NOT NULL
 );
 
+--Table to announcements
+CREATE TABLE tba21.announcements
+(
+  ID bigserial PRIMARY KEY,
+  title varchar (40),
+  description varchar (256),
+  url varchar(2048),
+  created_at timestamp with time zone NOT NULL
+);
+
 -- Geo stuff
 
 SELECT AddGeometryColumn ('tba21','items','geom',4326,'POINT',2); -- items location column
