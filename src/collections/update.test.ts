@@ -11,13 +11,11 @@ import { reSeedDatabase } from '../utils/testHelper';
 import { get, changeStatus } from './collections';
 
 describe('Collections Update', () => {
-  afterAll( () => {
+  // AfterAll tests reseed the DB
+  afterAll( async () => {
+    await reSeedDatabase();
     // Close the database connection.
     db.$pool.end();
-  });
-
-  afterEach( async () => {
-    await reSeedDatabase();
   });
 
   test('Change the status of a collection', async () => {
