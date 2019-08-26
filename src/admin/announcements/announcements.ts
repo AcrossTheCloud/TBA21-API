@@ -133,8 +133,8 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
     await Joi.validate(data, Joi.object().keys(
       {
         id: Joi.number().integer().required(),
-        title: Joi.string().required(),
-        description: Joi.string().required(),
+        title: Joi.string(),
+        description: Joi.string(),
         url: Joi.string(),
         status: Joi.boolean()
       }));
@@ -191,7 +191,6 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
  */
 export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    // We expect either short_path or id and it is required
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
                           id: Joi.number().integer().required(),
@@ -209,9 +208,9 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
           AND status = true
       `;
 
-    return successResponse({short_paths: await db.any(sqlStatement, params) });
+    return successResponse({announcement: await db.any(sqlStatement, params) });
   } catch (e) {
-    console.log('/shortPaths.get ERROR - ', e);
+    console.log('/announcements.get ERROR - ', e);
     return badRequestResponse();
   }
 };
