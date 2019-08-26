@@ -62,6 +62,7 @@ jobs:
             KEYWORD_TAGS_TABLE: tba21.keyword_tags
             SHORT_PATHS_TABLE: tba21.short_paths
             PROFILES_TABLE: tba21.profiles
+            ANNOUNCEMENTS_TABLE: tba21.announcements
             PGUSER: postgres
             PGPASSWORD: postgres
             PGHOST: localhost
