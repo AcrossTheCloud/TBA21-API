@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { badRequestResponse, headers } from '../../common';
-import { db } from '../../databaseConnect';
+import { badRequestResponse } from '../../common';
 import Joi from '@hapi/joi';
+import { deleteCollection } from '../../collections/model';
 
 /**
  *
@@ -18,23 +18,8 @@ export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         id: Joi.number().integer().required()
       }));
 
-    const
-      params = [event.queryStringParameters.id],
-      query = `
-        DELETE FROM ${process.env.COLLECTIONS_TABLE}
-        WHERE id = $1;
+    return (await deleteCollection(Number(event.queryStringParameters.id)));
 
-        DELETE FROM ${process.env.COLLECTIONS_ITEMS_TABLE}
-        WHERE 'collection_id' = $1
-      `;
-
-    await db.any(query, params);
-
-    return {
-      body: 'true',
-      headers: headers,
-      statusCode: 200
-    };
   } catch (e) {
     console.log('/admin/collections/delete ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
