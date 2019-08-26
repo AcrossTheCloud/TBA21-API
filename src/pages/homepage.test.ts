@@ -40,4 +40,11 @@ describe('homepage tests', () => {
     expect(results.items.length).toEqual(1);
     expect(results.collections.length).toEqual(3);
   });
+  test('Test we can return an announcement', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {announcement: 'true', oa_highlight: 'false'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+    expect(results.announcements.length).toEqual(1);
+  });
 });
