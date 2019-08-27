@@ -91,7 +91,7 @@ export const changeStatus = async (event: APIGatewayEvent): Promise<APIGatewayPr
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
  */
-export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const deleteAnnouncement = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
@@ -126,7 +126,7 @@ export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
  */
 
-export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const data = JSON.parse(event.body);
 
@@ -208,7 +208,7 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
           AND status = true
       `;
 
-    return successResponse({announcement: await db.any(sqlStatement, params) });
+    return successResponse({announcement: await db.oneOrNone(sqlStatement, params) });
   } catch (e) {
     console.log('/announcements.get ERROR - ', e);
     return badRequestResponse();

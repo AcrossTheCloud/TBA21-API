@@ -8,7 +8,7 @@ import { QueryStringParameters } from '../../types/_test_';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { reSeedDatabase } from '../../utils/testHelper';
 import { db } from '../../databaseConnect';
-import { insert, changeStatus, get, updateById, deleteById } from './announcements';
+import { insert, changeStatus, get, update, deleteAnnouncement } from './announcements';
 
 describe('admin/announcements', () => {
   // AfterAll tests reseed the DB
@@ -41,7 +41,7 @@ describe('admin/announcements', () => {
       queryStringParameters: QueryStringParameters = {id: '1'},
       response = await get({queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.announcement[0].id).toEqual('1');
+    expect(results.announcement.id).toEqual('1');
   });
   test('Update the title with an ID 1', async () => {
     const
@@ -50,7 +50,7 @@ describe('admin/announcements', () => {
         'title' : 'updated title'
       },
       body: string = JSON.stringify(requestBody),
-      response = await updateById({ body } as APIGatewayProxyEvent),
+      response = await update({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
 
     expect(responseBody.success).toBe(true);
@@ -58,7 +58,7 @@ describe('admin/announcements', () => {
   test('Delete an the announcement with an id of 2', async () => {
     let
       queryStringParameters: QueryStringParameters = {id: '2'},
-      response = await deleteById({queryStringParameters } as APIGatewayProxyEvent),
+      response = await deleteAnnouncement({queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
     expect(results).toBe(true);
 
@@ -67,6 +67,6 @@ describe('admin/announcements', () => {
     },
       response = await get({queryStringParameters} as APIGatewayProxyEvent);
     results = JSON.parse(response.body);
-    expect(results.announcement).toEqual([]);
+    expect(results.announcement).toEqual(null);
   });
 });
