@@ -11,6 +11,12 @@ export const badRequestResponse = (message?: string): APIGatewayProxyResult => (
   statusCode: 400
 });
 
+export const unAuthorizedRequestResponse = (message?: string): APIGatewayProxyResult => ({
+  body: JSON.stringify({message: (message ? message : 'You are not authorized to perform this action.')}),
+  headers: headers,
+  statusCode: 403
+});
+
 export const internalServerErrorResponse = (message?: string): APIGatewayProxyResult => ({
   body: JSON.stringify({message: (message ? message : 'Internal Server Error')}),
   headers: headers,
