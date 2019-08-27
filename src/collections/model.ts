@@ -97,17 +97,19 @@ export const update = async (requestBody) => {
     if (!SQL_SETS.length && !requestBody.items) {
       return badRequestResponse('Nothing to update');
     }
+    await db.task(async t => {
 
     // If we have items in SQL_SETS do the query.
     if (SQL_SETS.length) {
-      await db.one(query, params);
+      await t.one(query, params);
     }
 
     // If we have items to assign to the collection
-    if (requestBody.items) {
-      await db.task(async t => {
 
-        let currentItems = await db.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [requestBody.id]);
+
+        if (requestBody.items) {
+
+        let currentItems = await t.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [requestBody.id]);
         currentItems = currentItems.map(e => (e.item_s3_key));
 
         const
