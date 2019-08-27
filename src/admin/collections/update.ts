@@ -85,7 +85,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
       }));
 
-    return (await update(data));
+    return (await update(data, true));
 
   } catch (e) {
     if (e.message === 'Nothing to update') {
