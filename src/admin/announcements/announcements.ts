@@ -1,6 +1,6 @@
-import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { db } from '../../databaseConnect';
-import { badRequestResponse, headers, successResponse } from '../../common';
+import { badRequestResponse, headers } from '../../common';
 import Joi from '@hapi/joi';
 
 /**
@@ -50,36 +50,6 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     };
   } catch (e) {
     console.log('admin/announcements.insert ERROR - ', e);
-    return badRequestResponse();
-  }
-};
-/**
- *
- * Publish or un-publish an announcement
- *
- * @param event {APIGatewayEvent}
- *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:Announcement - an list of the results
- */
-export const changeStatus = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
-  try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
-      id: Joi.string().required(),
-      status: Joi.boolean().required()
-    }));
-    const
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.status, queryString.id],
-      query = `
-        UPDATE ${process.env.ANNOUNCEMENTS_TABLE}
-        SET status = $1 
-        WHERE id  = $2 
-        RETURNING id, status
-      `;
-
-    return successResponse({ updatedAnnouncement: await db.one(query, params) });
-  } catch (e) {
-    console.log('/admin/announcements.changeStatus ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
@@ -145,6 +115,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     params[paramCounter++] = data.id;
     // pushed into from SQL SET map
     const SQL_SETS: string[] = Object.keys(data)
+        .filter(e => (e !== 'id')) // remove id
         .map((key) => {
           params[paramCounter++] = data[key];
 
@@ -180,37 +151,5 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       console.log('/admin/announcements/update ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
-  }
-};
-
-/**
- *
- * Get an announcement by its id
- *
- * @param event
- */
-export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  try {
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
-      Joi.object().keys({
-                          id: Joi.number().integer().required(),
-                        })
-    ));
-
-    const queryString = event.queryStringParameters;
-
-    const
-      params = [queryString.id],
-      sqlStatement = `
-          SELECT *
-          FROM ${process.env.ANNOUNCEMENTS_TABLE}
-          WHERE id = $1
-          AND status = true
-      `;
-
-    return successResponse({announcement: await db.oneOrNone(sqlStatement, params) });
-  } catch (e) {
-    console.log('/announcements.get ERROR - ', e);
-    return badRequestResponse();
   }
 };

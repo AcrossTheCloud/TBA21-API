@@ -427,6 +427,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  ### Short Paths
   getShortPath:
     handler: src/shortPaths/shortPaths.get
     description:
@@ -447,6 +448,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  ### Profiles
   getProfile:
     handler: src/profiles/profiles.get
     description: Get a profile
@@ -489,25 +491,31 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  ### Announcements
+  getAnnouncement:
+    handler: src/announcements/announcements.get
+    description: Get an announcements
+    events:
+      - http:
+          path: src/announcements
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+
   ###### ADMIN FUNCTIONS ######
 
   ### Announcements
-  adminChangeAnnouncementStatus:
-    handler: src/admin/announcements/announcements.changeStatus
-    description: Change the status of an announcement
-    events:
-      - http:
-          path: admin/announcements/changeStatus
-          method: patch
-          cors: true
-          authorizer: aws_iam
 
   adminUpdateAnnouncement:
     handler: src/admin/announcements/announcements.update
     description: Update an announcement
     events:
       - http:
-          path: admin/announcements/updateById
+          path: admin/announcements
           method: patch
           cors: true
           authorizer: aws_iam
@@ -532,19 +540,6 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  adminGetAnnouncement:
-    handler: src/admin/announcements/announcements.get
-    description: Get an announcements
-    events:
-      - http:
-          path: admin/announcements
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
 
   ### Profiles
   adminGetProfile:

@@ -8,7 +8,7 @@ import { QueryStringParameters } from '../../types/_test_';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { reSeedDatabase } from '../../utils/testHelper';
 import { db } from '../../databaseConnect';
-import { insert, changeStatus, get, update, deleteAnnouncement } from './announcements';
+import { insert, update, deleteAnnouncement } from './announcements';
 
 describe('admin/announcements', () => {
   // AfterAll tests reseed the DB
@@ -31,17 +31,15 @@ describe('admin/announcements', () => {
   });
   test('Change the status of an announcement', async () => {
     const
-      queryStringParameters: QueryStringParameters = {status: 'true', id: '2'},
-      response = await changeStatus({queryStringParameters } as APIGatewayProxyEvent),
-      results = JSON.parse(response.body);
-    expect(results.updatedAnnouncement.status).toEqual(true);
-  });
-  test('Get an announcement by its id', async () => {
-    const
-      queryStringParameters: QueryStringParameters = {id: '1'},
-      response = await get({queryStringParameters } as APIGatewayProxyEvent),
-      results = JSON.parse(response.body);
-    expect(results.announcement.id).toEqual('1');
+      requestBody = {
+        'id': '1',
+        'status' : 'true'
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await update({ body } as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+
+    expect(responseBody.success).toBe(true);
   });
   test('Update the title with an ID 1', async () => {
     const
@@ -61,12 +59,5 @@ describe('admin/announcements', () => {
       response = await deleteAnnouncement({queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
     expect(results).toBe(true);
-
-    queryStringParameters = {
-      id: '2'
-    },
-      response = await get({queryStringParameters} as APIGatewayProxyEvent);
-    results = JSON.parse(response.body);
-    expect(results.announcement).toEqual(null);
   });
 });
