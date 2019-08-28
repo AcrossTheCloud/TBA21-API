@@ -28,6 +28,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     };
 
     await Joi.validate(eventParams, Joi.object().keys({
+      announcement: Joi.boolean(),
       itemsLimit: Joi.number().integer(),
       collectionsLimit: Joi.number().integer(),
       oaHighlightLimit: Joi.number().integer(),
@@ -54,6 +55,18 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       `;
       params.push(date);
     }
+    if (queryString.announcement && queryString.announcement === 'true') {
+      const announcementsQuery = `
+        SELECT * 
+        FROM ${process.env.ANNOUNCEMENTS_TABLE}
+        $4:raw
+        AND status = true
+        LIMIT 3
+      `;
+      return successResponse({
+         announcements: await db.any(announcementsQuery, params)
+       });
+    }
     if (queryString.oa_highlight && queryString.oa_highlight === 'true') {
 
      const oaHighlightQuery = `
@@ -79,7 +92,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           $4:raw
           AND status = true
           AND oa_highlight = true
-        GROUP BY items.id, title, s3_key, concept_tag.tag_name, keyword_tag.tag_name
+        GROUP BY items.id, items.title, items.s3_key
         ORDER BY random()
         LIMIT $2:raw
     `;
@@ -89,12 +102,12 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     } else {
       let whereStatement: string = ``;
       if (eventParams.hasOwnProperty('id') && eventParams.id.length) {
-        whereStatement = eventParams.id.map( id => `AND id <> ${id}`).toString().replace(/,/g, ' ');
+        whereStatement = eventParams.id.map( id => `AND items.id <> ${id}`).toString().replace(/,/g, ' ');
       }
       params.push(whereStatement);
       const itemsQuery = `
         SELECT 
-          id,
+          items.id,
           title,
           s3_key,
           item_subtype as type,
@@ -102,13 +115,21 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           creators,
           file_dimensions,
           duration,
-          regions
+          regions,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
 
-        FROM ${process.env.ITEMS_TABLE}
+        FROM ${process.env.ITEMS_TABLE},
+          UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
+          
+          UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
+            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
           $4:raw
           AND status = true
           AND oa_highlight IS NOT TRUE
           $5:raw
+        GROUP BY items.id, items.title, items.s3_key
         ORDER BY random()
         LIMIT $1:raw
       `;

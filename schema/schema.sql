@@ -166,7 +166,7 @@ CREATE TABLE tba21.items
   copyright_holder varchar(256),
   copyright_country varchar(256),
   created_for varchar(256),
-  duration numeric(4),
+  duration numeric(6),
   interface varchar(256),
   document_code varchar(256),
   project varchar(256),
@@ -288,6 +288,17 @@ CREATE TABLE tba21.short_paths
   ID bigint,
   object_type tba21.table_type,
   created_at timestamp with time zone NOT NULL
+);
+
+--Table to announcements
+CREATE TABLE tba21.announcements
+(
+  ID bigserial PRIMARY KEY,
+  title varchar (40),
+  description varchar (256),
+  url varchar(2048),
+  created_at timestamp with time zone NOT NULL,
+  status boolean
 );
 
 -- Geo stuff

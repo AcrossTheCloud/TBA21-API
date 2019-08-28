@@ -11,13 +11,11 @@ import { reSeedDatabase } from '../utils/testHelper';
 import { get, changeStatus, updateById } from './collections';
 
 describe('Collections Update', () => {
-  afterAll(() => {
+  // AfterAll tests reseed the DB
+  afterAll(async () => {
+    await reSeedDatabase();
     // Close the database connection.
     db.$pool.end();
-  });
-
-  afterEach(async () => {
-    await reSeedDatabase();
   });
 
   test('Change the status of a collection', async () => {
@@ -108,7 +106,7 @@ describe('Collections Update', () => {
     const
       requestBody = {
         'id': '1',
-        'contributors': ['1f89f9b6-39bc-416e-899e-ef1a8d656f24','7e32b7c6-c6d3-4e70-a101-12af2df21a19'],
+        'contributors': ['1f89f9b6-39bc-416e-899e-ef1a8d656f24', '7e32b7c6-c6d3-4e70-a101-12af2df21a19'],
         'status': 'true',
         'concept_tags': [3, 4],
         'keyword_tags': [1, 3],
