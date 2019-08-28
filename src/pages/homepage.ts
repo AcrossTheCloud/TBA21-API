@@ -28,6 +28,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     };
 
     await Joi.validate(eventParams, Joi.object().keys({
+      announcement: Joi.boolean(),
       itemsLimit: Joi.number().integer(),
       collectionsLimit: Joi.number().integer(),
       oaHighlightLimit: Joi.number().integer(),
@@ -53,6 +54,18 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         WHERE created_at >= (now() - INTERVAL '1 year')
       `;
       params.push(date);
+    }
+    if (queryString.announcement && queryString.announcement === 'true') {
+      const announcementsQuery = `
+        SELECT * 
+        FROM ${process.env.ANNOUNCEMENTS_TABLE}
+        $4:raw
+        AND status = true
+        LIMIT 3
+      `;
+      return successResponse({
+         announcements: await db.any(announcementsQuery, params)
+       });
     }
     if (queryString.oa_highlight && queryString.oa_highlight === 'true') {
 

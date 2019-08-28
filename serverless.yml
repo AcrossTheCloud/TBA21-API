@@ -59,6 +59,7 @@ provider:
     KEYWORD_TAGS_TABLE: ${env:KEYWORD_TAGS_TABLE}
     SHORT_PATHS_TABLE: ${env:SHORT_PATHS_TABLE}
     PROFILES_TABLE: ${env:PROFILES_TABLE}
+    ANNOUNCEMENTS_TABLE: ${env.:ANNOUNCEMENTS_TABLE}
 
     PGUSER: ${env:PGUSER}
     PGPASSWORD: ${env:PGPASSWORD}
@@ -426,6 +427,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  ### Short Paths
   getShortPath:
     handler: src/shortPaths/shortPaths.get
     description:
@@ -446,6 +448,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  ### Profiles
   getProfile:
     handler: src/profiles/profiles.get
     description: Get a profile
@@ -474,6 +477,7 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+
   updateProfile:
     handler: src/profiles/profiles.update
     description: Update a profile
@@ -486,7 +490,56 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+
+  ### Announcements
+  getAnnouncement:
+    handler: src/announcements/announcements.get
+    description: Get an announcements
+    events:
+      - http:
+          path: src/announcements
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+
   ###### ADMIN FUNCTIONS ######
+
+  ### Announcements
+
+  adminUpdateAnnouncement:
+    handler: src/admin/announcements/announcements.update
+    description: Update an announcement
+    events:
+      - http:
+          path: admin/announcements
+          method: patch
+          cors: true
+          authorizer: aws_iam
+
+  adminInsertAnnouncement:
+    handler: src/admin/announcements/announcements.insert
+    description: Insert an announcements
+    events:
+      - http:
+          path: admin/announcements
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  adminDeleteAnnouncement:
+    handler: src/admin/announcements/announcements.deleteById
+    description: Removes an announcements
+    events:
+      - http:
+          path: admin/announcements
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
 
   ### Profiles
   adminGetProfile:
