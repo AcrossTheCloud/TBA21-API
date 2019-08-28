@@ -14,6 +14,7 @@ import { create } from '../../collections/model';
 
 export const createCollection = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
+
     const data = JSON.parse(event.body);
 
     await Joi.validate(data, Joi.object().keys(
@@ -85,7 +86,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
       }));
 
-    return (await create(data, true));
+    return (await create(data, (event.path.match(/\/admin\//) ? true : false)));
 
   } catch (e) {
     if ((e.message === 'Nothing to update') || (e.isJoi)) {

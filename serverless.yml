@@ -664,7 +664,7 @@ functions:
 
   adminUpdateCollection:
     handler: src/admin/collections/update.updateById
-    description: Removes a collection and it's collection_items entry from the database
+    description: Admin udpates a collection in the database
     events:
       - http:
           path: admin/collections/update
@@ -829,3 +829,24 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+
+  # Contributor routes
+  contributorUpdateCollection:
+    handler: src/collections/collections.updateById
+    description: Contributor updates a collection in the database
+    events:
+      - http:
+          path: contributor/collections/update
+          method: put
+          cors: true
+          authorizer: aws_iam
+  
+  contributorCreateCollection:
+    handler: src/admin/collections/insert.createCollection # NOTE the same admin handler as they are identical 
+    description: Contributor creates a collection
+    events:
+      - http:
+          path: contributor/collections/create
+          method: put
+          cors: true
+          authorizer: aws_iam
