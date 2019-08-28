@@ -3,8 +3,6 @@ import { badRequestResponse, internalServerErrorResponse } from '../../common';
 import Joi from '@hapi/joi';
 import { create } from '../../collections/model';
 
-const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$/i;
-
 /**
  *
  * Insert a new collection
@@ -83,7 +81,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         related_event: Joi.string(),
         volume: Joi.number().integer(),
         number: Joi.number().integer(),
-        contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
+        contributors: Joi.array().items(Joi.string().uuid()),
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
       }));
 
