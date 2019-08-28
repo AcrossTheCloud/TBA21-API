@@ -474,6 +474,7 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+
   updateProfile:
     handler: src/profiles/profiles.update
     description: Update a profile
@@ -486,6 +487,29 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+
+
+  homepage:
+    handler: src/pages/homepage.get
+    description:
+    events:
+      - http:
+          path: pages/homepage
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  search:
+    handler: src/pages/search.get
+    description:
+    events:
+      - http:
+          path: pages/search
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+
   ###### ADMIN FUNCTIONS ######
 
   ### Profiles
@@ -522,16 +546,6 @@ functions:
       - http:
           path: admin/profiles
           method: patch
-          cors: true
-          authorizer: aws_iam
-
-  homepage:
-    handler: src/pages/homepage.get
-    description:
-    events:
-      - http:
-          path: pages/homepage
-          method: get
           cors: true
           authorizer: aws_iam
 
