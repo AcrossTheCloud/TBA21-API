@@ -57,7 +57,7 @@ export const create = async (requestBody, isAdmin: Boolean) => {
     };
 
   } catch (e) {
-    console.log('src/collections/model/create ERROR - ', e.details);
+    console.log('src/collections/model/create ERROR - ', e);
     return internalServerErrorResponse();
   }
 };
