@@ -396,6 +396,7 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
+              - name: request.querystring.type
               - name: request.querystring.query
   insertTags:
     handler: src/admin/tags/tags.insert
