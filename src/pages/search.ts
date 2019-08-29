@@ -13,7 +13,9 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     };
 
     await Joi.validate(eventParams, Joi.object().keys({
+
       searchQuery: Joi.array().items(Joi.string()),
+      offset: Joi.number().integer(),
       limit: Joi.number().integer(),
       focus_arts: Joi.boolean(),
       focus_action: Joi.boolean(),
@@ -23,7 +25,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     const
       queryString = event.queryStringParameters,
       limit = queryString.limit ? queryString.limit : 50,
-      params = [limit, ...searchQueries];
+      offset = queryString.offset ? queryString.offset : 0,
+      params = [limit, offset, ...searchQueries];
 
     const focusArts: string = queryString.hasOwnProperty('focus_arts') ? ` AND focus_arts = 1`  : ` AND focus_arts <> 1`  ;
     const focusAction: string = queryString.hasOwnProperty('focus_action') ? ` AND focus_action = 1`  : ` AND focus_action <> 1`  ;
@@ -32,7 +35,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     let itemsWhereStatement = ``;
     let collectionsWhereStatement = ``;
     if (searchQueries && searchQueries.length) {
-      for (let i = 1; i < params.length ; i++) {
+      for (let i = 2; i < params.length ; i++) {
         const index = i + 1;
         itemsWhereStatement = `
           ${itemsWhereStatement}
@@ -140,6 +143,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         GROUP BY item.s3_key
         ORDER BY item.updated_at DESC NULLS LAST
         LIMIT $1
+        OFFSET $2
       `;
 
       const collectionsQuery = `
@@ -163,7 +167,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
             ${focusAction}
             ${focusScitech}
           GROUP BY collections.id
-          LIMIT $1:raw
+          LIMIT $1
+          OFFSET $2
         `;
 
       let

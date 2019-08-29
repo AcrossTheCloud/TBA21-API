@@ -25,7 +25,7 @@ test('limit the items we get from search function', async () => {
   });
 test('Get items from search function with multiple searchQueries', async () => {
     const
-      queryStringParameters: QueryStringParameters = {limit: '10'},
+      queryStringParameters: QueryStringParameters = {limit: '5'},
       multiValueQueryStringParameters: MultiQueryStringParameters = {searchQuery: ['a', 'b']},
       response = await get({ multiValueQueryStringParameters, queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
