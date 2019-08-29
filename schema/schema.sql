@@ -297,7 +297,8 @@ CREATE TABLE tba21.announcements
   title varchar (40),
   description varchar (256),
   url varchar(2048),
-  created_at timestamp with time zone NOT NULL
+  created_at timestamp with time zone NOT NULL,
+  status boolean
 );
 
 -- Geo stuff

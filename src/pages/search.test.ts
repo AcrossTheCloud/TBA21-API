@@ -3,12 +3,12 @@ require('dotenv').config(
     DEBUG: true
   });
 
-import { MultiQueryStringParameters } from '../types/_test_';
+import { MultiQueryStringParameters, QueryStringParameters } from '../types/_test_';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import { get } from './search';
 
-describe('homepage tests', () => {
+describe('search tests', () => {
 
 afterAll( () => {
   // Close the database connection.
@@ -16,9 +16,9 @@ afterAll( () => {
 });
 test('Get items from search function', async () => {
     const
-      // queryStringParameters: QueryStringParameters = {searchQuery: 'a'},
+      queryStringParameters: QueryStringParameters = {limit: '5'},
       multiValueQueryStringParameters: MultiQueryStringParameters = {searchQuery: ['a']},
-      response = await get({ multiValueQueryStringParameters } as APIGatewayProxyEvent),
+      response = await get({ multiValueQueryStringParameters, queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
     console.log(results);
     expect(results.items.length).toEqual(6);
