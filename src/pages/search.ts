@@ -1,5 +1,4 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { limitQuery } from '../utils/queryHelpers';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
@@ -23,7 +22,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
     const
       queryString = event.queryStringParameters,
-      params = [limitQuery(queryString.limit, 50), ...searchQueries];
+      limit = queryString.limit ? queryString.limit : 50,
+      params = [limit, ...searchQueries];
 
     const focusArts: string = queryString.hasOwnProperty('focus_arts') ? ` AND focus_arts = 1`  : ` AND focus_arts <> 1`  ;
     const focusAction: string = queryString.hasOwnProperty('focus_action') ? ` AND focus_action = 1`  : ` AND focus_action <> 1`  ;
@@ -166,31 +166,24 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           LIMIT $1:raw
         `;
 
-      const response = {
-        items: await db.any(itemsQuery, params)
-      };
-
-      // Pulling the s3_key out of the array and returning it in a string
-      let collections = await db.manyOrNone(collectionsQuery, params);
+      let
+        collections = await db.manyOrNone(collectionsQuery, params),
+        collectionsPromise = [];
       if (collections.length) {
-        const collectionsPromise = collections.map( async c => {
+        collectionsPromise = collections.map( async c => {
           return new Promise( async resolve => {
             const collectionsItems = await db.manyOrNone('SELECT item_s3_key FROM tba21.collections_items WHERE collection_id = $1 ', [c.id]);
             resolve({...c,  s3_key: collectionsItems.map( i => i.item_s3_key ) });
           });
         });
-
-        Promise.all(collectionsPromise).then( c => {
-          Object.assign(response, { collections: c });
-        });
-
       }
-      return successResponse(response);
+      return successResponse({
+        items: await db.any(itemsQuery, params),
+        collections: await Promise.all(collectionsPromise)
+                             });
     } else {
-      // focused search
       return badRequestResponse();
     }
-
   } catch (e) {
     console.log('/pages/pages.search ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
