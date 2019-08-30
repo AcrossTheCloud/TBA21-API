@@ -27,30 +27,30 @@
   },
   "homepage": "https://github.com/AcrossTheCloud/TBA21-API",
   "dependencies": {
-    "@hapi/joi": "^15.0.3",
+    "@hapi/joi": "^15.1.1",
     "axios": "^0.19.0",
-    "pg-promise": "^8.7.5"
+    "pg-promise": "^9.1.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.31",
-    "@types/jest": "^24.0.16",
-    "@types/node": "^12.6.9",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.3",
     "aws-lambda": "^0.1.2",
-    "aws-sdk": "^2.503.0",
-    "dotenv": "^8.0.0",
-    "jest": "^24.8.0",
-    "rimraf": "^2.6.3",
-    "serverless": "1.48.3",
+    "aws-sdk": "^2.520.0",
+    "dotenv": "^8.1.0",
+    "jest": "^24.9.0",
+    "rimraf": "^3.0.0",
+    "serverless": "1.51.0",
     "serverless-api-gateway-caching": "^1.4.0",
     "serverless-aws-documentation": "^1.1.0",
     "serverless-dotenv-plugin": "^2.1.1",
-    "serverless-offline": "^4.10.6",
-    "serverless-plugin-split-stacks": "^1.9.0",
+    "serverless-offline": "^5.10.1",
+    "serverless-plugin-split-stacks": "^1.9.1",
     "serverless-plugin-typescript": "^1.1.9",
     "ts-jest": "^24.0.2",
-    "ts-loader": "^6.0.1",
-    "ts-node": "^8.0.3",
-    "tslint": "^5.16.0",
-    "typescript": "^3.4.5"
+    "ts-loader": "^6.0.4",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.19.0",
+    "typescript": "^3.6.2"
   }
 }
