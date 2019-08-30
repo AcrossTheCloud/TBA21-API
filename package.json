@@ -6,7 +6,7 @@
   "main": "s",
   "scripts": {
     "test": "npm run clean && npm run lint && ./docker/start_with_tests.sh",
-    "test-localdb": "npm run clean && npm run lint && jest -i --coverage --detectOpenHandles",
+    "test-localdb": "npm run clean && npm run lint && jest -i --coverage --detectOpenHandles --silent",
     "offline": "npm run clean && npm run lint && export SLS_DEBUG=* && sls offline start --verbose --port 8080",
     "offline-win": "npm run clean && npm run lint && sls offline start --port 8080",
     "test-win-localdb": "npm run clean && npm run lint && jest -i --coverage --detectOpenHandles --silent",
