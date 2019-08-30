@@ -583,7 +583,6 @@ functions:
           path: pages/homepage
           method: get
           cors: true
-          authorizer: aws_iam
 
   #### Collections
   adminGetCollections:
