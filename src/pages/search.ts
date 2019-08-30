@@ -13,7 +13,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     };
 
     await Joi.validate(eventParams, Joi.object().keys({
-
+      suggestion: Joi.string(),
       searchQuery: Joi.array().items(Joi.string()),
       offset: Joi.number().integer(),
       limit: Joi.number().integer(),
@@ -186,6 +186,115 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         items: await db.any(itemsQuery, params),
         collections: await Promise.all(collectionsPromise)
                              });
+    }
+    if (queryString.suggestion && queryString.suggestion.length ) {
+      params.push(queryString.suggestion);
+      const itemsQuery = `
+        SELECT
+          item.s3_key,
+          item.title,
+          item.created_at as date,
+          item.creators,
+          item.item_type as type
+        FROM ${process.env.ITEMS_TABLE} AS item
+        WHERE status = true
+          AND
+          LOWER(title) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(original_title) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(event_title) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(subtitle) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(description) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(institution) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(news_outlet) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(location) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(city_of_publication) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(featured_in) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(editor) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(lecturer) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(project) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(record_label) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+          LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
+          LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%' 
+         
+        GROUP BY item.s3_key
+        ORDER BY item.updated_at DESC NULLS LAST
+        LIMIT $1
+        OFFSET $2
+      `;
+      const collectionsQuery = `
+        SELECT  
+          ${process.env.COLLECTIONS_TABLE}.id,
+          ${process.env.COLLECTIONS_TABLE}.title,
+          ${process.env.COLLECTIONS_TABLE}.type, 
+          ${process.env.COLLECTIONS_TABLE}.created_at as date, 
+          ${process.env.COLLECTIONS_TABLE}.creators
+        FROM ${process.env.COLLECTIONS_TABLE}
+          WHERE ${process.env.COLLECTIONS_TABLE}.status = true
+            AND
+            LOWER(collections.title) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(collections.subtitle) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(collections.description) LIKE '%' || LOWER($3) || '%' OR
+      
+            LOWER(collections.institution) LIKE '%' || LOWER($3) || '%' OR
+      
+            LOWER(array_to_string(collections.regions, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(collections.location) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(collections.city_of_publication) LIKE '%' || LOWER($3) || '%' OR
+      
+            LOWER(collections.editor) LIKE '%' || LOWER($3) || '%' OR
+      
+            LOWER(array_to_string(collections.cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+            LOWER(array_to_string(collections.creators, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(collections.directors, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(collections.writers, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(collections.collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+            LOWER(array_to_string(collections.publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+            LOWER(array_to_string(collections.participants, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(collections.interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(collections.interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
+      
+            LOWER(array_to_string(collections.host_organisation, '||')) LIKE '%' || LOWER($3) || '%'
+            
+          GROUP BY collections.id
+          LIMIT $1
+          OFFSET $2
+        `;
+
+      const itemResult = await db.manyOrNone(itemsQuery, params);
+      Object.entries(itemResult).filter( item => item.includes('Video'));
+      console.log( itemResult );
+      return successResponse(
+        {
+          collections: await db.manyOrNone(collectionsQuery, params)
+        });
+
     } else {
       return badRequestResponse();
     }

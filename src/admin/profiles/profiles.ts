@@ -2,8 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import Joi from '@hapi/joi';
 import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../../common';
-
-const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$/i;
+import { uuidRegex } from '../../utils/uuid';
 
 /**
  *
@@ -15,13 +14,14 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
-        id: Joi.number().integer()
+        id: Joi.number().integer().required()
       }),
       Joi.object().keys({
-        uuid: Joi.string().regex(uuidRegex)
+        uuid: Joi.string().regex(uuidRegex).required()
       }),
       Joi.object().keys({
-        fullname: Joi.string()
+        fullname: Joi.string().required(),
+        notPublicUsers: Joi.boolean(),
       })
     ));
 
@@ -41,7 +41,13 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     if (queryStringParameters.hasOwnProperty('fullname')) {
       params.push(queryStringParameters.fullname);
       whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
+
+      if (queryStringParameters.hasOwnProperty('notPublicUsers')) {
+        params.push(queryStringParameters.notPublicUsers);
+        whereStatement = `${whereStatement} AND profile_type <> 'PUBLIC'`;
+      }
     }
+
     const sqlStatement = `
         SELECT 
           profiles.id,

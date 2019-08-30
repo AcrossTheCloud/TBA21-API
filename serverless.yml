@@ -59,7 +59,7 @@ provider:
     KEYWORD_TAGS_TABLE: ${env:KEYWORD_TAGS_TABLE}
     SHORT_PATHS_TABLE: ${env:SHORT_PATHS_TABLE}
     PROFILES_TABLE: ${env:PROFILES_TABLE}
-    ANNOUNCEMENTS_TABLE: ${env.:ANNOUNCEMENTS_TABLE}
+    ANNOUNCEMENTS_TABLE: ${env:ANNOUNCEMENTS_TABLE}
 
     PGUSER: ${env:PGUSER}
     PGPASSWORD: ${env:PGPASSWORD}
@@ -167,7 +167,6 @@ functions:
           path: items/get
           method: get
           cors: true
-          authorizer: aws_iam
 
   getItem:
     handler: src/items/items.getItem
@@ -177,7 +176,6 @@ functions:
           path: items/getItem
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
@@ -226,20 +224,20 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.person
 
-  changeItemStatus:
-    handler: src/items/items.changeStatus
-    description: Change the status of an item
-    events:
-      - http:
-          path: items/changeStatus
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-              - name: request.querystring.status
+#  changeItemStatus:
+#    handler: src/items/items.changeStatus
+#    description: Change the status of an item
+#    events:
+#      - http:
+#          path: items/changeStatus
+#          method: get
+#          cors: true
+#          authorizer: aws_iam
+#          caching:
+#            enabled: true
+#            cacheKeyParameters:
+#              - name: request.querystring.id
+#              - name: request.querystring.status
 
 #  getItemsInBounds:
 #    handler: src/items/items.getItemsInBounds
@@ -266,7 +264,6 @@ functions:
           path: items/getRekognitionTags
           method: get
           cors: true
-          authorizer: aws_iam
 
 ### Collections
 #  getGetCollectionsByTag:
@@ -291,7 +288,6 @@ functions:
           path: collections/getById
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
@@ -311,20 +307,20 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.person
 
-  changeCollectionStatus:
-    handler: src/collections/collections.changeStatus
-    description: Change the status of a collection
-    events:
-      - http:
-          path: collections/changeStatus
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-              - name: request.querystring.status
+#  changeCollectionStatus:
+#    handler: src/collections/collections.changeStatus
+#    description: Change the status of a collection
+#    events:
+#      - http:
+#          path: collections/changeStatus
+#          method: get
+#          cors: true
+#          authorizer: aws_iam
+#          caching:
+#            enabled: true
+#            cacheKeyParameters:
+#              - name: request.querystring.id
+#              - name: request.querystring.status
 
 #  getCollectionsInBounds:
 #    handler: src/collections/collections.getInBounds
@@ -371,7 +367,6 @@ functions:
           path: collections/getItemsInCollection
           method: get
           cors: true
-          authorizer: aws_iam
 
   getCollectionsByItem:
     handler: src/collections/collections.getCollectionsByItem
@@ -381,7 +376,6 @@ functions:
           path: collections/getCollectionsByItem
           method: get
           cors: true
-          authorizer: aws_iam
 
   ###### TAG FUNCTIONS ######
   getTags:
@@ -392,7 +386,6 @@ functions:
           path: tags
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
@@ -436,7 +429,6 @@ functions:
           path: shortpaths
           method: get
           cors: true
-          authorizer: aws_iam
 
   insertShortPath:
     handler: src/admin/shortPaths/shortPaths.insert
@@ -457,7 +449,6 @@ functions:
           path: profiles
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
@@ -473,10 +464,6 @@ functions:
           path: profiles
           method: put
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
 
   updateProfile:
     handler: src/profiles/profiles.update
@@ -499,7 +486,6 @@ functions:
           path: src/announcements
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
