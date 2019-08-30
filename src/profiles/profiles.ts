@@ -49,7 +49,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
           profiles.cognito_uuid
         FROM ${process.env.PROFILES_TABLE}
         ${whereStatement}
-        WHERE public_profile = true
+        AND public_profile = true
       `;
     return successResponse({ profile: await db.any(sqlStatement, params) });
   } catch (e) {
