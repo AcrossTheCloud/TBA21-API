@@ -76,9 +76,9 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const params = [data.full_name, data.uuid];
     const query = `
       INSERT INTO ${process.env.PROFILES_TABLE} 
-        (full_name, cognito_uuid) 
+        (full_name, cognito_uuid, profile_type) 
       VALUES 
-        ($1, $2::uuid) 
+        ($1, $2::uuid, 'Public') 
       RETURNING id;`;
 
     const result = await db.one(query, params);

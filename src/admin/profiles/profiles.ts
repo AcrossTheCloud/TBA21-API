@@ -14,13 +14,14 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
-        id: Joi.number().integer()
+        id: Joi.number().integer().required()
       }),
       Joi.object().keys({
-        uuid: Joi.string().regex(uuidRegex)
+        uuid: Joi.string().regex(uuidRegex).required()
       }),
       Joi.object().keys({
-        fullname: Joi.string()
+        fullname: Joi.string().required(),
+        notPublicUsers: Joi.boolean(),
       })
     ));
 
@@ -40,7 +41,13 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     if (queryStringParameters.hasOwnProperty('fullname')) {
       params.push(queryStringParameters.fullname);
       whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
+
+      if (queryStringParameters.hasOwnProperty('notPublicUsers')) {
+        params.push(queryStringParameters.notPublicUsers);
+        whereStatement = `${whereStatement} AND profile_type <> 'PUBLIC'`;
+      }
     }
+
     const sqlStatement = `
         SELECT 
           profiles.id,
