@@ -153,3 +153,40 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     }
   }
 };
+/**
+ *
+ * Delete a users own profile
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } true
+ */
+export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const
+      data = JSON.parse(event.body),
+      userUuid = event.requestContext.authorizer.claims['cognito:username'];
+
+    // if the users uuid is the same as the profiles, allow them to delete it
+    if (userUuid && userUuid === data.uuid) {
+      const
+        params = [userUuid],
+        query = `
+       DELETE FROM ${process.env.PROFILES_TABLE}
+        WHERE cognito_uuid = $1
+        `;
+      await db.one(query, params);
+
+      return {
+        body: 'true',
+        headers: headers,
+        statusCode: 200
+      };
+    } else {
+      return badRequestResponse();
+    }
+  } catch (e) {
+      console.log('/profile/profiles/deleteProfile ERROR - ', !e.isJoi ? e : e.details);
+      return badRequestResponse();
+    }
+};

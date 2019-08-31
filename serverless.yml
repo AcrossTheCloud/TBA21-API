@@ -479,6 +479,19 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  deleteProfile:
+    handler: src/profiles/profiles.deleteProfile
+    description: Delete a users own profile
+    events:
+      - http:
+          path: profiles
+          method: delete
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
   ### Announcements
   getAnnouncement:
     handler: src/announcements/announcements.get
