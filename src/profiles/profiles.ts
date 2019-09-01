@@ -184,9 +184,15 @@ export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGat
           DELETE FROM ${process.env.ITEMS_TABLE}
           WHERE contributor = $1
       `;
-
       await db.one(query, params);
       await db.one(deleteItemsQuery, params);
+
+      const checkCollectionsQuery = `
+          SELECT id
+          FROM ${process.env.COLLECTIONS_TABLE}
+          WHERE contributor @> ARRAY[$1]::uuid[] 
+      `;
+      await db.manyOrNone(checkCollectionsQuery, params);
 
       return {
         body: 'true',
