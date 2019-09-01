@@ -32,7 +32,7 @@ export const create = async (requestBody, isAdmin: Boolean) => {
     sqlFields.push('created_at', 'updated_at');
     sqlParams.push('now()', 'now()');
 
-    const query = `INSERT INTO ${process.env.COLLECTIONS_TABLE} (${[...sqlFields]}) VALUES (${[...sqlParams]}) RETURNING id;`;
+    const query = `INSERT INTO ${process.env.COLLECTIONS_TABLE} (${sqlFields.join(', ')}) VALUES (${sqlParams.join(', ')}) RETURNING id;`;
 
     const insertResult = await db.task(async t => {
       const insertedObject = await t.one(query, params);
@@ -41,7 +41,7 @@ export const create = async (requestBody, isAdmin: Boolean) => {
       if (requestBody.items && requestBody.items.length > 0) {
         const
           SQL_INSERTS: string[] = requestBody.items.map((item, index) => (`($1, $${index + 2})`)),
-          addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
+          addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${SQL_INSERTS.join(', ')}`,
           addParams = [insertedObject.id, ...requestBody.items];
 
         await t.any(addQuery, addParams);
@@ -91,7 +91,7 @@ export const update = async (requestBody, isAdmin: Boolean, userId?: String) => 
           UPDATE ${process.env.COLLECTIONS_TABLE}
           SET 
             updated_at='${new Date().toISOString()}',
-            ${[...SQL_SETS]}
+            ${SQL_SETS.join(', ')}
           WHERE id = $1 `;
     if (!isAdmin) {
       params[paramCounter++] = userId;
@@ -130,7 +130,7 @@ export const update = async (requestBody, isAdmin: Boolean, userId?: String) => 
             SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
               return `($1, $${index + 2})`;
             }),
-            addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
+            addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${SQL_INSERTS.join(', ')}`,
             addParams = [requestBody.id, ...toBeAdded];
 
           await t.any(addQuery, addParams);
@@ -141,7 +141,7 @@ export const update = async (requestBody, isAdmin: Boolean, userId?: String) => 
             SQL_REMOVES: string[] = toBeRemoved.map((item, index) => {
               return `$${index + 2}`;
             }),
-            removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${[...SQL_REMOVES]})`,
+            removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${SQL_REMOVES.join(', ')})`,
             removeParams = [requestBody.id, ...toBeRemoved];
 
           await t.any(removeQuery, removeParams);
