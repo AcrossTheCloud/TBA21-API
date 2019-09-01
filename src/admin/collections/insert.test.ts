@@ -31,10 +31,10 @@ describe('/admin/collections/insert/', () => {
         'focus_arts': '1',
         'focus_action': '2',
         'focus_scitech': '3',
-        'concept_tags' : [3]
+        'concept_tags' : ['3']
       },
       body: string = JSON.stringify(requestBody),
-      response = await createCollection({ body , 'path': '/admin/collections/create' } as APIGatewayProxyEvent),
+      response = await createCollection({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
 
     expect(responseBody.success).toBe(true);
@@ -56,10 +56,10 @@ describe('/admin/collections/insert/', () => {
         'focus_arts': '1',
         'focus_action': '2',
         'focus_scitech': '3',
-        'concept_tags' : [3]
+        'concept_tags' : ['3']
       },
       body: string = JSON.stringify(requestBody),
-      response = await createCollection({ body , 'path': '/admin/collections/create' } as APIGatewayProxyEvent),
+      response = await createCollection({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body),
       nItems = await db.one(`select count(1) from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [responseBody.id ]);
 
@@ -126,7 +126,7 @@ describe('/admin/collections/insert/', () => {
         'items': ['private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg'],
       },
       body: string = JSON.stringify(requestBody),
-      response = await createCollection({ body, 'path': '/admin/collections/create' } as APIGatewayProxyEvent),
+      response = await createCollection({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body),
       nItems = await db.one(`select count(1) from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [responseBody.id ]);
 
