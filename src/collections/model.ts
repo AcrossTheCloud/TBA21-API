@@ -154,20 +154,29 @@ export const update = async (requestBody, isAdmin: Boolean, userId?: String) => 
   }
 };
 
-export const deleteCollection = async (id: Number) => {
+export const deleteCollection = async (id, isAdmin: Boolean, userId?: String) => {
   try {
 
-    const
-      params = [id],
-      query = `
-          DELETE FROM ${process.env.COLLECTIONS_TABLE}
-          WHERE id = $1;
-  
-          DELETE FROM ${process.env.COLLECTIONS_ITEMS_TABLE}
-          WHERE collection_id = $1
-        `;
+    const params = [id];
+    let query = `DELETE FROM ${process.env.COLLECTIONS_TABLE}
+          WHERE id = $1 `;
+    if (!isAdmin) {
+      params.push(userId);
+      query += ` and contributors = ARRAY [$2::uuid] `;
+    }
+    query += ` returning id;`;
 
-    await db.any(query, params);
+    await db.task(async t => {
+      const deleteResult = await t.oneOrNone(query, params);
+      if (!deleteResult) {
+        throw new Error('unauthorized');
+      }
+      // MA: why the 2nd query below is here ? Didn't we have cascade on delete ? I have kept it anyway
+      let query2 = `DELETE FROM ${process.env.COLLECTIONS_ITEMS_TABLE}
+            WHERE collection_id = $1 `;
+      await t.any(query2, [id]);
+
+    });
 
     return {
       body: 'true',
@@ -175,7 +184,11 @@ export const deleteCollection = async (id: Number) => {
       statusCode: 200
     };
   } catch (e) {
-    console.log('src/collections/model/deleteCollection ERROR - ', !e.isJoi ? e : e.details);
-    return badRequestResponse();
+    if (e.message === 'unauthorized') {
+      return unAuthorizedRequestResponse('You are not a contributor for this collection');
+    } else {
+      console.log('src/collections/model/deleteCollection ERROR - ', !e.isJoi ? e : e.details);
+      return badRequestResponse();
+    }
   }
 };

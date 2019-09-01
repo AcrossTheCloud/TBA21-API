@@ -19,7 +19,7 @@ describe('Admin Collections Delete', () => {
   test('Delete ID 1', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '1'},
-      response = await deleteById({ queryStringParameters } as APIGatewayProxyEvent),
+      response = await deleteById({ queryStringParameters , path:'/admin/collections/delete' } as APIGatewayProxyEvent),
       body = JSON.parse(response.body);
 
     expect(body).toBe(true);
