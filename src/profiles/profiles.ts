@@ -26,7 +26,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
     const
       queryStringParameters = event.queryStringParameters,
-      userUuid = event.requestContext.authorizer.claims['cognito:username'],
+      // userUuid = event.requestContext.authorizer.claims['cognito:username'],
     params = [];
     let whereStatement = '';
     // checks to see what has been passed through, and changing the WHERE statement to suit as well as pushing queryStringParameters in to params[]
@@ -42,10 +42,10 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       params.push(queryStringParameters.full_name);
       whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
     }
-    if (userUuid && userUuid === data.uuid) {
-      params.push(userUuid);
-      whereStatement = `WHERE cognito_uuid = $1`;
-    }
+    // if (userUuid && userUuid === data.uuid) {
+    //   params.push(userUuid);
+    //   whereStatement = `WHERE cognito_uuid = $1`;
+    // }
     const sqlStatement = `
         SELECT 
           profiles.id,
@@ -177,10 +177,16 @@ export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGat
       const
         params = [userUuid],
         query = `
-       DELETE FROM ${process.env.PROFILES_TABLE}
-        WHERE cognito_uuid = $1
-        `;
+          DELETE FROM ${process.env.PROFILES_TABLE}
+          WHERE cognito_uuid = $1
+        `,
+        deleteItemsQuery = `
+          DELETE FROM ${process.env.ITEMS_TABLE}
+          WHERE contributor = $1
+      `;
+
       await db.one(query, params);
+      await db.one(deleteItemsQuery, params);
 
       return {
         body: 'true',
