@@ -14,7 +14,7 @@ CREATE TYPE tba21.licence_type AS ENUM ('CC BY', 'CC BY-SA', 'CC BY-ND', 'CC BY-
 CREATE TYPE tba21.table_type AS ENUM ('Profile', 'Item', 'Collection');
 
 --Profile Types
-CREATE TYPE tba21.profile_type AS ENUM ('Individual', 'Collective', 'Institution' );
+CREATE TYPE tba21.profile_type AS ENUM ('Individual', 'Collective', 'Institution', 'Public');
 
 --Item Types
 CREATE TYPE tba21.item_type AS ENUM ('Video', 'Text', 'Audio', 'Image');
