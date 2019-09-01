@@ -827,11 +827,41 @@ functions:
           authorizer: aws_iam
   
   contributorCreateCollection:
-    handler: src/admin/collections/insert.createCollection # NOTE the same admin handler as they are identical 
+    handler: src/admin/collections/insert.createCollection # NOTE the same admin handler.. 
     description: Contributor creates a collection
     events:
       - http:
-          path: contributor/collections/create
+          path: contributor/collections/create # ..but different path
           method: put
+          cors: true
+          authorizer: aws_iam
+
+  contributorDeleteCollection:
+    handler: src/admin/collections/delete.deleteById
+    description: Removes a collection and it's collection_items entry from the database
+    events:
+      - http:
+          path: contributor/collections
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+  contributorUpdateItem:
+    handler: src/admin/items/update.updateByS3key # NOTE the same admin handler.. 
+    description: Contributor creates a collection
+    events:
+      - http:
+          path: contributor/items/update # ..but different path
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  contributorDeleteItem:
+    handler: src/admin/items/delete.deleteItem # NOTE the same admin handler..
+    description: Contributor deletes an item
+    events:
+      - http:
+          path: contributor/items # ..but different path
+          method: delete
           cors: true
           authorizer: aws_iam
