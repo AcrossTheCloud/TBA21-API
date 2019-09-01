@@ -113,7 +113,7 @@ describe('/admin/items/update/updateByS3key', () => {
         'volume': '2'
         },
         body: string = JSON.stringify(requestBody),
-        response = await updateByS3key({ body } as APIGatewayProxyEvent),
+        response = await updateByS3key({ body, path: '/admin/items/update/updateByS3key' } as APIGatewayProxyEvent),
         responseBody = JSON.parse(response.body);
       expect(responseBody.success).toBe(true);
     });

@@ -19,10 +19,10 @@ describe('Items Delete', () => {
     db.$pool.end();
   });
 
-  test('Delete an item with an id of 1 then check the short path was deleted', async () => {
+  test('Delete an item with an id of 2 then check the short path was deleted', async () => {
     let
       queryStringParameters: QueryStringParameters = {id: '2'},
-      response = await deleteItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await deleteItem({queryStringParameters , path:'/admin/items/delete' } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
     expect(results).toBe(true);
     
