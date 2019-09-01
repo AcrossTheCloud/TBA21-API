@@ -649,7 +649,7 @@ functions:
 
   adminUpdateCollection:
     handler: src/admin/collections/update.updateById
-    description: Removes a collection and it's collection_items entry from the database
+    description: Admin udpates a collection in the database
     events:
       - http:
           path: admin/collections/update
@@ -814,3 +814,54 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+
+  # Contributor routes
+  contributorUpdateCollection:
+    handler: src/collections/collections.updateById
+    description: Contributor updates a collection in the database
+    events:
+      - http:
+          path: contributor/collections/update
+          method: put
+          cors: true
+          authorizer: aws_iam
+  
+  contributorCreateCollection:
+    handler: src/admin/collections/insert.createCollection # NOTE the same admin handler.. 
+    description: Contributor creates a collection
+    events:
+      - http:
+          path: contributor/collections/create # ..but different path
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  contributorDeleteCollection:
+    handler: src/admin/collections/delete.deleteById
+    description: Removes a collection and it's collection_items entry from the database
+    events:
+      - http:
+          path: contributor/collections
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+  contributorUpdateItem:
+    handler: src/admin/items/update.updateByS3key # NOTE the same admin handler.. 
+    description: Contributor creates a collection
+    events:
+      - http:
+          path: contributor/items/update # ..but different path
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  contributorDeleteItem:
+    handler: src/admin/items/delete.deleteItem # NOTE the same admin handler..
+    description: Contributor deletes an item
+    events:
+      - http:
+          path: contributor/items # ..but different path
+          method: delete
+          cors: true
+          authorizer: aws_iam
