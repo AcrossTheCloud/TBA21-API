@@ -16,7 +16,7 @@ describe('Admin Collections Delete', () => {
     db.$pool.end();
   });
 
-  test('Contributor tries to delete ID 1, not belonging to them', async () => {
+  test('Contributor tries to delete collection ID 1, not belonging to them', async () => {
     const
       queryStringParameters: QueryStringParameters = { id: '1' },
       response = await deleteById({
