@@ -31,7 +31,7 @@ describe('/admin/collections/insert/', () => {
         'focus_arts': '1',
         'focus_action': '2',
         'focus_scitech': '3',
-        'concept_tags' : ['3']
+        'concept_tags' : [3]
       },
       body: string = JSON.stringify(requestBody),
       response = await createCollection({ body , 'path': '/admin/collections/create' } as APIGatewayProxyEvent),
@@ -56,7 +56,7 @@ describe('/admin/collections/insert/', () => {
         'focus_arts': '1',
         'focus_action': '2',
         'focus_scitech': '3',
-        'concept_tags' : ['3']
+        'concept_tags' : [3]
       },
       body: string = JSON.stringify(requestBody),
       response = await createCollection({ body , 'path': '/admin/collections/create' } as APIGatewayProxyEvent),

@@ -4,13 +4,6 @@ import { db } from '../databaseConnect';
 export const create = async (requestBody, isAdmin: Boolean) => {
   try {
 
-    if (requestBody.keyword_tags) {
-      requestBody.keyword_tags = requestBody.keyword_tags.map(t => parseInt(t, 0));
-    }
-    if (requestBody.concept_tags) {
-      requestBody.concept_tags = requestBody.concept_tags.map(t => parseInt(t, 0));
-    }
-
     let paramCounter = 0;
 
     const
@@ -65,12 +58,6 @@ export const create = async (requestBody, isAdmin: Boolean) => {
 export const update = async (requestBody, isAdmin: Boolean, userId?: String) => {
   try {
 
-    if (requestBody.keyword_tags) {
-      requestBody.keyword_tags = requestBody.keyword_tags.map(t => parseInt(t, 0));
-    }
-    if (requestBody.concept_tags) {
-      requestBody.concept_tags = requestBody.concept_tags.map(t => parseInt(t, 0));
-    }
     let paramCounter = 0;
 
     const params = [];
