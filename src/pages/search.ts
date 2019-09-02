@@ -2,6 +2,7 @@ import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
+import { includes } from 'lodash';
 
 export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -13,7 +14,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     };
 
     await Joi.validate(eventParams, Joi.object().keys({
-      suggestion: Joi.string(),
+      query: Joi.string(),
       searchQuery: Joi.array().items(Joi.string()),
       offset: Joi.number().integer(),
       limit: Joi.number().integer(),
@@ -187,15 +188,11 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         collections: await Promise.all(collectionsPromise)
                              });
     }
-    if (queryString.suggestion && queryString.suggestion.length ) {
-      params.push(queryString.suggestion);
+
+    if (queryString.query && queryString.query.length ) {
+      params.push(queryString.query);
       const itemsQuery = `
-        SELECT
-          item.s3_key,
-          item.title,
-          item.created_at as date,
-          item.creators,
-          item.item_type as type
+        SELECT *
         FROM ${process.env.ITEMS_TABLE} AS item
         WHERE status = true
           AND
@@ -246,12 +243,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         OFFSET $2
       `;
       const collectionsQuery = `
-        SELECT  
-          ${process.env.COLLECTIONS_TABLE}.id,
-          ${process.env.COLLECTIONS_TABLE}.title,
-          ${process.env.COLLECTIONS_TABLE}.type, 
-          ${process.env.COLLECTIONS_TABLE}.created_at as date, 
-          ${process.env.COLLECTIONS_TABLE}.creators
+        SELECT *
         FROM ${process.env.COLLECTIONS_TABLE}
           WHERE ${process.env.COLLECTIONS_TABLE}.status = true
             AND
@@ -287,17 +279,36 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           OFFSET $2
         `;
 
-      const itemResult = await db.manyOrNone(itemsQuery, params);
-      Object.entries(itemResult).filter( item => item.includes('Video'));
-      console.log( itemResult );
-      return successResponse(
-        {
-          collections: await db.manyOrNone(collectionsQuery, params)
-        });
+      const
+        items = await db.manyOrNone(itemsQuery, params),
+        collections = await db.manyOrNone(collectionsQuery, params),
+        concat = [...items, ...collections],
+        results: {field: string, value: string}[] = [];
 
-    } else {
-      return badRequestResponse();
+      if (concat && concat.length) {
+        for (let i = 0; i < concat.length - 1; i++) {
+          const obj = Object.entries(concat[i]);
+
+          for (let o = 0; o < obj.length - 1; o++) {
+            const res: any = obj[o][1]; // tslint:disable-line no-any
+            if (includes(res, queryString.query)) {
+              results.push({
+                 'field': obj[o][0],
+                 'value': res.toString()
+               }
+             );
+            }
+          }
+        }
+      }
+
+      return successResponse({
+        results: results // .map( (r: {[key: string]: any}) => ({'aa': r[1]}) )
+      });
     }
+
+    // If all else fails return a bad response.
+    return badRequestResponse();
   } catch (e) {
     console.log('/pages/pages.search ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
