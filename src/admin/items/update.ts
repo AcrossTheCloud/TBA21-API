@@ -121,7 +121,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
       }));
 
     const isAdmin = event.path.match(/\/admin\//) ? true : false;
-    const userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+    const userId = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
     return (await update(data, isAdmin, userId));
   } catch (e) {
