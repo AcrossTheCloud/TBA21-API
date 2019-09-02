@@ -44,7 +44,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
       if (queryStringParameters.hasOwnProperty('notPublicUsers')) {
         params.push(queryStringParameters.notPublicUsers);
-        whereStatement = `${whereStatement} AND profile_type <> 'PUBLIC'`;
+        whereStatement = `${whereStatement} AND profile_type <> 'Public'`;
       }
     }
 
@@ -117,9 +117,9 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     const query = `
       INSERT INTO ${process.env.PROFILES_TABLE} 
-        (${[...sqlFields]}) 
+        (${[...sqlFields]}, accepted_license) 
       VALUES 
-        (${[...sqlParams]}) 
+        (${[...sqlParams]}, false) 
       RETURNING id;`;
 
     const result = await db.one(query, params);

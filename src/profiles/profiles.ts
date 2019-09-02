@@ -1,7 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
-import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../common';
+import {
+  badRequestResponse,
+  headers,
+  internalServerErrorResponse,
+  successResponse,
+  unAuthorizedRequestResponse
+} from '../common';
 import { uuidRegex } from '../utils/uuid';
 
 /**
@@ -46,7 +52,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
           profiles.id,
           profiles.full_name,
           profiles.profile_type,
-          profiles.cognito_uuid
+          profiles.accepted_license
         FROM ${process.env.PROFILES_TABLE}
         ${whereStatement}
       `;
@@ -75,9 +81,9 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const params = [data.full_name, data.uuid];
     const query = `
       INSERT INTO ${process.env.PROFILES_TABLE} 
-        (full_name, cognito_uuid, profile_type) 
+        (full_name, cognito_uuid, profile_type, accepted_license) 
       VALUES 
-        ($1, $2::uuid, 'Public') 
+        ($1, $2::uuid, 'Public', false) 
       RETURNING id;`;
 
     const result = await db.one(query, params);
@@ -112,27 +118,26 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         full_name: Joi.string(),
         city: Joi.string(),
         country: Joi.string(),
+        accepted_license: Joi.boolean()
       }));
 
-    let paramCounter = 0;
+    let paramCounter = 1;
     const
       userUuid = event.requestContext.authorizer.claims['cognito:username'],
-      params = [];
+      params = [userUuid];
 
     // if the users uuid is the same as the profiles, allow them to edit it
-    if (userUuid === data.uuid) {
-      params[paramCounter++] = data.id;
-
-      const SQL_SETS: string[] = Object.keys(data)
-          .map((key) => {
-            params[paramCounter++] = data[key];
-            return `${key}=$${paramCounter}`;
-          }),
+    if (userUuid) {
+      const SQL_SETS: string[] = Object.keys(data).map((key) => {
+          params[paramCounter++] = data[key];
+          return `${key}=$${paramCounter}`;
+        }),
         query = `
           UPDATE ${process.env.PROFILES_TABLE}
           SET 
             ${SQL_SETS}
-          WHERE id = $1 returning id;
+          WHERE cognito_uuid = $1::uuid
+          returning id
         `;
       await db.one(query, params);
 
@@ -142,7 +147,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         statusCode: 200
       };
     } else {
-      return badRequestResponse();
+      return unAuthorizedRequestResponse('You might not be logged in.');
     }
   } catch (e) {
     if (e.message === 'Nothing to update') {
