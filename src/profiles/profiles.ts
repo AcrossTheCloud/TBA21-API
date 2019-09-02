@@ -26,7 +26,6 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
     const
       queryStringParameters = event.queryStringParameters,
-      // userUuid = event.requestContext.authorizer.claims['cognito:username'],
     params = [];
     let whereStatement = '';
     // checks to see what has been passed through, and changing the WHERE statement to suit as well as pushing queryStringParameters in to params[]
@@ -42,10 +41,6 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       params.push(queryStringParameters.full_name);
       whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
     }
-    // if (userUuid && userUuid === data.uuid) {
-    //   params.push(userUuid);
-    //   whereStatement = `WHERE cognito_uuid = $1`;
-    // }
     const sqlStatement = `
         SELECT 
           profiles.id,
