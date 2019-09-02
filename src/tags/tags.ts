@@ -18,18 +18,19 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     await Joi.validate(event.queryStringParameters, Joi.object().keys({
       type: Joi.string().valid('keyword', 'concept').required(),
       limit: Joi.number().integer(),
+      offset: Joi.number().integer(),
       query: Joi.string()
     }));
 
     const
-      defaultValues = { limit: 15 },
+      defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters,
-      params: (string | number)[] = [limitQuery(queryString.limit, defaultValues.limit)];
+      params: (string | number)[] = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
 
     let searchQuery = '';
 
     if (queryString.hasOwnProperty('query')) {
-      searchQuery = `WHERE LOWER(tag_name) LIKE '%' || LOWER($2) || '%'`;
+      searchQuery = `WHERE LOWER(tag_name) LIKE '%' || LOWER($3) || '%'`;
       params.push(queryString.query);
     }
 
@@ -39,6 +40,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
           FROM ${queryString.type === 'concept' ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE}
           ${searchQuery}
         LIMIT $1
+        OFFSET $2
       `;
 
     const result = await db.manyOrNone(sqlStatement, params);

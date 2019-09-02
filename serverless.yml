@@ -380,7 +380,7 @@ functions:
   ###### TAG FUNCTIONS ######
   getTags:
     handler: src/tags/tags.get
-    description: Get random tags
+    description: Get tags with pagination or search tags.
     events:
       - http:
           path: tags
@@ -389,6 +389,7 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
+              - name: request.querystring.type
               - name: request.querystring.query
   insertTags:
     handler: src/admin/tags/tags.insert
@@ -836,9 +837,9 @@ functions:
           method: put
           cors: true
           authorizer: aws_iam
-  
+
   contributorCreateCollection:
-    handler: src/admin/collections/insert.createCollection # NOTE the same admin handler.. 
+    handler: src/admin/collections/insert.createCollection # NOTE the same admin handler..
     description: Contributor creates a collection
     events:
       - http:
@@ -858,7 +859,7 @@ functions:
           authorizer: aws_iam
 
   contributorUpdateItem:
-    handler: src/admin/items/update.updateByS3key # NOTE the same admin handler.. 
+    handler: src/admin/items/update.updateByS3key # NOTE the same admin handler..
     description: Contributor creates a collection
     events:
       - http:
