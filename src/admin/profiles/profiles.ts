@@ -44,7 +44,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
       if (queryStringParameters.hasOwnProperty('notPublicUsers')) {
         params.push(queryStringParameters.notPublicUsers);
-        whereStatement = `${whereStatement} AND profile_type <> 'PUBLIC'`;
+        whereStatement = `${whereStatement} AND profile_type <> 'Public'`;
       }
     }
 
