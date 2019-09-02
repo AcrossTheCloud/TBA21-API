@@ -389,7 +389,6 @@ functions:
           caching:
             enabled: true
             cacheKeyParameters:
-              - name: request.querystring.type
               - name: request.querystring.query
   insertTags:
     handler: src/admin/tags/tags.insert
@@ -478,7 +477,6 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
-
   ### Announcements
   getAnnouncement:
     handler: src/announcements/announcements.get
@@ -492,6 +490,28 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.id
+
+
+  homepage:
+    handler: src/pages/homepage.get
+    description:
+    events:
+      - http:
+          path: pages/homepage
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  search:
+    handler: src/pages/search.get
+    description:
+    events:
+      - http:
+          path: pages/search
+          method: get
+          cors: true
+          authorizer: aws_iam
+
 
   ###### ADMIN FUNCTIONS ######
 
@@ -564,15 +584,6 @@ functions:
           method: patch
           cors: true
           authorizer: aws_iam
-
-  homepage:
-    handler: src/pages/homepage.get
-    description:
-    events:
-      - http:
-          path: pages/homepage
-          method: get
-          cors: true
 
   #### Collections
   adminGetCollections:
