@@ -145,6 +145,10 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         `;
           params.push(collectionsDate);
       }
+
+      const items = await db.any(itemsQuery, params);
+
+      // Collections
       const collectionsQuery = `
         SELECT COUNT(*), 
           ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id as id,
@@ -168,13 +172,15 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
       // Pulling the s3_key out of the array and returning it in a string
       let collections = await db.any(collectionsQuery, params);
+
+      // Remove all collections without an item.
       if (collections.length) {
-        collections.map( a => a.s3_key = a.s3_key[0]);
+        collections = collections.filter(c => c.s3_key && c.s3_key.length);
       }
 
       return successResponse(
         {
-          items: await db.any(itemsQuery, params),
+          items: items,
           collections: collections
         });
     }

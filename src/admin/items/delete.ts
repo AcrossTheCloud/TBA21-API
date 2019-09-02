@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { badRequestResponse, successResponse } from '../../common';
-import { db } from '../../databaseConnect';
+import { badRequestResponse } from '../../common';
+import { deleteItm } from '../../items/model';
 /**
  *
  * Delete an item
@@ -12,27 +12,12 @@ import { db } from '../../databaseConnect';
  */
 export const deleteItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    const
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.id] ,
-      query = `
-        DELETE FROM ${process.env.ITEMS_TABLE}
-        WHERE items.id=$1
-      `;
-    await db.any(query, params);
+    const queryString = event.queryStringParameters;
+    const isAdmin = event.path.match(/\/admin\//) ? true : false;
+    const userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
-    // if we have a short_path associated with that id, delete it
-    const shortPathDelete = `
-        DELETE FROM ${process.env.SHORT_PATHS_TABLE}
-        WHERE EXISTS (
-          SELECT * FROM ${process.env.SHORT_PATHS_TABLE}
-          WHERE object_type = 'Item'
-          AND id = $1
-        )
-      `;
-    await db.any(shortPathDelete, params);
-    
-    return successResponse(true);
+    return (await deleteItm(Number(queryString.id), isAdmin, userId));
+
   } catch (e) {
     console.log('/items/items.deleteItem ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
