@@ -197,15 +197,15 @@ export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGat
         collectionsCheckPromise = [];
       if (collectionsCheck.length) {
         collectionsCheckPromise = collectionsCheck.map ( async c => {
-          if ( c.contributors.length >= 2) {
-            return new Promise( async resolve => {
-              const editCollection = await db.any(`UPDATE ${process.env.COLLECTIONS_TABLE} SET contributors = array_remove(contributors, $1) WHERE id = $2`, [userUuid, c.id]);
-              resolve(editCollection);
-            });
-          } else {
+          if ( c.contributors && c.contributors.length === 1) {
             return new Promise( async resolve => {
               const deleteCollection = await db.any(`DELETE FROM ${process.env.COLLECTIONS_TABLE} WHERE id = $2 AND contributors = $1`, [userUuid, c.id]);
               resolve(deleteCollection);
+            });
+          } else {
+            return new Promise( async resolve => {
+              const editCollection = await db.any(`UPDATE ${process.env.COLLECTIONS_TABLE} SET contributors = array_remove(contributors, $1) WHERE id = $2`, [userUuid, c.id]);
+              resolve(editCollection);
             });
           }
        });
