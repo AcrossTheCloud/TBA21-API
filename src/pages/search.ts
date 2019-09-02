@@ -192,7 +192,11 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     if (queryString.query && queryString.query.length ) {
       params.push(queryString.query);
       const itemsQuery = `
-        SELECT *
+        SELECT 
+        title, original_title, event_title, subtitle, description, institution, news_outlet, regions, 
+        location, city_of_publication, featured_in, editor, cast_, lecturer, project, record_label, creators,
+        directors, writers, collaborators, authors, publisher, produced_by, participants, interviewees, interviewers,
+        speakers, performers, host_organisation, organisation
         FROM ${process.env.ITEMS_TABLE} AS item
         WHERE status = true
           AND
@@ -243,7 +247,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         OFFSET $2
       `;
       const collectionsQuery = `
-        SELECT *
+        SELECT title, subtitle, description, institution, regions, location, city_of_publication, editor, cast_, creators, directors, writers, collaborators, publisher, participants, interviewers, interviewees, host_organisation
         FROM ${process.env.COLLECTIONS_TABLE}
           WHERE ${process.env.COLLECTIONS_TABLE}.status = true
             AND
@@ -291,7 +295,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
           for (let o = 0; o < obj.length - 1; o++) {
             const res: any = obj[o][1]; // tslint:disable-line no-any
-            if (includes(res, queryString.query)) {
+            if (includes(res, new RegExp(queryString.query, 'ig'))) {
               results.push({
                  'field': obj[o][0],
                  'value': res.toString()
