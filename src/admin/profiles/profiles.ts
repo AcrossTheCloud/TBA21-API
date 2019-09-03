@@ -117,9 +117,9 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     const query = `
       INSERT INTO ${process.env.PROFILES_TABLE} 
-        (${[...sqlFields]}) 
+        (${[...sqlFields]}, accepted_license) 
       VALUES 
-        (${[...sqlParams]}) 
+        (${[...sqlParams]}, false) 
       RETURNING id;`;
 
     const result = await db.one(query, params);

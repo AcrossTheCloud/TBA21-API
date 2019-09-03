@@ -38,7 +38,6 @@ describe('admin/announcements', () => {
       body: string = JSON.stringify(requestBody),
       response = await update({ body } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-
     expect(responseBody.success).toBe(true);
   });
   test('Update the title with an ID 1', async () => {

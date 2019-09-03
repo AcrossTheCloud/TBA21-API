@@ -278,7 +278,8 @@ CREATE TABLE tba21.profiles
   contact_person varchar (256),
   contact_position varchar (256),
   contact_email varchar (256),
-  profile_type tba21.profile_type
+  profile_type tba21.profile_type,
+  accepted_license boolean
 );
 
 --Table for making short urls
