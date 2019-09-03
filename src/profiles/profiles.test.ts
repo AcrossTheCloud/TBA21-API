@@ -5,12 +5,11 @@ require('dotenv').config(
 );
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { requestContext } from '../types/_test_';
 import { update } from './profiles';
 import { db } from '../databaseConnect';
 import { reSeedDatabase } from '../utils/testHelper';
 
-describe('Profile get tests', () => {
+describe('Profile tests', () => {
   // AfterAll tests reseed the DB
   afterAll( async () => {
     await reSeedDatabase();
@@ -18,15 +17,22 @@ describe('Profile get tests', () => {
     db.$pool.end();
   });
 
-  test('Test a user can update their own profile', async () => {
+  test('Test a user can update their profile', async () => {
     const
       requestBody = {
-        'full_name': 'Danny Boi'
+        'full_name': 'updated',
+        'city': 'cat cafe',
+        'country': 'city of rats'
       },
       body: string = JSON.stringify(requestBody),
-      response = await update({body, requestContext} as unknown as APIGatewayProxyEvent),
-      responseBody = JSON.parse(response.body);
-    expect(responseBody).toEqual(true);
+      response = await update({
+        body, requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:236c0d78-bfcc-4645-8383-ef632afcb7c7'
+          }
+        }
+      } as APIGatewayProxyEvent);
+    expect(response.body).toContain('success');
   });
 
   test('Accept License', async () => {
@@ -35,8 +41,13 @@ describe('Profile get tests', () => {
         'accepted_license': true
       },
       body: string = JSON.stringify(requestBody),
-      response = await update({body, requestContext} as unknown as APIGatewayProxyEvent),
-      responseBody = JSON.parse(response.body);
-    expect(responseBody).toEqual(true);
+      response = await update({
+          body, requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:236c0d78-bfcc-4645-8383-ef632afcb7c7'
+          }
+        }
+      } as APIGatewayProxyEvent);
+    expect(response.body).toContain('success');
   });
 });
