@@ -450,12 +450,6 @@ functions:
           path: profiles
           method: get
           cors: true
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-              - name: request.querystring.uuid
-              - name: request.querystring.fullname
 
   InsertProfile:
     handler: src/profiles/profiles.insert
