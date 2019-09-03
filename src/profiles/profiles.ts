@@ -47,11 +47,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
     }
     const sqlStatement = `
-        SELECT 
-          profiles.id,
-          profiles.full_name,
-          profiles.profile_type,
-          profiles.accepted_license
+        SELECT *
         FROM ${process.env.PROFILES_TABLE}
         ${whereStatement}
       `;
@@ -77,7 +73,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         uuid: Joi.string().uuid(uuidRegex).required()
       }));
 
-    return (await insertProfile(data)) ;
+    return (await insertProfile( data, false)) ;
   } catch (e) {
     if ((e.message === 'Nothing to insert') || (e.isJoi)) {
       return badRequestResponse(e.message);
@@ -115,7 +111,8 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         position: Joi.string(),
         contact_person: Joi.string(),
         contact_position: Joi.string(),
-        contact_email: Joi.string()
+        contact_email: Joi.string(),
+        accepted_license: Joi.boolean()
       }));
     const userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 

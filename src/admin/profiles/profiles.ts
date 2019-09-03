@@ -1,9 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import Joi from '@hapi/joi';
-import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../../common';
+import { badRequestResponse, internalServerErrorResponse, successResponse } from '../../common';
 import { uuidRegex } from '../../utils/uuid';
-import { deleteUserProfile, updateProfile } from '../../profiles/model';
+import { deleteUserProfile, insertProfile, updateProfile } from '../../profiles/model';
 
 /**
  *
@@ -50,11 +50,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     }
 
     const sqlStatement = `
-        SELECT 
-          profiles.id,
-          profiles.full_name,
-          profiles.profile_type,
-          profiles.cognito_uuid
+        SELECT *
         FROM ${process.env.PROFILES_TABLE}
         ${whereStatement}
       `;
@@ -95,41 +91,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         contact_email: Joi.string().required(),
         profile_type: Joi.any().valid('Individual', 'Collective', 'Institution').required()
       }));
-    let paramCounter = 0;
-
-    const
-      params = [],
-      sqlFields: string[] = Object.keys(data).map((key) => {
-        if (key === 'uuid') {
-          return `cognito_uuid`;
-        }
-        return `${key}`;
-      }),
-      sqlParams: string[] = Object.keys(data).map((key) => {
-        params[paramCounter++] = data[key];
-        if (key === 'contributors') {
-          return `$${paramCounter}::uuid[]`;
-        }
-        if (key === 'cognito_uuid') {
-          return `$${paramCounter}::uuid`;
-        }
-        return `$${paramCounter}`;
-      });
-
-    const query = `
-      INSERT INTO ${process.env.PROFILES_TABLE} 
-        (${[...sqlFields]}, accepted_license) 
-      VALUES 
-        (${[...sqlParams]}, false) 
-      RETURNING id;`;
-
-    const result = await db.one(query, params);
-
-    return {
-      body: JSON.stringify({ success: true, id: result.id }),
-      headers: headers,
-      statusCode: 200
-    };
+    return (await insertProfile( data, true)) ;
 
   } catch (e) {
     if ((e.message === 'Nothing to insert') || (e.isJoi)) {

@@ -5,7 +5,7 @@ require('dotenv').config(
 );
 
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { update } from './profiles';
+import { deleteProfile, insert, update } from './profiles';
 import { db } from '../databaseConnect';
 import { reSeedDatabase } from '../utils/testHelper';
 
@@ -34,7 +34,27 @@ describe('Profile tests', () => {
       } as APIGatewayProxyEvent);
     expect(response.body).toContain('success');
   });
-
+  test('Test a user can insert a profile', async () => {
+    const
+      requestBody = {
+        'full_name': 'inserted',
+        'uuid': '7ba0060a-064b-489d-a7de-a30866a510d0'
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await insert({ body } as APIGatewayProxyEvent);
+    expect(response.body).toContain('success');
+  });
+  test('Test a user can delete their profile', async () => {
+    const
+      response = await deleteProfile ({
+        requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:236c0d78-bfcc-4645-8383-ef632afcb7c7'
+          }
+        }
+      } as APIGatewayProxyEvent);
+    expect(response.body).toContain('success');
+  });
   test('Accept License', async () => {
     const
       requestBody = {
@@ -44,7 +64,7 @@ describe('Profile tests', () => {
       response = await update({
           body, requestContext: {
           identity: {
-            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:236c0d78-bfcc-4645-8383-ef632afcb7c7'
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:4b5981b0-6897-46de-b36e-1ebd125fc1cb'
           }
         }
       } as APIGatewayProxyEvent);
