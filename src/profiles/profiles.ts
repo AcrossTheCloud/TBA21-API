@@ -164,11 +164,9 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const
-      data = JSON.parse(event.body),
       userUuid = event.requestContext.authorizer.claims['cognito:username'];
 
-    // if the users uuid is the same as the profiles, allow them to delete it
-    if (userUuid && userUuid === data.uuid) {
+    if (userUuid && userUuid.length) {
       const
         params = [userUuid],
         query = `
