@@ -1,6 +1,5 @@
 import { db } from '../databaseConnect';
 import { badRequestResponse, headers, internalServerErrorResponse, unAuthorizedRequestResponse } from '../common';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 /**
  *
@@ -119,12 +118,12 @@ export const deleteUserProfile = async (isAdmin: Boolean, userId: String) => {
         collectionsCheckPromise = collectionsCheck.map ( async c => {
           if ( c.contributors && c.contributors.length === 1) {
             return new Promise( async resolve => {
-              const deleteCollection = await db.any(`DELETE FROM ${process.env.COLLECTIONS_TABLE} WHERE id = $2 AND contributors = $1`, [userUuid, c.id]);
+              const deleteCollection = await db.any(`DELETE FROM ${process.env.COLLECTIONS_TABLE} WHERE id = $2 AND contributors = $1`, [userId, c.id]);
               resolve(deleteCollection);
             });
           } else {
             return new Promise( async resolve => {
-              const editCollection = await db.any(`UPDATE ${process.env.COLLECTIONS_TABLE} SET contributors = array_remove(contributors, $1) WHERE id = $2`, [userUuid, c.id]);
+              const editCollection = await db.any(`UPDATE ${process.env.COLLECTIONS_TABLE} SET contributors = array_remove(contributors, $1) WHERE id = $2`, [userId, c.id]);
               resolve(editCollection);
             });
           }

@@ -100,14 +100,4 @@ describe('Profile get tests', () => {
       response = await update({ body } as APIGatewayProxyEvent);
     expect(response.statusCode).toEqual(400);
   });
-  test('date a profile', async () => {
-    const
-      requestBody = {
-        'uuid': '236c0d78-bfcc-4645-8383-ef632afcb7c7'
-      },
-      body: string = JSON.stringify(requestBody),
-      response = await update({ body, 'path': '/admin/profiles/update' } as APIGatewayProxyEvent),
-      responseBody = JSON.parse(response.body);
-    expect(responseBody).toEqual({'success': true});
-  });
 });
