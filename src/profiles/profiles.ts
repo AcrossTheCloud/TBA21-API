@@ -115,10 +115,22 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     await Joi.validate(data, Joi.object().keys(
       {
+        contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
+        profile_image: Joi.string(),
+        featured_image: Joi.string(),
         full_name: Joi.string(),
+        field_expertise: Joi.string(),
         city: Joi.string(),
         country: Joi.string(),
-        accepted_license: Joi.boolean()
+        biography: Joi.string(),
+        website: Joi.string(),
+        social_media: Joi.array().items(Joi.string()),
+        public_profile: Joi.boolean(),
+        affiliation: Joi.string(),
+        position: Joi.string(),
+        contact_person: Joi.string(),
+        contact_position: Joi.string(),
+        contact_email: Joi.string()
       }));
 
     let paramCounter = 1;
