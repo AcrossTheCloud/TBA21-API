@@ -1,5 +1,6 @@
 import { db } from '../databaseConnect';
 import { badRequestResponse, headers, internalServerErrorResponse, unAuthorizedRequestResponse } from '../common';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 /**
  *
@@ -48,9 +49,10 @@ export const updateProfile = async (requestBody, isAdmin: Boolean, userId?: Stri
 
  // if the users uuid is the same as the profiles or if they're an admin, allow them to edit it
     if (userId || isAdmin) {
-      params.push(userId);
+      userId ? params.push(userId) : params.push(requestBody.uuid);
       paramCounter++;
-      const SQL_SETS: string[] = Object.keys(requestBody).map((key) => {
+      const SQL_SETS: string[] = Object.keys(requestBody).filter( i => i !== 'uuid').map((key) => {
+
           params[paramCounter++] = requestBody[key];
           return `${key}=$${paramCounter}`;
         }),
@@ -78,5 +80,68 @@ export const updateProfile = async (requestBody, isAdmin: Boolean, userId?: Stri
       console.log('/profile/profiles/update ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
+  }
+};
+/**
+ *
+ * Delete a users own profile
+ *
+ *
+ * @returns { Promise<APIGatewayProxyResult> } true
+ * @param isAdmin
+ * @param userId
+ */
+export const deleteUserProfile = async (isAdmin: Boolean, userId: String) => {
+  try {
+    if ((userId && isAdmin) || (userId)) {
+      const
+        params = [userId],
+        query = `
+          DELETE FROM ${process.env.PROFILES_TABLE}
+          WHERE cognito_uuid = $1
+        `,
+        deleteItemsQuery = `
+          DELETE FROM ${process.env.ITEMS_TABLE}
+          WHERE contributor = $1
+      `;
+      await db.one(query, params);
+      await db.one(deleteItemsQuery, params);
+
+      const checkCollectionsQuery = `
+          SELECT id, contributors
+          FROM ${process.env.COLLECTIONS_TABLE}
+          WHERE contributor @> ARRAY[$1]::uuid[] 
+      `;
+      let
+        collectionsCheck = await db.manyOrNone(checkCollectionsQuery, params),
+        collectionsCheckPromise = [];
+      if (collectionsCheck.length) {
+        collectionsCheckPromise = collectionsCheck.map ( async c => {
+          if ( c.contributors && c.contributors.length === 1) {
+            return new Promise( async resolve => {
+              const deleteCollection = await db.any(`DELETE FROM ${process.env.COLLECTIONS_TABLE} WHERE id = $2 AND contributors = $1`, [userUuid, c.id]);
+              resolve(deleteCollection);
+            });
+          } else {
+            return new Promise( async resolve => {
+              const editCollection = await db.any(`UPDATE ${process.env.COLLECTIONS_TABLE} SET contributors = array_remove(contributors, $1) WHERE id = $2`, [userUuid, c.id]);
+              resolve(editCollection);
+            });
+          }
+        });
+      }
+      await Promise.all(collectionsCheckPromise);
+
+      return {
+        body: JSON.stringify({ success: true }),
+        headers: headers,
+        statusCode: 200
+      };
+    } else {
+      return badRequestResponse();
+    }
+  } catch (e) {
+    console.log('/profile/profiles/deleteProfile ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
   }
 };

@@ -3,6 +3,7 @@ import { db } from '../../databaseConnect';
 import Joi from '@hapi/joi';
 import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../../common';
 import { uuidRegex } from '../../utils/uuid';
+import { deleteUserProfile, updateProfile } from '../../profiles/model';
 
 /**
  *
@@ -153,7 +154,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     await Joi.validate(data, Joi.object().keys(
       {
         id: Joi.number().integer().required(),
-        uuid: Joi.string().regex(uuidRegex),
+        uuid: Joi.string().regex(uuidRegex).required(),
         contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
         profile_image: Joi.string(),
         featured_image: Joi.string(),
@@ -173,36 +174,8 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         profile_type: Joi.any().valid('Individual', 'Collective', 'Institution')
       }));
 
-    let paramCounter = 0;
+    return (await updateProfile(data, (!!event.path.match(/\/admin\//))));
 
-    const params = [];
-    params[paramCounter++] = data.id;
-
-    const SQL_SETS: string[] = Object.keys(data)
-        .map((key) => {
-          params[paramCounter++] = data[key];
-          if (key === 'uuid') {
-            return `cognito_uuid=$${paramCounter}::uuid`;
-          }
-          if (key === 'contributors') {
-            return `${key}=$${paramCounter}::uuid[]`;
-          }
-          return `${key}=$${paramCounter}`;
-        }),
-      query = `
-        UPDATE ${process.env.PROFILES_TABLE}
-        SET 
-          ${[...SQL_SETS]}
-        WHERE id = $1 returning id;
-      `;
-
-    await db.one(query, params);
-
-    return {
-        body: 'true',
-        headers: headers,
-        statusCode: 200
-      };
     } catch (e) {
     if (e.message === 'Nothing to update') {
       return badRequestResponse(e.message);
@@ -210,5 +183,27 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       console.log('/profile/profiles/update ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
+  }
+};
+/**
+ *
+ * Admin delete a users profile
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } true
+ */
+export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const data = JSON.parse(event.body);
+    await Joi.validate(data, Joi.object().keys(
+      {
+        uuid: Joi.string().regex(uuidRegex).required()
+      }));
+    const userId = data.uuid;
+    return (await deleteUserProfile(true, userId));
+  } catch (e) {
+    console.log('/profile/profiles/deleteProfile ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
   }
 };

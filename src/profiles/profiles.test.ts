@@ -9,7 +9,7 @@ import { update } from './profiles';
 import { db } from '../databaseConnect';
 import { reSeedDatabase } from '../utils/testHelper';
 
-describe('Profile get tests', () => {
+describe('Profile tests', () => {
   // AfterAll tests reseed the DB
   afterAll( async () => {
     await reSeedDatabase();

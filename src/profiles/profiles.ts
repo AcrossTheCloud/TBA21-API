@@ -3,12 +3,11 @@ import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
 import {
   badRequestResponse,
-  headers,
   internalServerErrorResponse,
   successResponse,
 } from '../common';
 import { uuidRegex } from '../utils/uuid';
-import { insertProfile, updateProfile } from './model';
+import { insertProfile, updateProfile, deleteUserProfile } from './model';
 
 /**
  *
@@ -129,56 +128,8 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  */
 export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const
-      userUuid = event.requestContext.authorizer.claims['cognito:username'];
-
-    if (userUuid && userUuid.length) {
-      const
-        params = [userUuid],
-        query = `
-          DELETE FROM ${process.env.PROFILES_TABLE}
-          WHERE cognito_uuid = $1
-        `,
-        deleteItemsQuery = `
-          DELETE FROM ${process.env.ITEMS_TABLE}
-          WHERE contributor = $1
-      `;
-      await db.one(query, params);
-      await db.one(deleteItemsQuery, params);
-
-      const checkCollectionsQuery = `
-          SELECT id, contributors
-          FROM ${process.env.COLLECTIONS_TABLE}
-          WHERE contributor @> ARRAY[$1]::uuid[] 
-      `;
-      let 
-        collectionsCheck = await db.manyOrNone(checkCollectionsQuery, params),
-        collectionsCheckPromise = [];
-      if (collectionsCheck.length) {
-        collectionsCheckPromise = collectionsCheck.map ( async c => {
-          if ( c.contributors && c.contributors.length === 1) {
-            return new Promise( async resolve => {
-              const deleteCollection = await db.any(`DELETE FROM ${process.env.COLLECTIONS_TABLE} WHERE id = $2 AND contributors = $1`, [userUuid, c.id]);
-              resolve(deleteCollection);
-            });
-          } else {
-            return new Promise( async resolve => {
-              const editCollection = await db.any(`UPDATE ${process.env.COLLECTIONS_TABLE} SET contributors = array_remove(contributors, $1) WHERE id = $2`, [userUuid, c.id]);
-              resolve(editCollection);
-            });
-          }
-       });
-      }
-      await Promise.all(collectionsCheckPromise);
-
-      return {
-        body: 'true',
-        headers: headers,
-        statusCode: 200
-      };
-    } else {
-      return badRequestResponse();
-    }
+    const userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+    return (await deleteUserProfile(false, userId));
   } catch (e) {
       console.log('/profile/profiles/deleteProfile ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
