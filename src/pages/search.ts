@@ -294,7 +294,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
           for (let o = 0; o < obj.length - 1; o++) {
             const res: String = obj[o][1].toString(); // tslint:disable-line no-any
-            if (res && typeof(res)==='string' && res.toLowerCase().includes(queryString.query.toLowerCase())) {
+            if (res && ( typeof(res) === 'string' ) && res.toLowerCase().includes(queryString.query.toLowerCase())) {
               results.push({
                  'field': obj[o][0],
                  'value': res.toString()
