@@ -2,7 +2,6 @@ import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
-import { includes } from 'lodash';
 
 export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -294,8 +293,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           const obj = Object.entries(concat[i]);
 
           for (let o = 0; o < obj.length - 1; o++) {
-            const res: any = obj[o][1]; // tslint:disable-line no-any
-            if (includes(res, new RegExp(queryString.query, 'ig'))) {
+            const res: String = obj[o][1].toString(); // tslint:disable-line no-any
+            if (res.toLowerCase().includes(queryString.query.toLowerCase())) {
               results.push({
                  'field': obj[o][0],
                  'value': res.toString()
