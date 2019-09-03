@@ -47,11 +47,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
     }
     const sqlStatement = `
-        SELECT 
-          profiles.id,
-          profiles.full_name,
-          profiles.profile_type,
-          profiles.accepted_license
+        SELECT *
         FROM ${process.env.PROFILES_TABLE}
         ${whereStatement}
       `;
