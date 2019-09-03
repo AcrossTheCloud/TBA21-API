@@ -61,18 +61,19 @@ describe('Profile get tests', () => {
         'full_name': 'Glynn Zara',
         'country': 'America',
         'public_profile': 'false',
-        'profile_type': 'Collective'
+        'profile_type': 'Collective',
+        'uuid': '236c0d78-bfcc-4645-8383-ef632afcb7c7'
       },
       body: string = JSON.stringify(requestBody),
-      response = await update({ body } as APIGatewayProxyEvent),
+      response = await update({ body, 'path': '/admin/profiles/update' } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    expect(responseBody).toBe(true);
+    expect(responseBody).toEqual({'success': true});
   });
   test('update a profile completely', async () => {
     const
       requestBody = {
         'id': '3',
-        'uuid' : '1f89f9b6-39bc-416e-899e-ef1a8d656f24',
+        'uuid' : '236c0d78-bfcc-4645-8383-ef632afcb7c7',
         'full_name': 'update',
         'field_expertise': 'cats',
         'city': 'new city',
@@ -88,9 +89,9 @@ describe('Profile get tests', () => {
         'contact_email': 'updated email'
       },
       body: string = JSON.stringify(requestBody),
-      response = await update({ body } as APIGatewayProxyEvent),
+      response = await update({ body, 'path': '/admin/profiles/update' } as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
-    expect(responseBody).toBe(true);
+    expect(responseBody).toEqual({'success': true});
   });
   test('Get a bad response when no id is given', async () => {
     const

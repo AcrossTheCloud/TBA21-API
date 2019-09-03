@@ -86,7 +86,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
       }));
 
-    return (await create(data, (event.path.match(/\/admin\//) ? true : false)));
+    return (await create(data, (!!event.path.match(/\/admin\//))));
 
   } catch (e) {
     if ((e.message === 'Nothing to update') || (e.isJoi)) {

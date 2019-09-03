@@ -3,12 +3,11 @@ import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
 import {
   badRequestResponse,
-  headers,
   internalServerErrorResponse,
   successResponse,
-  unAuthorizedRequestResponse
 } from '../common';
 import { uuidRegex } from '../utils/uuid';
+import { insertProfile, updateProfile, deleteUserProfile } from './model';
 
 /**
  *
@@ -32,7 +31,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
 
     const
       queryStringParameters = event.queryStringParameters,
-      params = [];
+    params = [];
     let whereStatement = '';
     // checks to see what has been passed through, and changing the WHERE statement to suit as well as pushing queryStringParameters in to params[]
     if (queryStringParameters.hasOwnProperty('id')) {
@@ -75,24 +74,10 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     await Joi.validate(data, Joi.object().keys(
       {
         full_name: Joi.string().required(),
-        uuid: Joi.string().regex(uuidRegex).required()
+        uuid: Joi.string().uuid(uuidRegex).required()
       }));
 
-    const params = [data.full_name, data.uuid];
-    const query = `
-      INSERT INTO ${process.env.PROFILES_TABLE} 
-        (full_name, cognito_uuid, profile_type, accepted_license) 
-      VALUES 
-        ($1, $2::uuid, 'Public', false) 
-      RETURNING id;`;
-
-    const result = await db.one(query, params);
-
-    return {
-      body: JSON.stringify({ success: true, id: result.id }),
-      headers: headers,
-      statusCode: 200
-    };
+    return (await insertProfile(data)) ;
   } catch (e) {
     if ((e.message === 'Nothing to insert') || (e.isJoi)) {
       return badRequestResponse(e.message);
@@ -120,35 +105,10 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         country: Joi.string(),
         accepted_license: Joi.boolean()
       }));
+    const userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
-    let paramCounter = 1;
-    const
-      userUuid = event.requestContext.authorizer.claims['cognito:username'],
-      params = [userUuid];
+    return (await updateProfile(data, false, userId)) ;
 
-    // if the users uuid is the same as the profiles, allow them to edit it
-    if (userUuid) {
-      const SQL_SETS: string[] = Object.keys(data).map((key) => {
-          params[paramCounter++] = data[key];
-          return `${key}=$${paramCounter}`;
-        }),
-        query = `
-          UPDATE ${process.env.PROFILES_TABLE}
-          SET 
-            ${SQL_SETS}
-          WHERE cognito_uuid = $1::uuid
-          returning id
-        `;
-      await db.one(query, params);
-
-      return {
-        body: 'true',
-        headers: headers,
-        statusCode: 200
-      };
-    } else {
-      return unAuthorizedRequestResponse('You might not be logged in.');
-    }
   } catch (e) {
     if (e.message === 'Nothing to update') {
       return badRequestResponse(e.message);
@@ -157,4 +117,21 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       return badRequestResponse();
     }
   }
+};
+/**
+ *
+ * Delete a users own profile
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } true
+ */
+export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+    return (await deleteUserProfile(false, userId));
+  } catch (e) {
+      console.log('/profile/profiles/deleteProfile ERROR - ', !e.isJoi ? e : e.details);
+      return badRequestResponse();
+    }
 };
