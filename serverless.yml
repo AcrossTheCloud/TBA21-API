@@ -474,10 +474,8 @@ functions:
           path: profiles
           method: patch
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          authorizer: aws_iam
+
 
   deleteProfile:
     handler: src/profiles/profiles.deleteProfile
@@ -487,10 +485,8 @@ functions:
           path: profiles
           method: delete
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          authorizer: aws_iam
+
 
   ### Announcements
   getAnnouncement:

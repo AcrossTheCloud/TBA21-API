@@ -103,9 +103,24 @@ export const deleteUserProfile = async (isAdmin: Boolean, userId: String) => {
           DELETE FROM ${process.env.ITEMS_TABLE}
           WHERE contributor = $1
       `;
-      await db.one(query, params);
-      await db.one(deleteItemsQuery, params);
-
+      const getProfileIdQuery = `
+          SELECT id 
+          FROM ${process.env.PROFILES_TABLE}
+          WHERE cognito_uuid = $1
+      `;
+      let
+        profileCheck = await db.manyOrNone(getProfileIdQuery, params),
+        profileCheckPromise = [];
+      if (profileCheck.length) {
+        profileCheckPromise = profileCheckPromise.map ( async c => {
+          if ( c.id && c.id.length === 1) {
+            return new Promise( async resolve => {
+              const deleteShortpath = await db.any(`DELETE FROM ${process.env.SHORT_PATHS_TABLE} WHERE id = $1 AND object_type = 'Profile'`, [c.id]);
+              resolve(deleteShortpath);
+            });
+          }
+        });
+      }
       const checkCollectionsQuery = `
           SELECT id, contributors
           FROM ${process.env.COLLECTIONS_TABLE}
@@ -130,6 +145,9 @@ export const deleteUserProfile = async (isAdmin: Boolean, userId: String) => {
         });
       }
       await Promise.all(collectionsCheckPromise);
+      await Promise.all(profileCheckPromise);
+      await db.one(query, params);
+      await db.one(deleteItemsQuery, params);
 
       return {
         body: JSON.stringify({ success: true }),
