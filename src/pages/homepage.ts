@@ -165,6 +165,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           INNER JOIN ${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
           $6:raw
           AND ${process.env.COLLECTIONS_TABLE}.status = true
+          AND items.status = true
         GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id, ${process.env.ITEMS_TABLE}.file_dimensions, ${process.env.ITEMS_TABLE}.duration
         ORDER BY random()
         LIMIT $3:raw
