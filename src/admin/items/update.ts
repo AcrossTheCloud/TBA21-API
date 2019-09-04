@@ -118,9 +118,10 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         featured_in: Joi.string(),
         volume: Joi.number(),
         provenance: Joi.array().items(Joi.string()),
+        url: Joi.string()
       }));
 
-    const isAdmin = event.path.match(/\/admin\//) ? true : false;
+    const isAdmin = !!event.path.match(/\/admin\//);
     const userId = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
     return (await update(data, isAdmin, userId));

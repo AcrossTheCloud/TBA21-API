@@ -183,7 +183,8 @@ CREATE TABLE tba21.items
   edition_uploaded numeric(3),
   first_edition_year numeric(4),
   provenance varchar(1024)[],
-  file_dimensions integer array[2]
+  file_dimensions integer array[2],
+  url varchar(2048)
 );
 
 --Collections metadata
