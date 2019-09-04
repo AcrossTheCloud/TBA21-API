@@ -61,7 +61,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         FROM ${process.env.ANNOUNCEMENTS_TABLE}
         $4:raw
         AND status = true
-        LIMIT 3
+        LIMIT 1
       `;
       return successResponse({
          announcements: await db.any(announcementsQuery, params)
@@ -171,12 +171,20 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         LIMIT $3:raw
       `;
 
-      // Pulling the s3_key out of the array and returning it in a string
       let collections = await db.any(collectionsQuery, params);
 
       // Remove all collections without an item.
+      collections = collections.filter(c => c.s3_key && c.s3_key.length);
+    
       if (collections.length) {
-        collections = collections.filter(c => c.s3_key && c.s3_key.length);
+        for (let i = 0; i < collections.length; i++) {
+          let s3Key = collections[i].s3_key;
+
+          collections[i].items = [];
+          for (let j = 0; j < s3Key.length; j++) {
+            collections[i].items.push( await db.one(`SELECT title, subtitle, regions, license, language, credit, creators, description FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
+          }
+        }
       }
 
       return successResponse(
@@ -185,7 +193,6 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           collections: collections
         });
     }
-
   } catch (e) {
     console.log('/items/items.homepage ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
