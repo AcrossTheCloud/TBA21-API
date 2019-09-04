@@ -182,7 +182,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
           collections[i].items = [];
           for (let j = 0; j < s3Key.length; j++) {
-            collections[i].items.push( await db.one(`SELECT title, subtitle, regions, license, language, credit, creators, description, item_type FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
+            collections[i].items.push( await db.one(`SELECT title, subtitle, regions, license, language, credit, creators, description, item_type, url FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
           }
         }
       }
