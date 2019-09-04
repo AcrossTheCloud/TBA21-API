@@ -151,7 +151,7 @@ export const deleteUserProfile = async (isAdmin: Boolean, userId: String) => {
         profileCheck = await db.manyOrNone(getProfileIdQuery, params),
         profileCheckPromise = [];
       if (profileCheck.length) {
-        profileCheckPromise = profileCheckPromise.map ( async c => {
+        profileCheckPromise = profileCheck.map ( async c => {
           if ( c.id && c.id.length === 1) {
             return new Promise( async resolve => {
               const deleteShortpath = await db.oneOrNone(`DELETE FROM ${process.env.SHORT_PATHS_TABLE} WHERE id = $1 AND object_type = 'Profile'`, [c.id]);
