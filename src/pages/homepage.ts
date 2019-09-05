@@ -80,8 +80,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         file_dimensions,
         duration,
         regions,
-        COALESCE(array_agg(DISTINCT concept_tag.tag_name)) AS concept_tags,
-        COALESCE(array_agg(DISTINCT keyword_tag.tag_name)) AS keyword_tags
+        COALESCE(json_agg(DISTINCT concept_tag.tag_name) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
+        COALESCE(json_agg(DISTINCT keyword_tag.tag_name) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
 
         FROM ${process.env.ITEMS_TABLE},
           UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
@@ -93,7 +93,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           AND status = true
           AND oa_highlight = true
         GROUP BY items.id, items.title, items.s3_key
-        ORDER BY random()
+        ORDER BY random() 
         LIMIT $2:raw
     `;
      return successResponse({
@@ -116,8 +116,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           file_dimensions,
           duration,
           regions,
-        COALESCE(array_agg(DISTINCT concept_tag.tag_name)) AS concept_tags,
-        COALESCE(array_agg(DISTINCT keyword_tag.tag_name)) AS keyword_tags
+        COALESCE(json_agg(DISTINCT concept_tag.tag_name) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
+        COALESCE(json_agg(DISTINCT keyword_tag.tag_name) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
 
         FROM ${process.env.ITEMS_TABLE},
           UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
@@ -180,7 +180,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
           collections[i].items = [];
           for (let j = 0; j < s3Key.length; j++) {
-            collections[i].items.push( await db.one(`SELECT title, subtitle, regions, license, language, credit, creators, description, item_type, url, file_dimensions, duration FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
+            collections[i].items.push( await db.one(`SELECT title, subtitle, regions, license, language, credit, creators, description, item_type, url, file_dimensions, duration, s3_key  FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
           }
         }
       }
