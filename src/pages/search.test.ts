@@ -20,7 +20,7 @@ test('limit the items we get from search function', async () => {
       multiValueQueryStringParameters: MultiQueryStringParameters = {searchQuery: ['a']},
       response = await get({ multiValueQueryStringParameters, queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(5);
+    expect(results.items.length).toEqual(0);
     expect(results.collections.length).toEqual(2);
   });
 test('Get items from search function with multiple searchQueries', async () => {
@@ -29,7 +29,7 @@ test('Get items from search function with multiple searchQueries', async () => {
       multiValueQueryStringParameters: MultiQueryStringParameters = {searchQuery: ['a', 'b']},
       response = await get({ multiValueQueryStringParameters, queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(5);
+    expect(results.items.length).toEqual(0);
     expect(results.collections.length).toEqual(2);
   });
 test('Get items from search function with multiple searchQueries and focus', async () => {
@@ -38,7 +38,7 @@ test('Get items from search function with multiple searchQueries and focus', asy
       multiValueQueryStringParameters: MultiQueryStringParameters = {searchQuery: ['a', 'b']},
       response = await get({ multiValueQueryStringParameters, queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(6);
-    expect(results.collections.length).toEqual(2);
+    expect(results.items.length).toEqual(0);
+    expect(results.collections.length).toEqual(0);
   });
 });
