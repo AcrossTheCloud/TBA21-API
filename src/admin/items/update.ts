@@ -1,8 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { badRequestResponse, headers, internalServerErrorResponse, successResponse } from '../../common';
-import { db } from '../../databaseConnect';
+import { badRequestResponse, internalServerErrorResponse, successResponse } from '../../common';
 import Joi from '@hapi/joi';
-import { changeS3ProtectionLevel } from '../../utils/AWSHelper';
+import { update } from '../../items/model';
 
 /**
  *
@@ -119,73 +118,13 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         featured_in: Joi.string(),
         volume: Joi.number(),
         provenance: Joi.array().items(Joi.string()),
+        url: Joi.string()
       }));
 
-    let message: string = '';
-    if (data.hasOwnProperty('status')) {
-      // Change the s3 level to Private or Public
-      const levelResponse = await changeS3ProtectionLevel(data.s3_key, data.status ? 'public-read' : 'private');
-      if (!levelResponse) {
-        // If we fail to set the level, console log
-        console.log(`Error updating S3 Protection Level for ${data.s3_key}`);
+    const isAdmin = !!event.path.match(/\/admin\//);
+    const userId = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
-        message = 'Couldn\'t set access level on file, this item has now been unpublished.';
-        // and set the level to unpublished.
-        data.status = false;
-      }
-    }
-
-    if (data.keyword_tags) {
-      data.keyword_tags = data.keyword_tags.map( t => parseInt(t, 0));
-    }
-    if (data.concept_tags) {
-      data.concept_tags = data.concept_tags.map( t => parseInt(t, 0));
-    }
-
-    let paramCounter = 0;
-
-    // NOTE: contributor is inserted on create, uuid from claims
-    const params = [];
-
-    params[paramCounter++] = data.s3_key;
-    // pushed into from SQL SET map
-    // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
-    const SQL_SETS: string[] = Object.keys(data)
-      .filter(e => (e !== 's3_key')) // remove s3_key
-      .map((key) => {
-          params[paramCounter++] = data[key];
-          return `${key}=$${paramCounter}`;
-      });
-    const
-      query = `
-        UPDATE ${process.env.ITEMS_TABLE}
-          SET 
-            updated_at='${new Date().toISOString()}',
-            ${[...SQL_SETS]}
-        WHERE s3_key = $1 returning s3_key, status, id;
-      `;
-
-    if (SQL_SETS.length) {
-      const result = await db.one(query, params);
-
-      const bodyResponse = {
-        success: true,
-        updated_key: result.s3_key,
-        id: result.id
-      };
-      // If we have a message, add it to the response.
-      if (message.length > 1) {
-        Object.assign(bodyResponse, { message : message, success: false });
-      }
-
-      return {
-        body: JSON.stringify(bodyResponse),
-        headers: headers,
-        statusCode: 200
-      };
-    } else {
-      throw new Error('Nothing to update');
-    }
+    return (await update(data, isAdmin, userId));
   } catch (e) {
     if ((e.message === 'Nothing to update')) {
       return successResponse(e.message);

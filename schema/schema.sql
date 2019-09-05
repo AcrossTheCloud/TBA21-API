@@ -14,7 +14,7 @@ CREATE TYPE tba21.licence_type AS ENUM ('CC BY', 'CC BY-SA', 'CC BY-ND', 'CC BY-
 CREATE TYPE tba21.table_type AS ENUM ('Profile', 'Item', 'Collection');
 
 --Profile Types
-CREATE TYPE tba21.profile_type AS ENUM ('Individual', 'Collective', 'Institution' );
+CREATE TYPE tba21.profile_type AS ENUM ('Individual', 'Collective', 'Institution', 'Public');
 
 --Item Types
 CREATE TYPE tba21.item_type AS ENUM ('Video', 'Text', 'Audio', 'Image');
@@ -183,7 +183,8 @@ CREATE TABLE tba21.items
   edition_uploaded numeric(3),
   first_edition_year numeric(4),
   provenance varchar(1024)[],
-  file_dimensions integer array[2]
+  file_dimensions integer array[2],
+  url varchar(2048)
 );
 
 --Collections metadata
@@ -278,7 +279,8 @@ CREATE TABLE tba21.profiles
   contact_person varchar (256),
   contact_position varchar (256),
   contact_email varchar (256),
-  profile_type tba21.profile_type
+  profile_type tba21.profile_type,
+  accepted_license boolean
 );
 
 --Table for making short urls
@@ -297,7 +299,8 @@ CREATE TABLE tba21.announcements
   title varchar (40),
   description varchar (256),
   url varchar(2048),
-  created_at timestamp with time zone NOT NULL
+  created_at timestamp with time zone NOT NULL,
+  status boolean
 );
 
 -- Geo stuff

@@ -4,9 +4,12 @@ phases:
   install:
     commands:
       - npm install
+      - npm prune
+  build:
+    commands:
+      - npx serverless deploy
   post_build:
     commands:
-      - npm prune
       - npm install -g redoc-cli
       - npx serverless deploy
       - redoc-cli bundle api-oas30-postman.json

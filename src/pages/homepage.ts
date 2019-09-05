@@ -28,6 +28,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     };
 
     await Joi.validate(eventParams, Joi.object().keys({
+      announcement: Joi.boolean(),
       itemsLimit: Joi.number().integer(),
       collectionsLimit: Joi.number().integer(),
       oaHighlightLimit: Joi.number().integer(),
@@ -54,6 +55,18 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       `;
       params.push(date);
     }
+    if (queryString.announcement && queryString.announcement === 'true') {
+      const announcementsQuery = `
+        SELECT * 
+        FROM ${process.env.ANNOUNCEMENTS_TABLE}
+        $4:raw
+        AND status = true
+        LIMIT 1
+      `;
+      return successResponse({
+         announcements: await db.any(announcementsQuery, params)
+       });
+    }
     if (queryString.oa_highlight && queryString.oa_highlight === 'true') {
 
      const oaHighlightQuery = `
@@ -67,8 +80,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         file_dimensions,
         duration,
         regions,
-        COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
-        COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
+        COALESCE(array_agg(DISTINCT concept_tag.tag_name)) AS concept_tags,
+        COALESCE(array_agg(DISTINCT keyword_tag.tag_name)) AS keyword_tags
 
         FROM ${process.env.ITEMS_TABLE},
           UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
@@ -103,8 +116,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           file_dimensions,
           duration,
           regions,
-          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
+        COALESCE(array_agg(DISTINCT concept_tag.tag_name)) AS concept_tags,
+        COALESCE(array_agg(DISTINCT keyword_tag.tag_name)) AS keyword_tags
 
         FROM ${process.env.ITEMS_TABLE},
           UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
@@ -132,40 +145,52 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         `;
           params.push(collectionsDate);
       }
+
+      const items = await db.any(itemsQuery, params);
+
+      // Collections
       const collectionsQuery = `
         SELECT COUNT(*), 
           ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id as id,
           ${process.env.COLLECTIONS_TABLE}.title,
           ${process.env.COLLECTIONS_TABLE}.type, 
           ${process.env.COLLECTIONS_TABLE}.created_at as date, 
-          COALESCE(json_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
+          COALESCE(array_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
           ${process.env.COLLECTIONS_TABLE}.creators,
-          ${process.env.ITEMS_TABLE}.file_dimensions,
-          ${process.env.ITEMS_TABLE}.duration,
           ${process.env.COLLECTIONS_TABLE}.regions
         FROM ${process.env.COLLECTIONS_TABLE}
           INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
           INNER JOIN ${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
           $6:raw
           AND ${process.env.COLLECTIONS_TABLE}.status = true
-        GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id, ${process.env.ITEMS_TABLE}.file_dimensions, ${process.env.ITEMS_TABLE}.duration
+          AND ${process.env.ITEMS_TABLE}.status = true
+        GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
         ORDER BY random()
         LIMIT $3:raw
       `;
 
-      // Pulling the s3_key out of the array and returning it in a string
       let collections = await db.any(collectionsQuery, params);
+
+      // Remove all collections without an item.
+      collections = collections.filter(c => c.s3_key && c.s3_key.length);
+    
       if (collections.length) {
-        collections.map( a => a.s3_key = a.s3_key[0]);
+        for (let i = 0; i < collections.length; i++) {
+          let s3Key = collections[i].s3_key;
+
+          collections[i].items = [];
+          for (let j = 0; j < s3Key.length; j++) {
+            collections[i].items.push( await db.one(`SELECT title, subtitle, regions, license, language, credit, creators, description, item_type, url, file_dimensions, duration FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
+          }
+        }
       }
 
       return successResponse(
         {
-          items: await db.any(itemsQuery, params),
+          items: items,
           collections: collections
         });
     }
-
   } catch (e) {
     console.log('/items/items.homepage ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

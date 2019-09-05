@@ -1,9 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { badRequestResponse, headers, internalServerErrorResponse } from '../../common';
-import { db } from '../../databaseConnect';
+import { badRequestResponse, internalServerErrorResponse } from '../../common';
 import Joi from '@hapi/joi';
-
-const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$/i;
+import { create } from '../../collections/model';
 
 /**
  *
@@ -16,6 +14,7 @@ const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3
 
 export const createCollection = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
+
     const data = JSON.parse(event.body);
 
     await Joi.validate(data, Joi.object().keys(
@@ -83,61 +82,11 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         related_event: Joi.string(),
         volume: Joi.number().integer(),
         number: Joi.number().integer(),
-        contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
+        contributors: Joi.array().items(Joi.string().uuid()),
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
       }));
 
-    if (data.keyword_tags) {
-      data.keyword_tags = data.keyword_tags.map( t => parseInt(t, 0));
-    }
-    if (data.concept_tags) {
-      data.concept_tags = data.concept_tags.map( t => parseInt(t, 0));
-    }
-
-    let paramCounter = 0;
-
-    const
-      params = [],
-      sqlFields: string[] = Object.keys(data).filter(e => (e !== 'items')).map((key) => {
-       if (key === 'contributors') {
-         return `contributors`;
-       }
-       return `${key}`;
-      }),
-      sqlParams: string[] = Object.keys(data).filter(e => (e !== 'items')).map((key) => {
-        params[paramCounter++] = data[key];
-        if (key === 'contributors') {
-          return `$${paramCounter}::uuid[]`;
-        }
-        return `$${paramCounter}`;
-      });
-
-    sqlFields.push('created_at', 'updated_at');
-    sqlParams.push('now()', 'now()');
-
-    const query = `INSERT INTO ${process.env.COLLECTIONS_TABLE} (${[...sqlFields]}) VALUES (${[...sqlParams]}) RETURNING id;`;
-
-    const insertResult = await db.task(async t => {
-      const insertedObject = await t.one(query, params);
-
-      // If we have items
-      if (data.items && data.items.length > 0) {
-        const
-          SQL_INSERTS: string[] = data.items.map((item, index) => (`($1, $${index + 2})`)),
-          addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${[...SQL_INSERTS]}`,
-          addParams = [insertedObject.id, ...data.items];
-
-        await t.any(addQuery, addParams);
-      }
-
-      return insertedObject;
-    });
-
-    return {
-      body: JSON.stringify({ success: true, id: insertResult.id }),
-      headers: headers,
-      statusCode: 200
-    };
+    return (await create(data, (!!event.path.match(/\/admin\//))));
 
   } catch (e) {
     if ((e.message === 'Nothing to update') || (e.isJoi)) {

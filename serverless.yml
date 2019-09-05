@@ -59,6 +59,7 @@ provider:
     KEYWORD_TAGS_TABLE: ${env:KEYWORD_TAGS_TABLE}
     SHORT_PATHS_TABLE: ${env:SHORT_PATHS_TABLE}
     PROFILES_TABLE: ${env:PROFILES_TABLE}
+    ANNOUNCEMENTS_TABLE: ${env:ANNOUNCEMENTS_TABLE}
 
     PGUSER: ${env:PGUSER}
     PGPASSWORD: ${env:PGPASSWORD}
@@ -166,7 +167,6 @@ functions:
           path: items/get
           method: get
           cors: true
-          authorizer: aws_iam
 
   getItem:
     handler: src/items/items.getItem
@@ -176,7 +176,6 @@ functions:
           path: items/getItem
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
@@ -225,20 +224,20 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.person
 
-  changeItemStatus:
-    handler: src/items/items.changeStatus
-    description: Change the status of an item
-    events:
-      - http:
-          path: items/changeStatus
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-              - name: request.querystring.status
+#  changeItemStatus:
+#    handler: src/items/items.changeStatus
+#    description: Change the status of an item
+#    events:
+#      - http:
+#          path: items/changeStatus
+#          method: get
+#          cors: true
+#          authorizer: aws_iam
+#          caching:
+#            enabled: true
+#            cacheKeyParameters:
+#              - name: request.querystring.id
+#              - name: request.querystring.status
 
 #  getItemsInBounds:
 #    handler: src/items/items.getItemsInBounds
@@ -265,7 +264,6 @@ functions:
           path: items/getRekognitionTags
           method: get
           cors: true
-          authorizer: aws_iam
 
 ### Collections
 #  getGetCollectionsByTag:
@@ -290,7 +288,6 @@ functions:
           path: collections/getById
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
@@ -310,20 +307,20 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.person
 
-  changeCollectionStatus:
-    handler: src/collections/collections.changeStatus
-    description: Change the status of a collection
-    events:
-      - http:
-          path: collections/changeStatus
-          method: get
-          cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-              - name: request.querystring.status
+#  changeCollectionStatus:
+#    handler: src/collections/collections.changeStatus
+#    description: Change the status of a collection
+#    events:
+#      - http:
+#          path: collections/changeStatus
+#          method: get
+#          cors: true
+#          authorizer: aws_iam
+#          caching:
+#            enabled: true
+#            cacheKeyParameters:
+#              - name: request.querystring.id
+#              - name: request.querystring.status
 
 #  getCollectionsInBounds:
 #    handler: src/collections/collections.getInBounds
@@ -370,7 +367,6 @@ functions:
           path: collections/getItemsInCollection
           method: get
           cors: true
-          authorizer: aws_iam
 
   getCollectionsByItem:
     handler: src/collections/collections.getCollectionsByItem
@@ -380,21 +376,20 @@ functions:
           path: collections/getCollectionsByItem
           method: get
           cors: true
-          authorizer: aws_iam
 
   ###### TAG FUNCTIONS ######
   getTags:
     handler: src/tags/tags.get
-    description: Get random tags
+    description: Get tags with pagination or search tags.
     events:
       - http:
           path: tags
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: true
             cacheKeyParameters:
+              - name: request.querystring.type
               - name: request.querystring.query
   insertTags:
     handler: src/admin/tags/tags.insert
@@ -426,6 +421,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  ### Short Paths
   getShortPath:
     handler: src/shortPaths/shortPaths.get
     description:
@@ -434,7 +430,6 @@ functions:
           path: shortpaths
           method: get
           cors: true
-          authorizer: aws_iam
 
   insertShortPath:
     handler: src/admin/shortPaths/shortPaths.insert
@@ -446,6 +441,7 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  ### Profiles
   getProfile:
     handler: src/profiles/profiles.get
     description: Get a profile
@@ -454,13 +450,6 @@ functions:
           path: profiles
           method: get
           cors: true
-          authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-              - name: request.querystring.uuid
-              - name: request.querystring.fullname
 
   InsertProfile:
     handler: src/profiles/profiles.insert
@@ -470,10 +459,7 @@ functions:
           path: profiles
           method: put
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+
   updateProfile:
     handler: src/profiles/profiles.update
     description: Update a profile
@@ -482,11 +468,90 @@ functions:
           path: profiles
           method: patch
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          authorizer: aws_iam
+
+
+  deleteProfile:
+    handler: src/profiles/profiles.deleteProfile
+    description: Delete a users own profile
+    events:
+      - http:
+          path: profiles
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+
+  ### Announcements
+  getAnnouncement:
+    handler: src/announcements/announcements.get
+    description: Get an announcements
+    events:
+      - http:
+          path: src/announcements
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+
+
+  homepage:
+    handler: src/pages/homepage.get
+    description:
+    events:
+      - http:
+          path: pages/homepage
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  search:
+    handler: src/pages/search.get
+    description:
+    events:
+      - http:
+          path: pages/search
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+
   ###### ADMIN FUNCTIONS ######
+
+  ### Announcements
+
+  adminUpdateAnnouncement:
+    handler: src/admin/announcements/announcements.update
+    description: Update an announcement
+    events:
+      - http:
+          path: admin/announcements
+          method: patch
+          cors: true
+          authorizer: aws_iam
+
+  adminInsertAnnouncement:
+    handler: src/admin/announcements/announcements.insert
+    description: Insert an announcements
+    events:
+      - http:
+          path: admin/announcements
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  adminDeleteAnnouncement:
+    handler: src/admin/announcements/announcements.deleteById
+    description: Removes an announcements
+    events:
+      - http:
+          path: admin/announcements
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
 
   ### Profiles
   adminGetProfile:
@@ -522,16 +587,6 @@ functions:
       - http:
           path: admin/profiles
           method: patch
-          cors: true
-          authorizer: aws_iam
-
-  homepage:
-    handler: src/pages/homepage.get
-    description:
-    events:
-      - http:
-          path: pages/homepage
-          method: get
           cors: true
           authorizer: aws_iam
 
@@ -610,7 +665,7 @@ functions:
 
   adminUpdateCollection:
     handler: src/admin/collections/update.updateById
-    description: Removes a collection and it's collection_items entry from the database
+    description: Admin udpates a collection in the database
     events:
       - http:
           path: admin/collections/update
@@ -775,3 +830,54 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+
+  # Contributor routes
+  contributorUpdateCollection:
+    handler: src/collections/collections.updateById
+    description: Contributor updates a collection in the database
+    events:
+      - http:
+          path: contributor/collections/update
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  contributorCreateCollection:
+    handler: src/admin/collections/insert.createCollection # NOTE the same admin handler..
+    description: Contributor creates a collection
+    events:
+      - http:
+          path: contributor/collections/create # ..but different path
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  contributorDeleteCollection:
+    handler: src/admin/collections/delete.deleteById
+    description: Removes a collection and it's collection_items entry from the database
+    events:
+      - http:
+          path: contributor/collections
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+  contributorUpdateItem:
+    handler: src/admin/items/update.updateByS3key # NOTE the same admin handler..
+    description: Contributor creates a collection
+    events:
+      - http:
+          path: contributor/items/update # ..but different path
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  contributorDeleteItem:
+    handler: src/admin/items/delete.deleteItem # NOTE the same admin handler..
+    description: Contributor deletes an item
+    events:
+      - http:
+          path: contributor/items # ..but different path
+          method: delete
+          cors: true
+          authorizer: aws_iam
