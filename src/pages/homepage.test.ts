@@ -21,6 +21,7 @@ describe('homepage tests', () => {
       multiValueQueryStringParameters: MultiQueryStringParameters = {id: ['1', '2']},
       response = await get({ queryStringParameters, multiValueQueryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
+    console.log(results, 'results');
     expect(results.items.length).toEqual(3);
     expect(results.collections.length).toEqual(3);
   });
