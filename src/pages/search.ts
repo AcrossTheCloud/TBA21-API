@@ -32,92 +32,106 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     const focusAction: string = queryString.hasOwnProperty('focus_action') ? ` AND focus_action = 1`  : ` AND focus_action <> 1`  ;
     const focusScitech: string = queryString.hasOwnProperty('focus_scitech') ? ` AND focus_scitech = 1`  : ` AND focus_scitech <> 1`  ;
 
-    let itemsWhereStatement = ``;
-    let collectionsWhereStatement = ``;
+    let
+      itemsWhereStatement = ``,
+      collectionsWhereStatement = ``,
+      profilesWhereStatement = ``;
     if (searchQueries && searchQueries.length) {
       for (let i = 2; i < params.length ; i++) {
         const index = i + 1;
         itemsWhereStatement = `
           ${itemsWhereStatement}
-          AND
-          LOWER(title) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(original_title) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(event_title) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(subtitle) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(description) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(institution) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(news_outlet) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(location) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(city_of_publication) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(featured_in) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(editor) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(lecturer) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(project) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(record_label) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-      
-          LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          
-          LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($${index}) || '%' 
+          AND (
+            LOWER(title) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(original_title) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(event_title) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(subtitle) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(description) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(institution) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(news_outlet) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(location) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(city_of_publication) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(featured_in) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(editor) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(lecturer) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(project) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(record_label) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+        
+            LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            
+            LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($${index}) || '%' 
+          )
          `;
 
         collectionsWhereStatement = `
           ${collectionsWhereStatement}
-          AND
-          LOWER(collections.title) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(collections.subtitle) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(collections.description) LIKE '%' || LOWER($${index}) || '%' OR
-    
-          LOWER(collections.institution) LIKE '%' || LOWER($${index}) || '%' OR
-    
-          LOWER(array_to_string(collections.regions, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(collections.location) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(collections.city_of_publication) LIKE '%' || LOWER($${index}) || '%' OR
-    
-          LOWER(collections.editor) LIKE '%' || LOWER($${index}) || '%' OR
-    
-          LOWER(array_to_string(collections.cast_, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-    
-          LOWER(array_to_string(collections.creators, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(collections.directors, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(collections.writers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(collections.collaborators, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-    
-          LOWER(array_to_string(collections.publisher, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-    
-          LOWER(array_to_string(collections.participants, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(collections.interviewers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(array_to_string(collections.interviewees, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-    
-          LOWER(array_to_string(collections.host_organisation, '||')) LIKE '%' || LOWER($${index}) || '%' OR
-          
-          LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${index}) || '%' OR
-          LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($${index}) || '%'
+          AND (
+            LOWER(collections.title) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(collections.subtitle) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(collections.description) LIKE '%' || LOWER($${index}) || '%' OR
+      
+            LOWER(collections.institution) LIKE '%' || LOWER($${index}) || '%' OR
+      
+            LOWER(array_to_string(collections.regions, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(collections.location) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(collections.city_of_publication) LIKE '%' || LOWER($${index}) || '%' OR
+      
+            LOWER(collections.editor) LIKE '%' || LOWER($${index}) || '%' OR
+      
+            LOWER(array_to_string(collections.cast_, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+      
+            LOWER(array_to_string(collections.creators, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(collections.directors, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(collections.writers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(collections.collaborators, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+      
+            LOWER(array_to_string(collections.publisher, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+      
+            LOWER(array_to_string(collections.participants, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(collections.interviewers, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(array_to_string(collections.interviewees, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+      
+            LOWER(array_to_string(collections.host_organisation, '||')) LIKE '%' || LOWER($${index}) || '%' OR
+            
+            LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${index}) || '%' OR
+            LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($${index}) || '%' 
+          )
       `;
+        profilesWhereStatement = `
+        ${profilesWhereStatement}
+        AND (
+          LOWER(profiles.full_name) LIKE '%' || LOWER($${index}) || '%' OR
+          LOWER(profiles.field_expertise) LIKE '%' || LOWER($${index}) || '%' OR
+          LOWER(profiles.city) LIKE '%' || LOWER($${index}) || '%' OR
+          LOWER(profiles.country) LIKE '%' || LOWER($${index}) || '%' OR
+          LOWER(profiles.affiliation) LIKE '%' || LOWER($${index}) || '%'
+        )
+        `;
       }
       const itemsQuery = `
         SELECT
@@ -170,7 +184,21 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           LIMIT $1
           OFFSET $2
         `;
-
+      const profilesQuery = `
+        SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
+        COALESCE(field_expertise, '') as field_expertise
+        FROM ${process.env.PROFILES_TABLE}
+          WHERE public_profile = true
+            AND (
+              profile_type = 'Individual' OR
+              profile_type = 'Collective' OR
+              profile_type = 'Institution'
+            )
+          ${profilesWhereStatement}
+          GROUP BY profiles.id
+          LIMIT $1
+          OFFSET $2
+      `;
       let
         collections = await db.manyOrNone(collectionsQuery, params),
         collectionsPromise = [];
@@ -183,9 +211,10 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         });
       }
       return successResponse({
-        items: await db.any(itemsQuery, params),
-        collections: await Promise.all(collectionsPromise)
-                             });
+        items: await db.manyOrNone(itemsQuery, params),
+        collections: await Promise.all(collectionsPromise),
+        profiles: await db.manyOrNone(profilesQuery, params),
+     });
     }
 
     if (queryString.query && queryString.query.length ) {
@@ -198,47 +227,48 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         speakers, performers, host_organisation, organisation
         FROM ${process.env.ITEMS_TABLE} AS item
         WHERE status = true
-          AND
-          LOWER(title) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(original_title) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(event_title) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(subtitle) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(description) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(institution) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(news_outlet) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(location) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(city_of_publication) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(featured_in) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(editor) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(lecturer) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(project) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(record_label) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($3) || '%' OR
-      
-          LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
-          LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%' 
+          AND (
+            LOWER(title) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(original_title) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(event_title) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(subtitle) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(description) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(institution) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(news_outlet) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(location) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(city_of_publication) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(featured_in) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(editor) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(lecturer) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(project) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(record_label) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($3) || '%' OR
+        
+            LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
+            LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%' 
+          )
          
         GROUP BY item.s3_key
         ORDER BY item.updated_at DESC NULLS LAST
@@ -249,64 +279,94 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         SELECT title, subtitle, description, institution, regions, location, city_of_publication, editor, cast_, creators, directors, writers, collaborators, publisher, participants, interviewers, interviewees, host_organisation
         FROM ${process.env.COLLECTIONS_TABLE}
           WHERE ${process.env.COLLECTIONS_TABLE}.status = true
-            AND
-            LOWER(collections.title) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(collections.subtitle) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(collections.description) LIKE '%' || LOWER($3) || '%' OR
-      
-            LOWER(collections.institution) LIKE '%' || LOWER($3) || '%' OR
-      
-            LOWER(array_to_string(collections.regions, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(collections.location) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(collections.city_of_publication) LIKE '%' || LOWER($3) || '%' OR
-      
-            LOWER(collections.editor) LIKE '%' || LOWER($3) || '%' OR
-      
-            LOWER(array_to_string(collections.cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
-      
-            LOWER(array_to_string(collections.creators, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(collections.directors, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(collections.writers, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(collections.collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
-      
-            LOWER(array_to_string(collections.publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
-      
-            LOWER(array_to_string(collections.participants, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(collections.interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(collections.interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
-      
-            LOWER(array_to_string(collections.host_organisation, '||')) LIKE '%' || LOWER($3) || '%'
+            AND (
+              LOWER(collections.title) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(collections.subtitle) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(collections.description) LIKE '%' || LOWER($3) || '%' OR
+        
+              LOWER(collections.institution) LIKE '%' || LOWER($3) || '%' OR
+        
+              LOWER(array_to_string(collections.regions, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(collections.location) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(collections.city_of_publication) LIKE '%' || LOWER($3) || '%' OR
+        
+              LOWER(collections.editor) LIKE '%' || LOWER($3) || '%' OR
+        
+              LOWER(array_to_string(collections.cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
+        
+              LOWER(array_to_string(collections.creators, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(collections.directors, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(collections.writers, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(collections.collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
+        
+              LOWER(array_to_string(collections.publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
+        
+              LOWER(array_to_string(collections.participants, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(collections.interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(collections.interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
+        
+              LOWER(array_to_string(collections.host_organisation, '||')) LIKE '%' || LOWER($3) || '%'
+            )
             
           GROUP BY collections.id
           LIMIT $1
           OFFSET $2
         `;
 
+      const profilesQuery = `
+        SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
+        COALESCE(field_expertise, '') as field_expertise
+        FROM ${process.env.PROFILES_TABLE}
+          WHERE public_profile = true
+            AND (
+              profile_type = 'Individual' OR
+              profile_type = 'Collective' OR
+              profile_type = 'Institution'
+            )
+            AND (
+              LOWER(profiles.full_name) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(profiles.field_expertise) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(profiles.city) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(profiles.country) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(profiles.affiliation) LIKE '%' || LOWER($3) || '%'
+            ) 
+          GROUP BY profiles.id
+          LIMIT $1
+          OFFSET $2
+      `;
+
       const
         items = await db.manyOrNone(itemsQuery, params),
         collections = await db.manyOrNone(collectionsQuery, params),
-        concat = [...items, ...collections],
+        profiles = await db.manyOrNone(profilesQuery, params),
+        concat = [...items, ...collections, ...profiles],
         results: {field: string, value: string}[] = [];
-
       if (concat && concat.length) {
-        for (let i = 0; i < concat.length - 1; i++) {
-          const obj = Object.entries(concat[i]);
+        for (let i = 0; i < concat.length; i++) {
+          const obj: any[] = Object.entries(concat[i]); // tslint:disable-line no-any
+          for (let o = 0; o < obj.length; o++) {
+            const res: any | null = obj[o][1]; // tslint:disable-line no-any
 
-          for (let o = 0; o < obj.length - 1; o++) {
-            const res: String = obj[o][1].toString(); // tslint:disable-line no-any
-            if (res && ( typeof(res) === 'string' ) && res.toLowerCase().includes(queryString.query.toLowerCase())) {
-              results.push({
+            if (res) {
+              if (typeof(res) === 'string' && res.toLowerCase().includes(queryString.query.toLowerCase())) {
+                results.push({
+                   'field': obj[o][0],
+                   'value': res.toString()
+                 }
+                );
+              } else if (typeof res === 'object') {
+                results.push({
                  'field': obj[o][0],
                  'value': res.toString()
-               }
-             );
+               });
+              }
             }
           }
         }
       }
 
       return successResponse({
-        results: results // .map( (r: {[key: string]: any}) => ({'aa': r[1]}) )
+        results: results
       });
     }
 
