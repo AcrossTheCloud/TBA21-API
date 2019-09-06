@@ -16,7 +16,7 @@ export const deleteItem = async (event: APIGatewayEvent, context: Context): Prom
     const isAdmin = !!event.path.match(/\/admin\//);
     const userId = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
-    return (await deleteItm(Number(queryString.id), isAdmin, userId));
+    return (await deleteItm(String(queryString.s3Key), isAdmin, userId));
 
   } catch (e) {
     console.log('/items/items.deleteItem ERROR - ', !e.isJoi ? e : e.details);
