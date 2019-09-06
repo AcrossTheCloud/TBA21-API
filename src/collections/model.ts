@@ -1,7 +1,7 @@
 import { badRequestResponse, headers, internalServerErrorResponse, unAuthorizedRequestResponse } from '../common';
 import { db } from '../databaseConnect';
 
-export const create = async (requestBody, isAdmin: Boolean) => {
+export const create = async (requestBody, isAdmin: boolean) => {
   try {
 
     let paramCounter = 0;
@@ -55,7 +55,7 @@ export const create = async (requestBody, isAdmin: Boolean) => {
   }
 };
 
-export const update = async (requestBody, isAdmin: Boolean, userId?: String) => {
+export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
 
     let paramCounter = 0;
@@ -154,7 +154,7 @@ export const update = async (requestBody, isAdmin: Boolean, userId?: String) => 
   }
 };
 
-export const deleteCollection = async (id, isAdmin: Boolean, userId?: String) => {
+export const deleteCollection = async (id, isAdmin: boolean, userId?: string) => {
   try {
 
     const params = [id];

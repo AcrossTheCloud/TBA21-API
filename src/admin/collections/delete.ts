@@ -18,8 +18,8 @@ export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         id: Joi.number().integer().required()
       }));
 
-    const isAdmin = event.path.match(/\/admin\//) ? true : false;
-    const userId = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+    const isAdmin: boolean = !!event.path.match(/\/admin\//);
+    const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
     return (await deleteCollection(Number(event.queryStringParameters.id), isAdmin, userId));
 

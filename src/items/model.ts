@@ -89,11 +89,11 @@ export const update = async (requestBody, isAdmin: Boolean, userId?: String) => 
     }
 };
 
-export const deleteItm = async (id, isAdmin: Boolean, userId?: String) => {
+export const deleteItm = async (s3Key, isAdmin: Boolean, userId?: String) => {
     try {
-        const params = [id];
+        const params = [s3Key];
         let query = `DELETE FROM ${process.env.ITEMS_TABLE}
-          WHERE items.id=$1 `;
+          WHERE items.s3_key=$1 `;
 
         if (!isAdmin) {
             params.push(userId);
@@ -106,16 +106,15 @@ export const deleteItm = async (id, isAdmin: Boolean, userId?: String) => {
             throw new Error('unauthorized');
         }
 
-        // if we have a short_path associated with that id, delete it
-        const shortPathDelete = `
-          DELETE FROM ${process.env.SHORT_PATHS_TABLE}
-          WHERE EXISTS (
-            SELECT * FROM ${process.env.SHORT_PATHS_TABLE}
-            WHERE object_type = 'Item'
-            AND id = $1
-          )
-        `;
-        await db.any(shortPathDelete, params);
+        if (delResult) {
+            await db.any(`
+                          DELETE FROM ${process.env.SHORT_PATHS_TABLE}
+                          WHERE EXISTS (
+                            SELECT * FROM ${process.env.SHORT_PATHS_TABLE}
+                            WHERE object_type = 'Item'
+                            AND id = $1 )`,
+                         [delResult.id]);
+        }
 
         return successResponse(true);
     } catch (e) {
