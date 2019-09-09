@@ -3,7 +3,6 @@ import { badRequestResponse, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
 import Joi from '@hapi/joi';
-import { uuidRegex } from '../../utils/uuid';
 
 /**
  *
@@ -245,36 +244,23 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         limit: Joi.number().integer(),
-        offset: Joi.number().integer(),
-        person: Joi.string().required()
-      }),
-      Joi.object().keys({
-        limit: Joi.number().integer(),
-        offset: Joi.number().integer(),
-        uuid: Joi.string().regex(uuidRegex).required()
+        offset: Joi.number().integer()
       })
     ));
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters,
       params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    const isAdmin: boolean = !!event.path.match(/\/admin\//);
+    const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
     let whereStatement;
-    if (queryString.person) {
-      params.push(queryString.person);
-      whereStatement = `
-        AND ( 
-          LOWER(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)
-          ) 
-        LIKE '%' || LOWER($3) || '%' 
-      )
-    `;
-    } else if (queryString.uuid) {
-      params.push(queryString.uuid);
+    if (userId) {
+      params.push(userId);
       whereStatement = `
        AND contributor = $3::uuid
-      `;
-    }
+        `;
+      }
     const
       query = `
         SELECT
@@ -298,7 +284,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         ORDER BY item.s3_key
         
         LIMIT $1 
-        OFFSET $2 
+        OFFSET $2
       `;
 
     return successResponse({ items: await db.any(query, params) });
