@@ -169,7 +169,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         Joi.object().keys({
           limit: Joi.number().integer(),
           offset: Joi.number().integer(),
-          person: Joi.string().integer().required()
+          person: Joi.string().required()
         }),
         Joi.object().keys({
           limit: Joi.number().integer(),
@@ -186,10 +186,10 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         params.push(queryString.person);
         whereStatement = `
           AND ( 
-            LOWER(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) LIKE '%' || LOWER($1) || '%' 
+            LOWER(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) 
           )
           LIKE '%' || LOWER($3) || '%' 
-        )
+        
         `;
       } else if (queryString.uuid) {
         params.push(queryString.uuid);
