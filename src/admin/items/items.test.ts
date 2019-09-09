@@ -108,8 +108,12 @@ describe('Admin Items', () => {
   });
   test('Get items by their person', async () => {
     const
-      queryStringParameters: QueryStringParameters = {person: 'Tim'},
-      response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      queryStringParameters: QueryStringParameters = {},
+      response = await getByPerson({ queryStringParameters, path: 'contributor/items/getByPerson', requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
+          }
+        }} as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
     expect(result.items.length).toEqual(2);
