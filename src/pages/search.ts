@@ -199,28 +199,35 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
       offset = data.offset ? data.offset : 0,
       params = [limit, offset];
 
-    const focusArts: string = data.hasOwnProperty('focus_arts') ? ` AND focus_arts = 1`  : ``;
-    const focusAction: string = data.hasOwnProperty('focus_action') ? ` AND focus_action = 1`  : ``;
-    const focusScitech: string = data.hasOwnProperty('focus_scitech') ? ` AND focus_scitech = 1`  : ``;
+    const focusArts: string = data.hasOwnProperty('focus_arts') && data.focus_arts ? ` AND focus_arts = 1`  : ``;
+    const focusAction: string = data.hasOwnProperty('focus_action') && data.focus_action ? ` AND focus_action = 1`  : ``;
+    const focusScitech: string = data.hasOwnProperty('focus_scitech') && data.focus_scitech ? ` AND focus_scitech = 1`  : ``;
 
     let
       itemsWhereStatement = [],
       collectionsWhereStatement = [],
       profilesWhereStatement = [],
+      items = [],
+      collections = [],
+      profiles = [],
       paramCounter = 3;
 
     const queryLoop = (list: {field: string, value: string}[]) => {
       for (let i = 0; i < list.length; i++) {
         const field = list[i].field;
-        params.push(field, list[i].value);
-        const query = `LOWER($${paramCounter++}:raw) LIKE '%' || LOWER($${paramCounter++}) || '%'`;
+
+        const addToParams = (type?: string): string => {
+          type = type ? `${type}.` : '';
+          params.push(`${type}${field}`, list[i].value);
+          return `LOWER($${paramCounter++}:raw::text) LIKE '%' || LOWER($${paramCounter++}) || '%'`;
+        };
 
         if (field === 'full_name' || field === 'country' || field === 'city' || field === 'affiliation' || field === 'profile_type') {
           // Profile only
-          profilesWhereStatement.push(query);
+          profilesWhereStatement.push(addToParams('profiles'));
         } else if (field === 'interviewers') {
           // Collection only
-          collectionsWhereStatement.push(query);
+          collectionsWhereStatement.push(addToParams('collections'));
         } else if (field === 'original_title' ||
           field === 'event_title' ||
           field === 'news_outlet' ||
@@ -236,23 +243,21 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
           field === 'produced_by' ||
           field === 'organisation') {
           // item Only
-          itemsWhereStatement.push(query);
+          itemsWhereStatement.push(addToParams('item'));
         } else {
-          itemsWhereStatement.push(query);
-          collectionsWhereStatement.push(query);
+          itemsWhereStatement.push(addToParams('item'));
+          collectionsWhereStatement.push(addToParams('collections'));
         }
       }
     };
 
-    let
-      items = [],
-      collections = [],
-      profiles = [];
-
     if (data.criteria && data.criteria.length) {
       queryLoop(data.criteria);
-      const itemsQuery = `
+
+      if (itemsWhereStatement.length) {
+        const itemsQuery = `
         SELECT
+          item.id,
           item.s3_key,
           item.title,
           item.created_at as date,
@@ -267,7 +272,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
           UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         WHERE status = true
-          ${itemsWhereStatement.length ? ` AND ( ${itemsWhereStatement.join(' OR ')} )` : ''}
+          AND ( ${itemsWhereStatement.join(' OR ')} )
           ${focusArts}
           ${focusAction}
           ${focusScitech}
@@ -276,9 +281,12 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
         LIMIT $1
         OFFSET $2
       `;
-      items = await db.manyOrNone(itemsQuery, params);
 
-      const collectionsQuery = `
+        items = await db.manyOrNone(itemsQuery, params);
+      }
+
+      if (collectionsWhereStatement.length) {
+        const collectionsQuery = `
         SELECT  
           ${process.env.COLLECTIONS_TABLE}.id,
           ${process.env.COLLECTIONS_TABLE}.title,
@@ -294,7 +302,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
             
           WHERE ${process.env.COLLECTIONS_TABLE}.status = true
-            ${collectionsWhereStatement.length ? ` AND ( ${collectionsWhereStatement.join(' OR ')} )` : ''}
+            AND ( ${collectionsWhereStatement.join(' OR ')} )
             ${focusArts}
             ${focusAction}
             ${focusScitech}
@@ -303,20 +311,22 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
           OFFSET $2
         `;
 
-      collections = await db.manyOrNone(collectionsQuery, params);
-      let collectionsPromise = [];
-      if (collections.length) {
-        collectionsPromise = collections.map( async c => {
-          return new Promise( async resolve => {
-            const collectionsItems = await db.manyOrNone('SELECT item_s3_key FROM tba21.collections_items WHERE collection_id = $1 ', [c.id]);
-            resolve({...c,  s3_key: collectionsItems.map( i => i.item_s3_key ) });
+        collections = await db.manyOrNone(collectionsQuery, params);
+        let collectionsPromise = [];
+        if (collections.length) {
+          collectionsPromise = collections.map(async c => {
+            return new Promise(async resolve => {
+              const collectionsItems = await db.manyOrNone('SELECT item_s3_key FROM tba21.collections_items WHERE collection_id = $1 ', [c.id]);
+              resolve({...c, s3_key: collectionsItems.map(i => i.item_s3_key)});
+            });
           });
-        });
+        }
+
+        collections = await Promise.all(collectionsPromise);
       }
 
-      collections = await Promise.all(collectionsPromise);
-
-      const profilesQuery = `
+      if (profilesWhereStatement.length) {
+        const profilesQuery = `
         SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
         COALESCE(field_expertise, '') as field_expertise
         FROM ${process.env.PROFILES_TABLE}
@@ -326,12 +336,13 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
               profile_type = 'Collective' OR
               profile_type = 'Institution'
             )
-          ${profilesWhereStatement.length ? ` AND ( ${profilesWhereStatement.join(' OR ')} )` : ''}
+          AND ( ${profilesWhereStatement.join(' OR ')} )
           GROUP BY profiles.id
           LIMIT $1
           OFFSET $2
       `;
-      profiles = await db.manyOrNone(profilesQuery, params);
+        profiles = await db.manyOrNone(profilesQuery, params);
+      }
     }
 
     return successResponse({
