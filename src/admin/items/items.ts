@@ -255,10 +255,10 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
     let whereStatement;
-    if (userId) {
+    if (userId || isAdmin) {
       params.push(userId);
       whereStatement = `
-       AND contributor = $3::uuid
+       WHERE contributor = $3::uuid
         `;
       }
     const
@@ -277,7 +277,6 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
                   
           UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-          WHERE status = true
           ${whereStatement}
         
         GROUP BY item.s3_key
@@ -286,7 +285,6 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         LIMIT $1 
         OFFSET $2
       `;
-
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
     console.log('admin/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
