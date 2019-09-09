@@ -883,3 +883,33 @@ functions:
           method: delete
           cors: true
           authorizer: aws_iam
+
+  contributorGetCollectionsByPerson:
+    handler: src/admin/collections/collections.getByPerson
+    description: Returns collection by person from the database.
+    events:
+      - http:
+          path: contributor/collections/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+              - name: request.querystring.uuid
+
+  contributorItemsByPerson:
+    handler: src/admin/items/items.getByPerson
+    description: Returns items by person from the database.
+    events:
+      - http:
+          path: contributor/items/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+              - name: request.querystring.uuid
