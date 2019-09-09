@@ -314,6 +314,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
 
       const itemsQuery = `
         SELECT
+          item.id,
           item.s3_key,
           item.title,
           item.created_at as date,
