@@ -659,7 +659,6 @@ functions:
     description: Removes a collection and it's collection_items entry from the database
     events:
       - http:
-      - http:
           path: admin/collections
           method: delete
           cors: true
