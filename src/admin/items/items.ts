@@ -3,6 +3,8 @@ import { badRequestResponse, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
 import Joi from '@hapi/joi';
+import { uuidRegex } from '../../utils/uuid';
+
 /**
  *
  * Gets all the items
@@ -240,16 +242,40 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
-      {
+    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+      Joi.object().keys({
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        person: Joi.string().required()
-      }));
+        person: Joi.number().integer().required()
+      }),
+      Joi.object().keys({
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+        uuid: Joi.string().regex(uuidRegex).required()
+      })
+    ));
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.person, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      queryString = event.queryStringParameters,
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+
+    let whereStatement;
+    if (queryString.person) {
+      params.push(queryString.person);
+      whereStatement = `
+        AND ( 
+          LOWER(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)
+          ) 
+        LIKE '%' || LOWER($3) || '%' 
+      )
+    `;
+    } else if (queryString.uuid) {
+      params.push(queryString.uuid);
+      whereStatement = `
+       AND contributor = $3::uuid
+      `;
+    }
+    const
       query = `
         SELECT
           COUNT ( item.s3_key ) OVER (),
@@ -265,15 +291,14 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
                   
           UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-        WHERE ( 
-          LOWER(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) LIKE '%' || LOWER($1) || '%' 
-        )
+          WHERE status = true
+          ${whereStatement}
         
         GROUP BY item.s3_key
         ORDER BY item.s3_key
         
-        LIMIT $2 
-        OFFSET $3 
+        LIMIT $1 
+        OFFSET $2 
       `;
 
     return successResponse({ items: await db.any(query, params) });

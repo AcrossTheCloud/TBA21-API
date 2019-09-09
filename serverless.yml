@@ -639,24 +639,26 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.tag
 #
-#  adminGetCollectionsByPerson:
-#    handler: src/admin/collections/collections.getByPerson
-#    description: Returns collection by person from the database.
-#    events:
-#      - http:
-#          path: admin/collections/getByPerson
-#          method: get
-#          cors: true
-#          authorizer: aws_iam
-#          caching:
-#            enabled: true
-#            cacheKeyParameters:
-#              - name: request.querystring.person
+  adminGetCollectionsByPerson:
+    handler: src/admin/collections/collections.getByPerson
+    description: Returns collection by person from the database.
+    events:
+      - http:
+          path: admin/collections/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+              - name: request.querystring.uuid
 
   adminDeleteCollection:
     handler: src/admin/collections/delete.deleteById
     description: Removes a collection and it's collection_items entry from the database
     events:
+      - http:
       - http:
           path: admin/collections
           method: delete
@@ -747,19 +749,19 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.type
 #
-#  adminItemsByPerson:
-#    handler: src/admin/items/items.getByPerson
-#    description: Returns items by person from the database.
-#    events:
-#      - http:
-#          path: admin/items/getByPerson
-#          method: get
-#          cors: true
-#          authorizer: aws_iam
-#          caching:
-#            enabled: true
-#            cacheKeyParameters:
-#              - name: request.querystring.person
+  adminItemsByPerson:
+    handler: src/admin/items/items.getByPerson
+    description: Returns items by person from the database.
+    events:
+      - http:
+          path: admin/items/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
 
   adminUpdateItem:
     handler: src/admin/items/update.updateByS3key
