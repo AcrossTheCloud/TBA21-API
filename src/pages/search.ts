@@ -199,9 +199,9 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
       offset = data.offset ? data.offset : 0,
       params = [limit, offset];
 
-    const focusArts: string = data.hasOwnProperty('focus_arts') ? ` AND focus_arts = 1`  : ``;
-    const focusAction: string = data.hasOwnProperty('focus_action') ? ` AND focus_action = 1`  : ``;
-    const focusScitech: string = data.hasOwnProperty('focus_scitech') ? ` AND focus_scitech = 1`  : ``;
+    const focusArts: string = data.hasOwnProperty('focus_arts') && data.focus_arts ? ` AND focus_arts = 1`  : ``;
+    const focusAction: string = data.hasOwnProperty('focus_action') && data.focus_action ? ` AND focus_action = 1`  : ``;
+    const focusScitech: string = data.hasOwnProperty('focus_scitech') && data.focus_scitech ? ` AND focus_scitech = 1`  : ``;
 
     let
       itemsWhereStatement = '',
