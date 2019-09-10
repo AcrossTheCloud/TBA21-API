@@ -768,7 +768,7 @@ functions:
 #              - name: request.querystring.type
 #
   adminItemsByPerson:
-    handler: src/admin/items/items.getByPerson
+    handler: src/admin/items/items.getAllMine
     description: Returns items by person from the database.
     events:
       - http:
@@ -918,7 +918,7 @@ functions:
               - name: request.querystring.uuid
 
   contributorItemsByPerson:
-    handler: src/admin/items/items.getByPerson
+    handler: src/admin/items/items.getAllMine
     description: Returns items by person from the database.
     events:
       - http:

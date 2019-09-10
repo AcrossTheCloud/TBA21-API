@@ -4,6 +4,7 @@ import Joi from '@hapi/joi';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
+import { getAll, getItemBy } from './model';
 /**
  *
  * Gets all the items
@@ -23,34 +24,10 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
     }
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues, // Use default values if not supplied.
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
-        SELECT
-          COUNT ( item.s3_key ) OVER (),
-          item.*,
-          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(item.geom) as geoJSON
-        FROM 
-          ${process.env.ITEMS_TABLE} AS item,
-            
-          UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                    
-          UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-            
-        WHERE status=true
-        
-        GROUP BY item.s3_key
-        ORDER BY item.s3_key
-        
-        LIMIT $1 
-        OFFSET $2 
-      `;
+      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues;
 
-    return successResponse({ items: await db.any(query, params) });
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false));
+
   } catch (e) {
     console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -69,44 +46,23 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
-                          s3Key: Joi.string(),
-                          id: Joi.string()
-                        })));
+        s3Key: Joi.string(),
+        id: Joi.string()
+      })));
 
     const queryString = event.queryStringParameters; // Use default values if not supplied.
 
     let
       column = 's3_key',
-      params = [queryString.s3Key];
+      value = queryString.s3Key;
 
     // If we've passed in id instead of s3key, change the column and params to use id
     if (queryString.hasOwnProperty('id')) {
       column = 'id';
-      params = [queryString.id];
+      value = queryString.id;
     }
 
-    const
-      query = `
-        SELECT
-          item.*,
-          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(item.geom) as geoJSON 
-        FROM 
-          ${process.env.ITEMS_TABLE} AS item,
-            
-          UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                    
-          UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-        
-        WHERE item.${column}=$1
-        AND status = true
-        GROUP BY item.s3_key
-      `;
-
-    return successResponse({ item: await db.oneOrNone(query, params) });
+    return (await getItemBy(column, value, false));
   } catch (e) {
     console.log('admin/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -132,39 +88,10 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
 
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.tag, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
-      SELECT
-        COUNT ( item.s3_key ) OVER (),
-         item.*,
-         COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-         ST_AsGeoJSON(item.geom) as geoJSON
-      FROM 
-        ${process.env.ITEMS_TABLE} AS item,
-            
-        UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-          LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                
-        UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-          LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-      WHERE 
-        status=true
-      AND (
-        LOWER(concept_tag.tag_name) LIKE '%' || LOWER($1) || '%'
-        OR
-        LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($1) || '%'
-      )
-      
-      GROUP BY item.s3_key
-      ORDER BY item.s3_key
-      
-      LIMIT $2  
-      OFFSET $3
-    `;
+      queryString = event.queryStringParameters;
 
-    return successResponse({ items: await db.any(query, params) });
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, 'tag', queryString.tag));
+
   } catch (e) {
     console.log('/items/items.getByTag ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -188,34 +115,10 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
     }));
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.type, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
-        SELECT 
-        items.*,
-        COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-        COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-        ST_AsGeoJSON(items.geom) as geoJSON
-        
-        FROM ${process.env.ITEMS_TABLE},
-        
-        UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
-        LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-        
-        UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
-        LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-        
-        WHERE items.item_type::varchar = $1 
-        AND status=true
-        
-        GROUP BY items.s3_key
-        ORDER BY items.s3_key
-  
-        LIMIT $2
-        OFFSET $3
-      `;
+      queryString = event.queryStringParameters;
 
-    return successResponse({ items: await db.any(query, params) });
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, 'type', queryString.type));
+
   } catch (e) {
     console.log('/items/items.getByType ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -240,37 +143,10 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     }));
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.person, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
-        SELECT
-          COUNT ( item.s3_key ) OVER (),
-           item.*,
-           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-           ST_AsGeoJSON(item.geom) as geoJSON 
-        FROM 
-          ${process.env.ITEMS_TABLE} AS item,
+      queryString = event.queryStringParameters;
 
-          UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                  
-          UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-        WHERE 
-          status=true
-        AND ( 
-          LOWER(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) LIKE '%' || LOWER($1) || '%' 
-        )
-        
-        GROUP BY item.s3_key
-        ORDER BY item.s3_key
-        
-        LIMIT $2 
-        OFFSET $3 
-      `;
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, 'person', queryString.person));
 
-    return successResponse({ items: await db.any(query, params) });
   } catch (e) {
     console.log('/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -370,10 +246,10 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
     // If we have no result at all, the item doesn't exist.
     if (result && result.tags && result.tags.rekognition_labels) {
       // Have tags, filter and map to an array
-      tags = result.tags.rekognition_labels.filter( c => c.Confidence >= confidenceLevel).map( n => n.Name);
+      tags = result.tags.rekognition_labels.filter(c => c.Confidence >= confidenceLevel).map(n => n.Name);
     }
 
-    return successResponse({ tags: tags});
+    return successResponse({ tags: tags });
 
   } catch (e) {
     console.log('/items/items.getRekognitionTags ERROR - ', !e.isJoi ? e : e.details);

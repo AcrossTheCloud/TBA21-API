@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
-import { get, getByPerson, getItem, getByTag, getByType } from './items';
+import { get, getAllMine, getItem, getByTag, getByType } from './items';
 
 describe('Admin Items', () => {
   afterAll( () => {
@@ -109,7 +109,7 @@ describe('Admin Items', () => {
   test('Get items by their person', async () => {
     const
       queryStringParameters: QueryStringParameters = {},
-      response = await getByPerson({ queryStringParameters, path: 'contributor/items/getByPerson', requestContext: {
+      response = await getAllMine({ queryStringParameters, path: 'contributor/items/getByPerson', requestContext: {
           identity: {
             cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
           }
