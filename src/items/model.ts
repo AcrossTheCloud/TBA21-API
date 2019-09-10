@@ -2,7 +2,7 @@ import { badRequestResponse, headers, internalServerErrorResponse, successRespon
 import { db } from '../databaseConnect';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 
-export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?) => {
+export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?, byField?: String, fieldValue?: String) => {
     try {
 
         const
@@ -65,6 +65,9 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?) => {
     
           `;
         }
+        if (byField && byField.match(/(tag|type|person)/)) {
+            params.push(fieldValue);
+        }
 
         const
             query = `
@@ -83,7 +86,19 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?) => {
             UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
               LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
               
-          ${isAdmin ? searchQuery : 'WHERE status=true'}         
+          ${isAdmin ? searchQuery : 'WHERE status=true'}
+          
+          ${ (byField === 'tag') ? ` AND (
+            LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
+            OR
+            LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
+          )` : ''}
+
+          ${ (byField === 'type') ? ` AND (item.item_type::varchar = $${params.length})` : ''}
+
+          ${ (byField === 'person') ? `AND ( 
+            LOWER(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) LIKE '%' || LOWER($${params.length}) || '%' 
+          )` : ''}
               
           GROUP BY item.s3_key
           ORDER BY  ${isAdmin ? 'item.updated_at DESC NULLS LAST' : 'item.s3_key'} 
@@ -91,6 +106,10 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?) => {
           LIMIT $1 
           OFFSET $2 
         `;
+
+        if (byField === 'type') {
+            console.log(query, params);
+        }
 
         return successResponse({ items: await db.any(query, params) });
     } catch (e) {
@@ -123,7 +142,7 @@ export const getItemBy = async (field, value, isAdmin: Boolean) => {
           
           WHERE item.${field}=$1
           ${isAdmin ? '' : 'AND status = true'}
-          
+
           GROUP BY item.s3_key
         `;
 
