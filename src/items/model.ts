@@ -2,7 +2,7 @@ import { badRequestResponse, headers, internalServerErrorResponse, successRespon
 import { db } from '../databaseConnect';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 
-export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?, byField?: String, fieldValue?: String, userId?: String) => {
+export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
     try {
 
         const
@@ -114,8 +114,6 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?, byFie
           OFFSET $2 
         `;
 
-        console.log(query, params);
-
         return successResponse({ items: await db.any(query, params) });
     } catch (e) {
         console.log('items/model.get ERROR - ', e);
@@ -123,7 +121,7 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?, byFie
     }
 };
 
-export const getItemBy = async (field, value, isAdmin: Boolean) => {
+export const getItemBy = async (field, value, isAdmin: boolean) => {
     try {
 
         const
@@ -158,7 +156,7 @@ export const getItemBy = async (field, value, isAdmin: Boolean) => {
     }
 };
 
-export const update = async (requestBody, isAdmin: Boolean, userId?: String) => {
+export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
     try {
 
         let message: string = '';
@@ -245,7 +243,7 @@ export const update = async (requestBody, isAdmin: Boolean, userId?: String) => 
     }
 };
 
-export const deleteItm = async (s3Key, isAdmin: Boolean, userId?: String) => {
+export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
     try {
         const params = [s3Key];
         let query = `DELETE FROM ${process.env.ITEMS_TABLE}
