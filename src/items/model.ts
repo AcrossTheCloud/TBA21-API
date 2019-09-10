@@ -14,56 +14,56 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?) => {
             params.push(inputQuery);
 
             searchQuery = `
-          WHERE 
-            LOWER(title) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(original_title) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(event_title) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(subtitle) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(description) LIKE '%' || LOWER($3) || '%' OR
-
-            LOWER(institution) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(news_outlet) LIKE '%' || LOWER($3) || '%' OR
-        
-            LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(location) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(city_of_publication) LIKE '%' || LOWER($3) || '%' OR
-        
-            LOWER(featured_in) LIKE '%' || LOWER($3) || '%' OR
-        
-            LOWER(editor) LIKE '%' || LOWER($3) || '%' OR
-        
-            ISBN::text LIKE '%' || ($3) || '%' OR
-            related_ISBN::text LIKE '%' || ($3) || '%' OR
-            LOWER(DOI) LIKE '%' || LOWER($3) || '%' OR
-        
-            LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(lecturer) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(project) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(record_label) LIKE '%' || LOWER($3) || '%' OR
-        
-            LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($3) || '%' OR
-        
-            LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($3) || '%' OR
-        
-            LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
-        
-            LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($3) || '%' OR
-        
-            LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
-            
-            LOWER(concept_tag.tag_name) LIKE '%' || LOWER($3) || '%' OR
-            LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($3) || '%' 
-  
-        `;
+            WHERE 
+              LOWER(title) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(original_title) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(event_title) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(subtitle) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(description) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(institution) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(news_outlet) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(location) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(city_of_publication) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(featured_in) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(editor) LIKE '%' || LOWER($3) || '%' OR
+          
+              ISBN::text LIKE '%' || ($3) || '%' OR
+              related_ISBN::text LIKE '%' || ($3) || '%' OR
+              LOWER(DOI) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(lecturer) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(project) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(record_label) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($3) || '%' OR
+          
+              LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
+              
+              LOWER(concept_tag.tag_name) LIKE '%' || LOWER($3) || '%' OR
+              LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($3) || '%' 
+    
+          `;
         }
 
         const
