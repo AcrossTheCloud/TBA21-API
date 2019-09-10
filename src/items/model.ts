@@ -2,7 +2,7 @@ import { badRequestResponse, headers, internalServerErrorResponse, successRespon
 import { db } from '../databaseConnect';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 
-export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?, byField?: String, fieldValue?: String) => {
+export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?, byField?: String, fieldValue?: String, isContributor?: Boolean, userId?: String) => {
     try {
 
         const
@@ -62,12 +62,17 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?, byFie
               
               LOWER(concept_tag.tag_name) LIKE '%' || LOWER($3) || '%' OR
               LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($3) || '%' 
-    
           `;
         }
         if (byField && byField.match(/(tag|type|person)/)) {
             params.push(fieldValue);
         }
+
+        if (isContributor) {
+            params.push(userId);
+        }
+
+        const conditionsLinker = (!isAdmin || searchQuery.length > 0) ? 'AND' : 'WHERE';
 
         const
             query = `
@@ -85,18 +90,20 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?, byFie
                       
             UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
               LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-              
+
           ${isAdmin ? searchQuery : 'WHERE status=true'}
+
+          ${ isContributor ? ` WHERE contributor = $${params.length}::uuid ` : ''}
           
-          ${ (byField === 'tag') ? ` AND (
+          ${ (byField === 'tag') ? ` ${conditionsLinker} (
             LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
             OR
             LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
           )` : ''}
 
-          ${ (byField === 'type') ? ` AND (item.item_type::varchar = $${params.length})` : ''}
+          ${ (byField === 'type') ? ` ${conditionsLinker} (item.item_type::varchar = $${params.length})` : ''}
 
-          ${ (byField === 'person') ? `AND ( 
+          ${ (byField === 'person') ? ` ${conditionsLinker} ( 
             LOWER(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) LIKE '%' || LOWER($${params.length}) || '%' 
           )` : ''}
               
@@ -107,9 +114,7 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?, byFie
           OFFSET $2 
         `;
 
-        if (byField === 'type') {
-            console.log(query, params);
-        }
+        console.log(query, params);
 
         return successResponse({ items: await db.any(query, params) });
     } catch (e) {
