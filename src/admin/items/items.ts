@@ -1,6 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { badRequestResponse, successResponse } from '../../common';
-import { db } from '../../databaseConnect';
+import { badRequestResponse } from '../../common';
 import { limitQuery } from '../../utils/queryHelpers';
 import Joi from '@hapi/joi';
 import { getAll, getItemBy } from '../../items/model';
@@ -111,7 +110,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  *
  */
-export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getAllMine = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
@@ -122,42 +121,10 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters,
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
-    const isAdmin: boolean = !!event.path.match(/\/admin\//);
-    const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+      userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
-    let whereStatement;
-    if (userId || isAdmin) {
-      params.push(userId);
-      whereStatement = `
-       WHERE contributor = $3::uuid
-        `;
-    }
-    const
-      query = `
-        SELECT
-          COUNT ( item.s3_key ) OVER (),
-           item.*,
-           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-           ST_AsGeoJSON(item.geom) as geoJSON 
-        FROM 
-          ${process.env.ITEMS_TABLE} AS item,
-                       
-          UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                  
-          UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-          ${whereStatement}
-        
-        GROUP BY item.s3_key
-        ORDER BY item.s3_key
-        
-        LIMIT $1 
-        OFFSET $2
-      `;
-    return successResponse({ items: await db.any(query, params) });
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, null, null, userId));
+
   } catch (e) {
     console.log('admin/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
