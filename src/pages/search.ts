@@ -349,7 +349,11 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
     }
 
     return successResponse({
-       results: [...items, ...collections, ...profiles],
+       results: [
+         ...items.map(e => Object.assign(e, { item: true })),
+         ...collections.map(e => Object.assign(e, { collection : true })),
+         ...profiles.map(e => Object.assign(e, { profile : true }))
+       ],
      });
 
   } catch (e) {
