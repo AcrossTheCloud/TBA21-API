@@ -1,7 +1,9 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { badRequestResponse, headers } from '../../common';
 import Joi from '@hapi/joi';
+import { getAnnouncement } from './model';
+import { limitQuery } from '../../utils/queryHelpers';
 
 /**
  *
@@ -151,5 +153,29 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       console.log('/admin/announcements/update ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
+  }
+};
+export const get = async(event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+      Joi.object().keys({
+        id: Joi.number().integer(),
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer()
+      })
+    ));
+    const
+      queryString = event.queryStringParameters,
+      id = queryString.id ? queryString.id : undefined,
+      defaultValues = { limit: 15, offset: 0 },
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      isAdmin: boolean = !!event.path.match(/\/admin\//),
+      userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+
+    return (await getAnnouncement(isAdmin, params, userId, id));
+
+  } catch (e) {
+    console.log('/announcements.get ERROR - ', e);
+    return badRequestResponse();
   }
 };
