@@ -4,7 +4,7 @@ import Joi from '@hapi/joi';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
-import { getAll } from './model';
+import { getAll, getItemBy } from './model';
 /**
  *
  * Gets all the items
@@ -54,36 +54,15 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
 
     let
       column = 's3_key',
-      params = [queryString.s3Key];
+      value = queryString.s3Key;
 
     // If we've passed in id instead of s3key, change the column and params to use id
     if (queryString.hasOwnProperty('id')) {
       column = 'id';
-      params = [queryString.id];
+      value = queryString.id;
     }
 
-    const
-      query = `
-        SELECT
-          item.*,
-          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(item.geom) as geoJSON 
-        FROM 
-          ${process.env.ITEMS_TABLE} AS item,
-            
-          UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                    
-          UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-        
-        WHERE item.${column}=$1
-        AND status = true
-        GROUP BY item.s3_key
-      `;
-
-    return successResponse({ item: await db.oneOrNone(query, params) });
+    return (await getItemBy(column, value, false));
   } catch (e) {
     console.log('admin/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

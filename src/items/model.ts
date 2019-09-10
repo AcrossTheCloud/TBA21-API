@@ -86,7 +86,7 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?) => {
           ${isAdmin ? searchQuery : 'WHERE status=true'}         
               
           GROUP BY item.s3_key
-          ORDER BY  ${isAdmin ? 'item.updated_at DESC NULLS LAST' :  'item.s3_key'} 
+          ORDER BY  ${isAdmin ? 'item.updated_at DESC NULLS LAST' : 'item.s3_key'} 
   
           LIMIT $1 
           OFFSET $2 
@@ -95,6 +95,41 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?) => {
         return successResponse({ items: await db.any(query, params) });
     } catch (e) {
         console.log('items/model.get ERROR - ', e);
+        return badRequestResponse();
+    }
+};
+
+export const getItemBy = async (field, value, isAdmin: Boolean) => {
+    try {
+
+        const
+            params = [value];
+
+        const
+            query = `
+          SELECT
+            item.*,
+            COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+            COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+            ST_AsGeoJSON(item.geom) as geoJSON 
+          FROM 
+            ${process.env.ITEMS_TABLE} AS item,
+              
+            UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+              LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
+                      
+            UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+              LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
+          
+          WHERE item.${field}=$1
+          ${isAdmin ? '' : 'AND status = true'}
+          
+          GROUP BY item.s3_key
+        `;
+
+        return successResponse({ item: await db.oneOrNone(query, params) });
+    } catch (e) {
+        console.log('admin/items/items.getById ERROR - ', e);
         return badRequestResponse();
     }
 };
