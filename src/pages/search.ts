@@ -225,6 +225,9 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
         if (field === 'full_name' || field === 'country' || field === 'city' || field === 'affiliation' || field === 'profile_type') {
           // Profile only
           profilesWhereStatement.push(addToParams('profiles'));
+        } else if (field === 'concept_tag' || field === 'keyword_tag') {
+          itemsWhereStatement.push(addToParams());
+          collectionsWhereStatement.push(addToParams());
         } else if (field === 'interviewers') {
           // Collection only
           collectionsWhereStatement.push(addToParams('collections'));
