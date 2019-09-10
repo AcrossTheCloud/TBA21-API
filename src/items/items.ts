@@ -4,6 +4,7 @@ import Joi from '@hapi/joi';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
+import { getAll } from './model';
 /**
  *
  * Gets all the items
@@ -23,34 +24,10 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
     }
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues, // Use default values if not supplied.
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
-        SELECT
-          COUNT ( item.s3_key ) OVER (),
-          item.*,
-          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(item.geom) as geoJSON
-        FROM 
-          ${process.env.ITEMS_TABLE} AS item,
-            
-          UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                    
-          UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-            
-        WHERE status=true
-        
-        GROUP BY item.s3_key
-        ORDER BY item.s3_key
-        
-        LIMIT $1 
-        OFFSET $2 
-      `;
+      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues;
 
-    return successResponse({ items: await db.any(query, params) });
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false));
+
   } catch (e) {
     console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -69,9 +46,9 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
-                          s3Key: Joi.string(),
-                          id: Joi.string()
-                        })));
+        s3Key: Joi.string(),
+        id: Joi.string()
+      })));
 
     const queryString = event.queryStringParameters; // Use default values if not supplied.
 
@@ -370,10 +347,10 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
     // If we have no result at all, the item doesn't exist.
     if (result && result.tags && result.tags.rekognition_labels) {
       // Have tags, filter and map to an array
-      tags = result.tags.rekognition_labels.filter( c => c.Confidence >= confidenceLevel).map( n => n.Name);
+      tags = result.tags.rekognition_labels.filter(c => c.Confidence >= confidenceLevel).map(n => n.Name);
     }
 
-    return successResponse({ tags: tags});
+    return successResponse({ tags: tags });
 
   } catch (e) {
     console.log('/items/items.getRekognitionTags ERROR - ', !e.isJoi ? e : e.details);

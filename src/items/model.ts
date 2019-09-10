@@ -83,10 +83,10 @@ export const getAll = async (limit, offset, isAdmin: Boolean, inputQuery?) => {
             UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
               LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
               
-          ${searchQuery}         
+          ${isAdmin ? searchQuery : 'WHERE status=true'}         
               
           GROUP BY item.s3_key
-          ORDER BY item.updated_at DESC NULLS LAST
+          ORDER BY  ${isAdmin ? 'item.updated_at DESC NULLS LAST' :  'item.s3_key'} 
   
           LIMIT $1 
           OFFSET $2 
