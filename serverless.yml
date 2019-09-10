@@ -488,7 +488,7 @@ functions:
     description: Get an announcements
     events:
       - http:
-          path: src/announcements
+          path: announcements
           method: get
           cors: true
           caching:
@@ -536,7 +536,7 @@ functions:
     description: Update an announcement
     events:
       - http:
-          path: admin/announcements
+          path: contributor/announcements
           method: patch
           cors: true
           authorizer: aws_iam
@@ -546,7 +546,7 @@ functions:
     description: Insert an announcements
     events:
       - http:
-          path: admin/announcements
+          path: contributor/announcements
           method: put
           cors: true
           authorizer: aws_iam
@@ -556,8 +556,18 @@ functions:
     description: Removes an announcements
     events:
       - http:
-          path: admin/announcements
+          path: contributor/announcements
           method: delete
+          cors: true
+          authorizer: aws_iam
+
+  adminGetAnnouncement:
+    handler: src/admin/announcements/announcements.get
+    description: Removes an announcements
+    events:
+      - http:
+          path: contributor/announcements
+          method: get
           cors: true
           authorizer: aws_iam
 

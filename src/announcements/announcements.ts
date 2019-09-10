@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { badRequestResponse, successResponse } from '../common';
-import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
+import { db } from '../databaseConnect';
 
 /**
  *
@@ -13,22 +13,21 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
-                          id: Joi.number().integer().required(),
-                        })
+        id: Joi.number().integer().required()
+      })
     ));
-
-    const queryString = event.queryStringParameters;
-
     const
-      params = [queryString.id],
-      sqlStatement = `
-          SELECT *
-          FROM ${process.env.ANNOUNCEMENTS_TABLE}
-          WHERE id = $1
-          AND status = true
+      params = [event.queryStringParameters.id];
+
+    const query = `
+        SELECT *
+        FROM ${process.env.ANNOUNCEMENTS_TABLE}
+        WHERE status = true
+        AND id = $1
       `;
 
-    return successResponse({announcement: await db.oneOrNone(sqlStatement, params) });
+    return successResponse({announcement: await db.oneOrNone(query, params) });
+
   } catch (e) {
     console.log('/announcements.get ERROR - ', e);
     return badRequestResponse();
