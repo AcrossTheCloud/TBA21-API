@@ -563,7 +563,7 @@ functions:
           authorizer: aws_iam
 
   adminDeleteAnnouncement:
-    handler: src/admin/announcements/announcements.deleteById
+    handler: src/admin/announcements/announcements.deleteAnnouncement
     description: Removes an announcements
     events:
       - http:
@@ -964,7 +964,7 @@ functions:
           authorizer: aws_iam
 
   contributorDeleteAnnouncement:
-    handler: src/admin/announcements/announcements.deleteById
+    handler: src/admin/announcements/announcements.deleteAnnouncement
     description: Removes an announcements
     events:
       - http:
