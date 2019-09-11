@@ -1,4 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { get as getAllOrById } from '../../collections/model';
 import { badRequestResponse, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
@@ -18,37 +19,14 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
-        offset: Joi.number().integer()
+        offset: Joi.number().integer(),
+        id: Joi.number().integer()
       }));
 
-    const
-      defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues, // Use default values if not supplied.
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
-        SELECT
-          COUNT ( collections.id ) OVER (),
-          collections.*,
-          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(collections.geom) as geoJSON
-        FROM 
-          ${process.env.COLLECTIONS_TABLE} AS collections,
-            
-          UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
-                    
-          UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
-            
-        GROUP BY collections.id
-        ORDER BY collections.id
-        
-        LIMIT $1 
-        OFFSET $2 
-      `;
+    const isAdmin: boolean = !!event.path.match(/\/admin\//);
+    const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
-    return successResponse({ collections: await db.any(query, params) });
+    return (await getAllOrById(event.queryStringParameters, isAdmin, userId));
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

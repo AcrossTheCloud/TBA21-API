@@ -64,7 +64,7 @@ VALUES (
   'Regional focus',
   '{Atlantic Ocean}',
   '{Creators, Jacob Yeo, Tim Zerner}',
-  '{7e32b7c6-c6d3-4e70-a101-12af2df21a19}',
+  '{7e32b7c6-c6d3-4e70-a101-12af2df21a19, cfa81825-2716-41e2-a48d-8f010840b559}',
   '{Directors, Nate Sowerby, Stuart Buttigieg}',
   '{Writers, Emily Pulleine, Rhett Barker}',
   'Editor',

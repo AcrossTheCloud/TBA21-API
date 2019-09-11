@@ -1,5 +1,13 @@
-import { badRequestResponse, headers, internalServerErrorResponse, unAuthorizedRequestResponse } from '../common';
+import { APIGatewayProxyResult } from 'aws-lambda';
+import {
+  badRequestResponse,
+  headers,
+  internalServerErrorResponse,
+  successResponse,
+  unAuthorizedRequestResponse
+} from '../common';
 import { db } from '../databaseConnect';
+import { limitQuery } from '../utils/queryHelpers';
 
 export const create = async (requestBody, isAdmin: boolean) => {
   try {
@@ -190,5 +198,55 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
       console.log('src/collections/model/deleteCollection ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
+  }
+};
+
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string, id?: string): Promise<APIGatewayProxyResult> => {
+  try {
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      params = [
+        limitQuery(requestBody.limit, defaultValues.limit),
+        requestBody.offset || defaultValues.offset
+      ];
+
+    if (!isAdmin) {
+      params.push(userId);
+    }
+    if (!id) {
+      params.push(id);
+    }
+
+    const
+      query = `
+        SELECT
+          COUNT ( collections.id ) OVER (),
+          collections.*,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          ST_AsGeoJSON(collections.geom) as geoJSON
+        FROM 
+          ${process.env.COLLECTIONS_TABLE} AS collections,
+            
+          UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
+                    
+          UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
+            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
+            
+        ${!isAdmin ? `WHERE $3::uuid = ANY( contributors )` : ''} 
+        ${id ? `${!isAdmin ? 'AND' : 'WHERE'} contributors @> $3::uuid` : ''} 
+            
+        GROUP BY collections.id
+        ORDER BY collections.id
+        
+        LIMIT $1 
+        OFFSET $2 
+      `;
+
+    return successResponse({ collections: await db.any(query, params) });
+  } catch (e) {
+    console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
   }
 };
