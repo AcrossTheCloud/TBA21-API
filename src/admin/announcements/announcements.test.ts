@@ -5,7 +5,7 @@ require('dotenv').config(
   }
 );
 import { QueryStringParameters } from '../../types/_test_';
-import { APIGatewayProxyEvent, Context } from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { reSeedDatabase } from '../../utils/testHelper';
 import { db } from '../../databaseConnect';
 import { insert, update, deleteAnnouncement, get } from './announcements';
@@ -25,9 +25,40 @@ describe('admin/announcements', () => {
         'description': 'new description'
       },
       body: string = JSON.stringify(requestBody),
-      response = await insert({ body } as APIGatewayProxyEvent),
+      response = await insert({ body, path: '/admin/announcements', requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
+          }
+        }} as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
     expect(responseBody.id).toEqual('4');
+  });
+
+  test('insert announcement by a Contributor and expect the status to be false.', async () => {
+    const
+      requestBody = {
+        'title': 'new title',
+        'description': 'new description'
+      },
+      body: string = JSON.stringify(requestBody),
+      response = await insert({ body, path: '/contributor/announcements', requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
+          }
+        }} as APIGatewayProxyEvent),
+      responseBody = JSON.parse(response.body);
+
+    const
+      queryStringParameters: QueryStringParameters = { id: responseBody.id },
+      getBody = await get({ queryStringParameters, path: '/contributor/announcements', requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
+          }
+        }} as APIGatewayProxyEvent),
+      result = JSON.parse(getBody.body);
+
+    expect(result.announcements[0].status).toEqual(false);
+
   });
   test('Change the status of an announcement', async () => {
     const
@@ -69,7 +100,7 @@ describe('admin/announcements', () => {
           identity: {
             cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
           }
-        }} as APIGatewayProxyEvent, {} as Context),
+        }} as APIGatewayProxyEvent),
       result = JSON.parse(response.body);
 
     expect(result.announcements.length).toEqual(3);
@@ -82,7 +113,7 @@ describe('admin/announcements', () => {
           identity: {
             cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
           }
-        }} as APIGatewayProxyEvent, {} as Context),
+        }} as APIGatewayProxyEvent),
       result = JSON.parse(response.body);
 
     expect(result.announcements.length).toEqual(1);
@@ -95,7 +126,7 @@ describe('admin/announcements', () => {
           identity: {
             cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
           }
-        }} as APIGatewayProxyEvent, {} as Context),
+        }} as APIGatewayProxyEvent),
       result = JSON.parse(response.body);
 
     expect(result.announcements.length).toEqual(3);
@@ -107,7 +138,7 @@ describe('admin/announcements', () => {
           identity: {
             cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
           }
-        }} as APIGatewayProxyEvent, {} as Context),
+        }} as APIGatewayProxyEvent),
       result = JSON.parse(response.body);
 
     expect(result.announcements.length).toEqual(1);

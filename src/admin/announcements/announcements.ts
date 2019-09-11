@@ -1,8 +1,8 @@
-import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { badRequestResponse, headers } from '../../common';
 import Joi from '@hapi/joi';
-import { getAnnouncement } from './model';
+import { getAnnouncement, insertAnnouncement } from './model';
 import { limitQuery } from '../../utils/queryHelpers';
 
 /**
@@ -13,7 +13,10 @@ import { limitQuery } from '../../utils/queryHelpers';
  */
 export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const data = JSON.parse(event.body);
+    const
+      data = JSON.parse(event.body),
+      isAdmin: boolean = !!event.path.match(/\/admin\//),
+      userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
     await Joi.validate(data, Joi.object().keys(
       {
@@ -22,35 +25,9 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         status: Joi.boolean(),
         url: Joi.string()
       }));
-    let paramCounter = 0;
 
-    const
-      params = [],
-      sqlFields: string[] = Object.keys(data).map((key) => {
-        return `${key}`;
-      }),
-      sqlParams: string[] = Object.keys(data).map((key) => {
-        params[paramCounter++] = data[key];
-        return `$${paramCounter}`;
-      });
+    return (await insertAnnouncement(isAdmin, data, userId));
 
-    sqlFields.push('created_at', 'status');
-    sqlParams.push('now()', 'false');
-
-    const
-      query = `
-        INSERT INTO ${process.env.ANNOUNCEMENTS_TABLE} (${[...sqlFields]}) 
-        VALUES (${[...sqlParams]}) 
-        RETURNING id;
-      ;`;
-
-    const insertResult = await db.one(query, params);
-
-    return {
-      body: JSON.stringify({ success: true, ...insertResult }),
-      headers: headers,
-      statusCode: 200
-    };
   } catch (e) {
     console.log('admin/announcements.insert ERROR - ', e);
     return badRequestResponse();
@@ -156,7 +133,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     }
   }
 };
-export const get = async(event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const get = async(event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
@@ -172,6 +149,8 @@ export const get = async(event: APIGatewayEvent, context: Context): Promise<APIG
       params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
       isAdmin: boolean = !!event.path.match(/\/admin\//),
       userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+
+    console.log('aaaa', queryString);
 
     return (await getAnnouncement(isAdmin, params, userId, id));
 
