@@ -22,6 +22,13 @@ describe('src/announcements', () => {
       queryStringParameters: QueryStringParameters = {id: '1'},
       response = await get({queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.announcement.id).toEqual('1');
+    expect(results.announcements[0].id).toEqual('1');
+  });
+  test('Get all announcement', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {},
+      response = await get({queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+    expect(results.announcements.length).toEqual(2);
   });
 });

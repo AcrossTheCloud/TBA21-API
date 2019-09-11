@@ -301,7 +301,9 @@ CREATE TABLE tba21.announcements
   description varchar (256),
   url varchar(2048),
   created_at timestamp with time zone NOT NULL,
-  status boolean
+  status boolean,
+  contributor uuid
+
 );
 
 -- Geo stuff

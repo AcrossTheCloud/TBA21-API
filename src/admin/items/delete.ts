@@ -13,7 +13,7 @@ import { deleteItm } from '../../items/model';
 export const deleteItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     const queryString = event.queryStringParameters;
-    const isAdmin: boolean = !!event.path.match(/\/admin\//);
+    const isAdmin: boolean = !!event.path.match(/admin\/items/i);
     const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
     return (await deleteItm(String(queryString.s3Key), isAdmin, userId));

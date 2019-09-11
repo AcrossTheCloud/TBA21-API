@@ -481,22 +481,6 @@ functions:
           cors: true
           authorizer: aws_iam
 
-
-  ### Announcements
-  getAnnouncement:
-    handler: src/announcements/announcements.get
-    description: Get an announcements
-    events:
-      - http:
-          path: src/announcements
-          method: get
-          cors: true
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-
-
   homepage:
     handler: src/pages/homepage.get
     description:
@@ -516,11 +500,46 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+  searchPost:
+    handler: src/pages/search.post
+    description:
+    events:
+      - http:
+          path: pages/search
+          method: post
+          cors: true
+          authorizer: aws_iam
 
+
+  ### Announcements
+  getAnnouncement:
+    handler: src/announcements/announcements.get
+    description: Get an announcements
+    events:
+      - http:
+          path: announcements
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+              - name: request.querystring.limit
+              - name: request.querystring.offset
 
   ###### ADMIN FUNCTIONS ######
 
   ### Announcements
+
+  adminGetAnnouncements:
+    handler: src/admin/announcements/announcements.get
+    description: Get an announcements
+    events:
+      - http:
+          path: admin/announcements
+          method: get
+          cors: true
+          authorizer: aws_iam
 
   adminUpdateAnnouncement:
     handler: src/admin/announcements/announcements.update
@@ -543,7 +562,7 @@ functions:
           authorizer: aws_iam
 
   adminDeleteAnnouncement:
-    handler: src/admin/announcements/announcements.deleteById
+    handler: src/admin/announcements/announcements.deleteAnnouncement
     description: Removes an announcements
     events:
       - http:
@@ -639,19 +658,20 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.tag
 #
-#  adminGetCollectionsByPerson:
-#    handler: src/admin/collections/collections.getByPerson
-#    description: Returns collection by person from the database.
-#    events:
-#      - http:
-#          path: admin/collections/getByPerson
-#          method: get
-#          cors: true
-#          authorizer: aws_iam
-#          caching:
-#            enabled: true
-#            cacheKeyParameters:
-#              - name: request.querystring.person
+  adminGetCollectionsByPerson:
+    handler: src/admin/collections/collections.getByPerson
+    description: Returns collection by person from the database.
+    events:
+      - http:
+          path: admin/collections/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+              - name: request.querystring.uuid
 
   adminDeleteCollection:
     handler: src/admin/collections/delete.deleteById
@@ -747,19 +767,19 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.type
 #
-#  adminItemsByPerson:
-#    handler: src/admin/items/items.getByPerson
-#    description: Returns items by person from the database.
-#    events:
-#      - http:
-#          path: admin/items/getByPerson
-#          method: get
-#          cors: true
-#          authorizer: aws_iam
-#          caching:
-#            enabled: true
-#            cacheKeyParameters:
-#              - name: request.querystring.person
+  adminItemsByPerson:
+    handler: src/admin/items/items.getAllMine
+    description: Returns items by person from the database.
+    events:
+      - http:
+          path: admin/items/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
 
   adminUpdateItem:
     handler: src/admin/items/update.updateByS3key
@@ -879,5 +899,80 @@ functions:
       - http:
           path: contributor/items # ..but different path
           method: delete
+          cors: true
+          authorizer: aws_iam
+
+  contributorGetCollectionsByPerson:
+    handler: src/admin/collections/collections.getByPerson
+    description: Returns collection by person from the database.
+    events:
+      - http:
+          path: contributor/collections/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.person
+              - name: request.querystring.uuid
+
+  contributorItemsByPerson:
+    handler: src/admin/items/items.getAllMine
+    description: Returns items by person from the database.
+    events:
+      - http:
+          path: contributor/items/getByPerson
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  contributorGetAnnouncement:
+    handler: src/admin/announcements/announcements.get
+    description: Get an announcement
+    events:
+      - http:
+          path: contributor/announcements
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  contributorUpdateAnnouncement:
+    handler: src/admin/announcements/announcements.update
+    description: Update an announcement
+    events:
+      - http:
+          path: contributor/announcements
+          method: patch
+          cors: true
+          authorizer: aws_iam
+
+  contributorInsertAnnouncement:
+    handler: src/admin/announcements/announcements.insert
+    description: Insert an announcements
+    events:
+      - http:
+          path: contributor/announcements
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  contributorDeleteAnnouncement:
+    handler: src/admin/announcements/announcements.deleteAnnouncement
+    description: Removes an announcements
+    events:
+      - http:
+          path: contributor/announcements
+          method: delete
+          cors: true
+          authorizer: aws_iam
+
+  ContributorGetItem:
+    handler: src/admin/items/items.getItem
+    description: Returns items s3 key or id from the database.
+    events:
+      - http:
+          path: contributor/items/getItem
+          method: get
           cors: true
           authorizer: aws_iam

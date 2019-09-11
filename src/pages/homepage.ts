@@ -28,7 +28,6 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     };
 
     await Joi.validate(eventParams, Joi.object().keys({
-      announcement: Joi.boolean(),
       itemsLimit: Joi.number().integer(),
       collectionsLimit: Joi.number().integer(),
       oaHighlightLimit: Joi.number().integer(),
@@ -55,18 +54,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       `;
       params.push(date);
     }
-    if (queryString.announcement && queryString.announcement === 'true') {
-      const announcementsQuery = `
-        SELECT * 
-        FROM ${process.env.ANNOUNCEMENTS_TABLE}
-        $4:raw
-        AND status = true
-        LIMIT 1
-      `;
-      return successResponse({
-         announcements: await db.any(announcementsQuery, params)
-       });
-    }
+
     if (queryString.oa_highlight && queryString.oa_highlight === 'true') {
 
      const oaHighlightQuery = `
@@ -173,7 +161,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
       // Remove all collections without an item.
       collections = collections.filter(c => c.s3_key && c.s3_key.length);
-    
+
       if (collections.length) {
         for (let i = 0; i < collections.length; i++) {
           let s3Key = collections[i].s3_key;

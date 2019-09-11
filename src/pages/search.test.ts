@@ -3,10 +3,9 @@ require('dotenv').config(
     DEBUG: true
   });
 
-import { MultiQueryStringParameters, QueryStringParameters } from '../types/_test_';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { db } from '../databaseConnect';
-import { get } from './search';
+import { post } from './search';
 
 describe('search tests', () => {
 
@@ -16,29 +15,26 @@ afterAll( () => {
 });
 test('limit the items we get from search function', async () => {
     const
-      queryStringParameters: QueryStringParameters = {limit: '5'},
-      multiValueQueryStringParameters: MultiQueryStringParameters = {searchQuery: ['a']},
-      response = await get({ multiValueQueryStringParameters, queryStringParameters } as APIGatewayProxyEvent),
+      requestBody = {limit: '1', criteria: [{field : 'subtitle', value: 'subtitle'}]},
+      body: string = JSON.stringify(requestBody),
+      response = await post({ body } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(0);
-    expect(results.collections.length).toEqual(2);
+    expect(results.results.length).toEqual(2);
   });
-test('Get items from search function with multiple searchQueries', async () => {
+test('Get items from search function with multiple criteria', async () => {
     const
-      queryStringParameters: QueryStringParameters = {limit: '5'},
-      multiValueQueryStringParameters: MultiQueryStringParameters = {searchQuery: ['a', 'b']},
-      response = await get({ multiValueQueryStringParameters, queryStringParameters } as APIGatewayProxyEvent),
+      requestBody = {limit: '5', criteria: [{field : 'subtitle', value: 'subtitle'}, {field : 'title', value: 'Detonation'}]},
+      body: string = JSON.stringify(requestBody),
+      response = await post({ body } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(0);
-    expect(results.collections.length).toEqual(2);
+    expect(results.results.length).toEqual(5);
   });
-test('Get items from search function with multiple searchQueries and focus', async () => {
+test('Get items from search function with multiple criteria and focus', async () => {
     const
-      queryStringParameters: QueryStringParameters = {limit: '10', focus_arts: 'true', focus_scitech: 'true'},
-      multiValueQueryStringParameters: MultiQueryStringParameters = {searchQuery: ['a', 'b']},
-      response = await get({ multiValueQueryStringParameters, queryStringParameters } as APIGatewayProxyEvent),
+      requestBody = {limit: '10', focus_arts: 'true', criteria: [{field : 'title', value: 'Detonation'}]},
+      body: string = JSON.stringify(requestBody),
+      response = await post({ body } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(0);
-    expect(results.collections.length).toEqual(0);
+    expect(results.results.length).toEqual(1);
   });
 });

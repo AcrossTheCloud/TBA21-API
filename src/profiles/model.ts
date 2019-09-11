@@ -79,7 +79,7 @@ export const insertProfile = async (requestBody, isAdmin: boolean) => {
  * @param isAdmin
  * @param userId
  */
-export const updateProfile = async (requestBody, isAdmin: Boolean, userId?: String) => {
+export const updateProfile = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
     let paramCounter = 0;
     const params = [];
@@ -129,7 +129,7 @@ export const updateProfile = async (requestBody, isAdmin: Boolean, userId?: Stri
  * @param isAdmin
  * @param userId
  */
-export const deleteUserProfile = async (isAdmin: Boolean, userId: String) => {
+export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
   try {
     if ((userId && isAdmin) || (userId)) {
       const
