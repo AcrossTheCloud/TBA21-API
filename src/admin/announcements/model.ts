@@ -47,7 +47,8 @@ export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string 
 export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, id?: string ) => {
   try {
     let query = `
-        SELECT *
+        SELECT *,
+        COUNT ( id ) OVER ()
         FROM ${process.env.ANNOUNCEMENTS_TABLE}
         ${id ? `WHERE id = ${id}` : ''}
         LIMIT $1
@@ -56,7 +57,8 @@ export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, 
 
     if (!isAdmin) {
       query = `
-        SELECT *
+        SELECT *,
+        COUNT ( id ) OVER ()
         FROM ${process.env.ANNOUNCEMENTS_TABLE}
         WHERE contributor = '${userId}'
         ${id ? `AND id = ${id}` : ''}

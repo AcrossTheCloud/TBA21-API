@@ -150,8 +150,6 @@ export const get = async(event: APIGatewayEvent): Promise<APIGatewayProxyResult>
       isAdmin: boolean = !!event.path.match(/\/admin\//),
       userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
-    console.log('aaaa', queryString);
-
     return (await getAnnouncement(isAdmin, params, userId, id));
 
   } catch (e) {
