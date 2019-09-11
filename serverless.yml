@@ -933,18 +933,15 @@ functions:
               - name: request.querystring.person
               - name: request.querystring.uuid
 
-  contributorGetAnnouncements:
-    handler: src/announcements/announcements.get
-    description: Get an announcements
+  contributorUpdateAnnouncement:
+    handler: src/admin/announcements/announcements.update
+    description: Update an announcement
     events:
       - http:
-          path: contributor/announcements
-          method: get
+          path: admin/announcements
+          method: patch
           cors: true
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
+          authorizer: aws_iam
 
   contributorUpdateAnnouncement:
     handler: src/admin/announcements/announcements.update
