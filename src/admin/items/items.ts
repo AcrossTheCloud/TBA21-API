@@ -57,16 +57,22 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
       column = 's3_key',
       value = queryString.s3Key;
 
+    const isAdmin: boolean = !!event.path.match(/\/admin\//);
+    const isContributor: boolean = !!event.path.match(/\/contributor\//);
+    const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+
     // If we've passed in id instead of s3key, change the column and params to use id
     if (queryString.hasOwnProperty('id')) {
       column = 'id';
       value = queryString.id;
     }
 
-    return (await getItemBy(column, value, true));
+    console.log('isContributor', isContributor, userId);
+
+    return (await getItemBy(column, value, isAdmin, isContributor, userId));
 
   } catch (e) {
-    console.log('admin/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
+    console.log('admin/items/items.getItem ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

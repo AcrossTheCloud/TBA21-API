@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
-import { get, getAllMine, getItem, getByTag, getByType } from './items';
+import { get, getItem, getByTag, getByType, getAllMine } from './items';
 
 describe('Admin Items', () => {
   afterAll( () => {
@@ -109,7 +109,7 @@ describe('Admin Items', () => {
   test('Get items by their person', async () => {
     const
       queryStringParameters: QueryStringParameters = {},
-      response = await getAllMine({ queryStringParameters, path: 'contributor/items/getByPerson', requestContext: {
+      response = await getAllMine({ queryStringParameters, path: '/contributor/items/getByPerson', requestContext: {
           identity: {
             cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
           }
@@ -117,5 +117,18 @@ describe('Admin Items', () => {
       result = JSON.parse(response.body);
 
     expect(result.items.length).toEqual(2);
+  });
+
+  test('Contributor get item by id', async () => {
+    const
+      queryStringParameters: QueryStringParameters = { id: '2'},
+      response = await getItem({ queryStringParameters, path: '/contributor/items/getItem', requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
+          }
+        }} as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+
+    expect(result.item.id).toEqual("2");
   });
 });
