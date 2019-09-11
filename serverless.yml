@@ -481,22 +481,6 @@ functions:
           cors: true
           authorizer: aws_iam
 
-
-  ### Announcements
-  getAnnouncement:
-    handler: src/announcements/announcements.get
-    description: Get an announcements
-    events:
-      - http:
-          path: announcements
-          method: get
-          cors: true
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
-
-
   homepage:
     handler: src/pages/homepage.get
     description:
@@ -527,16 +511,43 @@ functions:
           authorizer: aws_iam
 
 
+  ### Announcements
+  getAnnouncement:
+    handler: src/announcements/announcements.get
+    description: Get an announcements
+    events:
+      - http:
+          path: announcements
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+
   ###### ADMIN FUNCTIONS ######
 
   ### Announcements
+
+  adminGetAnnouncements:
+    handler: src/announcements/announcements.get
+    description: Get an announcements
+    events:
+      - http:
+          path: admin/announcements
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
 
   adminUpdateAnnouncement:
     handler: src/admin/announcements/announcements.update
     description: Update an announcement
     events:
       - http:
-          path: contributor/announcements
+          path: admin/announcements
           method: patch
           cors: true
           authorizer: aws_iam
@@ -546,7 +557,7 @@ functions:
     description: Insert an announcements
     events:
       - http:
-          path: contributor/announcements
+          path: admin/announcements
           method: put
           cors: true
           authorizer: aws_iam
@@ -556,18 +567,8 @@ functions:
     description: Removes an announcements
     events:
       - http:
-          path: contributor/announcements
+          path: admin/announcements
           method: delete
-          cors: true
-          authorizer: aws_iam
-
-  adminGetAnnouncement:
-    handler: src/admin/announcements/announcements.get
-    description: Removes an announcements
-    events:
-      - http:
-          path: contributor/announcements
-          method: get
           cors: true
           authorizer: aws_iam
 
@@ -931,3 +932,46 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.person
               - name: request.querystring.uuid
+
+  contributorGetAnnouncements:
+    handler: src/announcements/announcements.get
+    description: Get an announcements
+    events:
+      - http:
+          path: contributor/announcements
+          method: get
+          cors: true
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.id
+
+  contributorUpdateAnnouncement:
+    handler: src/admin/announcements/announcements.update
+    description: Update an announcement
+    events:
+      - http:
+          path: contributor/announcements
+          method: patch
+          cors: true
+          authorizer: aws_iam
+
+  contributorInsertAnnouncement:
+    handler: src/admin/announcements/announcements.insert
+    description: Insert an announcements
+    events:
+      - http:
+          path: contributor/announcements
+          method: put
+          cors: true
+          authorizer: aws_iam
+
+  contributorDeleteAnnouncement:
+    handler: src/admin/announcements/announcements.deleteById
+    description: Removes an announcements
+    events:
+      - http:
+          path: contributor/announcements
+          method: delete
+          cors: true
+          authorizer: aws_iam
