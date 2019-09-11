@@ -530,7 +530,7 @@ functions:
   ### Announcements
 
   adminGetAnnouncements:
-    handler: src/announcements/announcements.get
+    handler: src/admin/announcements/announcements.get
     description: Get an announcements
     events:
       - http:
