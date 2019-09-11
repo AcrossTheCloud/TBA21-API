@@ -16,13 +16,11 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
       event.queryStringParameters = {};
     }
 
-    await Joi.validate(event.queryStringParameters,
-      Joi.object().keys({
-        id: Joi.number().integer(),
-        limit: Joi.number().integer(),
-        offset: Joi.number().integer()
-      })
-    );
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      id: Joi.number().integer(),
+      limit: Joi.number().integer(),
+      offset: Joi.number().integer()
+    }));
 
     const
       queryString = event.queryStringParameters,
