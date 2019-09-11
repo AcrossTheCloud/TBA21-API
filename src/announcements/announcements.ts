@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { badRequestResponse, successResponse } from '../common';
 import Joi from '@hapi/joi';
 import { db } from '../databaseConnect';
+import { limitQuery } from '../utils/queryHelpers';
 
 /**
  *
@@ -11,22 +12,38 @@ import { db } from '../databaseConnect';
  */
 export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+    if (!event.queryStringParameters) {
+      event.queryStringParameters = {};
+    }
+
+    await Joi.validate(event.queryStringParameters,
       Joi.object().keys({
-        id: Joi.number().integer().required()
+        id: Joi.number().integer(),
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer()
       })
-    ));
+    );
+
     const
-      params = [event.queryStringParameters.id];
+      queryString = event.queryStringParameters,
+      defaultValues = { limit: 15, offset: 0 },
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+
+    if (queryString.id) {
+      params.push(queryString.id);
+    }
 
     const query = `
         SELECT *
         FROM ${process.env.ANNOUNCEMENTS_TABLE}
         WHERE status = true
-        AND id = $1
+        ${queryString.id ? 'AND id = $3' : ''}
+        ORDER BY created_at DESC
+        LIMIT $1
+        OFFSET $2
       `;
 
-    return successResponse({announcement: await db.oneOrNone(query, params) });
+    return successResponse({announcements: await db.manyOrNone(query, params) });
 
   } catch (e) {
     console.log('/announcements.get ERROR - ', e);

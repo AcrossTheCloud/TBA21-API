@@ -135,13 +135,13 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 };
 export const get = async(event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+    await Joi.validate(event.queryStringParameters,
       Joi.object().keys({
         id: Joi.number().integer(),
         limit: Joi.number().integer(),
         offset: Joi.number().integer()
       })
-    ));
+    );
     const
       queryString = event.queryStringParameters,
       id = queryString.id ? queryString.id : undefined,
