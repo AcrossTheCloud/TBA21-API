@@ -182,15 +182,6 @@ functions:
               - name: request.querystring.s3Key
               - name: request.querystring.id
 
-  getContributorItem:
-    handler: src/admin/items/items.getItem
-    description: Returns items s3 key or id from the database.
-    events:
-      - http:
-          path: contributor/items/getItem
-          method: get
-          cors: true
-
 #  getItemsByTag:
 #    handler: src/items/items.getByTag
 #    description: Returns items by tag from the database.
@@ -975,3 +966,13 @@ functions:
           method: delete
           cors: true
           authorizer: aws_iam
+
+  ContributorGetItem:
+    handler: src/admin/items/items.getItem
+    description: Returns items s3 key or id from the database.
+    events:
+      - http:
+          path: contributor/items/getItem
+          method: get
+          cors: true
+            authorizer: aws_iam
