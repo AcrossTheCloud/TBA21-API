@@ -625,7 +625,7 @@ functions:
     description: Returns a collection by ID or all collections owned by X from the database.
     events:
       - http:
-          path: admin/collections/get
+          path: contributor/collections/get
           method: get
           cors: true
           authorizer: aws_iam
