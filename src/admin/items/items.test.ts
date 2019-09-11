@@ -65,14 +65,14 @@ describe('Admin Items', () => {
   test('Get item with a specific s3 key', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg'},
-      response = await getItem({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await getItem({ queryStringParameters, path: '/admin/get'} as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
     expect(result.item.s3_key).toEqual('private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg');
   });
   test('Get item by its id', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '1'},
-      response = await getItem({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await getItem({ queryStringParameters, path: '/admin/get' } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
     expect(result.item.id).toEqual('1');
   });
