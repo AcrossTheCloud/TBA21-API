@@ -127,7 +127,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
   }
 };
 
-export const getItemBy = async (field, value, isAdmin: boolean, isContributor: boolean, userId?: string) => {
+export const getItemBy = async (field, value, isAdmin: boolean = false, isContributor: boolean = false, userId?: string) => {
   try {
     const
       params = [value];

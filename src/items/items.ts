@@ -62,7 +62,7 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
       value = queryString.id;
     }
 
-    return (await getItemBy(column, value, false));
+    return (await getItemBy(column, value));
   } catch (e) {
     console.log('admin/items/items.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
