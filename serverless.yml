@@ -933,13 +933,13 @@ functions:
               - name: request.querystring.person
               - name: request.querystring.uuid
 
-  contributorUpdateAnnouncement:
-    handler: src/admin/announcements/announcements.update
-    description: Update an announcement
+  contributorGetAnnouncement:
+    handler: src/admin/announcements/announcements.get
+    description: Get an announcement
     events:
       - http:
-          path: admin/announcements
-          method: patch
+          path: contributor/announcements
+          method: get
           cors: true
           authorizer: aws_iam
 
