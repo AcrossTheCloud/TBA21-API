@@ -19,6 +19,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       {
         title: Joi.string().required(),
         description: Joi.string().required(),
+        status: Joi.boolean(),
         url: Joi.string()
       }));
     let paramCounter = 0;
@@ -61,7 +62,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ * @returns { Promise<APIGatewayProxyResult> }se
  */
 export const deleteAnnouncement = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {

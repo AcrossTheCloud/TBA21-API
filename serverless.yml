@@ -537,10 +537,7 @@ functions:
           path: admin/announcements
           method: get
           cors: true
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.id
+          authorizer: aws_iam
 
   adminUpdateAnnouncement:
     handler: src/admin/announcements/announcements.update
