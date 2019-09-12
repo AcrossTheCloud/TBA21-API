@@ -9,6 +9,8 @@ export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string 
       Object.assign(data, {'status': false, 'contributor': `${userId}`});
     }
 
+    Object.assign(data, {'contributor': `${userId}`});
+
     const
       params = [],
       sqlFields: string[] = Object.keys(data).map((key) => {
@@ -51,6 +53,7 @@ export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, 
         COUNT ( id ) OVER ()
         FROM ${process.env.ANNOUNCEMENTS_TABLE}
         ${id ? `WHERE id = ${id}` : ''}
+        ORDER BY created_at DESC
         LIMIT $1
         OFFSET $2
           `;
@@ -62,6 +65,7 @@ export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, 
         FROM ${process.env.ANNOUNCEMENTS_TABLE}
         WHERE contributor = '${userId}'
         ${id ? `AND id = ${id}` : ''}
+        ORDER BY created_at DESC
         LIMIT $1
         OFFSET $2
           `;

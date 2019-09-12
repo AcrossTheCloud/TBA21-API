@@ -1,19 +1,25 @@
-import { badRequestResponse, headers, internalServerErrorResponse, successResponse, unAuthorizedRequestResponse } from '../common';
+import {
+  badRequestResponse,
+  headers,
+  internalServerErrorResponse,
+  successResponse,
+  unAuthorizedRequestResponse
+} from '../common';
 import { db } from '../databaseConnect';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 
 export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
-    try {
+  try {
 
-        const
-            params = [limit, offset];
+    const
+      params = [limit, offset];
 
-        let searchQuery = '';
+    let searchQuery = '';
 
-        if (isAdmin && inputQuery && inputQuery.length > 0) {
-            params.push(inputQuery);
+    if (isAdmin && inputQuery && inputQuery.length > 0) {
+      params.push(inputQuery);
 
-            searchQuery = `
+      searchQuery = `
             WHERE 
               LOWER(title) LIKE '%' || LOWER($3) || '%' OR
               LOWER(original_title) LIKE '%' || LOWER($3) || '%' OR
@@ -63,19 +69,19 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
               LOWER(concept_tag.tag_name) LIKE '%' || LOWER($3) || '%' OR
               LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($3) || '%' 
           `;
-        }
-        if (byField && byField.match(/(tag|type|person)/)) {
-            params.push(fieldValue);
-        }
+    }
+    if (byField && byField.match(/(tag|type|person)/)) {
+      params.push(fieldValue);
+    }
 
-        if (userId) {
-            params.push(userId);
-        }
+    if (userId) {
+      params.push(userId);
+    }
 
-        const conditionsLinker = (!isAdmin || searchQuery.length > 0) ? 'AND' : 'WHERE';
+    const conditionsLinker = (!isAdmin || searchQuery.length > 0) ? 'AND' : 'WHERE';
 
-        const
-            query = `
+    const
+      query = `
           SELECT
             COUNT ( item.s3_key ) OVER (),
             item.*,
@@ -93,17 +99,17 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
           ${isAdmin ? searchQuery : 'WHERE status=true'}
 
-          ${ userId ? ` WHERE contributor = $${params.length}::uuid ` : ''}
+          ${userId ? ` WHERE contributor = $${params.length}::uuid ` : ''}
           
-          ${ (byField === 'tag') ? ` ${conditionsLinker} (
+          ${(byField === 'tag') ? ` ${conditionsLinker} (
             LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
             OR
             LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
           )` : ''}
 
-          ${ (byField === 'type') ? ` ${conditionsLinker} (item.item_type::varchar = $${params.length})` : ''}
+          ${(byField === 'type') ? ` ${conditionsLinker} (item.item_type::varchar = $${params.length})` : ''}
 
-          ${ (byField === 'person') ? ` ${conditionsLinker} ( 
+          ${(byField === 'person') ? ` ${conditionsLinker} ( 
             LOWER(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) LIKE '%' || LOWER($${params.length}) || '%' 
           )` : ''}
               
@@ -114,21 +120,20 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
           OFFSET $2 
         `;
 
-        return successResponse({ items: await db.any(query, params) });
-    } catch (e) {
-        console.log('items/model.get ERROR - ', e);
-        return badRequestResponse();
-    }
+    return successResponse({items: await db.any(query, params)});
+  } catch (e) {
+    console.log('items/model.get ERROR - ', e);
+    return badRequestResponse();
+  }
 };
 
-export const getItemBy = async (field, value, isAdmin: boolean) => {
-    try {
+export const getItemBy = async (field, value, isAdmin: boolean = false, isContributor: boolean = false, userId?: string) => {
+  try {
+    const
+      params = [value];
 
-        const
-            params = [value];
-
-        const
-            query = `
+    const
+      query = `
           SELECT
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
@@ -144,139 +149,140 @@ export const getItemBy = async (field, value, isAdmin: boolean) => {
               LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
           
           WHERE item.${field}=$1
-          ${isAdmin ? '' : 'AND status = true'}
+          ${(isAdmin || userId) ? '' : 'AND status = true'}
+          ${isContributor && userId ? ` AND contributor = '${userId}'::uuid ` : ''}
 
           GROUP BY item.s3_key
         `;
 
-        return successResponse({ item: await db.oneOrNone(query, params) });
-    } catch (e) {
-        console.log('admin/items/items.getById ERROR - ', e);
-        return badRequestResponse();
-    }
+    return successResponse({item: await db.oneOrNone(query, params)});
+  } catch (e) {
+    console.log('admin/items/items.getById ERROR - ', e);
+    return badRequestResponse();
+  }
 };
 
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
-    try {
+  try {
 
-        let message: string = '';
-        if (requestBody.hasOwnProperty('status')) {
-            // Change the s3 level to Private or Public
-            const levelResponse = await changeS3ProtectionLevel(requestBody.s3_key, requestBody.status ? 'public-read' : 'private');
-            if (!levelResponse) {
-                // If we fail to set the level, console log
-                console.log(`Error updating S3 Protection Level for ${requestBody.s3_key}`);
+    let message: string = '';
+    if (requestBody.hasOwnProperty('status')) {
+      // Change the s3 level to Private or Public
+      const levelResponse = await changeS3ProtectionLevel(requestBody.s3_key, requestBody.status ? 'public-read' : 'private');
+      if (!levelResponse) {
+        // If we fail to set the level, console log
+        console.log(`Error updating S3 Protection Level for ${requestBody.s3_key}`);
 
-                message = 'Couldn\'t set access level on file, this item has now been unpublished.';
-                // and set the level to unpublished.
-                requestBody.status = false;
-            }
-        }
+        message = 'Couldn\'t set access level on file, this item has now been unpublished.';
+        // and set the level to unpublished.
+        requestBody.status = false;
+      }
+    }
 
-        if (requestBody.keyword_tags) {
-            requestBody.keyword_tags = requestBody.keyword_tags.map(t => parseInt(t, 0));
-        }
-        if (requestBody.concept_tags) {
-            requestBody.concept_tags = requestBody.concept_tags.map(t => parseInt(t, 0));
-        }
+    if (requestBody.keyword_tags) {
+      requestBody.keyword_tags = requestBody.keyword_tags.map(t => parseInt(t, 0));
+    }
+    if (requestBody.concept_tags) {
+      requestBody.concept_tags = requestBody.concept_tags.map(t => parseInt(t, 0));
+    }
 
-        let paramCounter = 0;
+    let paramCounter = 0;
 
-        // NOTE: contributor is inserted on create, uuid from claims
-        const params = [];
+    // NOTE: contributor is inserted on create, uuid from claims
+    const params = [];
 
-        params[paramCounter++] = requestBody.s3_key;
-        // pushed into from SQL SET map
-        // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
-        const SQL_SETS: string[] = Object.keys(requestBody)
-            .filter(e => (e !== 's3_key')) // remove s3_key
-            .map((key) => {
-                params[paramCounter++] = requestBody[key];
-                return `${key}=$${paramCounter}`;
-            });
-        let query = `UPDATE ${process.env.ITEMS_TABLE}
+    params[paramCounter++] = requestBody.s3_key;
+    // pushed into from SQL SET map
+    // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
+    const SQL_SETS: string[] = Object.keys(requestBody)
+      .filter(e => (e !== 's3_key')) // remove s3_key
+      .map((key) => {
+        params[paramCounter++] = requestBody[key];
+        return `${key}=$${paramCounter}`;
+      });
+    let query = `UPDATE ${process.env.ITEMS_TABLE}
             SET 
               updated_at='${new Date().toISOString()}',
               ${SQL_SETS.join(', ')}
           WHERE s3_key = $1 `;
 
-        if (!isAdmin) {
-            params[paramCounter++] = userId;
-            query += ` and contributor = $${paramCounter} `;
-        }
-
-        query += ` returning s3_key, status, id;`;
-
-        if (SQL_SETS.length) {
-            const result = await db.oneOrNone(query, params);
-            if (!result) {
-                throw new Error('unauthorized');
-            }
-
-            const bodyResponse = {
-                success: true,
-                updated_key: result.s3_key,
-                id: result.id
-            };
-            // If we have a message, add it to the response.
-            if (message.length > 1) {
-                Object.assign(bodyResponse, { message: message, success: false });
-            }
-
-            return {
-                body: JSON.stringify(bodyResponse),
-                headers: headers,
-                statusCode: 200
-            };
-        } else {
-            throw new Error('Nothing to update');
-        }
-    } catch (e) {
-        if ((e.message === 'Nothing to update')) {
-            return successResponse(e.message);
-        } else if (e.message === 'unauthorized') {
-            return unAuthorizedRequestResponse('You are not a contributor for this item');
-        } else {
-            console.log('/items/model/update ERROR - ', e);
-            return internalServerErrorResponse();
-        }
+    if (!isAdmin) {
+      params[paramCounter++] = userId;
+      query += ` and contributor = $${paramCounter} `;
     }
+
+    query += ` returning s3_key, status, id;`;
+
+    if (SQL_SETS.length) {
+      const result = await db.oneOrNone(query, params);
+      if (!result) {
+        throw new Error('unauthorized');
+      }
+
+      const bodyResponse = {
+        success: true,
+        updated_key: result.s3_key,
+        id: result.id
+      };
+      // If we have a message, add it to the response.
+      if (message.length > 1) {
+        Object.assign(bodyResponse, {message: message, success: false});
+      }
+
+      return {
+        body: JSON.stringify(bodyResponse),
+        headers: headers,
+        statusCode: 200
+      };
+    } else {
+      throw new Error('Nothing to update');
+    }
+  } catch (e) {
+    if ((e.message === 'Nothing to update')) {
+      return successResponse(e.message);
+    } else if (e.message === 'unauthorized') {
+      return unAuthorizedRequestResponse('You are not a contributor for this item');
+    } else {
+      console.log('/items/model/update ERROR - ', e);
+      return internalServerErrorResponse();
+    }
+  }
 };
 
 export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
-    try {
-        const params = [s3Key];
-        let query = `DELETE FROM ${process.env.ITEMS_TABLE}
+  try {
+    const params = [s3Key];
+    let query = `DELETE FROM ${process.env.ITEMS_TABLE}
           WHERE items.s3_key=$1 `;
 
-        if (!isAdmin) {
-            params.push(userId);
-            query += ` and contributor = $2 `;
-        }
-        query += ` returning id;`;
+    if (!isAdmin) {
+      params.push(userId);
+      query += ` and contributor = $2 `;
+    }
+    query += ` returning id;`;
 
-        const delResult = await db.oneOrNone(query, params);
-        if (!delResult) {
-            throw new Error('unauthorized');
-        }
+    const delResult = await db.oneOrNone(query, params);
+    if (!delResult) {
+      throw new Error('unauthorized');
+    }
 
-        if (delResult) {
-            await db.any(
-                `DELETE FROM ${process.env.SHORT_PATHS_TABLE}
+    if (delResult) {
+      await db.any(
+        `DELETE FROM ${process.env.SHORT_PATHS_TABLE}
                           WHERE EXISTS (
                             SELECT * FROM ${process.env.SHORT_PATHS_TABLE}
                             WHERE object_type = 'Item'
                             AND id = $1 )`,
-                [delResult.id]);
-        }
-
-        return successResponse(true);
-    } catch (e) {
-        if (e.message === 'unauthorized') {
-            return unAuthorizedRequestResponse('You are not a contributor for this item');
-        } else {
-            console.log('/items/items.deleteItem ERROR - ', !e.isJoi ? e : e.details);
-            return badRequestResponse();
-        }
+        [delResult.id]);
     }
+
+    return successResponse(true);
+  } catch (e) {
+    if (e.message === 'unauthorized') {
+      return unAuthorizedRequestResponse('You are not a contributor for this item');
+    } else {
+      console.log('/items/items.deleteItem ERROR - ', !e.isJoi ? e : e.details);
+      return badRequestResponse();
+    }
+  }
 };

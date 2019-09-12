@@ -524,6 +524,8 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.id
+              - name: request.querystring.limit
+              - name: request.querystring.offset
 
   ###### ADMIN FUNCTIONS ######
 
@@ -610,10 +612,20 @@ functions:
   #### Collections
   adminGetCollections:
     handler: src/admin/collections/collections.get
-    description: Returns collections from the database.
+    description: Returns a collection by ID or all collections owned by X from the database.
     events:
       - http:
           path: admin/collections/get
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  contributorGetCollections:
+    handler: src/admin/collections/collections.get
+    description: Returns a collection by ID or all collections owned by X from the database.
+    events:
+      - http:
+          path: contributor/collections/get
           method: get
           cors: true
           authorizer: aws_iam
@@ -924,11 +936,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.person
-              - name: request.querystring.uuid
 
   contributorGetAnnouncement:
     handler: src/admin/announcements/announcements.get
@@ -967,5 +974,15 @@ functions:
       - http:
           path: contributor/announcements
           method: delete
+          cors: true
+          authorizer: aws_iam
+
+  ContributorGetItem:
+    handler: src/admin/items/items.getItem
+    description: Returns items s3 key or id from the database.
+    events:
+      - http:
+          path: contributor/items/getItem
+          method: get
           cors: true
           authorizer: aws_iam

@@ -16,7 +16,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const
       data = JSON.parse(event.body),
       isAdmin: boolean = !!event.path.match(/\/admin\//),
-      userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+      userId: string  = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
     await Joi.validate(data, Joi.object().keys(
       {
@@ -27,7 +27,6 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       }));
 
     return (await insertAnnouncement(isAdmin, data, userId));
-
   } catch (e) {
     console.log('admin/announcements.insert ERROR - ', e);
     return badRequestResponse();
@@ -135,13 +134,12 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 };
 export const get = async(event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
-      Joi.object().keys({
-        id: Joi.number().integer(),
-        limit: Joi.number().integer(),
-        offset: Joi.number().integer()
-      })
-    ));
+    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      id: Joi.number().integer(),
+      limit: Joi.number().integer(),
+      offset: Joi.number().integer()
+    }));
+
     const
       queryString = event.queryStringParameters,
       id = queryString.id ? queryString.id : undefined,
