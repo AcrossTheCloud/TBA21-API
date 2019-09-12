@@ -16,17 +16,9 @@ describe('Admin Collections', () => {
     db.$pool.end();
   });
 
-  test('The function runs without queryStringParams', async () => {
+  test('Check we have a COUNT of 3 with status of true', async () => {
     const
-      response = await get({} as APIGatewayProxyEvent, {} as Context),
-      item = JSON.parse(response.body);
-
-    expect(item.collections.length).toEqual(3);
-  });
-
-  test('Check we have a COUNT of 4 with status of true', async () => {
-    const
-      response = await get({} as APIGatewayProxyEvent, {} as Context),
+      response = await get( {queryStringParameters: {}, path: '/admin/collections/get'} as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
     expect(item.collections[0].count).toEqual('3');
@@ -35,7 +27,7 @@ describe('Admin Collections', () => {
   test('Check that we can limit the number of returned items.', async () => {
     const
       queryStringParameters: QueryStringParameters = {limit: '1'},
-      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await get({ queryStringParameters, path: '/admin/collections/get' } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
     expect(item.collections.length).toEqual(1);
@@ -44,7 +36,7 @@ describe('Admin Collections', () => {
   test('Pagination works', async () => {
     const
       queryStringParameters: QueryStringParameters = {limit: '1', offset: '1'},
-      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await get({ queryStringParameters, path: '/admin/collections/get' } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
 
     expect(item.collections.length).toEqual(1);
@@ -97,4 +89,33 @@ describe('Admin Collections', () => {
       item = JSON.parse(response.body);
     expect(item.items.length).toEqual(2);
   });
+
+  test('Get a contributors collection', async () => {
+    const
+      response = await get( {queryStringParameters: {}, path: '/contributor/collections/get', requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:7e32b7c6-c6d3-4e70-a101-12af2df21a19'
+          }
+        }
+      } as APIGatewayProxyEvent, {} as Context),
+      item = JSON.parse(response.body);
+
+    expect(item.collections[0].count).toEqual('3');
+  });
+
+  test('Get a contributors collection by id', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {id: '1'},
+      response = await get( {queryStringParameters, path: '/contributor/collections/get', requestContext: {
+          identity: {
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
+          }
+        }
+      } as APIGatewayProxyEvent, {} as Context),
+      item = JSON.parse(response.body);
+
+    expect(item.collections[0].count).toEqual('1');
+    expect(item.collections[0].id).toEqual('1');
+  });
+
 });

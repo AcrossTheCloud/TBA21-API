@@ -396,7 +396,7 @@ functions:
     description: Insert a single tag or multiple tags
     events:
       - http:
-          path: admin/tags
+          path: contributor/tags
           method: PUT
           cors: true
           authorizer: aws_iam
@@ -612,10 +612,20 @@ functions:
   #### Collections
   adminGetCollections:
     handler: src/admin/collections/collections.get
-    description: Returns collections from the database.
+    description: Returns a collection by ID or all collections owned by X from the database.
     events:
       - http:
           path: admin/collections/get
+          method: get
+          cors: true
+          authorizer: aws_iam
+
+  contributorGetCollections:
+    handler: src/admin/collections/collections.get
+    description: Returns a collection by ID or all collections owned by X from the database.
+    events:
+      - http:
+          path: contributor/collections/get
           method: get
           cors: true
           authorizer: aws_iam
