@@ -62,7 +62,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         items.id,
         title,
         s3_key,
-        item.item_type as type,
+        item_type as type,
         item_subtype as subtype,
         created_at as date,
         creators,
@@ -99,7 +99,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           items.id,
           title,
           s3_key,
-          item_subtype as type,
+          item_type as type,
+          item_subtype as subtype,
           created_at as date,
           creators,
           file_dimensions,
@@ -169,7 +170,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
           collections[i].items = [];
           for (let j = 0; j < s3Key.length; j++) {
-            collections[i].items.push( await db.one(`SELECT title, subtitle, regions, license, language, credit, creators, description, item_type, url, file_dimensions, duration, s3_key  FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
+            collections[i].items.push( await db.one(`SELECT title, subtitle, regions, license, language, credit, creators, description, item_type, item_subtype, url, file_dimensions, duration, s3_key  FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
           }
         }
       }
@@ -181,7 +182,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         });
     }
   } catch (e) {
-    console.log('/items/items.homepage ERROR - ', !e.isJoi ? e : e.details);
+    console.log('/pages/homepage ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
