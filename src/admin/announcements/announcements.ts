@@ -16,7 +16,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const
       data = JSON.parse(event.body),
       isAdmin: boolean = !!event.path.match(/\/admin\//),
-      userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+      userId: string  = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
     await Joi.validate(data, Joi.object().keys(
       {
