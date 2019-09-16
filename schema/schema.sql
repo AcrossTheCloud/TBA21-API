@@ -17,7 +17,7 @@ CREATE TYPE tba21.table_type AS ENUM ('Profile', 'Item', 'Collection');
 CREATE TYPE tba21.profile_type AS ENUM ('Individual', 'Collective', 'Institution', 'Public');
 
 --Item Types
-CREATE TYPE tba21.item_type AS ENUM ('Video', 'Text', 'Audio', 'Image');
+CREATE TYPE tba21.item_type AS ENUM ('Video', 'Text', 'Audio', 'Image', 'PDF', 'DownloadText');
 
 --Item subtypes
 CREATE TYPE tba21.subtype AS ENUM (
