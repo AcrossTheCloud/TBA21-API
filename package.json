@@ -41,7 +41,7 @@
     "dotenv": "^8.1.0",
     "jest": "^24.9.0",
     "rimraf": "^3.0.0",
-    "serverless": "1.52.0",
+    "serverless": "1.51.0",
     "serverless-api-gateway-caching": "^1.4.0",
     "serverless-aws-documentation": "^1.1.0",
     "serverless-dotenv-plugin": "^2.1.1",
