@@ -79,9 +79,10 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
 
     // Get all tags with ids
     const
+      uuid = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
       segments = await getSegmentsWithId(), // "tags"
       segment = segments ? segments.filter( s => s.name === queryStringParameters.tag) : null, // Filter out all but the given tag
-      email = await getEmailFromUUID(event.requestContext.authorizer.claims['cognito:username']);
+      email = await getEmailFromUUID(uuid);
 
     // No tags at all? Fail
     if (!segments || !segments.length) { return badRequestResponse('No segments'); }
@@ -155,9 +156,10 @@ export const postSubscriberAddTag: Handler = async (event: APIGatewayEvent, cont
 export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   if (event.queryStringParameters.hasOwnProperty('tag')) {
     const
+      uuid = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
       segments = await getSegmentsWithId(), // "tags"
       segment = segments.filter( s => s.name === event.queryStringParameters.tag), // Filter out all but the given tag
-      email = await getEmailFromUUID(event.requestContext.authorizer.claims['cognito:username']);
+      email = await getEmailFromUUID(uuid);
 
     try {
       await axios.delete(url + `/lists/${process.env.MC_AUDIENCE_ID}/segments/${segment[0].id}/members/${hashEmail(email)}`, { headers: headers });
@@ -216,7 +218,9 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
  */
 export const postSubscribeUser: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await changeSubscriberStatus(await getEmailFromUUID(event.requestContext.authorizer.claims['cognito:username']), 'subscribed');
+    const uuid = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+
+    await changeSubscriberStatus(await getEmailFromUUID(uuid), 'subscribed');
     return successResponse(true);
   } catch (e) {
     return successResponse(false);

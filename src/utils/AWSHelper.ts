@@ -7,18 +7,20 @@ const AWS = require('aws-sdk');
  */
 export const getEmailFromUUID = async (uuid: string): Promise<string> => {
   try {
-
     const
       cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider(),
       params = {
-        AttributesToGet: [ 'email' ],
-        Filter: `sub="${uuid}"`,
-        Limit: 1,
+        Username: uuid,
         UserPoolId: process.env.USER_POOL_ID
       },
-      user = await cognitoidentityserviceprovider.listUsers(params).promise();
+      user = await cognitoidentityserviceprovider.adminGetUser(params).promise(),
+      userAttributes = user.UserAttributes.filter(a => a.Name === 'email');
 
-    return user.Users[0].Attributes[0].Value;
+    if (!userAttributes[0]) {
+      throw 'We could not find your email address in our system.';
+    }
+
+    return userAttributes[0].Value;
 
   } catch (e) {
     return `Error getting cognito user.`;

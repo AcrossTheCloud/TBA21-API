@@ -35,9 +35,9 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.31",
     "@types/jest": "^24.0.18",
-    "@types/node": "^12.7.4",
+    "@types/node": "^12.7.5",
     "aws-lambda": "^0.1.2",
-    "aws-sdk": "^2.525.0",
+    "aws-sdk": "^2.530.0",
     "dotenv": "^8.1.0",
     "jest": "^24.9.0",
     "rimraf": "^3.0.0",
@@ -45,13 +45,13 @@
     "serverless-api-gateway-caching": "^1.4.0",
     "serverless-aws-documentation": "^1.1.0",
     "serverless-dotenv-plugin": "^2.1.1",
-    "serverless-offline": "^5.10.1",
+    "serverless-offline": "^5.11.0",
     "serverless-plugin-split-stacks": "^1.9.1",
     "serverless-plugin-typescript": "^1.1.9",
-    "ts-jest": "^24.0.2",
-    "ts-loader": "^6.0.4",
-    "ts-node": "^8.3.0",
+    "ts-jest": "^24.1.0",
+    "ts-loader": "^6.1.0",
+    "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.2"
+    "typescript": "^3.6.3"
   }
 }
