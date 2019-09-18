@@ -145,18 +145,6 @@ resources:
                           - Ref: 'AWS::Region'
                           - Ref: 'AWS::AccountId'
                           - 'userpool/eu-central-1_bnvWk6I6I'
-    ApiGatewayAuthorizer:
-      DependsOn:
-          - ApiGatewayRestApi
-      Type: AWS::ApiGateway::Authorizer
-      Properties:
-        Name: cognito-authorizer
-        IdentitySource: method.request.header.Authorization
-        RestApiId:
-          Ref: ApiGatewayRestApi
-        Type: COGNITO_USER_POOLS
-        ProviderARNs: ['arn:aws:cognito-idp:eu-central-1:811876431819:userpool/eu-central-1_MClQ7jNon', 'arn:aws:cognito-idp:eu-central-1:811876431819:userpool/eu-central-1_bnvWk6I6I']
-
 functions:
 ## Items
   getItems:
@@ -830,10 +818,7 @@ functions:
           path: mailchimp/postSubscriberAddTag
           method: post
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          authorizer: aws_iam
 
   mailchimpDeleteSubscriberRemoveTag:
     handler: src/mailchimp/mailchimp.deleteSubscriberRemoveTag
@@ -843,10 +828,7 @@ functions:
           path: mailchimp/deleteSubscriberRemoveTag
           method: delete
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          authorizer: aws_iam
 
   mailchimpPostSubscribeUser:
     handler: src/mailchimp/mailchimp.postSubscribeUser
@@ -856,10 +838,7 @@ functions:
           path: mailchimp/postSubscribeUser
           method: post
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+          authorizer: aws_iam
 
   # Contributor routes
   contributorUpdateCollection:
