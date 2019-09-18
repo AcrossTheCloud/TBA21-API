@@ -127,7 +127,7 @@ resources:
                           - 'arn:aws:logs'
                           - Ref: 'AWS::Region'
                           - Ref: 'AWS::AccountId'
-                          - 'log-group:/aws/lambda/*:*:*'
+                         - 'log-group:/aws/lambda/*:*:*'
                 - Effect: Allow
                   Action:
                     - s3:GetObject
@@ -136,7 +136,7 @@ resources:
                     - 'arn:aws:s3:::demo*.oceanarchive.io/*'
                 - Effect: Allow
                   Action:
-                    - cognicity-idp:*
+                    - cognito-idp:*
                   Resource:
                     - 'Fn::Join':
                         - ':'
@@ -145,6 +145,18 @@ resources:
                           - Ref: 'AWS::Region'
                           - Ref: 'AWS::AccountId'
                           - 'userpool/eu-central-1_bnvWk6I6I'
+                - Effect: Allow
+                  Action:
+                    - cognito-idp:*
+                  Resource:
+                    - 'Fn::Join':
+                        - ':'
+                        -
+                          - 'arn:aws:cognito-idp'
+                          - Ref: 'AWS::Region'
+                          - Ref: 'AWS::AccountId'
+                          - 'userpool/eu-central-1_MClQ7jNon'
+
 functions:
 ## Items
   getItems:
