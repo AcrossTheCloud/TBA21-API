@@ -10,58 +10,40 @@ import { badRequestResponse, headers, internalServerErrorResponse, unAuthorizedR
  */
 export const insertProfile = async (requestBody, isAdmin: boolean) => {
   try {
-    if (!isAdmin) {
-      const params = [requestBody.full_name, requestBody.uuid];
-      const query = `
-      INSERT INTO ${process.env.PROFILES_TABLE} 
-        (full_name, cognito_uuid, profile_type, accepted_license) 
-      VALUES 
-        ($1, $2::uuid, 'Public', false) 
-      RETURNING id;`;
+    let paramCounter = 0;
 
-      const result = await db.one(query, params);
-      return {
-        body: JSON.stringify({ success: true, id: result.id }),
-        headers: headers,
-        statusCode: 200
-      };
-    } else {
-      let paramCounter = 0;
+    const
+      params = [],
+      sqlFields: string[] = Object.keys(requestBody).map((key) => {
+        if (key === 'uuid') {
+          return `cognito_uuid`;
+        }
+        return `${key}`;
+      }),
+      sqlParams: string[] = Object.keys(requestBody).map((key) => {
+        params[paramCounter++] = requestBody[key];
+        if (key === 'contributors') {
+          return `$${paramCounter}::uuid[]`;
+        }
+        if (key === 'cognito_uuid') {
+          return `$${paramCounter}::uuid`;
+        }
+        return `$${paramCounter}`;
+      });
 
-      const
-        params = [],
-        sqlFields: string[] = Object.keys(requestBody).map((key) => {
-          if (key === 'uuid') {
-            return `cognito_uuid`;
-          }
-          return `${key}`;
-        }),
-        sqlParams: string[] = Object.keys(requestBody).map((key) => {
-          params[paramCounter++] = requestBody[key];
-          if (key === 'contributors') {
-            return `$${paramCounter}::uuid[]`;
-          }
-          if (key === 'cognito_uuid') {
-            return `$${paramCounter}::uuid`;
-          }
-          return `$${paramCounter}`;
-        });
+    const query = `
+    INSERT INTO ${process.env.PROFILES_TABLE} 
+      (${[...sqlFields]}, accepted_license) 
+    VALUES 
+      (${[...sqlParams]}, false) 
+    RETURNING id;`;
 
-      const query = `
-      INSERT INTO ${process.env.PROFILES_TABLE} 
-        (${[...sqlFields]}, accepted_license) 
-      VALUES 
-        (${[...sqlParams]}, false) 
-      RETURNING id;`;
-
-      const result = await db.one(query, params);
-      return {
-        body: JSON.stringify({ success: true, id: result.id }),
-        headers: headers,
-        statusCode: 200
-      };
-    }
-
+    const result = await db.one(query, params);
+    return {
+      body: JSON.stringify({ success: true, id: result.id }),
+      headers: headers,
+      statusCode: 200
+    };
   } catch (e) {
     if ((e.message === 'Nothing to insert') || (e.isJoi)) {
       return badRequestResponse(e.message);

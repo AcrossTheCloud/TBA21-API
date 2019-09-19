@@ -142,7 +142,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     if (e.message === 'Nothing to update') {
       return badRequestResponse(e.message);
     } else {
-      console.log('/profile/profiles/update ERROR - ', !e.isJoi ? e : e.details);
+      console.log('/admin/profiles/update ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
   }

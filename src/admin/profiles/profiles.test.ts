@@ -42,6 +42,7 @@ describe('Profile get tests', () => {
   test('Create a profile', async () => {
     const
       requestBody = {
+        'uuid': '7ba0060a-064b-489d-a7de-a30866a510d0',
         'full_name': 'Zara Glynn',
         'country': 'Australia',
         'public_profile': 'true',
