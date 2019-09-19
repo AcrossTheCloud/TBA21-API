@@ -170,7 +170,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
           collections[i].items = [];
           for (let j = 0; j < s3Key.length; j++) {
-            collections[i].items.push( await db.one(`SELECT title, subtitle, regions, license, language, credit, creators, description, item_type, item_subtype, url, file_dimensions, duration, s3_key  FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
+            collections[i].items.push( await db.one(`SELECT id, title, subtitle, regions, license, language, credit, creators, description, item_type, item_subtype, url, file_dimensions, duration, s3_key  FROM ${process.env.ITEMS_TABLE} WHERE s3_key = $1 AND status = true `, [s3Key[j]]) );
           }
         }
       }
