@@ -14,11 +14,15 @@ const
  *
  * Gets a list of Segments (Tags)
  *
+ * The type of segment. Static segments are now known as tags.
+ * Possible Values:
+ * saved - static - fuzzy
+ *
  * @returns { {name: string}[] }
  */
 export const getSegments: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    const response = await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/segments`, { headers: headers });
+    const response = await axios.get(url + `/lists/${process.env.MC_AUDIENCE_ID}/segments?type=static`, { headers: headers });
     return successResponse(response.data.segments.map( tag => tag.name ));
   } catch (e) {
     console.log('getSegments: ', !e.isJoi ? e : e.details);
@@ -219,16 +223,24 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
 export const postSubscribeUser: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     const
+      body = JSON.parse(event.body),
       uuid = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
+      fullName = body.full_name ? body.full_name : '',
       email = await getEmailFromUUID(uuid);
     // If the user isn't a subscriber, add them.
+
+    console.log('1');
     if (!await userIsASubscriber(email)) {
+      console.log('NOT A SUB');
       try {
         const data = {
           email_address: email,
+          merge_fields: { FULLNAME: fullName },
           status: 'subscribed'
         };
+        console.log('DATA', data);
         await axios.post( url + `/lists/${process.env.MC_AUDIENCE_ID}/members`, data, { headers: headers });
+
         return successResponse(true);
       } catch (e) {
         console.log('postSubscribeUser: ', !e.isJoi ? e : e.details);
@@ -239,6 +251,7 @@ export const postSubscribeUser: Handler = async (event: APIGatewayEvent, context
     }
     return successResponse(true);
   } catch (e) {
+    console.log('ERR', e);
     return successResponse(false);
   }
 };
