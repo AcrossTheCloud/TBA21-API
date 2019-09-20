@@ -69,7 +69,6 @@ export const updateProfile = async (requestBody, isAdmin: boolean, userId?: stri
  // if the users uuid is the same as the profiles or if they're an admin, allow them to edit it
     if (userId || isAdmin) {
       userId ? params.push(userId) : params.push(requestBody.uuid);
-      console.log(params);
       paramCounter++;
       const SQL_SETS: string[] = Object.keys(requestBody).filter( i => i !== 'uuid').map((key) => {
 
