@@ -10,6 +10,11 @@ export const badRequestResponse = (message?: string): APIGatewayProxyResult => (
   headers: headers,
   statusCode: 400
 });
+export const notFoundResponse = (message?: string): APIGatewayProxyResult => ({
+  body: JSON.stringify({message: (message ? message : 'Not Found.')}),
+  headers: headers,
+  statusCode: 404
+});
 
 export const unAuthorizedRequestResponse = (message?: string): APIGatewayProxyResult => ({
   body: JSON.stringify({message: (message ? message : 'You are not authorized to perform this action.')}),

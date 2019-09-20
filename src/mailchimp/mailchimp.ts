@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult, Context, Handler } from 'aws-lambda'; // tslint:disable-line no-implicit-dependencies (Using only the type information from the @types package.)
 import axios from 'axios';
-import { badRequestResponse, internalServerErrorResponse, successResponse } from '../common';
+import { badRequestResponse, internalServerErrorResponse, notFoundResponse, successResponse } from '../common';
 import { getEmailFromUUID } from '../utils/AWSHelper';
 const crypto = require('crypto');
 
@@ -55,7 +55,7 @@ export const getSubscriberTags: Handler = async (event: APIGatewayEvent, context
       // The user doesn't exist if we return a 404
       // Return an empty list and allow the user to select one and then we'll create them as a subscriber.
       if (e.response.status === 404) {
-        return successResponse([]);
+        return notFoundResponse();
       }
       console.log('getSubscriberTags: ', !e.isJoi ? e : e.details);
       return internalServerErrorResponse('MC0002');
