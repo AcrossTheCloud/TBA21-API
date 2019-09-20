@@ -228,17 +228,13 @@ export const postSubscribeUser: Handler = async (event: APIGatewayEvent, context
       fullName = body.full_name ? body.full_name : '',
       email = await getEmailFromUUID(uuid);
     // If the user isn't a subscriber, add them.
-
-    console.log('1');
     if (!await userIsASubscriber(email)) {
-      console.log('NOT A SUB');
       try {
         const data = {
           email_address: email,
           merge_fields: { FULLNAME: fullName },
           status: 'subscribed'
         };
-        console.log('DATA', data);
         await axios.post( url + `/lists/${process.env.MC_AUDIENCE_ID}/members`, data, { headers: headers });
 
         return successResponse(true);
