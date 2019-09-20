@@ -131,7 +131,7 @@ CREATE TABLE tba21.items
   focus_scitech numeric(1),
   article_link varchar(256),
   translated_from varchar(35), -- https://tools.ietf.org/html/rfc5646#section-4.4.1
-  language varchar(32), -- https://tools.ietf.org/html/rfc5646#section-4.4.1
+  language varchar(35), -- https://tools.ietf.org/html/rfc5646#section-4.4.1
   birth_date date,
   death_date date,
   venues varchar(256)[],
