@@ -22,10 +22,10 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         id: Joi.number().integer()
       }),
       Joi.object().keys({
-        uuid: Joi.string().regex(uuidRegex)
+        uuid: Joi.string().allow('').allow(null).regex(uuidRegex)
       }),
       Joi.object().keys({
-        full_name: Joi.string()
+        full_name: Joi.string().allow('').allow(null)
       })
     ));
 
@@ -69,8 +69,8 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     await Joi.validate(data, Joi.object().keys(
       {
-        full_name: Joi.string().required(),
-        uuid: Joi.string().uuid(uuidRegex).required()
+        full_name: Joi.string().allow('').allow(null).required(),
+        uuid: Joi.string().allow('').allow(null).uuid(uuidRegex).required()
       }));
 
     return (await insertProfile( data, false)) ;
@@ -96,22 +96,22 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     await Joi.validate(data, Joi.object().keys(
       {
-        contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
-        profile_image: Joi.string(),
-        featured_image: Joi.string(),
-        full_name: Joi.string(),
-        field_expertise: Joi.string(),
-        city: Joi.string(),
-        country: Joi.string(),
-        biography: Joi.string(),
-        website: Joi.string(),
-        social_media: Joi.array().items(Joi.string()),
+        contributors: Joi.array().items(Joi.string().allow('').allow(null).regex(uuidRegex)),
+        profile_image: Joi.string().allow('').allow(null),
+        featured_image: Joi.string().allow('').allow(null),
+        full_name: Joi.string().allow('').allow(null),
+        field_expertise: Joi.string().allow('').allow(null),
+        city: Joi.string().allow('').allow(null),
+        country: Joi.string().allow('').allow(null),
+        biography: Joi.string().allow('').allow(null),
+        website: Joi.string().allow('').allow(null),
+        social_media: Joi.array().items(Joi.string().allow('').allow(null)),
         public_profile: Joi.boolean(),
-        affiliation: Joi.string(),
-        position: Joi.string(),
-        contact_person: Joi.string(),
-        contact_position: Joi.string(),
-        contact_email: Joi.string(),
+        affiliation: Joi.string().allow('').allow(null),
+        position: Joi.string().allow('').allow(null),
+        contact_person: Joi.string().allow('').allow(null),
+        contact_position: Joi.string().allow('').allow(null),
+        contact_email: Joi.string().allow('').allow(null),
         accepted_license: Joi.boolean()
       }));
     const userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
