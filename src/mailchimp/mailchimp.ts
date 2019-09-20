@@ -218,9 +218,25 @@ export const deleteSubscriberRemoveTag: Handler = async (event: APIGatewayEvent,
  */
 export const postSubscribeUser: Handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    const uuid = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
-
-    await changeSubscriberStatus(await getEmailFromUUID(uuid), 'subscribed');
+    const
+      uuid = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
+      email = await getEmailFromUUID(uuid);
+    // If the user isn't a subscriber, add them.
+    if (!await userIsASubscriber(email)) {
+      try {
+        const data = {
+          email_address: email,
+          status: 'subscribed'
+        };
+        await axios.post( url + `/lists/${process.env.MC_AUDIENCE_ID}/members`, data, { headers: headers });
+        return successResponse(true);
+      } catch (e) {
+        console.log('postSubscribeUser: ', !e.isJoi ? e : e.details);
+        return internalServerErrorResponse(`We've had an issue subscribing you to our system.`);
+      }
+    } else {
+      await changeSubscriberStatus(email, 'subscribed');
+    }
     return successResponse(true);
   } catch (e) {
     return successResponse(false);
