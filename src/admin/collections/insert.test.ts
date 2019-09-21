@@ -27,7 +27,7 @@ describe('/admin/collections/insert/', () => {
         'regional_focus': 'regional_Arctic Ocean',
         'description': 'description',
         'institution': 'Wollongong uni',
-        'type': 'Event',
+        'type': '',
         'focus_arts': '1',
         'focus_action': '2',
         'focus_scitech': '3',

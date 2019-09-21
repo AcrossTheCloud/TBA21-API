@@ -22,7 +22,12 @@ export const create = async (requestBody, isAdmin: boolean) => {
         }
         return `${key}`;
       }),
-      sqlParams: string[] = Object.keys(requestBody).filter(e => (e !== 'items')).map((key) => {
+      sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
+        // @ts-ignore
+        if (!value.length) {
+          requestBody[key] = null;
+        }
+
         params[paramCounter++] = requestBody[key];
         if (key === 'contributors') {
           return `$${paramCounter}::uuid[]`;
@@ -72,13 +77,19 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     params[paramCounter++] = requestBody.id;
     // pushed into from SQL SET map
     // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
-    const SQL_SETS: string[] = Object.keys(requestBody)
-      .filter(e => ((e !== 'id') && (e !== 'items'))) // remove id and items
-      .map((key) => {
+    const SQL_SETS: string[] = Object.entries(requestBody)
+      .filter(([e, v]) => ((e !== 'id') && (e !== 'items'))) // remove id and items
+      .map(([key, value]) => {
+        // @ts-ignore
+        if (!value.length) {
+          requestBody[key] = null;
+        }
         params[paramCounter++] = requestBody[key];
+
         if (key === 'contributors') {
           return `${key}=$${paramCounter}::uuid[]`;
         }
+
         return `${key}=$${paramCounter}`;
       });
 
@@ -88,6 +99,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
             updated_at='${new Date().toISOString()}',
             ${SQL_SETS.join(', ')}
           WHERE id = $1 `;
+
     if (!isAdmin) {
       params[paramCounter++] = userId;
       query += ` and $${paramCounter} = ANY (contributors) `;

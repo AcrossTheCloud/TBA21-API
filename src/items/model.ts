@@ -194,9 +194,13 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     params[paramCounter++] = requestBody.s3_key;
     // pushed into from SQL SET map
     // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
-    const SQL_SETS: string[] = Object.keys(requestBody)
-      .filter(e => (e !== 's3_key')) // remove s3_key
-      .map((key) => {
+    const SQL_SETS: string[] = Object.entries(requestBody)
+      .filter(([e, v]) => (e !== 's3_key')) // remove s3_key
+      .map(([key, value]) => {
+        // @ts-ignore
+        if (!value.length) {
+          requestBody[key] = null;
+        }
         params[paramCounter++] = requestBody[key];
         return `${key}=$${paramCounter}`;
       });
