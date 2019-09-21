@@ -408,11 +408,12 @@ functions:
           path: tags
           method: get
           cors: true
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.type
-              - name: request.querystring.query
+#          caching:
+#            enabled: true
+#            cacheKeyParameters:
+#              - name: request.querystring.type
+#              - name: request.querystring.query
+
   insertTags:
     handler: src/admin/tags/tags.insert
     description: Insert a single tag or multiple tags
