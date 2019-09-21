@@ -76,6 +76,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         recording_name: Joi.string().allow('').allow(null),
         speakers: Joi.array().items(Joi.string()),
         performers: Joi.array().items(Joi.string()),
+        host: Joi.array().items(Joi.string()),
         host_organisation: Joi.array().items(Joi.string()),
         radio_station: Joi.string().allow('').allow(null),
         other_metadata: Joi.object(),
