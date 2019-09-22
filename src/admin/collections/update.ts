@@ -67,6 +67,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         type: Joi.string().allow('').allow(null),
         event_type: Joi.string().allow('').allow(null),
         host_organisation: Joi.array().items(Joi.string()),
+        installation_name: Joi.string().allow('').allow(null),
         focus_arts: Joi.number().integer().allow(''),
         focus_action: Joi.number().integer().allow(''),
         focus_scitech: Joi.number().integer().allow(''),
