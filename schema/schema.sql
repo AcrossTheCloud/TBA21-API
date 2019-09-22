@@ -244,6 +244,7 @@ CREATE TABLE tba21.collections
   focus_arts numeric(1),
   focus_action numeric(1),
   focus_scitech numeric(1),
+  installation_name varchar(256),
   url varchar(2048),
   related_material bigint[],
   license tba21.licence_type,
