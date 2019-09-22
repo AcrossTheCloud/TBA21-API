@@ -151,6 +151,7 @@ CREATE TABLE tba21.items
   speakers varchar(256)[],
   performers varchar(256)[],
   host_organisation varchar(256)[],
+  host varchar(256)[],
   radio_station varchar(256),
   other_metadata jsonb,
   item_name varchar(256),
