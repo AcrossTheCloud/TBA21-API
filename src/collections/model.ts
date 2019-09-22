@@ -26,7 +26,7 @@ export const create = async (requestBody, isAdmin: boolean) => {
         // @ts-ignore
         console.log('trace value',value,typeof(value));
         // @ts-ignore
-        if (!value.length) {
+        if ((typeof(value) === 'string' || Array.isArray(value)) && value.length == 0) {
           requestBody[key] = null;
         }
 
@@ -83,7 +83,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       .filter(([e, v]) => ((e !== 'id') && (e !== 'items'))) // remove id and items
       .map(([key, value]) => {
         // @ts-ignore
-        if (!value || !value.length) {
+        if ((typeof(value) === 'string' || Array.isArray(value)) && value.length == 0) {
           requestBody[key] = null;
         }
         params[paramCounter++] = requestBody[key];
