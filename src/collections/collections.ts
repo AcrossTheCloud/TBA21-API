@@ -4,6 +4,8 @@ import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
 import Joi from '@hapi/joi';
 import { update } from './model';
+import { uuidRegex } from '../utils/uuid';
+
 /**
  *
  * Gets all the collections
