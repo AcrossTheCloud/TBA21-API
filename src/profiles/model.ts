@@ -70,6 +70,7 @@ export const updateProfile = async (requestBody, isAdmin: boolean, userId?: stri
     if (userId || isAdmin) {
       userId ? params.push(userId) : params.push(requestBody.uuid);
       paramCounter++;
+      console.log(requestBody);
       const SQL_SETS: string[] = Object.keys(requestBody).filter( i => i !== 'uuid').map((key) => {
 
           params[paramCounter++] = requestBody[key];
@@ -82,6 +83,7 @@ export const updateProfile = async (requestBody, isAdmin: boolean, userId?: stri
           WHERE cognito_uuid = $1::uuid
           returning id
         `;
+      console.log(query);
       await db.one(query, params);
 
       return {
