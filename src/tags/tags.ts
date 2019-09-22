@@ -30,7 +30,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     let searchQuery = '';
 
     if (queryString.hasOwnProperty('query')) {
-      searchQuery = `WHERE LOWER(tag_name) LIKE '%' || LOWER($3) || '%'`;
+      searchQuery = `WHERE tag_name ILIKE '%' || $3 || '%'`;
       params.push(queryString.query);
     }
 

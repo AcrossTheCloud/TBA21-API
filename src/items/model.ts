@@ -197,8 +197,9 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     const SQL_SETS: string[] = Object.entries(requestBody)
       .filter(([e, v]) => (e !== 's3_key')) // remove s3_key
       .map(([key, value]) => {
+
         // @ts-ignore
-        if (!value || !value.length) {
+        if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
         params[paramCounter++] = requestBody[key];
