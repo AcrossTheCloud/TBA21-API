@@ -198,6 +198,9 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       .filter(([e, v]) => (e !== 's3_key')) // remove s3_key
       .map(([key, value]) => {
         // @ts-ignore
+        console.log('trace value',value,typeof(value));
+
+        // @ts-ignore
         if (!value.length) {
           requestBody[key] = null;
         }

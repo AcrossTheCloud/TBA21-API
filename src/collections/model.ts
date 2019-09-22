@@ -22,7 +22,9 @@ export const create = async (requestBody, isAdmin: boolean) => {
         }
         return `${key}`;
       }),
-      sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
+       sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
+        // @ts-ignore
+        console.log('trace value',value,typeof(value));
         // @ts-ignore
         if (!value.length) {
           requestBody[key] = null;
@@ -81,7 +83,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       .filter(([e, v]) => ((e !== 'id') && (e !== 'items'))) // remove id and items
       .map(([key, value]) => {
         // @ts-ignore
-        if (!value.length) {
+        if (!value || !value.length) {
           requestBody[key] = null;
         }
         params[paramCounter++] = requestBody[key];
