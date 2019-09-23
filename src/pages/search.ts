@@ -104,25 +104,25 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         GROUP BY collections.id
       `;
 
-    const profilesQuery = `
-      SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
-      COALESCE(field_expertise, '') as field_expertise
-      FROM ${process.env.PROFILES_TABLE}
-        WHERE public_profile = true
-          AND (
-            profile_type = 'Individual' OR
-            profile_type = 'Collective' OR
-            profile_type = 'Institution'
-          )
-          AND (
-            LOWER(profiles.full_name) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(profiles.field_expertise) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(profiles.city) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(profiles.country) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(profiles.affiliation) LIKE '%' || LOWER($1) || '%'
-          ) 
-        GROUP BY profiles.id
-    `;
+    // const profilesQuery = `
+    //   SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
+    //   COALESCE(field_expertise, '') as field_expertise
+    //   FROM ${process.env.PROFILES_TABLE}
+    //     WHERE public_profile = true
+    //       AND (
+    //         profile_type = 'Individual' OR
+    //         profile_type = 'Collective' OR
+    //         profile_type = 'Institution'
+    //       )
+    //       AND (
+    //         LOWER(profiles.full_name) LIKE '%' || LOWER($1) || '%' OR
+    //         LOWER(profiles.field_expertise) LIKE '%' || LOWER($1) || '%' OR
+    //         LOWER(profiles.city) LIKE '%' || LOWER($1) || '%' OR
+    //         LOWER(profiles.country) LIKE '%' || LOWER($1) || '%' OR
+    //         LOWER(profiles.affiliation) LIKE '%' || LOWER($1) || '%'
+    //       )
+    //     GROUP BY profiles.id
+    // `;
 
     const fieldValueLoop = (list: any[], type: string): {field: string, value: string, type: string}[] => { // tslint:disable-line no-any
       const response = [];
@@ -162,11 +162,11 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     const
       items = await db.manyOrNone(itemsQuery, params),
       collections = await db.manyOrNone(collectionsQuery, params),
-      profiles = await db.manyOrNone(profilesQuery, params),
+      // profiles = await db.manyOrNone(profilesQuery, params),
       results: {field: string, value: string, type: string}[] = [
         ...fieldValueLoop(items, 'items'),
-        ...fieldValueLoop(collections, 'collections'),
-        ...fieldValueLoop(profiles, 'profiles')
+        ...fieldValueLoop(collections, 'collections')
+        // ...fieldValueLoop(profiles, 'profiles')
     ];
 
     return successResponse({ results: results });
