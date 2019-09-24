@@ -22,10 +22,10 @@ export const create = async (requestBody, isAdmin: boolean) => {
         }
         return `${key}`;
       }),
-       sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
+      sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
 
         // @ts-ignore
-        if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
+        if ((typeof (value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
 
@@ -82,7 +82,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       .filter(([e, v]) => ((e !== 'id') && (e !== 'items'))) // remove id and items
       .map(([key, value]) => {
         // @ts-ignore
-        if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
+        if ((typeof (value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
         params[paramCounter++] = requestBody[key];
@@ -214,7 +214,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
-export const get = async (requestBody, isAdmin: boolean = false, userId?: string, id?: string): Promise<APIGatewayProxyResult> => {
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string, id?: string, isPublic?: boolean): Promise<APIGatewayProxyResult> => {
   try {
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -223,14 +223,18 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         requestBody.offset || defaultValues.offset
       ];
 
-    if (!isAdmin) {
-      params.push(userId);
-    }
-    if (!id) {
-      params.push(id);
+    if (!isPublic) {
+      if (!isAdmin) {
+        params.push(userId);
+      }
+      if (!id) {
+        params.push(id);
+      }
     }
 
     const
+      adminContributorConditions = `${!isAdmin ? `WHERE $3::uuid = ANY( contributors )` : ''} 
+      ${id ? `${!isAdmin ? 'AND' : 'WHERE'} contributors @> $3::uuid` : ''} `,
       query = `
         SELECT
           COUNT ( collections.id ) OVER (),
@@ -246,9 +250,9 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
                     
           UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
-            
-        ${!isAdmin ? `WHERE $3::uuid = ANY( contributors )` : ''} 
-        ${id ? `${!isAdmin ? 'AND' : 'WHERE'} contributors @> $3::uuid` : ''} 
+        
+            ${isPublic ? ' WHERE status=true ' : adminContributorConditions}
+
             
         GROUP BY collections.id
         ORDER BY collections.id

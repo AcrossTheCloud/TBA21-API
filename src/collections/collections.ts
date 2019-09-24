@@ -5,6 +5,7 @@ import { limitQuery } from '../utils/queryHelpers';
 import Joi from '@hapi/joi';
 import { update } from './model';
 import { uuidRegex } from '../utils/uuid';
+import { get as getCollection } from './model';
 
 /**
  *
@@ -24,36 +25,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       }));
     // will cause an exception if it is not valid
 
-    const
-      defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues, // Use default values if not supplied.
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
-        SELECT
-          COUNT ( collections.id ) OVER (),
-          collections.*,
-          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(collections.geom) as geoJSON
-        FROM 
-          ${process.env.COLLECTIONS_TABLE} AS collections,
-            
-          UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
-                    
-          UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
-            
-        WHERE status=true
-        
-        GROUP BY collections.id
-        ORDER BY collections.id
-        
-        LIMIT $1 
-        OFFSET $2 
-      `;
-
-    return successResponse({ collections: await db.any(query, params) });
+    return (await getCollection((event.queryStringParameters || { limit: undefined, offset: undefined }), false, '', '', true));
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
