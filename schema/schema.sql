@@ -299,8 +299,8 @@ CREATE TABLE tba21.short_paths
 CREATE TABLE tba21.announcements
 (
   ID bigserial PRIMARY KEY,
-  title varchar (40),
-  description varchar (256),
+  title varchar (100),
+  description varchar (400),
   url varchar(2048),
   created_at timestamp with time zone NOT NULL,
   status boolean,
