@@ -302,6 +302,7 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
       params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
       query = `
         SELECT
+          COUNT ( items.s3_key ) OVER (),
           items.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
