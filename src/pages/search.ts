@@ -265,6 +265,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
           item.title,
           item.created_at as date,
           item.creators,
+          item.file_dimensions,
           item.item_type as type,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
