@@ -310,17 +310,17 @@ CREATE TABLE tba21.announcements
 
 -- Geo stuff
 
-SELECT AddGeometryColumn ('tba21','items','linestring',4326,'LINESTRING',2); -- items geom column
-CREATE INDEX items_linestring_gix ON tba21.items USING GIST (linestring); -- items location GIST index
+SELECT AddGeometryColumn ('tba21','items','linestring',4326,'LINESTRINGZ',3); -- items linestring column
+CREATE INDEX items_linestring_gix ON tba21.items USING GIST (linestring); -- items linestring GIST index
 
-SELECT AddGeometryColumn ('tba21','items','point',4326,'POINT',2); -- items point column
-CREATE INDEX items_point_gix ON tba21.items USING GIST (point); -- items location GIST index
+SELECT AddGeometryColumn ('tba21','items','point',4326,'POINTZ',3); -- items point column
+CREATE INDEX items_point_gix ON tba21.items USING GIST (point); -- items point GIST index
 
-SELECT AddGeometryColumn ('tba21','collections','linestring',4326,'LINESTRING',2); -- collections geom column
-CREATE INDEX collections_linestring_gix ON tba21.collections USING GIST (linestring); -- collections geom GIST index
+SELECT AddGeometryColumn ('tba21','collections','linestring',4326,'LINESTRINGZ',3); -- collections linestring column
+CREATE INDEX collections_linestring_gix ON tba21.collections USING GIST (linestring); -- collections linestring GIST index
 
-SELECT AddGeometryColumn ('tba21','collections','point',4326,'POINT',2); -- collections geom column
-CREATE INDEX collections_point_gix ON tba21.collections USING GIST (point); -- collections geom GIST index
+SELECT AddGeometryColumn ('tba21','collections','point',4326,'POINTZ',3); -- collections point column
+CREATE INDEX collections_point_gix ON tba21.collections USING GIST (point); -- collections point GIST index
 
 -- Collection items cross-references
 CREATE TABLE tba21.collections_items
@@ -348,4 +348,3 @@ CREATE TABLE tba21.keyword_tags
 ALTER TABLE tba21.keyword_tags ADD CONSTRAINT keyword_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.concept_tags ADD CONSTRAINT concept_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.short_paths ADD CONSTRAINT short_path_name UNIQUE (short_path);
-
