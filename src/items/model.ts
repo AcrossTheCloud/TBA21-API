@@ -87,7 +87,8 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-            ST_AsGeoJSON(item.geom) as geoJSON
+            ST_AsGeoJSON(item.point) as geoJSON, 
+            ST_AsGeoJSON(item.linestring) as geoJSON 
           FROM 
             ${process.env.ITEMS_TABLE} AS item,
               
@@ -138,7 +139,8 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-            ST_AsGeoJSON(item.geom) as geoJSON 
+            ST_AsGeoJSON(item.point) as geoJSON, 
+            ST_AsGeoJSON(item.linestring) as geoJSON 
           FROM 
             ${process.env.ITEMS_TABLE} AS item,
               

@@ -123,8 +123,7 @@ describe('Collections', () => {
 
     expect(results.collections.length).toEqual(3);
   });
-  test
-  ('Get a bad response when a boundary is missing', async () => {
+  test ('Get a bad response when a boundary is missing', async () => {
     const
       queryStringParameters: QueryStringParameters = {lat_sw: '-90', lng_sw: '', lat_ne: '90', lng_ne: '180'},
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);

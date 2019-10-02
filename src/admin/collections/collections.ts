@@ -53,7 +53,8 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
           collections.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(collections.geom) as geoJSON 
+          ST_AsGeoJSON(collections.linestring) as geoJSON,
+         ST_AsGeoJSON(collections.point) as geoJSON  
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
             
@@ -103,7 +104,8 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
          collections.*,
          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-         ST_AsGeoJSON(collections.geom) as geoJSON
+         ST_AsGeoJSON(collections.linestring) as geoJSON,
+         ST_AsGeoJSON(collections.point) as geoJSON 
       FROM 
         ${process.env.COLLECTIONS_TABLE} AS collections,
             
@@ -181,7 +183,8 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
              collections.*,
              COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-             ST_AsGeoJSON(collections.geom) as geoJSON 
+             ST_AsGeoJSON(collections.linestring) as geoJSON,
+             ST_AsGeoJSON(collections.point) as geoJSON 
           FROM 
             ${process.env.COLLECTIONS_TABLE} AS collections,
                          
@@ -234,7 +237,8 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
           items.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(items.geom) as geoJSON 
+          ST_AsGeoJSON(items.linestring) as geoJSON, 
+          ST_AsGeoJSON(items.point) as geoJSON 
         FROM
           ${process.env.COLLECTIONS_ITEMS_TABLE} AS collections_items
           INNER JOIN ${process.env.ITEMS_TABLE}

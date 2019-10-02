@@ -49,7 +49,7 @@ INSERT INTO tba21.collections(
   focus_action,
   focus_scitech,
   url,
-  geom
+  linestring
 )
 VALUES (
   '2011-07-01 06:30:30+05',

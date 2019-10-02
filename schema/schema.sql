@@ -310,17 +310,17 @@ CREATE TABLE tba21.announcements
 
 -- Geo stuff
 
-SELECT AddGeometryColumn ('tba21','items','geom',4326,'POINT',2); -- items location column
-CREATE INDEX items_gix ON tba21.items USING GIST (geom); -- items location GIST index
+SELECT AddGeometryColumn ('tba21','items','linestring',4326,'LINESTRING',2); -- items geom column
+CREATE INDEX items_linestring_gix ON tba21.items USING GIST (linestring); -- items location GIST index
 
-SELECT AddGeometryColumn ('tba21','collections','geom',4326,'LINESTRING',2); -- collections geom column
-CREATE INDEX collections_gix ON tba21.collections USING GIST (geom); -- collections geom GIST index
+SELECT AddGeometryColumn ('tba21','items','point',4326,'POINT',2); -- items point column
+CREATE INDEX items_point_gix ON tba21.items USING GIST (point); -- items location GIST index
 
-SELECT AddGeometryColumn ('tba21','collections','expedition_start_point',4326,'POINT',2); -- items location column
-CREATE INDEX collections_start_gix ON tba21.collections USING GIST (geom); -- items location GIST index
+SELECT AddGeometryColumn ('tba21','collections','linestring',4326,'LINESTRING',2); -- collections geom column
+CREATE INDEX collections_linestring_gix ON tba21.collections USING GIST (linestring); -- collections geom GIST index
 
-SELECT AddGeometryColumn ('tba21','collections','expedition_end_point',4326,'POINT',2); -- items location column
-CREATE INDEX collections_end_gix ON tba21.collections USING GIST (geom); -- items location GIST index
+SELECT AddGeometryColumn ('tba21','collections','point',4326,'POINT',2); -- collections geom column
+CREATE INDEX collections_point_gix ON tba21.collections USING GIST (point); -- collections geom GIST index
 
 -- Collection items cross-references
 CREATE TABLE tba21.collections_items

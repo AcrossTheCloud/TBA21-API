@@ -70,7 +70,7 @@ INSERT INTO tba21.items(
   host_organisation,
   radio_station,
   other_metadata,
-  geom
+  point
 )
 VALUES (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad749e30-a6a0-11e9-b5d9-1726307e8330-photo-1518791841217-8f162f1e1131.jpeg',

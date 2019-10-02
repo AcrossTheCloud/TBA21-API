@@ -237,7 +237,8 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
           collections.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(collections.geom) as geoJSON
+          ST_AsGeoJSON(collections.point) as geoJSON, 
+          ST_AsGeoJSON(collections.linestring) as geoJSON 
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
             
