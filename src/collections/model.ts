@@ -33,6 +33,12 @@ export const create = async (requestBody, isAdmin: boolean) => {
         if (key === 'contributors') {
           return `$${paramCounter}::uuid[]`;
         }
+        if (key === 'linestring') {
+          return `ST_GeomFromText('LINESTRING ($${paramCounter}:raw)', 4326)`;
+        }
+        if (key === 'point') {
+          return `ST_GeomFromText('POINT ($${paramCounter}:raw)', 4326)`;
+        }
         return `$${paramCounter}`;
       });
 
@@ -90,7 +96,12 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         if (key === 'contributors') {
           return `${key}=$${paramCounter}::uuid[]`;
         }
-
+        if (key === 'linestring') {
+          return `${key}=ST_GeomFromText('LINESTRING ($${paramCounter}:raw)', 4326)`;
+        }
+        if (key === 'point') {
+          return `${key}=ST_GeomFromText('POINT ($${paramCounter}:raw)', 4326)`;
+        }
         return `${key}=$${paramCounter}`;
       });
 

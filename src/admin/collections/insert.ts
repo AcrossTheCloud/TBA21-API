@@ -84,6 +84,8 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         volume: Joi.number().integer().allow(''),
         number: Joi.number().integer().allow(''),
         contributors: Joi.array().items(Joi.string().uuid()),
+        point: Joi.string(),
+        linestring: Joi.string(),
         items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
       }));
 

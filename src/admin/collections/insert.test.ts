@@ -123,6 +123,8 @@ describe('/admin/collections/insert/', () => {
         'related_event': 'related',
         'volume': '1',
         'number': '2',
+        'linestring': '-71.160281 42.258729 71.160281,-71.160837 42.259113 71.160281,-71.161144 42.25932 71.160281',
+        'point': '-34.4708186 151.2997363 151.2997363',
         'items': ['private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg'],
       },
       body: string = JSON.stringify(requestBody),

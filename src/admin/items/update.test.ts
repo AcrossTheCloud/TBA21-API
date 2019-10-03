@@ -120,7 +120,7 @@ describe('/admin/items/update/updateByS3key', () => {
 
   // Contributors tests:
 
-  test('Contributor tries to update an item not belonging', async () => {
+  test('Contributor tries to update an item not belonging to them', async () => {
     const
       requestBody = {
         's3_key': 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg',
@@ -212,20 +212,22 @@ describe('/admin/items/update/updateByS3key', () => {
         'first_edition_year': '1990',
         'editor': 'editor',
         'featured_in': 'featured in',
-        'volume': '2'
+        'volume': '2',
+        'linestring': '-71.160281 42.258729 71.160281,-71.160837 42.259113 71.160281,-71.161144 42.25932 71.160281',
+        'point': '-34.4708186 151.2997363 151.2997363',
       },
       body: string = JSON.stringify(requestBody),
       response = await updateByS3key({
         body, path: '/contributor/items/update/updateByS3key', requestContext: {
           identity: {
-            cognitoAuthenticationProvider: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559"
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
           }
         }
       } as APIGatewayProxyEvent);
     expect(response.statusCode).toBe(403);
   });
 
-  test('Contributor tries to update an item not belonging', async () => {
+  test('Contributor tries to update an item not belonging to them', async () => {
     const
       requestBody = {
         's3_key': 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg',
@@ -323,7 +325,7 @@ describe('/admin/items/update/updateByS3key', () => {
       response = await updateByS3key({
         body, path: '/contributor/items/update/updateByS3key', requestContext: {
           identity: {
-            cognitoAuthenticationProvider: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:1f89f9b6-39bc-416e-899e-ef1a8d656f24"
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:1f89f9b6-39bc-416e-899e-ef1a8d656f24'
           }
         }
       } as APIGatewayProxyEvent),
@@ -332,4 +334,3 @@ describe('/admin/items/update/updateByS3key', () => {
   });
 
 });
-

@@ -205,6 +205,12 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
           requestBody[key] = null;
         }
         params[paramCounter++] = requestBody[key];
+        if (key === 'linestring') {
+          return `${key}=ST_GeomFromText('LINESTRING ($${paramCounter}:raw)', 4326)`;
+        }
+        if (key === 'point') {
+          return `${key}=ST_GeomFromText('POINT ($${paramCounter}:raw)', 4326)`;
+        }
         return `${key}=$${paramCounter}`;
       });
     let query = `UPDATE ${process.env.ITEMS_TABLE}
