@@ -213,14 +213,14 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
 
 /**
  *
- * Get a list of items in a collection
+ * Gets the title, creators, contributor, status, id and s3key of the items in a collection
  *
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
-export const getItemsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getCollectionsItemsList = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
@@ -231,27 +231,21 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
+      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    const query = `
         SELECT
-          items.*,
-          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(items.linestring) as geoJSON, 
-          ST_AsGeoJSON(items.point) as geoJSON 
+          items.id,
+          items.s3_key,
+          items.title,
+          items.creators,
+          items.status,
+          items.contributor
         FROM
           ${process.env.COLLECTIONS_ITEMS_TABLE} AS collections_items
           INNER JOIN ${process.env.ITEMS_TABLE}
-          ON collections_items.item_s3_key = items.s3_key,
-          
-          UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                  
-          UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
+          ON collections_items.item_s3_key = items.s3_key
         
         WHERE collection_id = $1
-          
         GROUP BY items.s3_key
         
         LIMIT $2
