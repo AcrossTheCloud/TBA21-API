@@ -20,6 +20,7 @@ export const reSeedDatabase = async () => {
   await db.task(async t => {
     await t.any(`DROP SCHEMA IF EXISTS tba21 CASCADE;`);
     await t.none(schema);
+    await t.none(mapChanges);
     await t.none(collections);
     await t.none(conceptTags);
     await t.none(keywordTags);
@@ -28,6 +29,5 @@ export const reSeedDatabase = async () => {
     await t.none(profiles);
     await t.none(shortPaths);
     await t.none(announcements);
-    await t.none(mapChanges);
   });
 };

@@ -174,7 +174,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(37.717474 161.204097)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg',
@@ -274,7 +274,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(77.134788 4.835309)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-cat-pet-animal-domestic-104827.jpeg',
@@ -374,7 +374,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(66.073126 4.225375)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg',
@@ -474,7 +474,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(32.7821795 -0.0075471)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg',
@@ -578,7 +578,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(49.042218 7.528439)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg',
@@ -651,6 +651,6 @@ VALUES (
   '{}',
   '',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(-34.4708186 151.2997363)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
 );
 -- END FIRST QUERY tba21.items

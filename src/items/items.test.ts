@@ -145,7 +145,7 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {lat_sw: '28.620240545725636', lng_sw: '-25.116634368896488', lat_ne: '52.62108005994499', lng_ne: '38.16461563110352'},
       response = await getItemsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(2);
+    expect(results.items.length).toEqual(6);
   });
   test('Get a bad response when a boundary is missing', async () => {
     const

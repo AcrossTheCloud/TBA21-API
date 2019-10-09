@@ -100,7 +100,7 @@ VALUES (
   '2',
   '3',
   'https://github.com/',
-  ST_GeomFromText('LINESTRING(-71.160281 42.258729,-71.160837 42.259113,-71.161144 42.25932)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
 ),
 (
   '2011-07-01 06:30:30+05',
@@ -151,7 +151,7 @@ VALUES (
   '2',
   '3',
   'https://github.com/',
-  ST_GeomFromText('LINESTRING(-71.160281 42.258729,-71.160837 42.259113,-71.161144 42.25932)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
 ),
 (
   '2011-07-01 06:30:30+05',
@@ -202,7 +202,7 @@ VALUES (
   '2',
   '3',
   '',
-  ST_GeomFromText('LINESTRING(-71.160281 42.258729,-71.160837 42.259113,-71.161144 42.25932)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
   );
 
   -- END FIRST QUERY tba21.collections
