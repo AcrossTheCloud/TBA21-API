@@ -14,6 +14,7 @@ const collectionsItems = loadSQLFile('/schema/seeds/7.collectionsItems.sql');
 const profiles = loadSQLFile('/schema/seeds/8.profiles.sql');
 const shortPaths = loadSQLFile('/schema/seeds/9.shortPaths.sql');
 const announcements = loadSQLFile('/schema/seeds/10.announcements.sql');
+const mapChanges = loadSQLFile('/schema/seeds/map_changes.sql');
 
 export const reSeedDatabase = async () => {
   await db.task(async t => {
@@ -27,5 +28,6 @@ export const reSeedDatabase = async () => {
     await t.none(profiles);
     await t.none(shortPaths);
     await t.none(announcements);
+    await t.none(mapChanges);
   });
 };
