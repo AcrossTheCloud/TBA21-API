@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
-import { get, getById, getByPerson, getByTag, getCollectionsItemsList } from './collections';
+import { get, getById, getByPerson, getByTag, getItemsInCollection } from './collections';
 
 describe('Admin Collections', () => {
 
@@ -85,14 +85,14 @@ describe('Admin Collections', () => {
   test('Get items in a collection', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '3'},
-      response = await getCollectionsItemsList({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
     expect(item.items.length).toEqual(2);
   });
   test('Get items in a collection with only returning limited results', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '3'},
-      response = await getCollectionsItemsList({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
     expect(item.items[0].title).toEqual('Detonation');
   });

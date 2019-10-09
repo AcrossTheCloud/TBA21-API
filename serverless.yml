@@ -669,12 +669,12 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
 
-  adminGetCollectionsItemsList:
-    handler: src/admin/collections/collections.getCollectionsItemsList
+  adminGetItemsInCollection:
+    handler: src/admin/collections/collections.getItemsInCollection
     description: Returns the items in a collection
     events:
       - http:
-          path: admin/collections/getCollectionsItemsList
+          path: admin/collections/getItemsInCollection
           method: get
           cors: true
           authorizer: aws_iam

@@ -140,16 +140,16 @@ describe('Item tests', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-  test('Get all items within the bounding box (32.784840, 32.781431, 11.201, -0.009226)', async () => {
+  test('Get all items within the bounding box (-34.312742, 150.9218689, -34.756705,150.757261)', async () => {
     const
-      queryStringParameters: QueryStringParameters = {lat_sw: '28.620240545725636', lng_sw: '-25.116634368896488', lat_ne: '52.62108005994499', lng_ne: '38.16461563110352'},
+      queryStringParameters: QueryStringParameters = {lat_sw: '-34.312742', lng_sw: '150.9218689', lat_ne: '-34.756705', lng_ne: '150.757261'},
       response = await getItemsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(6);
+    expect(results.items.length).toEqual(3);
   });
   test('Get a bad response when a boundary is missing', async () => {
     const
-      queryStringParameters: QueryStringParameters = {lat_sw: '28.620240545725636', lng_sw: '', lat_ne: '52.62108005994499', lng_ne: '38.16461563110352'},
+      queryStringParameters: QueryStringParameters = {lat_sw: '-34.312742', lng_sw: '150.9218689', lat_ne: '-34.756705'},
       response = await getItemsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
 
     expect(response.statusCode).toEqual(400);

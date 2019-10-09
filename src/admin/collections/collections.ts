@@ -217,7 +217,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
  */
-export const getCollectionsItemsList = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getItemsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {

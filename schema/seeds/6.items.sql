@@ -174,7 +174,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
+  ST_GeomFromText('GeometryCollection(MULTIPOLYGON(((56.683104 -154.0895309 11.57, 56.683104 -154.0895309 11.57, 56.683104 -154.0895309 11.57, 56.683104 -154.0895309 11.57, 56.683104 -154.0895309 11.57),(56.683104 -154.0895309 11.57, 56.683104 -154.0895309 11.57, 56.683104 -154.0895309 11.57, 56.683104 -154.0895309 11.57, 56.683104 -154.0895309 11.57)), ((56.7385269 -153.8570305 13.82, 56.7385269 -153.8570305 13.82, 56.7385269 -153.8570305 13.82, 56.7385269 -153.8570305 13.82, 56.7385269 -153.8570305 13.82)) ))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg',
@@ -274,7 +274,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
+  ST_GeomFromText('GeometryCollection(MULTIPOINT((56.9173134 -154.1825328 16.82),(56.9173134 -154.1825328 16.82), (56.9175797 -154.178508 16.82), (56.9167875 -154.1715928 16.82), (56.9167875 -154.1715928 16.82)), LINESTRING(56.9211072 -154.1775098 14.32, 56.9211072 -154.1775098 14.32,56.9211072 -154.1775098 14.32, 56.9211072 -154.1775098 14.32))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-cat-pet-animal-domestic-104827.jpeg',
@@ -374,7 +374,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
+  ST_GeomFromText('GeometryCollection(POLYGON((30.7744416 130.3215863 11.36, 30.7744416 130.3215863 11.36, 30.7744416 130.3215863 11.36, 30.7744416 130.3215863 11.36, 30.7744416 130.3215863 11.36)))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg',
@@ -474,7 +474,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
+  ST_GeomFromText('GeometryCollection(POINT(-34.4079211 150.8802055 17.82))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg',
@@ -578,7 +578,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
+  ST_GeomFromText('GeometryCollection(POINT(-34.4079211 150.8802055 17.82), POINT(-34.4077586 150.8781931 16.82), POINT(-34.4077234 150.8778021 16.57), POINT(-34.4077234 150.8778021 16.57) )',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg',
@@ -651,6 +651,6 @@ VALUES (
   '{}',
   '',
   '{"other":"Other Data"}',
-  ST_GeomFromText('GeometryCollection(POINT(32.7821795 -0.0075471 32.7821795))',4326)
+  ST_GeomFromText('GeometryCollection(LINESTRING(-34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.82 ) )',4326)
 );
 -- END FIRST QUERY tba21.items
