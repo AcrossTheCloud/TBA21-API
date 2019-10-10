@@ -7,6 +7,7 @@ import {
 } from '../common';
 import { db } from '../databaseConnect';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
+import { dbgeoparse } from '../utils/dbgeo';
 
 export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
   try {
@@ -87,7 +88,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-            ST_AsGeoJSON(item.geom) as geoJSON
+            ST_AsText(item.geom) as geom
           FROM 
             ${process.env.ITEMS_TABLE} AS item,
               
@@ -120,7 +121,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
           OFFSET $2 
         `;
 
-    return successResponse({items: await db.any(query, params)});
+    return successResponse({items: await dbgeoparse(await db.any(query, params), null)});
   } catch (e) {
     console.log('items/model.get ERROR - ', e);
     return badRequestResponse();
@@ -138,7 +139,7 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-            ST_AsGeoJSON(item.geom) as geoJSON 
+            ST_AsText(item.geom) as geom 
           FROM 
             ${process.env.ITEMS_TABLE} AS item,
               
@@ -155,7 +156,7 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
           GROUP BY item.s3_key
         `;
 
-    return successResponse({item: await db.oneOrNone(query, params)});
+    return successResponse({item: await dbgeoparse(await db.oneOrNone(query, params), null)});
   } catch (e) {
     console.log('admin/items/items.getById ERROR - ', e);
     return badRequestResponse();

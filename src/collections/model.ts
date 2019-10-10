@@ -8,6 +8,7 @@ import {
 } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
+import { dbgeoparse } from '../utils/dbgeo';
 
 export const create = async (requestBody, isAdmin: boolean) => {
   try {
@@ -278,7 +279,7 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
           collections.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(collections.geom) as geoJSON
+          ST_AsText(collections.geom) as geom
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
             
@@ -298,7 +299,7 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         OFFSET $2 
       `;
 
-    return successResponse({ collections: await db.any(query, params) });
+    return successResponse({ collections: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

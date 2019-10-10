@@ -5,6 +5,8 @@ import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
 import Joi from '@hapi/joi';
 import { uuidRegex } from '../../utils/uuid';
+import { dbgeoparse } from '../../utils/dbgeo';
+
 /**
  *
  * Gets all the collections
@@ -53,7 +55,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
           collections.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(collections.geom) as geoJSON 
+          ST_AsText(collections.geom) as geom
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
             
@@ -68,7 +70,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
         GROUP BY collections.id
       `;
 
-    return successResponse({ collection: await db.oneOrNone(query, params) });
+    return successResponse({ collection: await dbgeoparse(await db.oneOrNone(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -103,7 +105,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
          collections.*,
          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-         ST_AsGeoJSON(collections.geom) as geoJSON
+         ST_AsText(collections.geom) as geom
       FROM 
         ${process.env.COLLECTIONS_TABLE} AS collections,
             
@@ -125,7 +127,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       OFFSET $3
     `;
 
-    return successResponse({ collections: await db.any(query, params) });
+    return successResponse({ collections: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getByTag ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -181,7 +183,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
              collections.*,
              COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-             ST_AsGeoJSON(collections.geom) as geoJSON 
+             ST_AsText(collections.geom) as geom
           FROM 
             ${process.env.COLLECTIONS_TABLE} AS collections,
                          
@@ -201,7 +203,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
           OFFSET $2
       `;
 
-      return successResponse({ collections: await db.any(query, params) });
+      return successResponse({ collections: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

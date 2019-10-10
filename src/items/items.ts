@@ -5,6 +5,8 @@ import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
 import { getAll, getItemBy } from './model';
+import { dbgeoparse } from '../utils/dbgeo';
+
 /**
  *
  * Gets all the items
@@ -204,11 +206,11 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
       queryString = event.queryStringParameters, // Use default values if not supplied.
       params = [queryString.lat_sw, queryString.lng_sw, queryString.lat_ne, queryString.lng_ne],
       query = `
-        SELECT id, s3_key, title, ST_AsText(geom) as geoJSON 
+        SELECT id, s3_key, title, ST_AsText(geom) as geom 
         FROM ${process.env.ITEMS_TABLE}
         WHERE geom && ST_MakeEnvelope($1, $2, $3,$4, 4326)
       `;
-    return successResponse({ items: await db.any(query, params) });
+    return successResponse({ items: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
