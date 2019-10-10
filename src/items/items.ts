@@ -37,12 +37,12 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 };
 /**
  *
- * Gets the item by their id
+ * Gets the item by its id
  *
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:item - an item object of the results
  */
 export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
