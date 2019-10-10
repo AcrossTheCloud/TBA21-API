@@ -27,8 +27,7 @@ describe('Item tests', () => {
     const
       response = await get({} as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-
-    expect(results.items.length).toEqual(3);
+    expect(results.items.objects.output.geometries.length).toEqual(3);
   });
 
   test('Check that we can limit the number of returned items.', async () => {
@@ -37,15 +36,14 @@ describe('Item tests', () => {
       response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.items.length).toEqual(2);
+    expect(results.items.objects.output.geometries.length).toEqual(2);
   });
   test('Get item by its s3 key', async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg'},
       response = await getItem({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-
-    expect(results.item.s3_key).toEqual('private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg');
+    expect(results.items.objects.output.geometries[0].s3_key).toEqual('private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg');
   });
   test(`Check an item with a status of false isn't returned`, async () => {
     const
@@ -60,7 +58,7 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {id: '2'},
       response = await getItem({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.item.id).toEqual('2');
+    expect(result.items.objects.output.geometries[0].s3_key).toEqual('2');
   });
   test('Get a bad response when no tag is given', async () => {
     const
@@ -75,7 +73,7 @@ describe('Item tests', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.items.length).toEqual(1);
+    expect(results.items.objects.output.geometries.length).toEqual(1);
   });
   test('Get a bad response when no tag is given', async () => {
     const
@@ -90,7 +88,7 @@ describe('Item tests', () => {
       response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
 
-    expect(results.items.length).toEqual(2);
+    expect(results.items.objects.output.geometries.length).toEqual(2);
   });
   test('Get a bad response when no people are given', async () => {
     const
@@ -104,7 +102,7 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {type: 'Video'},
       response = await getByType({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(2);
+    expect(results.items.objects.output.geometries.length).toEqual(2);
   });
   test('Get a bad response when no type is given', async () => {
     const
@@ -124,7 +122,7 @@ describe('Item tests', () => {
     response = await get({} as APIGatewayProxyEvent, {} as Context);
     results = JSON.parse(response.body);
 
-    expect(results.items.length).toEqual(4);
+    expect(results.items.objects.output.geometries.length).toEqual(4);
   });
   test('Get a bad response when no id is given', async () => {
     const
@@ -145,7 +143,7 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {lat_sw: '-34.312742', lng_sw: '150.9218689', lat_ne: '-34.756705', lng_ne: '150.757261'},
       response = await getItemsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(3);
+    expect(results.items.objects.output.geometries.length).toEqual(3);
   });
   test('Get a bad response when a boundary is missing', async () => {
     const

@@ -42,7 +42,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:item - an item object of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON for item object
  */
 export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {

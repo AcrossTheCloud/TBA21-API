@@ -156,7 +156,7 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
           GROUP BY item.s3_key
         `;
 
-    return successResponse({item: await dbgeoparse(await db.oneOrNone(query, params), null)});
+    return successResponse({item: await dbgeoparse([await db.oneOrNone(query, params)], null)});
   } catch (e) {
     console.log('admin/items/items.getById ERROR - ', e);
     return badRequestResponse();

@@ -26,6 +26,10 @@ interface DbGeoParams {
 export const dbgeoparse = function(input: any, params: DbGeoParams) { // tslint:disable-line:no-any
   return new Promise((resolve, reject) => {
     dbgeo.parse(input, params, (err: string, output: TopoJSON) => { 
+      if (!input) {
+        console.log(input);
+        resolve(null);
+      }
       if (err) {
         reject(err);
       } else {
