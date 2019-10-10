@@ -18,6 +18,17 @@ export PGPORT=5432
 export PGDATABASE=tba21
 export PGSSL=false
 
+export UPLOADS_TABLE=tba21.s3uploads
+export TYPES_TABLE=tba21.types
+export ITEMS_TABLE=tba21.items
+export COLLECTIONS_TABLE=tba21.collections
+export COLLECTIONS_ITEMS_TABLE=tba21.collections_items
+export CONCEPT_TAGS_TABLE=tba21.concept_tags
+export KEYWORD_TAGS_TABLE=tba21.keyword_tags
+export SHORT_PATHS_TABLE=tba21.short_paths
+export PROFILES_TABLE=tba21.profiles
+export ANNOUNCEMENTS_TABLE=tba21.announcements
+
 npm run lint
 jest -i --coverage --detectOpenHandles
 
