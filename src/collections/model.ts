@@ -33,6 +33,27 @@ export const create = async (requestBody, isAdmin: boolean) => {
         if (key === 'contributors') {
           return `$${paramCounter}::uuid[]`;
         }
+         // inserting the geometry data
+        if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
+           const geometry = requestBody.geometry;
+           let geomQueryParams = [];
+
+           if (geometry.point && geometry.point.length) {
+             for (let i = 0; i < geometry.point.length; i++) {
+               geomQueryParams.push(`POINT(${geometry.point[i]})`);
+             }
+           }
+           if (geometry.linestring && geometry.linestring.length) {
+             for (let i = 0; i < geometry.linestring.length; i++) {
+               geomQueryParams.push(`LINESTRING(${geometry.linestring[i]})`);
+             }          }
+           if (geometry.polygon && geometry.polygon.length) {
+             for (let i = 0; i < geometry.polygon.length; i++) {
+               geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
+             }
+           }
+           return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
+         }
         return `$${paramCounter}`;
       });
 
@@ -90,7 +111,27 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         if (key === 'contributors') {
           return `${key}=$${paramCounter}::uuid[]`;
         }
+        // inserting the geometry data
+        if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
+          const geometry = requestBody.geometry;
+          let geomQueryParams = [];
 
+          if (geometry.point && geometry.point.length) {
+            for (let i = 0; i < geometry.point.length; i++) {
+              geomQueryParams.push(`POINT(${geometry.point[i]})`);
+            }
+          }
+          if (geometry.linestring && geometry.linestring.length) {
+            for (let i = 0; i < geometry.linestring.length; i++) {
+              geomQueryParams.push(`LINESTRING(${geometry.linestring[i]})`);
+            }          }
+          if (geometry.polygon && geometry.polygon.length) {
+            for (let i = 0; i < geometry.polygon.length; i++) {
+              geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
+            }
+          }
+          return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
+        }
         return `${key}=$${paramCounter}`;
       });
 

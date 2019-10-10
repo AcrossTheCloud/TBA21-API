@@ -185,12 +185,10 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     if (requestBody.concept_tags) {
       requestBody.concept_tags = requestBody.concept_tags.map(t => parseInt(t, 0));
     }
-
     let paramCounter = 0;
 
     // NOTE: contributor is inserted on create, uuid from claims
     const params = [];
-
     params[paramCounter++] = requestBody.s3_key;
     // pushed into from SQL SET map
     // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
@@ -201,6 +199,27 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         // @ts-ignore
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
+        }
+        // inserting the geometry data
+        if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
+          const geometry = requestBody.geometry;
+          let geomQueryParams = [];
+
+          if (geometry.point && geometry.point.length) {
+            for (let i = 0; i < geometry.point.length; i++) {
+              geomQueryParams.push(`POINT(${geometry.point[i]})`);
+            }
+          }
+          if (geometry.linestring && geometry.linestring.length) {
+            for (let i = 0; i < geometry.linestring.length; i++) {
+              geomQueryParams.push(`LINESTRING(${geometry.linestring[i]})`);
+            }          }
+          if (geometry.polygon && geometry.polygon.length) {
+            for (let i = 0; i < geometry.polygon.length; i++) {
+              geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
+            }
+          }
+          return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
         }
         params[paramCounter++] = requestBody[key];
         return `${key}=$${paramCounter}`;

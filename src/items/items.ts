@@ -204,11 +204,10 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
       queryString = event.queryStringParameters, // Use default values if not supplied.
       params = [queryString.lat_sw, queryString.lng_sw, queryString.lat_ne, queryString.lng_ne],
       query = `
-        SELECT *, ST_AsText(geom) as geoJSON 
+        SELECT id, s3_key, title, ST_AsText(geom) as geoJSON 
         FROM ${process.env.ITEMS_TABLE}
         WHERE geom && ST_MakeEnvelope($1, $2, $3,$4, 4326)
       `;
-
     return successResponse({ items: await db.any(query, params) });
   } catch (e) {
     console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
