@@ -70,6 +70,9 @@ provider:
     PGDATABASE: ${env:PGDATABASE}
     PGSSL: ${env:PGSSL}
 
+    QLDB_API_KEY: ${env:QLDB_API_KEY}
+    QLDB_API_URL: ${env:QLDB_API_URL}
+
     # Mailchimp
     MC_DC: ${env:MC_DC}
     MC_APIKEY: ${env:MC_APIKEY}
