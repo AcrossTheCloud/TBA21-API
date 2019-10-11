@@ -150,13 +150,16 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
               LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
           
           WHERE item.${field}=$1
-          ${(isAdmin || userId) ? '' : 'AND status = true'}
-          ${isContributor && userId ? ` AND contributor = '${userId}'::uuid ` : ''}
+          ${(isAdmin || !!userId) ? '' : 'AND status = true'}
+          ${isContributor && !!userId ? ` AND contributor = '${userId}'::uuid ` : ''}
 
           GROUP BY item.s3_key
         `;
 
-    return successResponse({item: await dbgeoparse([await db.oneOrNone(query, params)], null)});
+    const result = await db.oneOrNone(query, params);
+    const item = result ? await dbgeoparse([result], null) : null;
+
+    return successResponse({ item });
   } catch (e) {
     console.log('admin/items/items.getById ERROR - ', e);
     return badRequestResponse();

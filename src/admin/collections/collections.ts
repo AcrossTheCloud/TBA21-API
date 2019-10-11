@@ -70,7 +70,10 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
         GROUP BY collections.id
       `;
 
-    return successResponse({ collection: await dbgeoparse(await db.oneOrNone(query, params), null) });
+    const result = await db.oneOrNone(query, params);
+    const collection = result ? await dbgeoparse([result], null) : null;
+
+    return successResponse({ collection });
   } catch (e) {
     console.log('/collections/collections.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -251,7 +254,8 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
         OFFSET $3
       `;
 
-    return successResponse({ items: await db.any(query, params) });
+    const items = await dbgeoparse(await db.any(query, params), null);
+    return successResponse({ items });
   } catch (e) {
     console.log('/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
