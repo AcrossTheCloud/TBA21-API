@@ -95,7 +95,10 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
         GROUP BY collections.id
       `;
 
-    return successResponse({ collection: await dbgeoparse(await db.oneOrNone(query, params), null) });
+    const result = await db.oneOrNone(query, params);
+    const collection = result ? await dbgeoparse([result], null) : null;
+
+    return successResponse({ collection });
   } catch (e) {
     console.log('/collections/collections.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -186,8 +189,8 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
           COUNT ( collections.id ) OVER (),
            collections.*,
            COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-           ST_AsText(collections.geom) as text 
+           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+           ST_AsText(collections.geom) as geom
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
                        
@@ -354,14 +357,15 @@ export const getCollectionsByItem = async (event: APIGatewayEvent, context: Cont
       queryString = event.queryStringParameters, // Use default values if not supplied.
       params = [queryString.s3Key, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
       query = `
-        SELECT *
+        SELECT *,
+        ST_AsText(collections.geom) as geom
         FROM ${process.env.COLLECTIONS_ITEMS_TABLE}
         INNER JOIN ${process.env.COLLECTIONS_TABLE} on ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id = collections.id
         WHERE item_s3_key = $1
         AND status = 'true'
       `;
 
-    return successResponse({ collections: await db.any(query, params) });
+    return successResponse({ collections: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getCollectionsByItem ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

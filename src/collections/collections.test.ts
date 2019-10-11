@@ -30,7 +30,7 @@ describe('Collections', () => {
       response = await get({} as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.length).toEqual(3);
+    expect(result.collections.objects.output.geometries.length).toEqual(3);
   });
 
   test('Check that we can limit the number of returned items.', async () => {
@@ -39,7 +39,7 @@ describe('Collections', () => {
       response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.length).toEqual(1);
+    expect(result.collections.objects.output.geometries.length).toEqual(1);
   });
 
   test('Pagination works', async () => {
@@ -48,8 +48,8 @@ describe('Collections', () => {
       response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.length).toEqual(1);
-    expect(result.collections[0].title).toEqual('The Decisive Moment');
+    expect(result.collections.objects.output.geometries.length).toEqual(1);
+    expect(result.collections.objects.output.geometries[0].properties.title).toEqual('The Decisive Moment');
   });
 
   test('Get collection by id of 2', async () => {
@@ -58,7 +58,7 @@ describe('Collections', () => {
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collection.id).toEqual('2');
+    expect(result.collection.objects.output.geometries[0].properties.id).toEqual('2');
   });
 
   test('Get a bad response when no id is given', async () => {
@@ -75,7 +75,7 @@ describe('Collections', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.length).toEqual(3);
+    expect(result.collections.objects.output.geometries.length).toEqual(3);
   });
   test('Get a bad response when no tag is given', async () => {
     const
@@ -90,7 +90,7 @@ describe('Collections', () => {
       queryStringParameters: QueryStringParameters = {person: 'Tim'},
       response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.collections.length).toEqual(2);
+    expect(result.collections.objects.output.geometries.length).toEqual(2);
   });
   test('Get a bad response when no person is given', async () => {
     const
@@ -119,9 +119,9 @@ describe('Collections', () => {
     const
       queryStringParameters: QueryStringParameters = {lat_sw: '-90', lng_sw: '-180', lat_ne: '90', lng_ne: '180'},
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-      results = JSON.parse(response.body);
+      result = JSON.parse(response.body);
 
-    expect(results.collections.length).toEqual(3);
+    expect(result.collections.objects.output.geometries.length).toEqual(3);
   });
   test
   ('Get a bad response when a boundary is missing', async () => {
@@ -136,7 +136,8 @@ describe('Collections', () => {
       queryStringParameters: QueryStringParameters = {id: '2'},
       response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       item = JSON.parse(response.body);
-    expect(item.items.length).toEqual(1);
+
+    expect(item.items.objects.output.geometries.length).toEqual(1);
   });
 
   test('Get all the collections an item belongs to', async () => {
@@ -144,6 +145,6 @@ describe('Collections', () => {
       queryStringParameters: QueryStringParameters = {s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg'},
       response = await getCollectionsByItem({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.collections.length).toEqual(2);
+    expect(result.collections.objects.output.geometries.length).toEqual(2);
   });
 });
