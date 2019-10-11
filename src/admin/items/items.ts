@@ -67,8 +67,6 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
       value = queryString.id;
     }
 
-    console.log('isContributor', isContributor, userId);
-
     return (await getItemBy(column, value, isAdmin, isContributor, userId));
 
   } catch (e) {
