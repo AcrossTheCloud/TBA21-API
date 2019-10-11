@@ -43,13 +43,16 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg'},
       response = await getItem({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
-    expect(results.items.objects.output.geometries[0].s3_key).toEqual('private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg');
+
+    expect(results.item.objects.output.geometries[0].properties.s3_key).toEqual('private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg');
   });
   test(`Check an item with a status of false isn't returned`, async () => {
     const
       queryStringParameters: QueryStringParameters = {s3Key: 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg'},
       response = await getItem({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       results = JSON.parse(response.body);
+
+    console.log(results);
 
     expect(results.item).toEqual(null);
   });
@@ -58,7 +61,10 @@ describe('Item tests', () => {
       queryStringParameters: QueryStringParameters = {id: '2'},
       response = await getItem({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.items.objects.output.geometries[0].s3_key).toEqual('2');
+
+    console.log(result.item.objects.output);
+
+    expect(result.item.objects.output.geometries[0].properties.id).toEqual('2');
   });
   test('Get a bad response when no tag is given', async () => {
     const
