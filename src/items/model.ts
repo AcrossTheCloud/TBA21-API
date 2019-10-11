@@ -121,7 +121,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
           OFFSET $2 
         `;
 
-    return successResponse({items: await dbgeoparse(await db.any(query, params), null)});
+    return successResponse({data: await dbgeoparse(await db.any(query, params), null)});
   } catch (e) {
     console.log('items/model.get ERROR - ', e);
     return badRequestResponse();
@@ -157,9 +157,9 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
         `;
 
     const result = await db.oneOrNone(query, params);
-    const item = result ? await dbgeoparse([result], null) : null;
+    const data = result ? await dbgeoparse([result], null) : null;
 
-    return successResponse({ item });
+    return successResponse({ data });
   } catch (e) {
     console.log('admin/items/items.getById ERROR - ', e);
     return badRequestResponse();

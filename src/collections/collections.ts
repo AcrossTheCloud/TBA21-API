@@ -54,7 +54,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         OFFSET $2 
       `;
 
-    return successResponse({ collections: await dbgeoparse(await db.any(query, params), null) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -96,9 +96,9 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
       `;
 
     const result = await db.oneOrNone(query, params);
-    const collection = result ? await dbgeoparse([result], null) : null;
+    const data = result ? await dbgeoparse([result], null) : null;
 
-    return successResponse({ collection });
+    return successResponse({ data });
   } catch (e) {
     console.log('/collections/collections.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -156,7 +156,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       OFFSET $3
     `;
 
-    return successResponse({ collections: await dbgeoparse(await db.any(query, params), null) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getByTag ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -212,7 +212,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         OFFSET $3 
       `;
 
-    return successResponse({ collections: await dbgeoparse(await db.any(query, params), null)});
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null)});
   } catch (e) {
     console.log('/collections/collections.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -277,7 +277,7 @@ export const getCollectionsInBounds = async (event: APIGatewayEvent, context: Co
         WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
       `;
 
-    return successResponse({ collections: await dbgeoparse(await db.any(query, params), null) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getCollectionsInBounds ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -329,7 +329,7 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
         OFFSET $3
       `;
 
-    return successResponse({ items: await dbgeoparse(await db.any(query, params), null) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -365,7 +365,7 @@ export const getCollectionsByItem = async (event: APIGatewayEvent, context: Cont
         AND status = 'true'
       `;
 
-    return successResponse({ collections: await dbgeoparse(await db.any(query, params), null) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getCollectionsByItem ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

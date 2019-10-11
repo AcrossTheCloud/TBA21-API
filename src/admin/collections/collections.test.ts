@@ -21,7 +21,7 @@ describe('Admin Collections', () => {
       response = await get( {queryStringParameters: {}, path: '/admin/collections/get'} as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.objects.output.geometries[0].properties.count).toEqual('3');
+    expect(result.data.objects.output.geometries[0].properties.count).toEqual('3');
   });
 
   test('Check that we can limit the number of returned items.', async () => {
@@ -30,7 +30,7 @@ describe('Admin Collections', () => {
       response = await get({ queryStringParameters, path: '/admin/collections/get' } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.objects.output.geometries.length).toEqual(1);
+    expect(result.data.objects.output.geometries.length).toEqual(1);
   });
 
   test('Pagination works', async () => {
@@ -39,8 +39,8 @@ describe('Admin Collections', () => {
       response = await get({ queryStringParameters, path: '/admin/collections/get' } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.objects.output.geometries.length).toEqual(1);
-    expect(result.collections.objects.output.geometries[0].properties.title).toEqual('The Decisive Moment');
+    expect(result.data.objects.output.geometries.length).toEqual(1);
+    expect(result.data.objects.output.geometries[0].properties.title).toEqual('The Decisive Moment');
   });
 
   test('Get collection by id of 2', async () => {
@@ -49,7 +49,7 @@ describe('Admin Collections', () => {
       response = await getById({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collection.objects.output.geometries[0].properties.id).toEqual('2');
+    expect(result.data.objects.output.geometries[0].properties.id).toEqual('2');
   });
 
   test('Get a bad response when no id is given', async () => {
@@ -66,7 +66,7 @@ describe('Admin Collections', () => {
       response = await getByTag({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.objects.output.geometries.length).toEqual(3);
+    expect(result.data.objects.output.geometries.length).toEqual(3);
   });
   test('Get a bad response when no tag is given', async () => {
     const
@@ -80,21 +80,21 @@ describe('Admin Collections', () => {
       queryStringParameters: QueryStringParameters = {person: 'tim'},
       response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.collections.objects.output.geometries.length).toEqual(2);
+    expect(result.data.objects.output.geometries.length).toEqual(2);
   });
   test('Get items in a collection', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '3'},
       response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.items.objects.output.geometries.length).toEqual(2);
+    expect(result.data.objects.output.geometries.length).toEqual(2);
   });
   test('Get items in a collection with only returning limited results', async () => {
     const
       queryStringParameters: QueryStringParameters = {id: '3'},
       response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.items.objects.output.geometries[0].properties.title).toEqual('Detonation');
+    expect(result.data.objects.output.geometries[0].properties.title).toEqual('Detonation');
   });
 
   test('Get a contributors collection', async () => {
@@ -107,7 +107,7 @@ describe('Admin Collections', () => {
       } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.objects.output.geometries[0].properties.count).toEqual('3');
+    expect(result.data.objects.output.geometries[0].properties.count).toEqual('3');
   });
 
   test('Get a contributors collection by id', async () => {
@@ -121,8 +121,8 @@ describe('Admin Collections', () => {
       } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.collections.objects.output.geometries[0].properties.count).toEqual('1');
-    expect(result.collections.objects.output.geometries[0].properties.id).toEqual('1');
+    expect(result.data.objects.output.geometries[0].properties.count).toEqual('1');
+    expect(result.data.objects.output.geometries[0].properties.id).toEqual('1');
   });
 
 });

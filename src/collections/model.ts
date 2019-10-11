@@ -299,7 +299,7 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         OFFSET $2 
       `;
 
-    return successResponse({ collections: await dbgeoparse(await db.any(query, params), null) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

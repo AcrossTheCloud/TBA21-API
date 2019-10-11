@@ -210,7 +210,7 @@ export const getItemsInBounds = async (event: APIGatewayEvent, context: Context)
         FROM ${process.env.ITEMS_TABLE}
         WHERE geom && ST_MakeEnvelope($1, $2, $3,$4, 4326)
       `;
-    return successResponse({ items: await dbgeoparse(await db.any(query, params), null) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
