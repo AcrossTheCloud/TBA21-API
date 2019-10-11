@@ -28,7 +28,7 @@ describe('Collections Update', () => {
     const getResponse = await get({} as APIGatewayProxyEvent, {} as Context),
       getResults = JSON.parse(getResponse.body);
 
-    expect(getResults.collections.length).toEqual(2);
+    expect(getResults.collections.objects.output.geometries.length).toEqual(2);
   });
 
   test('Contributor tries to update a collection who does not belong to him/her', async () => {
