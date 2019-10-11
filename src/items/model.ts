@@ -290,7 +290,7 @@ export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
     if (!delResult) {
       throw new Error('unauthorized');
     }
-
+    // if the item was successfully deleted, we delete any associated entries in the short paths table.
     if (delResult) {
       await db.any(
         `DELETE FROM ${process.env.SHORT_PATHS_TABLE}

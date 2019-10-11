@@ -234,7 +234,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
       if (!deleteResult) {
         throw new Error('unauthorized');
       }
-      // MA: why the 2nd query below is here ? Didn't we have cascade on delete ? I have kept it anyway
+      // We run the second delete query if for any reason the initial doesn't cascade.
       let query2 = `DELETE FROM ${process.env.COLLECTIONS_ITEMS_TABLE}
             WHERE collection_id = $1 `;
       await t.any(query2, [id]);
