@@ -38,7 +38,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
     const
       queryString = event.queryStringParameters,
-      params = [limitQuery(queryString.itemsLimit, 50), limitQuery(queryString.oaHighlightLimit, 5), limitQuery(queryString.collectionsLimit, 50)];
+      params = [limitQuery(queryString.itemsLimit, 50), limitQuery(queryString.oaHighlightLimit, 50), limitQuery(queryString.collectionsLimit, 50)];
 
     let date: string;
     let collectionsDate: string;
@@ -85,11 +85,20 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           AND status = true
           $4:raw
         GROUP BY items.id, items.title, items.s3_key
-        ORDER BY random() 
+        ORDER BY year_produced DESC 
         LIMIT $2:raw
     `;
+     
+     let result = await db.any(oaHighlightQuery, params);
+     let resultByYear = [];
+     result = result.sort( () => Math.random() - 0.5);
+     for (let i = 0; i < result.length ; i++) {
+       if (result[i].year_produced === new Date().getFullYear() || new Date().getFullYear() - 1) {
+          resultByYear.push(result[i]);
+        }
+      }
      return successResponse({
-         oa_highlight: await db.any(oaHighlightQuery, params)
+         oa_highlight: resultByYear
        });
     } else {
       let whereStatement: string = ``;
