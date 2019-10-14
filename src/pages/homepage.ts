@@ -92,13 +92,29 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
      let
         result = await db.any(oaHighlightQuery, params),
         resultByYear = [];
-
+     // Randomising the results
      result = result.sort( () => Math.random() - 0.5);
+      // Loop through the highlights and push the highlights from this year or last year in to our weighted array
      for (let i = 0; i < result.length ; i++) {
-       if (result[i].year_produced === new Date().getFullYear() || new Date().getFullYear() - 1) {
-          resultByYear.push(result[i]);
+       if (parseInt(result[i].year_produced, 0 ) === new Date().getFullYear()) {
+         resultByYear.push(result[i]);
+         result.splice(i, 1);
+         i--;
         }
       }
+      // If our results are less than the requested limit, push the results in
+     if (resultByYear.length < (parseInt(params[1], 0))) {
+       let diff = parseInt(params[1], 0) - resultByYear.length;
+       for (let i = 0; i < diff; i++) {
+         if (result.length === 0) {
+         diff = 0;
+       } else {
+           resultByYear.push(result[i]);
+           result.splice(i, 1);
+           i--;
+         }
+       }
+     }
      return successResponse({
          oa_highlight: resultByYear
        });
@@ -131,20 +147,30 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         ORDER BY year_produced DESC 
         LIMIT $1:raw
       `;
-
       let
         itemResult = await db.many(itemsQuery, params),
         weightedItemResult = [];
+      // Randomising the items order
       itemResult = itemResult.sort( () => Math.random() - 0.5);
-
+      // Loop through the items and push the items from this year or last year in to our weighted array      
       for (let i = 0; i < itemResult.length; i++) {
         if (itemResult[i].year_produced === new Date().getFullYear() || new Date().getFullYear() - 1) {
           weightedItemResult.push(itemResult[i]);
         }
       }
-
-      // const items = await db.any(itemsQuery, params);
-
+      // If our results are less than the requested limit, push the results in
+      if (weightedItemResult.length < (parseInt(params[0], 0))) {
+        let diff = parseInt(params[1], 0) - weightedItemResult.length;
+        for (let i = 0; i < diff; i++) {
+          if (itemResult.length === 0) {
+            diff = 0;
+          } else {
+            weightedItemResult.push(itemResult[i]);
+            itemResult.splice(i, 1);
+            i--;
+          }
+        }
+      }
       // Params 4
       if ( queryString.date && queryString.date.length ) {
           collectionsDate = `
@@ -158,7 +184,6 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         `;
           params.push(collectionsDate);
       }
-
       // Collections
       const collectionsQuery = `
         SELECT COUNT(*), 
@@ -187,13 +212,27 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
       // Remove all collections without an item.
       collectionsResult = collectionsResult.filter(c => c.s3_key && c.s3_key.length);
+      // Randomising the collection order
       collectionsResult = collectionsResult.sort( () => Math.random() - 0.5);
+      // Loop through the collections and push the collections from this year or last year in to our weighted array      
       for (let i = 0; i < collectionsResult.length; i++) {
         if (collectionsResult[i].year_produced === new Date().getFullYear() || new Date().getFullYear() - 1) {
           weightedCollectionResult.push(collectionsResult[i]);
         }
       }
-
+      // If our results are less than the requested limit, push the results in
+      if (weightedCollectionResult.length < (parseInt(params[3], 0))) {
+        let diff = parseInt(params[1], 0) - weightedCollectionResult.length;
+        for (let i = 0; i < diff; i++) {
+          if (collectionsResult.length === 0) {
+            diff = 0;
+          } else {
+            weightedCollectionResult.push(collectionsResult[i]);
+            collectionsResult.splice(i, 1);
+            i--;
+          }
+        }
+      }
       return successResponse(
         {
           items: weightedItemResult,
