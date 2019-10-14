@@ -41,4 +41,18 @@ describe('homepage tests', () => {
     expect(results.items.length).toEqual(1);
     expect(results.collections.length).toEqual(3);
   });
+  test('Get a highlight', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {oa_highlight: 'true'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+    expect(results.oa_highlight);
+  });
+  test('Get items and collections', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {oa_highlight: 'false'},
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
+      results = JSON.parse(response.body);
+    expect(results.items);
+  });
 });

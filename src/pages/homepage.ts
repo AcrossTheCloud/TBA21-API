@@ -156,6 +156,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       for (let i = 0; i < itemResult.length; i++) {
         if (itemResult[i].year_produced === new Date().getFullYear() || new Date().getFullYear() - 1) {
           weightedItemResult.push(itemResult[i]);
+          itemResult.splice(i, 1);
+          i--;
         }
       }
       // If our results are less than the requested limit, push the results in
@@ -218,6 +220,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       for (let i = 0; i < collectionsResult.length; i++) {
         if (collectionsResult[i].year_produced === new Date().getFullYear() || new Date().getFullYear() - 1) {
           weightedCollectionResult.push(collectionsResult[i]);
+          collectionsResult.splice(i, 1);
+          i--;
         }
       }
       // If our results are less than the requested limit, push the results in
