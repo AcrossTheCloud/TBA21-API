@@ -263,14 +263,14 @@ export const getCollectionsInBounds = async (event: APIGatewayEvent, context: Co
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
-        lat_sw: Joi.number().required(),
-        lat_ne: Joi.number().required(),
         lng_sw: Joi.number().required(),
-        lng_ne: Joi.number().required()
+        lat_sw: Joi.number().required(),
+        lng_ne: Joi.number().required(),
+        lat_ne: Joi.number().required()
       }));
     let
       queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.lat_sw, queryString.lng_sw, queryString.lat_ne, queryString.lng_ne],
+      params = [queryString.lng_sw, queryString.lat_sw, queryString.lng_ne, queryString.lat_ne],
       query = `
         SELECT *, ST_AsText(geom) as geom 
         FROM ${process.env.COLLECTIONS_TABLE}

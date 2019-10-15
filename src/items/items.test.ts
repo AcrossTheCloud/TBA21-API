@@ -142,7 +142,7 @@ describe('Item tests', () => {
   });
   test('Get all items within the bounding box (-34.312742, 150.9218689, -34.756705,150.757261)', async () => {
     const
-      queryStringParameters: QueryStringParameters = {lat_sw: '-34.312742', lng_sw: '150.9218689', lat_ne: '-34.756705', lng_ne: '150.757261'},
+      queryStringParameters: QueryStringParameters = {lat_ne: '-34.312742', lng_ne: '150.9218689', lat_sw: '-34.756705', lng_sw: '150.757261'},
       response = await getItemsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
     expect(result.data.objects.output.geometries.length).toEqual(3);
