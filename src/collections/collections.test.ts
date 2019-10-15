@@ -115,7 +115,7 @@ describe('Collections', () => {
     expect(response.statusCode).toEqual(400);
   });
 
-  test('Get all collections within the bounding box (-90, -180, 90, 180)', async () => {
+  test('Get all collections within the bounding box (-180, -90, 180, 90)', async () => {
     const
       queryStringParameters: QueryStringParameters = {lng_sw: '-180', lat_sw: '-90', lng_ne: '180', lat_ne: '90'},
       response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
