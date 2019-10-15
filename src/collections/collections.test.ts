@@ -13,10 +13,11 @@ import {
   getByPerson,
   getByTag,
   changeStatus,
-  getCollectionsInBounds,
   getItemsInCollection,
   getCollectionsByItem
 } from './collections';
+
+import { get as getCollectionsInBounds } from '../map/map';
 
 describe('Collections', () => {
 
@@ -117,8 +118,8 @@ describe('Collections', () => {
 
   test('Get all collections within the bounding box (-180, -90, 180, 90)', async () => {
     const
-      queryStringParameters: QueryStringParameters = {lng_sw: '-180', lat_sw: '-90', lng_ne: '180', lat_ne: '90'},
-      response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      queryStringParameters: QueryStringParameters = {lng_sw: '-180', lat_sw: '-90', lng_ne: '180', lat_ne: '90', type: 'collection'},
+      response = await getCollectionsInBounds({ queryStringParameters } as APIGatewayProxyEvent),
       result = JSON.parse(response.body);
 
     expect(result.data.objects.output.geometries.length).toEqual(3);
@@ -126,8 +127,8 @@ describe('Collections', () => {
   test
   ('Get a bad response when a boundary is missing', async () => {
     const
-      queryStringParameters: QueryStringParameters = {lat_sw: '-90', lng_sw: '', lat_ne: '90', lng_ne: '180'},
-      response = await getCollectionsInBounds({queryStringParameters } as APIGatewayProxyEvent, {} as Context);
+      queryStringParameters: QueryStringParameters = {lat_sw: '-90', lng_sw: '', lat_ne: '90', lng_ne: '180', type: 'collection'},
+      response = await getCollectionsInBounds({ queryStringParameters } as APIGatewayProxyEvent);
     expect(response.statusCode).toEqual(400);
   });
 

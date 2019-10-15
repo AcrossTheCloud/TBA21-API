@@ -252,39 +252,6 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
 };
 /**
  *
- * Take four coordinates that make up a square and returns the collections inside of it
- *
- * @param event {APIGatewayEvent}
- * @param context {Promise<APIGatewayProxyResult>}
- *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a typology object containing the results
- */
-export const getCollectionsInBounds = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
-      {
-        lng_sw: Joi.number().required(),
-        lat_sw: Joi.number().required(),
-        lng_ne: Joi.number().required(),
-        lat_ne: Joi.number().required()
-      }));
-    let
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.lng_sw, queryString.lat_sw, queryString.lng_ne, queryString.lat_ne],
-      query = `
-        SELECT *, ST_AsText(geom) as geom 
-        FROM ${process.env.COLLECTIONS_TABLE}
-        WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
-      `;
-
-    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
-  } catch (e) {
-    console.log('/collections/collections.getCollectionsInBounds ERROR - ', !e.isJoi ? e : e.details);
-    return badRequestResponse();
-  }
-};
-/**
- *
  * Get a list of items in a collection
  *
  * @param event {APIGatewayEvent}

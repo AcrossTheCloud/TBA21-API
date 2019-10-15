@@ -266,23 +266,6 @@ functions:
 #              - name: request.querystring.id
 #              - name: request.querystring.status
 
-#  getItemsInBounds:
-#    handler: src/items/items.getItemsInBounds
-#    description: Get all items inside a bounding box
-#    events:
-#      - http:
-#          path: items/getItemsInBounds
-#          method: get
-#          cors: true
-#          authorizer: aws_iam
-#          caching:
-#            enabled: true
-#            cacheKeyParameters:
-#              - name: request.querystring.lat_se
-#              - name: request.querystring.lng_sw
-#              - name: request.querystring.lng_ne
-#              - name: request.querystring.lat_nw
-
   getItemsRekognitionTags:
     handler: src/items/items.getRekognitionTags
     description: Get the Rekognition Tags from an item.
@@ -348,23 +331,6 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.id
 #              - name: request.querystring.status
-
-#  getCollectionsInBounds:
-#    handler: src/collections/collections.getInBounds
-#    description: Gets the collections within the specified bounds
-#    events:
-#      - http:
-#          path: collections/getInBounds
-#          method: get
-#          cors: true
-#          authorizer: aws_iam
-#          caching:
-#            enabled: true
-#            cacheKeyParameters:
-#              - name: request.querystring.lat_se
-#              - name: request.querystring.lng_sw
-#              - name: request.querystring.lng_ne
-#              - name: request.querystring.lat_nw
 
   deleteItem:
     handler: src/admin/items/delete.deleteItem
@@ -448,6 +414,26 @@ functions:
           method: DELETE
           cors: true
           authorizer: aws_iam
+
+
+  ### MAP
+  getInBounds:
+    handler: src/map/map.get
+    description: Get the items or collections within the specified bounds
+    events:
+      - http:
+          path: map
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.lat_se
+              - name: request.querystring.lng_sw
+              - name: request.querystring.lng_ne
+              - name: request.querystring.lat_nw
+              - name: request.querystring.type
 
   ### Short Paths
   getShortPath:
