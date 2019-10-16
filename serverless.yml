@@ -658,6 +658,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  getCollections:
+    handler: src/collections/collections.get
+    description: Returns a list of collections with an option to supply the contributor uuid
+    events:
+      - http:
+          path: collections
+          method: get
+          cors: true
+          authorizer: aws_iam
+
   adminGetCollectionById:
     handler: src/admin/collections/collections.getById
     description: Returns collections id from the database.

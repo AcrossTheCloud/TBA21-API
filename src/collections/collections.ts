@@ -11,23 +11,35 @@ import { uuidRegex } from '../utils/uuid';
  * Gets all the collections
  *
  * @param event {APIGatewayEvent}
- * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections
  */
-export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     await Joi.validate(event.queryStringParameters, Joi.object().keys(
       {
-        limit: Joi.number().integer(),
-        offset: Joi.number().integer()
+        limit: Joi.number().integer().required(),
+        offset: Joi.number().integer(),
+        uuid: Joi.string().regex(uuidRegex)
       }));
     // will cause an exception if it is not valid
 
     const
-      defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues, // Use default values if not supplied.
-      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      defaultValues = { offset: 0 },
+      {
+        limit,
+        offset,
+        uuid
+      } = event.queryStringParameters, // Use default values if not supplied.
+      params = [limit, offset || defaultValues.offset];
+
+    let UUIDStatement = '';
+    if (!!uuid) {
+      params.push(event.queryStringParameters.uuid);
+      UUIDStatement = `AND contributors @> ARRAY[$3]::uuid[]`;
+    }
+
+    const
       query = `
         SELECT
           COUNT ( collections.id ) OVER (),
@@ -45,9 +57,10 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
             
         WHERE status=true
+        ${UUIDStatement}
         
         GROUP BY collections.id
-        ORDER BY collections.id
+        ORDER BY collections.year_produced
         
         LIMIT $1 
         OFFSET $2 
@@ -375,7 +388,6 @@ export const getCollectionsByItem = async (event: APIGatewayEvent, context: Cont
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
  */
-
 export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const data = JSON.parse(event.body);
