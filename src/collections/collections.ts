@@ -43,17 +43,21 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
           collections.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          COALESCE(array_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
           ST_AsGeoJSON(collections.geom) as geoJSON
         FROM 
-          ${process.env.COLLECTIONS_TABLE} AS collections,
-            
+          ${process.env.COLLECTIONS_TABLE} AS collections
+          
+          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON collections.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
+          INNER JOIN ${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key,
+          
           UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
                     
           UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
             
-        WHERE status=true
+        WHERE collections.status=true
         ${UUIDStatement}
         
         GROUP BY collections.id
