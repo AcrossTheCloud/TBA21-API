@@ -27,7 +27,7 @@ describe('Collections', () => {
 
   test('The function runs without queryStringParams', async () => {
     const
-      response = await get({} as APIGatewayProxyEvent, {} as Context),
+      response = await get({} as APIGatewayProxyEvent),
       result = JSON.parse(response.body);
 
     expect(result.collections.length).toEqual(3);
@@ -36,7 +36,7 @@ describe('Collections', () => {
   test('Check that we can limit the number of returned items.', async () => {
     const
       queryStringParameters: QueryStringParameters = {limit: '1'},
-      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       result = JSON.parse(response.body);
 
     expect(result.collections.length).toEqual(1);
@@ -45,7 +45,7 @@ describe('Collections', () => {
   test('Pagination works', async () => {
     const
       queryStringParameters: QueryStringParameters = {limit: '1', offset: '1'},
-      response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       result = JSON.parse(response.body);
 
     expect(result.collections.length).toEqual(1);
