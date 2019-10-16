@@ -16,25 +16,22 @@ import { uuidRegex } from '../utils/uuid';
  */
 export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
-      {
-        limit: Joi.number().integer().required(),
-        offset: Joi.number().integer(),
-        uuid: Joi.string().regex(uuidRegex)
-      }));
-    // will cause an exception if it is not valid
+    if (event.queryStringParameters) {
+      await Joi.validate(event.queryStringParameters, Joi.object().keys(
+        {
+          limit: Joi.number().integer(),
+          offset: Joi.number().integer(),
+          uuid: Joi.string().regex(uuidRegex)
+        }));
+    }
 
     const
-      defaultValues = { offset: 0 },
-      {
-        limit,
-        offset,
-        uuid
-      } = event.queryStringParameters, // Use default values if not supplied.
-      params = [limit, offset || defaultValues.offset];
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues,
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
 
     let UUIDStatement = '';
-    if (!!uuid) {
+    if (event.queryStringParameters && event.queryStringParameters.hasOwnProperty('uuid')) {
       params.push(event.queryStringParameters.uuid);
       UUIDStatement = `AND contributors @> ARRAY[$3]::uuid[]`;
     }
