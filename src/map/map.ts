@@ -14,12 +14,12 @@ import { dbgeoparse } from '../utils/dbgeo';
  */
 export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       lng_sw: Joi.number().required(),
       lat_sw: Joi.number().required(),
       lng_ne: Joi.number().required(),
       lat_ne: Joi.number().required(),
-      type: Joi.any().valid('collection', 'item').required()
+      type: Joi.string().valid('collection', 'item').required()
     }));
     const
       {
@@ -34,7 +34,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       query = `
         SELECT 
           id,
-          ${type === 'item' ? 's3_key' : ''}
+          ${type === 'item' ? 's3_key,' : ''}
           title,
           ST_AsText(geom) as geom,
           $5 as metaType
