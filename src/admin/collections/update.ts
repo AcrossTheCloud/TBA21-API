@@ -83,7 +83,13 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         related_event: Joi.string().allow('').allow(null),
         volume: Joi.number().integer().allow(''),
         number: Joi.number().integer().allow(''),
-        items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
+        items: Joi.array().items(Joi.string()), // Array of s3 keys to be added to collection
+
+        geometry: Joi.object().keys({
+                                      point: Joi.array().items(Joi.string()),
+                                      linestring: Joi.array().items(Joi.string()),
+                                      polygon: Joi.array().items(Joi.string())
+                                    })
       }));
 
     return (await update(data, true));

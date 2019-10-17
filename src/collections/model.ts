@@ -8,6 +8,7 @@ import {
 } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
+import { dbgeoparse } from '../utils/dbgeo';
 
 export const create = async (requestBody, isAdmin: boolean) => {
   try {
@@ -33,6 +34,27 @@ export const create = async (requestBody, isAdmin: boolean) => {
         if (key === 'contributors') {
           return `$${paramCounter}::uuid[]`;
         }
+         // inserting the geometry data
+        if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
+           const geometry = requestBody.geometry;
+           let geomQueryParams = [];
+
+           if (geometry.point && geometry.point.length) {
+             for (let i = 0; i < geometry.point.length; i++) {
+               geomQueryParams.push(`POINT(${geometry.point[i]})`);
+             }
+           }
+           if (geometry.linestring && geometry.linestring.length) {
+             for (let i = 0; i < geometry.linestring.length; i++) {
+               geomQueryParams.push(`LINESTRING(${geometry.linestring[i]})`);
+             }          }
+           if (geometry.polygon && geometry.polygon.length) {
+             for (let i = 0; i < geometry.polygon.length; i++) {
+               geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
+             }
+           }
+           return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
+         }
         return `$${paramCounter}`;
       });
 
@@ -90,7 +112,27 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         if (key === 'contributors') {
           return `${key}=$${paramCounter}::uuid[]`;
         }
+        // inserting the geometry data
+        if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
+          const geometry = requestBody.geometry;
+          let geomQueryParams = [];
 
+          if (geometry.point && geometry.point.length) {
+            for (let i = 0; i < geometry.point.length; i++) {
+              geomQueryParams.push(`POINT(${geometry.point[i]})`);
+            }
+          }
+          if (geometry.linestring && geometry.linestring.length) {
+            for (let i = 0; i < geometry.linestring.length; i++) {
+              geomQueryParams.push(`LINESTRING(${geometry.linestring[i]})`);
+            }          }
+          if (geometry.polygon && geometry.polygon.length) {
+            for (let i = 0; i < geometry.polygon.length; i++) {
+              geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
+            }
+          }
+          return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
+        }
         return `${key}=$${paramCounter}`;
       });
 
@@ -192,7 +234,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
       if (!deleteResult) {
         throw new Error('unauthorized');
       }
-      // MA: why the 2nd query below is here ? Didn't we have cascade on delete ? I have kept it anyway
+      // We run the second delete query if for any reason the initial doesn't cascade.
       let query2 = `DELETE FROM ${process.env.COLLECTIONS_ITEMS_TABLE}
             WHERE collection_id = $1 `;
       await t.any(query2, [id]);
@@ -237,7 +279,7 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
           collections.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(collections.geom) as geoJSON
+          ST_AsText(collections.geom) as geom
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
             
@@ -257,7 +299,7 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         OFFSET $2 
       `;
 
-    return successResponse({ collections: await db.any(query, params) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

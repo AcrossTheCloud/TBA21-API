@@ -7,6 +7,7 @@ import {
 } from '../common';
 import { db } from '../databaseConnect';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
+import { dbgeoparse } from '../utils/dbgeo';
 
 export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
   try {
@@ -87,7 +88,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-            ST_AsGeoJSON(item.geom) as geoJSON
+            ST_AsText(item.geom) as geom
           FROM 
             ${process.env.ITEMS_TABLE} AS item,
               
@@ -120,7 +121,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
           OFFSET $2 
         `;
 
-    return successResponse({items: await db.any(query, params)});
+    return successResponse({data: await dbgeoparse(await db.any(query, params), null)});
   } catch (e) {
     console.log('items/model.get ERROR - ', e);
     return badRequestResponse();
@@ -138,7 +139,7 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-            ST_AsGeoJSON(item.geom) as geoJSON 
+            ST_AsText(item.geom) as geom 
           FROM 
             ${process.env.ITEMS_TABLE} AS item,
               
@@ -149,13 +150,16 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
               LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
           
           WHERE item.${field}=$1
-          ${(isAdmin || userId) ? '' : 'AND status = true'}
-          ${isContributor && userId ? ` AND contributor = '${userId}'::uuid ` : ''}
+          ${(isAdmin || !!userId) ? '' : 'AND status = true'}
+          ${isContributor && !!userId ? ` AND contributor = '${userId}'::uuid ` : ''}
 
           GROUP BY item.s3_key
         `;
 
-    return successResponse({item: await db.oneOrNone(query, params)});
+    const result = await db.oneOrNone(query, params);
+    const data = result ? await dbgeoparse([result], null) : null;
+
+    return successResponse({ data });
   } catch (e) {
     console.log('admin/items/items.getById ERROR - ', e);
     return badRequestResponse();
@@ -185,12 +189,10 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     if (requestBody.concept_tags) {
       requestBody.concept_tags = requestBody.concept_tags.map(t => parseInt(t, 0));
     }
-
     let paramCounter = 0;
 
     // NOTE: contributor is inserted on create, uuid from claims
     const params = [];
-
     params[paramCounter++] = requestBody.s3_key;
     // pushed into from SQL SET map
     // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
@@ -201,6 +203,27 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         // @ts-ignore
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
+        }
+        // inserting the geometry data
+        if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
+          const geometry = requestBody.geometry;
+          let geomQueryParams = [];
+
+          if (geometry.point && geometry.point.length) {
+            for (let i = 0; i < geometry.point.length; i++) {
+              geomQueryParams.push(`POINT(${geometry.point[i]})`);
+            }
+          }
+          if (geometry.linestring && geometry.linestring.length) {
+            for (let i = 0; i < geometry.linestring.length; i++) {
+              geomQueryParams.push(`LINESTRING(${geometry.linestring[i]})`);
+            }          }
+          if (geometry.polygon && geometry.polygon.length) {
+            for (let i = 0; i < geometry.polygon.length; i++) {
+              geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
+            }
+          }
+          return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
         }
         params[paramCounter++] = requestBody[key];
         return `${key}=$${paramCounter}`;
@@ -270,7 +293,7 @@ export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
     if (!delResult) {
       throw new Error('unauthorized');
     }
-
+    // if the item was successfully deleted, we delete any associated entries in the short paths table.
     if (delResult) {
       await db.any(
         `DELETE FROM ${process.env.SHORT_PATHS_TABLE}

@@ -110,7 +110,10 @@ describe('/admin/items/update/updateByS3key', () => {
         'first_edition_year': '1990',
         'editor': 'editor',
         'featured_in': 'featured in',
-        'volume': '2'
+        'volume': '2',
+        'geometry': { point: ['-34.4079211 150.8802055 17.82', '-34.4077234 150.8778021 16.58', '-34.4077234 150.8778021 16.57'],
+            linestring: ['-34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.83, -34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.82']}
+
       },
       body: string = JSON.stringify(requestBody),
       response = await updateByS3key({ body, path: '/admin/items/update/updateByS3key' } as APIGatewayProxyEvent),
@@ -218,7 +221,7 @@ describe('/admin/items/update/updateByS3key', () => {
       response = await updateByS3key({
         body, path: '/contributor/items/update/updateByS3key', requestContext: {
           identity: {
-            cognitoAuthenticationProvider: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559"
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
           }
         }
       } as APIGatewayProxyEvent);
@@ -323,7 +326,7 @@ describe('/admin/items/update/updateByS3key', () => {
       response = await updateByS3key({
         body, path: '/contributor/items/update/updateByS3key', requestContext: {
           identity: {
-            cognitoAuthenticationProvider: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:1f89f9b6-39bc-416e-899e-ef1a8d656f24"
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:1f89f9b6-39bc-416e-899e-ef1a8d656f24'
           }
         }
       } as APIGatewayProxyEvent),
@@ -332,4 +335,3 @@ describe('/admin/items/update/updateByS3key', () => {
   });
 
 });
-

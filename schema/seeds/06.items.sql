@@ -174,7 +174,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(37.717474 161.204097)', 4326)
+  ST_GeomFromText('GeometryCollection(MULTIPOLYGON(((-154.0895309 56.683104 2, -154.0895309 56.683104 2.1, -154.0895309 56.683104 2.02, -154.0895309 56.683104 2.01, -154.0895309 56.683104 1.99),(-154.0895309 56.683104 1.98, -154.0895309 56.683104 1.88, -154.0895309 56.683104 1.99, -154.0895309 56.683104 1.98, -154.0895309  56.683104 2.00)), ((-153.8570305 56.7385269 2.1, -153.8570305 56.7385269 2.1, -153.8570305 56.7385269 2.111, -153.8570305 56.7385269 1.01, -153.8570305 56.7385269 1.7)) ))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg',
@@ -274,7 +274,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(77.134788 4.835309)', 4326)
+  ST_GeomFromText('GeometryCollection(MULTIPOINT((-154.1825328 56.9173134 0),(-154.1825328 56.9173134 0), (-154.178508 56.9175797 0.02), (-154.1715928 56.9167875 0.01), (-154.1715928 56.9167875 1.1)), LINESTRING(-154.1775098 56.9211072 0.44, -154.1775098 56.9211072 0.2, -154.1775098 56.9211072 0.0, -154.1775098 56.9211072 0.2))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-cat-pet-animal-domestic-104827.jpeg',
@@ -374,7 +374,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(66.073126 4.225375)', 4326)
+  ST_GeomFromText('GeometryCollection(POLYGON((162.861328125 -18.93746442964186 1.0, 163.4326171875 -24.246964554300924 1.01, 170.68359375 -22.350075806124853 1.0, 165.849609375 -18.271086109608863 1.01, 162.861328125 -18.93746442964186 1.2)))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg',
@@ -474,7 +474,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(32.7821795 -0.0075471)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(150.8802055 -34.4079211 0))',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg',
@@ -578,7 +578,7 @@ VALUES (
   '{Host organisation}',
   'Radio Station',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(49.042218 7.528439)', 4326)
+  ST_GeomFromText('GeometryCollection(POINT(151.8802055 -34.4079211 1), POINT(150.8781931 -34.4077586 0.2), POINT(150.8778021 -34.4077234 0.1), POINT(150.8778021 -34.4077234 0) )',4326)
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg',
@@ -651,6 +651,7 @@ VALUES (
   '{}',
   '',
   '{"other":"Other Data"}',
-  ST_GeomFromText('POINT(-34.4708186 151.2997363)', 4326)
+  -- Melbourne to Tasmania to Christchurch
+  ST_GeomFromText('GeometryCollection(LINESTRING( 145.01953124999997 -37.92686760148134 12, 146.6015625 -42.163403424224 3, 172.529296875 -43.45291889355465 4 ))',4326)
 );
 -- END FIRST QUERY tba21.items
