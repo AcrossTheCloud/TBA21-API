@@ -15,7 +15,7 @@ export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
          id: Joi.number().integer().required()
       }));
@@ -70,7 +70,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
          tags: Joi.array().items(Joi.string()).required()
       }));
@@ -119,7 +119,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
          id: Joi.number().integer().required(),
          new_tag_name: Joi.string().required()

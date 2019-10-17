@@ -6,7 +6,7 @@ import Joi from '@hapi/joi';
 export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
 
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       query: Joi.string()
     }));
 
@@ -180,7 +180,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys({
+    await Joi.assert(data, Joi.object().keys({
       criteria: Joi.array().items(
         Joi.object().keys({
           field: Joi.string(),
