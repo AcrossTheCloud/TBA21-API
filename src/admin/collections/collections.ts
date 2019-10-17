@@ -152,7 +152,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         Joi.object().keys({
           limit: Joi.number().integer(),
           offset: Joi.number().integer(),
-          uuid: Joi.string().regex(uuidRegex).required()
+          uuid: Joi.string().pattern(uuidRegex).required()
           })
       ));
       const

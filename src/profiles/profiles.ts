@@ -22,7 +22,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         id: Joi.number().integer()
       }),
       Joi.object().keys({
-        uuid: Joi.string().allow('').allow(null).regex(uuidRegex)
+        uuid: Joi.string().allow('').allow(null).pattern(uuidRegex)
       }),
       Joi.object().keys({
         full_name: Joi.string().allow('').allow(null)
@@ -96,7 +96,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     await Joi.assert(data, Joi.object().keys(
       {
-        contributors: Joi.array().items(Joi.string().allow('').allow(null).regex(uuidRegex)),
+        contributors: Joi.array().items(Joi.string().allow('').allow(null).pattern(uuidRegex)),
         profile_image: Joi.string().allow('').allow(null),
         featured_image: Joi.string().allow('').allow(null),
         full_name: Joi.string().allow('').allow(null),
