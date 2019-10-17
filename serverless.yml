@@ -23,6 +23,7 @@ plugins:
   - serverless-offline
   - serverless-api-gateway-caching
   - serverless-plugin-split-stacks
+  - serverless-plugin-tracing
 
 custom:
   # Enable API GW caching with some global options set
@@ -88,8 +89,12 @@ provider:
           - - 'arn:aws:s3:::'
             - ${env:S3_BUCKET}
             - '/*'
-
-
+    - Effect: "Allow" # xray permissions (required)
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
     - Effect: 'Allow'
       Action:
         - 'lambda:InvokeFunction'
