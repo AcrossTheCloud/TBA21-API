@@ -20,7 +20,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        uuid: Joi.string().regex(uuidRegex)
+        uuid: Joi.string().pattern(uuidRegex)
       }));
 
     const

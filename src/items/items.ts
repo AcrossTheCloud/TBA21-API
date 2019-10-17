@@ -24,7 +24,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       await Joi.assert(event.queryStringParameters, Joi.object().keys({
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        uuid: Joi.string().regex(uuidRegex)
+        uuid: Joi.string().pattern(uuidRegex)
       }));
 
       if (event.queryStringParameters.hasOwnProperty('uuid')) {
