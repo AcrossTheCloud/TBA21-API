@@ -58,6 +58,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
             
         WHERE collections.status=true
+        AND ${process.env.ITEMS_TABLE}.status = true
         ${UUIDStatement}
         
         GROUP BY collections.id
