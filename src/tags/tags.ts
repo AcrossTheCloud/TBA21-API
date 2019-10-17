@@ -15,7 +15,7 @@ import { limitQuery } from '../utils/queryHelpers';
  */
 export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       type: Joi.string().valid('keyword', 'concept').required(),
       limit: Joi.number().integer(),
       offset: Joi.number().integer(),

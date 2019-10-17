@@ -18,7 +18,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       isAdmin: boolean = !!event.path.match(/\/admin\//),
       userId: string  = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         title: Joi.string().required(),
         description: Joi.string().required(),
@@ -42,7 +42,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  */
 export const deleteAnnouncement = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         id: Joi.number().integer().required()
       }));
@@ -79,7 +79,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         id: Joi.number().integer().required(),
         title: Joi.string(),
@@ -134,7 +134,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 };
 export const get = async(event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       id: Joi.number().integer(),
       limit: Joi.number().integer(),
       offset: Joi.number().integer()
