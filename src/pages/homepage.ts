@@ -225,7 +225,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         }
       }
       // If our results are less than the requested limit, push the results in
-      if (weightedCollectionResult.length < (parseInt(params[3], 0))) {
+      if (weightedCollectionResult.length < (parseInt(params[2], 0))) {
         let diff = parseInt(params[1], 0) - weightedCollectionResult.length;
         for (let i = 0; i < diff; i++) {
           if (collectionsResult.length === 0) {
