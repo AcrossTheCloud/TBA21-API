@@ -27,7 +27,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       ...ids
     };
 
-    await Joi.validate(eventParams, Joi.object().keys({
+    await Joi.assert(eventParams, Joi.object().keys({
       itemsLimit: Joi.number().integer(),
       collectionsLimit: Joi.number().integer(),
       oaHighlightLimit: Joi.number().integer(),

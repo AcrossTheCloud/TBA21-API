@@ -18,7 +18,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         id: Joi.number().integer().required(),
         status: Joi.boolean(),

@@ -13,7 +13,7 @@ import { deleteUserProfile, insertProfile, updateProfile } from '../../profiles/
  */
 export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+    await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         id: Joi.number().integer().required()
       }),
@@ -70,7 +70,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
         uuid: Joi.string().regex(uuidRegex).required(),
@@ -113,7 +113,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     const
       data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         id: Joi.number().integer().required(),
         uuid: Joi.string().allow('').allow(null).regex(uuidRegex).required(),
@@ -158,7 +158,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const data = JSON.parse(event.body);
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         uuid: Joi.string().regex(uuidRegex).required()
       }));

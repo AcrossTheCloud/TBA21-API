@@ -16,7 +16,7 @@ import { uuidRegex } from '../../utils/uuid';
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
@@ -43,7 +43,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  */
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({id:  Joi.number().required()}), { presence: 'required' });
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({id:  Joi.number().required()}), { presence: 'required' });
 
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
@@ -86,7 +86,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
@@ -143,7 +143,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-      await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+      await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
         Joi.object().keys({
           limit: Joi.number().integer(),
           offset: Joi.number().integer(),
@@ -219,7 +219,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  */
 export const getItemsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
