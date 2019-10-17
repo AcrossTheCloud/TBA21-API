@@ -18,7 +18,7 @@ import { getAll, getItemBy } from './model';
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
     if (event.queryStringParameters) {
-      await Joi.validate(event.queryStringParameters, Joi.object().keys({
+      await Joi.assert(event.queryStringParameters, Joi.object().keys({
         limit: Joi.number().integer(),
         offset: Joi.number().integer()
       }));
@@ -45,7 +45,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  */
 export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+    await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         s3Key: Joi.string(),
         id: Joi.string()
@@ -81,7 +81,7 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       limit: Joi.number().integer(),
       offset: Joi.number().integer(),
       tag: Joi.string().required()
@@ -109,7 +109,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  */
 export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       limit: Joi.number().integer(),
       offset: Joi.number().integer(),
       type: Joi.string().required()
@@ -137,7 +137,7 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       limit: Joi.number().integer(),
       offset: Joi.number().integer(),
       person: Joi.string().required()
@@ -164,7 +164,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  */
 export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       s3Key: Joi.string().required(),
       status: Joi.boolean().required()
     }));
@@ -194,7 +194,7 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
  */
 export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       s3key: Joi.string().required(),
       confidence: Joi.number().integer(),
     }));

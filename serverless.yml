@@ -28,7 +28,7 @@ custom:
   # Enable API GW caching with some global options set
   apiGatewayCaching:
     enabled: true # enabled but still needs to be turned on for each function
-    ttlInSeconds: 10 # 10s for now // changeme
+    ttlInSeconds: 120 # I think 2 mins is fine?
     dataEncrypted: true
 
   # Avoid hitting the CF Resource limit by splitting them up.

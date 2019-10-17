@@ -13,7 +13,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         short_path: Joi.string().required(),
         id: Joi.number().required(),

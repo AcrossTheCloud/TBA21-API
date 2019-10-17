@@ -18,7 +18,7 @@ import { dbgeoparse } from '../utils/dbgeo';
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer()
@@ -71,7 +71,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  */
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({ id: Joi.number().required() }), { presence: 'required' });
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({ id: Joi.number().required() }), { presence: 'required' });
     const
       queryString = event.queryStringParameters, // Use default values if not supplied.
       params = [queryString.id],
@@ -115,7 +115,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
@@ -174,7 +174,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
@@ -229,7 +229,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  */
 export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         id: Joi.string().required(),
         status: Joi.boolean().required()
@@ -261,7 +261,7 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
  */
 export const getItemsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
@@ -313,7 +313,7 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
  */
 export const getCollectionsByItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
@@ -352,14 +352,14 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys({
+    await Joi.assert(data, Joi.object().keys({
       id: Joi.number().integer().required(),
       status: Joi.boolean(),
       start_date: Joi.date().raw().allow('').allow(null),
       end_date: Joi.date().raw().allow('').allow(null),
       concept_tags: Joi.array().items(Joi.number().integer()),
       keyword_tags: Joi.array().items(Joi.number().integer()),
-      contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
+      contributors: Joi.array().items(Joi.string().pattern(uuidRegex)),
       regional_focus: Joi.string().allow('').allow(null),
       regions: Joi.array().items(Joi.string()),
       creators: Joi.array().items(Joi.string()),
