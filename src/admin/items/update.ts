@@ -20,7 +20,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
       return badRequestResponse();
     }
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         s3_key: Joi.string().allow('').allow(null).required(),
         status: Joi.boolean(), // -- false=draft, true=public

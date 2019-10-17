@@ -14,7 +14,7 @@ import { dbgeoparse } from '../utils/dbgeo';
  */
 export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       lng_sw: Joi.number().required(),
       lat_sw: Joi.number().required(),
       lng_ne: Joi.number().required(),

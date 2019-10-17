@@ -17,7 +17,7 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
 
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         created_at: Joi.date().raw().allow('').allow(null),
         updated_at: Joi.date().raw().allow('').allow(null),
