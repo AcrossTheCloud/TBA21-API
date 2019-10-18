@@ -1,6 +1,6 @@
 {
   "name": "TBA21-API",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "license": "GPL-3.0",
   "description": "TBA21 API",
   "main": "s",
@@ -21,7 +21,7 @@
     "type": "git",
     "url": "git+https://github.com/AcrossTheCloud/TBA21-API.git"
   },
-  "author": "Dan Wood",
+  "author": "Across the Cloud Pty Ltd",
   "bugs": {
     "url": "https://github.com/AcrossTheCloud/TBA21-API/issues"
   },
