@@ -12,7 +12,7 @@ import Joi from '@hapi/joi';
 export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     // We expect either short_path or id and it is required
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+    await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         table: Joi.string().valid('Profile', 'Collection', 'Item').required(),
         short_path: Joi.string().required()

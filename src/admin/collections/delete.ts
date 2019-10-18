@@ -13,7 +13,7 @@ import { deleteCollection } from '../../collections/model';
  */
 export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         id: Joi.number().integer().required()
       }));
