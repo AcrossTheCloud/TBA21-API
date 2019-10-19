@@ -38,7 +38,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   stage: ${env:STAGE, 'prod'}
   region: ${env:REGION, 'eu-central-1'}
   memorySize: 2048 # optional, in MB, default is 1024
