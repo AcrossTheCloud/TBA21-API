@@ -7,13 +7,29 @@ import {
   unAuthorizedRequestResponse
 } from '../common';
 import { db } from '../databaseConnect';
+import { geoJSONToGeom } from '../map/util';
 import { limitQuery } from '../utils/queryHelpers';
 import { dbgeoparse } from '../utils/dbgeo';
 
 export const create = async (requestBody, isAdmin: boolean) => {
   try {
 
-    let paramCounter = 0;
+    let
+      paramCounter = 0,
+      hasGeoData = false,
+      geoData;
+
+    // Grab our geoJSON if we have it
+    if (requestBody.geojson) {
+      if (Object.keys(requestBody.geojson.features).length) {
+        hasGeoData = true;
+        geoData = requestBody.geojson;
+      } else {
+        Object.assign(requestBody, {geom: null});
+      }
+      // Always delete geojson as we don't have a column for it.
+      delete requestBody.geojson;
+    }
 
     const
       params = [],
@@ -34,32 +50,17 @@ export const create = async (requestBody, isAdmin: boolean) => {
         if (key === 'contributors') {
           return `$${paramCounter}::uuid[]`;
         }
-         // inserting the geometry data
-        if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
-           const geometry = requestBody.geometry;
-           let geomQueryParams = [];
-
-           if (geometry.point && geometry.point.length) {
-             for (let i = 0; i < geometry.point.length; i++) {
-               geomQueryParams.push(`POINT(${geometry.point[i]})`);
-             }
-           }
-           if (geometry.linestring && geometry.linestring.length) {
-             for (let i = 0; i < geometry.linestring.length; i++) {
-               geomQueryParams.push(`LINESTRING(${geometry.linestring[i]})`);
-             }          }
-           if (geometry.polygon && geometry.polygon.length) {
-             for (let i = 0; i < geometry.polygon.length; i++) {
-               geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
-             }
-           }
-           return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
-         }
         return `$${paramCounter}`;
       });
 
     sqlFields.push('created_at', 'updated_at');
     sqlParams.push('now()', 'now()');
+
+    // If we have geoJSON push it into SQL SETS
+    if (hasGeoData && Object.keys(geoData).length) {
+      sqlFields.push('geom');
+      sqlParams.push(`ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
+    }
 
     const query = `INSERT INTO ${process.env.COLLECTIONS_TABLE} (${sqlFields.join(', ')}) VALUES (${sqlParams.join(', ')}) RETURNING id;`;
 
@@ -94,7 +95,22 @@ export const create = async (requestBody, isAdmin: boolean) => {
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
 
-    let paramCounter = 0;
+    let
+      paramCounter = 0,
+      hasGeoData = false,
+      geoData;
+
+    // Grab our geoJSON if we have it
+    if (requestBody.geojson) {
+      if (Object.keys(requestBody.geojson.features).length) {
+        hasGeoData = true;
+        geoData = requestBody.geojson;
+      } else {
+        Object.assign(requestBody, {geom: null});
+      }
+      // Always delete geojson as we don't have a column for it.
+      delete requestBody.geojson;
+    }
 
     const params = [];
     params[paramCounter++] = requestBody.id;
@@ -112,29 +128,14 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         if (key === 'contributors') {
           return `${key}=$${paramCounter}::uuid[]`;
         }
-        // inserting the geometry data
-        if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
-          const geometry = requestBody.geometry;
-          let geomQueryParams = [];
 
-          if (geometry.point && geometry.point.length) {
-            for (let i = 0; i < geometry.point.length; i++) {
-              geomQueryParams.push(`POINT(${geometry.point[i]})`);
-            }
-          }
-          if (geometry.linestring && geometry.linestring.length) {
-            for (let i = 0; i < geometry.linestring.length; i++) {
-              geomQueryParams.push(`LINESTRING(${geometry.linestring[i]})`);
-            }          }
-          if (geometry.polygon && geometry.polygon.length) {
-            for (let i = 0; i < geometry.polygon.length; i++) {
-              geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
-            }
-          }
-          return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
-        }
         return `${key}=$${paramCounter}`;
       });
+
+    // If we have geoJSON push it into SQL SETS
+    if (hasGeoData && Object.keys(geoData).length) {
+      SQL_SETS.push(`geom=ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
+    }
 
     let query = `
           UPDATE ${process.env.COLLECTIONS_TABLE}
@@ -256,7 +257,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
-export const get = async (requestBody, isAdmin: boolean = false, userId?: string, id?: string): Promise<APIGatewayProxyResult> => {
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string): Promise<APIGatewayProxyResult> => {
   try {
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -268,8 +269,8 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
     if (!isAdmin) {
       params.push(userId);
     }
-    if (!id) {
-      params.push(id);
+    if (requestBody.id) {
+      params.push(requestBody.id);
     }
 
     const
@@ -290,7 +291,8 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
             
         ${!isAdmin ? `WHERE $3::uuid = ANY( contributors )` : ''} 
-        ${id ? `${!isAdmin ? 'AND' : 'WHERE'} contributors @> $3::uuid` : ''} 
+        
+        ${requestBody.id ? `${!isAdmin ? 'AND' : 'WHERE'} collections.id=${!isAdmin ? '$4' : '$3'}` : ''} 
             
         GROUP BY collections.id
         ORDER BY collections.id
