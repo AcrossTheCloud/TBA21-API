@@ -6,7 +6,7 @@ import Joi from '@hapi/joi';
 export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
 
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       query: Joi.string()
     }));
 
@@ -104,25 +104,25 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         GROUP BY collections.id
       `;
 
-    // const profilesQuery = `
-    //   SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
-    //   COALESCE(field_expertise, '') as field_expertise
-    //   FROM ${process.env.PROFILES_TABLE}
-    //     WHERE public_profile = true
-    //       AND (
-    //         profile_type = 'Individual' OR
-    //         profile_type = 'Collective' OR
-    //         profile_type = 'Institution'
-    //       )
-    //       AND (
-    //         LOWER(profiles.full_name) LIKE '%' || LOWER($1) || '%' OR
-    //         LOWER(profiles.field_expertise) LIKE '%' || LOWER($1) || '%' OR
-    //         LOWER(profiles.city) LIKE '%' || LOWER($1) || '%' OR
-    //         LOWER(profiles.country) LIKE '%' || LOWER($1) || '%' OR
-    //         LOWER(profiles.affiliation) LIKE '%' || LOWER($1) || '%'
-    //       )
-    //     GROUP BY profiles.id
-    // `;
+    const profilesQuery = `
+      SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
+      COALESCE(field_expertise, '') as field_expertise
+      FROM ${process.env.PROFILES_TABLE}
+        WHERE public_profile = true
+          AND (
+            profile_type = 'Individual' OR
+            profile_type = 'Collective' OR
+            profile_type = 'Institution'
+          )
+          AND (
+            LOWER(profiles.full_name) LIKE '%' || LOWER($1) || '%' OR
+            LOWER(profiles.field_expertise) LIKE '%' || LOWER($1) || '%' OR
+            LOWER(profiles.city) LIKE '%' || LOWER($1) || '%' OR
+            LOWER(profiles.country) LIKE '%' || LOWER($1) || '%' OR
+            LOWER(profiles.affiliation) LIKE '%' || LOWER($1) || '%'
+          )
+        GROUP BY profiles.id
+    `;
 
     const fieldValueLoop = (list: any[], type: string): {field: string, value: string, type: string}[] => { // tslint:disable-line no-any
       const response = [];
@@ -162,11 +162,11 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     const
       items = await db.manyOrNone(itemsQuery, params),
       collections = await db.manyOrNone(collectionsQuery, params),
-      // profiles = await db.manyOrNone(profilesQuery, params),
+      profiles = await db.manyOrNone(profilesQuery, params),
       results: {field: string, value: string, type: string}[] = [
         ...fieldValueLoop(items, 'items'),
-        ...fieldValueLoop(collections, 'collections')
-        // ...fieldValueLoop(profiles, 'profiles')
+        ...fieldValueLoop(collections, 'collections'),
+        ...fieldValueLoop(profiles, 'profiles')
     ];
 
     return successResponse({ results: results });
@@ -180,7 +180,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys({
+    await Joi.assert(data, Joi.object().keys({
       criteria: Joi.array().items(
         Joi.object().keys({
           field: Joi.string(),
@@ -209,7 +209,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
       profilesWhereStatement = [],
       items = [],
       collections = [],
-      profiles = [],
+      // profiles = [],
       paramCounter = 3;
 
     const queryLoop = (list: {field: string, value: string}[]) => {
@@ -265,6 +265,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
           item.title,
           item.created_at as date,
           item.creators,
+          item.file_dimensions,
           item.item_type as type,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
@@ -328,31 +329,31 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
         collections = await Promise.all(collectionsPromise);
       }
 
-      if (profilesWhereStatement.length) {
-        const profilesQuery = `
-        SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
-        COALESCE(field_expertise, '') as field_expertise
-        FROM ${process.env.PROFILES_TABLE}
-          WHERE public_profile = true
-            AND (
-              profile_type = 'Individual' OR
-              profile_type = 'Collective' OR
-              profile_type = 'Institution'
-            )
-          AND ( ${profilesWhereStatement.join(' OR ')} )
-          GROUP BY profiles.id
-          LIMIT $1
-          OFFSET $2
-      `;
-        profiles = await db.manyOrNone(profilesQuery, params);
-      }
+      // if (profilesWhereStatement.length) {
+      //   const profilesQuery = `
+      //   SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
+      //   COALESCE(field_expertise, '') as field_expertise
+      //   FROM ${process.env.PROFILES_TABLE}
+      //     WHERE public_profile = true
+      //       AND (
+      //         profile_type = 'Individual' OR
+      //         profile_type = 'Collective' OR
+      //         profile_type = 'Institution'
+      //       )
+      //     AND ( ${profilesWhereStatement.join(' OR ')} )
+      //     GROUP BY profiles.id
+      //     LIMIT $1
+      //     OFFSET $2
+      // `;
+      //   profiles = await db.manyOrNone(profilesQuery, params);
+      // }
     }
 
     return successResponse({
        results: [
          ...items.map(e => Object.assign(e, { item: true })),
          ...collections.map(e => Object.assign(e, { collection : true })),
-         ...profiles.map(e => Object.assign(e, { profile : true }))
+         // ...profiles.map(e => Object.assign(e, { profile : true }))
        ],
      });
 

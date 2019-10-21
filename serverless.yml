@@ -28,7 +28,7 @@ custom:
   # Enable API GW caching with some global options set
   apiGatewayCaching:
     enabled: true # enabled but still needs to be turned on for each function
-    ttlInSeconds: 10 # 10s for now // changeme
+    ttlInSeconds: 120 # I think 2 mins is fine?
     dataEncrypted: true
 
   # Avoid hitting the CF Resource limit by splitting them up.
@@ -38,9 +38,11 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   stage: ${env:STAGE, 'prod'}
   region: ${env:REGION, 'eu-central-1'}
+  memorySize: 2048 # optional, in MB, default is 1024
+  timeout: 29 # seconds, maximum allowed for API GW integration
   versionFunctions: false
   environment:
     # AWS
@@ -67,6 +69,9 @@ provider:
     PGPORT: ${env:PGPORT, "5432"}
     PGDATABASE: ${env:PGDATABASE}
     PGSSL: ${env:PGSSL}
+
+    QLDB_API_KEY: ${env:QLDB_API_KEY}
+    QLDB_API_URL: ${env:QLDB_API_URL}
 
     # Mailchimp
     MC_DC: ${env:MC_DC}
