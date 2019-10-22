@@ -59,7 +59,7 @@ describe('Tag update and delete tests', () => {
   test('Delete 1 keyword tag and check the result', async () => {
     const
       requestBody = {
-        'id': 10
+        'id': 7
       },
       body: string = JSON.stringify(requestBody),
       response = await remove({ body } as APIGatewayProxyEvent),

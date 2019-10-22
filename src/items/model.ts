@@ -200,7 +200,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       .filter(([e, v]) => (e !== 's3_key')) // remove s3_key
       .map(([key, value]) => {
 
-        // @ts-ignore
+        // If any of our values are empty, set the key to null to prevent that database from throwing an error
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
@@ -208,7 +208,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
           const geometry = requestBody.geometry;
           let geomQueryParams = [];
-
+          // Assigning each geometry to its correct postgis function
           if (geometry.point && geometry.point.length) {
             for (let i = 0; i < geometry.point.length; i++) {
               geomQueryParams.push(`POINT(${geometry.point[i]})`);
@@ -223,6 +223,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
               geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
             }
           }
+          // Putting all of our geometries in to a GeometryCollection
           return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
         }
         params[paramCounter++] = requestBody[key];

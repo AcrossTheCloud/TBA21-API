@@ -4,7 +4,7 @@ import { db } from '../../databaseConnect';
 export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string ) => {
   try {
     let paramCounter = 0;
-
+    // Only an admin can publish an announcement, so we set it to false if the uploader isn't an admin
     if (!isAdmin) {
       Object.assign(data, {'status': false, 'contributor': `${userId}`});
     }
@@ -57,7 +57,7 @@ export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, 
         LIMIT $1
         OFFSET $2
           `;
-
+    // If the user is not an admin, only show their own announcements
     if (!isAdmin) {
       query = `
         SELECT *,

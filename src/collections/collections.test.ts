@@ -50,7 +50,7 @@ describe('Collections', () => {
       result = JSON.parse(response.body);
 
     expect(result.data.objects.output.geometries.length).toEqual(1);
-    expect(result.data.objects.output.geometries[0].properties.title).toEqual('The Decisive Moment');
+    expect(result.data.objects.output.geometries[0].properties.title).toEqual('The Lives of Pink River Dolphins');
   });
 
   test('Get collection by id of 2', async () => {

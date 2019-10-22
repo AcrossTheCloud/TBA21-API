@@ -119,10 +119,12 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
           DELETE FROM ${process.env.PROFILES_TABLE}
           WHERE cognito_uuid = $1
         `,
+        // Delete any items that are owned by the user
         deleteItemsQuery = `
           DELETE FROM ${process.env.ITEMS_TABLE}
           WHERE contributor = $1
       `;
+      // Get the profiles id so we can delete any of their short paths
       const getProfileIdQuery = `
           SELECT id 
           FROM ${process.env.PROFILES_TABLE}
@@ -131,6 +133,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
       let
         profileCheck = await db.manyOrNone(getProfileIdQuery, params),
         profileCheckPromise = [];
+      // If we have an id returned from the check, delete any short paths its associated with
       if (profileCheck.length) {
         profileCheckPromise = profileCheck.map ( async c => {
           if ( c.id && c.id.length === 1) {
@@ -141,6 +144,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
           }
         });
       }
+      // Check if the user we're deleting owns any collections
       const checkCollectionsQuery = `
           SELECT id, contributors
           FROM ${process.env.COLLECTIONS_TABLE}
@@ -149,6 +153,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
       let
         collectionsCheck = await db.manyOrNone(checkCollectionsQuery, params),
         collectionsCheckPromise = [];
+      // If the user owns a collections and they're the only contributor for that collection, delete it
       if (collectionsCheck.length) {
         collectionsCheckPromise = collectionsCheck.map ( async c => {
           if ( c.contributors && c.contributors.length === 1) {
@@ -157,6 +162,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
               resolve(deleteCollection);
             });
           } else {
+            // Update a collection with multiple contributors to remove the deleted contributor
             return new Promise( async resolve => {
               const editCollection = await db.any(`UPDATE ${process.env.COLLECTIONS_TABLE} SET contributors = array_remove(contributors, $1) WHERE id = $2`, [userId, c.id]);
               resolve(editCollection);

@@ -13,7 +13,7 @@ import { getAll, getItemBy } from './model';
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -41,7 +41,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON for item object
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
  */
 export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -77,7 +77,7 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -105,7 +105,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
  */
 export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -132,7 +132,7 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
  *
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
@@ -190,7 +190,7 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } Array of tags
+ * @returns { Promise<APIGatewayProxyResult> } tags:tags an array of tags
  */
 export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -213,7 +213,7 @@ export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<A
 
     // If we have no result at all, the item doesn't exist.
     if (result && result.tags && result.tags.rekognition_labels) {
-      // Have tags, filter and map to an array
+      // If we  have tags, filter and map them to an array
       tags = result.tags.rekognition_labels.filter(c => c.Confidence >= confidenceLevel).map(n => n.Name);
     }
 
