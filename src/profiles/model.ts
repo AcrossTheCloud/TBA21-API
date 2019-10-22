@@ -112,7 +112,8 @@ export const updateProfile = async (requestBody, isAdmin: boolean, userId?: stri
  */
 export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
   try {
-    if ((userId && isAdmin) || (userId)) {
+    // if the users uuid is the same as the profiles or if they're an admin, allow them to edit it
+    if ((userId && isAdmin) || (userId))  {
       const
         params = [userId],
         query = `

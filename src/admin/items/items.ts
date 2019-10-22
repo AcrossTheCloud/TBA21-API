@@ -11,7 +11,7 @@ import { getAll, getItemBy } from '../../items/model';
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -41,7 +41,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
  */
 export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -82,7 +82,7 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -111,7 +111,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
  *
  */
 export const getAllMine = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
@@ -141,7 +141,8 @@ export const getAllMine = async (event: APIGatewayEvent, context: Context): Prom
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries that contains a list of the results
+ *
  */
 export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {

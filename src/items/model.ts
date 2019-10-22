@@ -19,7 +19,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
     if (isAdmin && inputQuery && inputQuery.length > 0) {
       params.push(inputQuery);
-
+      // A wildcard WHERE statement for our items table columns that we use in our search
       searchQuery = `
             WHERE 
               LOWER(title) LIKE '%' || LOWER($3) || '%' OR
@@ -200,7 +200,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       .filter(([e, v]) => (e !== 's3_key')) // remove s3_key
       .map(([key, value]) => {
 
-        // If any of our values are empty, set the key to null to prevent that database from throwing an error
+        // If any of our values are empty, set the key to null to prevent the database from throwing an error
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
@@ -288,6 +288,7 @@ export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
       params.push(userId);
       query += ` and contributor = $2 `;
     }
+    // We return the id of the deleted item so we can remove the short_path associated with it
     query += ` returning id;`;
 
     const delResult = await db.oneOrNone(query, params);
