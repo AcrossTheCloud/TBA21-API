@@ -6,7 +6,7 @@ import {
   unAuthorizedRequestResponse
 } from '../common';
 import { db, pgp } from '../databaseConnect';
-import { updateQLDB } from '../REST/QLDB/update';
+import { qldbQuery } from '../REST/QLDB';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 
 export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
@@ -237,8 +237,8 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       };
 
       // Update QLDB
-      const qldbQuery = pgp.as.format(`UPDATE item_history SET updated_at='${updatedAt}', ${SQL_SETS.join(',')} WHERE id=${result.id}`, params);
-      await updateQLDB(qldbQuery);
+      const formattedPGQuery = pgp.as.format(`UPDATE item_history SET updated_at='${updatedAt}', ${SQL_SETS.join(',')} WHERE id=${result.id}`, params);
+      await qldbQuery(formattedPGQuery);
 
       // If we have a message, add it to the response.
       if (message.length > 1) {
@@ -291,6 +291,9 @@ export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
                             AND id = $1 )`,
         [delResult.id]);
     }
+
+    // Query QLDB
+    await qldbQuery(`DELETE FROM ${process.env.ITEMS_TABLE} WHERE id=${delResult.id}`);
 
     return successResponse(true);
   } catch (e) {
