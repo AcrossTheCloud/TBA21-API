@@ -6,6 +6,7 @@ import {
   unAuthorizedRequestResponse
 } from '../common';
 import { db } from '../databaseConnect';
+import { geoJSONToGeom } from '../map/util';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 import { dbgeoparse } from '../utils/dbgeo';
 
@@ -24,6 +25,7 @@ import { dbgeoparse } from '../utils/dbgeo';
  */
 export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
   try {
+
     const
       params = [limit, offset];
 
@@ -215,13 +217,29 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       }
     }
 
+    let
+      paramCounter = 0,
+      hasGeoData = false,
+      geoData;
+
+    // Grab our geoJSON if we have it
+    if (requestBody.geojson) {
+      if (Object.keys(requestBody.geojson.features).length) {
+        hasGeoData = true;
+        geoData = requestBody.geojson;
+      } else {
+        Object.assign(requestBody, {geom: null});
+      }
+      // Always delete geojson as we don't have a column for it.
+      delete requestBody.geojson;
+    }
+
     if (requestBody.keyword_tags) {
       requestBody.keyword_tags = requestBody.keyword_tags.map(t => parseInt(t, 0));
     }
     if (requestBody.concept_tags) {
       requestBody.concept_tags = requestBody.concept_tags.map(t => parseInt(t, 0));
     }
-    let paramCounter = 0;
 
     // NOTE: contributor is inserted on create, uuid from claims
     const params = [];
@@ -236,31 +254,16 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
-        // inserting the geometry data
-        if (key === 'geometry' && Object.keys(requestBody.geometry).length ) {
-          const geometry = requestBody.geometry;
-          let geomQueryParams = [];
-          // Assigning each geometry to its correct postgis function
-          if (geometry.point && geometry.point.length) {
-            for (let i = 0; i < geometry.point.length; i++) {
-              geomQueryParams.push(`POINT(${geometry.point[i]})`);
-            }
-          }
-          if (geometry.linestring && geometry.linestring.length) {
-            for (let i = 0; i < geometry.linestring.length; i++) {
-              geomQueryParams.push(`LINESTRING(${geometry.linestring[i]})`);
-            }          }
-          if (geometry.polygon && geometry.polygon.length) {
-            for (let i = 0; i < geometry.polygon.length; i++) {
-              geomQueryParams.push(`POLYGON(${geometry.polygon[i]})`);
-            }
-          }
-          // Putting all of our geometries in to a GeometryCollection
-          return `geom = ST_GeomFromText('GeometryCollection(${geomQueryParams})',4326)`;
-        }
+
         params[paramCounter++] = requestBody[key];
         return `${key}=$${paramCounter}`;
       });
+
+    // If we have geoJSON push it into SQL SETS
+    if (hasGeoData && Object.keys(geoData).length) {
+      SQL_SETS.push(`geom=ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
+    }
+
     let query = `UPDATE ${process.env.ITEMS_TABLE}
             SET 
               updated_at='${new Date().toISOString()}',

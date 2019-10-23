@@ -111,9 +111,7 @@ describe('/admin/items/update/updateByS3key', () => {
         'editor': 'editor',
         'featured_in': 'featured in',
         'volume': '2',
-        'geometry': { point: ['-34.4079211 150.8802055 17.82', '-34.4077234 150.8778021 16.58', '-34.4077234 150.8778021 16.57'],
-            linestring: ['-34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.83, -34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.82, -34.4017631 150.9086573 13.82']}
-
+        "geojson":{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-220.913086,55.416544,1],[-220.737305,54.711929,1.01],[-219.660645,54.635697,1],[-218.254395,54.686534,1.01],[-218.803711,55.37911,1.2],[-219.396973,55.862982,1.1],[-220.539551,55.838314,1.6],[-220.913086,55.416544,1]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-12.216797,5.397273,0]}}]},
       },
       body: string = JSON.stringify(requestBody),
       response = await updateByS3key({ body, path: '/admin/items/update/updateByS3key' } as APIGatewayProxyEvent),

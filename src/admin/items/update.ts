@@ -121,11 +121,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         provenance: Joi.array().items(Joi.string()),
         url: Joi.string().allow('').allow(null),
 
-        geometry: Joi.object().keys({
-                                        point: Joi.array().items(Joi.string()),
-                                        linestring: Joi.array().items(Joi.string()),
-                                        polygon: Joi.array().items(Joi.string())
-                                    })
+        geojson: Joi.object()
 
       }));
 
