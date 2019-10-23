@@ -9,9 +9,21 @@ import { db } from '../databaseConnect';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 import { dbgeoparse } from '../utils/dbgeo';
 
+/**
+ *
+ * Get all items by inputQuery, or byField and fieldValue, or by userId
+ *
+ * @param limit: string
+ * @param offset: string
+ * @param isAdmin: boolea
+ * @param inputQuery: string
+ * @param byField: string
+ * @param fieldValue: string
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
+ */
 export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
   try {
-
     const
       params = [limit, offset];
 
@@ -128,6 +140,17 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
   }
 };
 
+/**
+ *
+ * Get an item by its field and value
+ *
+ * @param field: string
+ * @param value: string
+ * @param isAdmin: boolean
+ * @param isContributor: boolean
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
+ */
 export const getItemBy = async (field, value, isAdmin: boolean = false, isContributor: boolean = false, userId?: string) => {
   try {
     const
@@ -166,6 +189,15 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
   }
 };
 
+/**
+ *
+ * Update an item
+ *
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @returns body: success, updated_key, id
+ */
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
 
@@ -278,6 +310,15 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
   }
 };
 
+/**
+ *
+ * Delete an item
+ *
+ * @param s3Key: string
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } body:data
+ */
 export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
   try {
     const params = [s3Key];

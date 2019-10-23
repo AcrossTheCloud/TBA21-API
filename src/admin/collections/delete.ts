@@ -9,7 +9,7 @@ import { deleteCollection } from '../../collections/model';
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:true
  */
 export const deleteById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {

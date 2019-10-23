@@ -8,6 +8,7 @@ import Joi from '@hapi/joi';
  * Get an item/profile/collection by it's id or its short path
  *
  * @param event
+ * @return { Promise<APIGatewayProxyResult> } JSON object with body:short_paths
  */
 export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {

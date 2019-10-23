@@ -11,7 +11,7 @@ import { uuidRegex } from '../../utils/uuid';
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:success
  */
 
 export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {

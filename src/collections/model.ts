@@ -10,6 +10,14 @@ import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
 import { dbgeoparse } from '../utils/dbgeo';
 
+/**
+ *
+ * Create a collection
+ *
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @returns { Promise<APIGatewayProxyResult> } body: success, id
+ */
 export const create = async (requestBody, isAdmin: boolean) => {
   try {
 
@@ -93,6 +101,15 @@ export const create = async (requestBody, isAdmin: boolean) => {
   }
 };
 
+/**
+ *
+ * Update a collection
+ *
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:success
+ */
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
 
@@ -219,6 +236,14 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
   }
 };
 
+/**
+ * Delete a collection
+ *
+ * @param id: number
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @returns body: true
+ */
 export const deleteCollection = async (id, isAdmin: boolean, userId?: string) => {
   try {
 
@@ -258,6 +283,16 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
+/**
+ *
+ * Get a collection
+ *
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @param id: number
+ * @returns { Promise<APIGatewayProxyResult> } topoJSON object with data.objects.output.geometries
+ */
 export const get = async (requestBody, isAdmin: boolean = false, userId?: string, id?: string): Promise<APIGatewayProxyResult> => {
   try {
     const
@@ -266,7 +301,7 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         limitQuery(requestBody.limit, defaultValues.limit),
         requestBody.offset || defaultValues.offset
       ];
-
+    console.log(typeof id, 'id');
     if (!isAdmin) {
       params.push(userId);
     }

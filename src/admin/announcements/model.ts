@@ -1,6 +1,15 @@
 import { badRequestResponse, headers, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 
+/**
+ *
+ * Insert an announcement
+ *
+ * @param isAdmin: boolean
+ * @param data: { string }
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } body: success, ...insertResult
+ */
 export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string ) => {
   try {
     let paramCounter = 0;
@@ -46,6 +55,16 @@ export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string 
   }
 };
 
+/**
+ *
+ * Get an announcement
+ *
+ * @param isAdmin: boolean
+ * @param params: [ string ]
+ * @param userId: string
+ * @param id: string
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:announcements: a list of the results
+ */
 export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, id?: string ) => {
   try {
     let query = `

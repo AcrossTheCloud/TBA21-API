@@ -64,7 +64,7 @@ export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } an array of tag objects {id: number, tag_name: string}
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:tags
  */
 export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -113,7 +113,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } the updated tag object {id: number, tag_name: string}
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:updatedTag
  */
 export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {

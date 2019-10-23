@@ -9,7 +9,7 @@ import { limitQuery } from '../../utils/queryHelpers';
  *
  * Insert an announcement
  *
- * @param event
+ * @param event {APIGatewayEvent}
  *
  * @returns { Promise<APIGatewayProxyResult> } body: success, insertResult
  */
@@ -40,7 +40,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> }
+ * @returns { Promise<APIGatewayProxyResult> } body:true
  */
 export const deleteAnnouncement = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -74,7 +74,7 @@ export const deleteAnnouncement = async (event: APIGatewayProxyEvent): Promise<A
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:announcements - a list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:announcements
  */
 
 export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -139,7 +139,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  *
  * @param event {APIGatewayEvent}
  *
- * returns a JSON object with body:announcements - a list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:announcements
  */
 export const get = async(event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {

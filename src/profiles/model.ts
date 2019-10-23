@@ -5,8 +5,9 @@ import { badRequestResponse, headers, internalServerErrorResponse, unAuthorizedR
  *
  * Create a profile
  *
- * @param requestBody
- * @param isAdmin
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body: success, id
  */
 export const insertProfile = async (requestBody, isAdmin: boolean) => {
   try {
@@ -60,6 +61,7 @@ export const insertProfile = async (requestBody, isAdmin: boolean) => {
  * @param requestBody
  * @param isAdmin
  * @param userId
+ * @returns { Promise<APIGatewayProxyResult> }  JSON object with body:success
  */
 export const updateProfile = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
@@ -109,6 +111,7 @@ export const updateProfile = async (requestBody, isAdmin: boolean, userId?: stri
  * @returns { Promise<APIGatewayProxyResult> } true
  * @param isAdmin
  * @param userId
+ * @return { Promise<APIGatewayProxyResult> } JSON object with body:true
  */
 export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
   try {
