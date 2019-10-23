@@ -5,7 +5,8 @@ import {
   successResponse,
   unAuthorizedRequestResponse
 } from '../common';
-import { db } from '../databaseConnect';
+import { db, pgp } from '../databaseConnect';
+import { qldbQuery } from '../REST/QLDB';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 
 export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
@@ -192,6 +193,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     const params = [];
 
     params[paramCounter++] = requestBody.s3_key;
+
     // pushed into from SQL SET map
     // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
     const SQL_SETS: string[] = Object.entries(requestBody)
@@ -203,13 +205,17 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
           requestBody[key] = null;
         }
         params[paramCounter++] = requestBody[key];
-        return `${key}=$${paramCounter}`;
+        return `${key === 'language' ? `"${key}"` : key}=$${paramCounter}`;
       });
-    let query = `UPDATE ${process.env.ITEMS_TABLE}
-            SET 
-              updated_at='${new Date().toISOString()}',
-              ${SQL_SETS.join(', ')}
-          WHERE s3_key = $1 `;
+
+    const updatedAt = new Date().toISOString();
+    let query = `
+      UPDATE ${process.env.ITEMS_TABLE}
+        SET 
+          updated_at='${updatedAt}',
+          ${SQL_SETS.join(', ')}
+      WHERE s3_key = $1
+    `;
 
     if (!isAdmin) {
       params[paramCounter++] = userId;
@@ -229,6 +235,11 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         updated_key: result.s3_key,
         id: result.id
       };
+
+      // Update QLDB
+      const formattedPGQuery = pgp.as.format(`UPDATE item_history SET updated_at='${updatedAt}', ${SQL_SETS.join(',')} WHERE id=${result.id}`, params);
+      await qldbQuery(formattedPGQuery);
+
       // If we have a message, add it to the response.
       if (message.length > 1) {
         Object.assign(bodyResponse, {message: message, success: false});
@@ -280,6 +291,9 @@ export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
                             AND id = $1 )`,
         [delResult.id]);
     }
+
+    // Query QLDB
+    await qldbQuery(`DELETE FROM ${process.env.ITEMS_TABLE} WHERE id=${delResult.id}`);
 
     return successResponse(true);
   } catch (e) {
