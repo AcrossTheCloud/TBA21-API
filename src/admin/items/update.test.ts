@@ -110,7 +110,8 @@ describe('/admin/items/update/updateByS3key', () => {
         'first_edition_year': '1990',
         'editor': 'editor',
         'featured_in': 'featured in',
-        'volume': '2'
+        'volume': '2',
+        "geojson":{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-220.913086,55.416544,1],[-220.737305,54.711929,1.01],[-219.660645,54.635697,1],[-218.254395,54.686534,1.01],[-218.803711,55.37911,1.2],[-219.396973,55.862982,1.1],[-220.539551,55.838314,1.6],[-220.913086,55.416544,1]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-12.216797,5.397273,0]}}]},
       },
       body: string = JSON.stringify(requestBody),
       response = await updateByS3key({ body, path: '/admin/items/update/updateByS3key' } as APIGatewayProxyEvent),
@@ -218,7 +219,7 @@ describe('/admin/items/update/updateByS3key', () => {
       response = await updateByS3key({
         body, path: '/contributor/items/update/updateByS3key', requestContext: {
           identity: {
-            cognitoAuthenticationProvider: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559"
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:cfa81825-2716-41e2-a48d-8f010840b559'
           }
         }
       } as APIGatewayProxyEvent);
@@ -323,7 +324,7 @@ describe('/admin/items/update/updateByS3key', () => {
       response = await updateByS3key({
         body, path: '/contributor/items/update/updateByS3key', requestContext: {
           identity: {
-            cognitoAuthenticationProvider: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:1f89f9b6-39bc-416e-899e-ef1a8d656f24"
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:1f89f9b6-39bc-416e-899e-ef1a8d656f24'
           }
         }
       } as APIGatewayProxyEvent),
@@ -332,4 +333,3 @@ describe('/admin/items/update/updateByS3key', () => {
   });
 
 });
-
