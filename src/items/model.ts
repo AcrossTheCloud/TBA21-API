@@ -5,8 +5,11 @@ import {
   successResponse,
   unAuthorizedRequestResponse
 } from '../common';
-import { db } from '../databaseConnect';
+
+import { db, pgp } from '../databaseConnect';
+import { qldbQuery } from '../REST/QLDB';
 import { geoJSONToGeom } from '../map/util';
+
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 import { dbgeoparse } from '../utils/dbgeo';
 
@@ -244,6 +247,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     // NOTE: contributor is inserted on create, uuid from claims
     const params = [];
     params[paramCounter++] = requestBody.s3_key;
+
     // pushed into from SQL SET map
     // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
     const SQL_SETS: string[] = Object.entries(requestBody)
@@ -256,17 +260,17 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         }
 
         params[paramCounter++] = requestBody[key];
-        return `${key}=$${paramCounter}`;
+        return `${key === 'language' ? `"${key}"` : key}=$${paramCounter}`;
       });
 
     // If we have geoJSON push it into SQL SETS
     if (hasGeoData && Object.keys(geoData).length) {
       SQL_SETS.push(`geom=ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
     }
-
+    const updatedAt = new Date().toISOString();
     let query = `UPDATE ${process.env.ITEMS_TABLE}
             SET 
-              updated_at='${new Date().toISOString()}',
+              updated_at='${updatedAt}',
               ${SQL_SETS.join(', ')}
           WHERE s3_key = $1 `;
 
@@ -288,6 +292,11 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         updated_key: result.s3_key,
         id: result.id
       };
+
+      // Update QLDB
+      const formattedPGQuery = pgp.as.format(`UPDATE item_history SET updated_at='${updatedAt}', ${SQL_SETS.join(',')} WHERE id=${result.id}`, params);
+      await qldbQuery(formattedPGQuery);
+
       // If we have a message, add it to the response.
       if (message.length > 1) {
         Object.assign(bodyResponse, {message: message, success: false});
@@ -349,6 +358,9 @@ export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
                             AND id = $1 )`,
         [delResult.id]);
     }
+
+    // Query QLDB
+    await qldbQuery(`DELETE FROM ${process.env.ITEMS_TABLE} WHERE id=${delResult.id}`);
 
     return successResponse(true);
   } catch (e) {
