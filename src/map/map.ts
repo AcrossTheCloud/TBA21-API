@@ -19,7 +19,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       lat_sw: Joi.number().required(),
       lng_ne: Joi.number().required(),
       lat_ne: Joi.number().required(),
-      type: Joi.any().valid('collection', 'item').required()
+      type: Joi.string().valid('collection', 'item').required()
     }));
     const
       {
@@ -34,7 +34,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       query = `
         SELECT 
           id,
-          ${type === 'item' ? 's3_key' : ''}
+          ${type === 'item' ? 's3_key,' : ''}
           title,
           ST_AsText(geom) as geom,
           $5 as metaType
