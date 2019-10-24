@@ -14,7 +14,7 @@ import { dbgeoparse } from '../utils/dbgeo';
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a typology object containing the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -67,7 +67,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a typology object containing the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
  */
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -111,7 +111,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a typology object containing the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -169,7 +169,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a typology object containing the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
  *
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
@@ -225,7 +225,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:updatedItem
  */
 export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -252,45 +252,12 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
 };
 /**
  *
- * Get all the collections in a bounding box (map)
- *
- * @param event {APIGatewayEvent}
- * @param context {Promise<APIGatewayProxyResult>}
- *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
- */
-export const getCollectionsInBounds = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  try {
-    await Joi.assert(event.queryStringParameters, Joi.object().keys(
-      {
-        lat_sw: Joi.number().required(),
-        lat_ne: Joi.number().required(),
-        lng_sw: Joi.number().required(),
-        lng_ne: Joi.number().required()
-      }));
-    let
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.lat_sw, queryString.lng_sw, queryString.lat_ne, queryString.lng_ne],
-      query = `
-        SELECT *, ST_AsText(geom) as geoJSON 
-        FROM ${process.env.COLLECTIONS_TABLE}
-        WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
-      `;
-
-    return successResponse({ collections: await db.any(query, params) });
-  } catch (e) {
-    console.log('/collections/collections.getCollectionsInBounds ERROR - ', !e.isJoi ? e : e.details);
-    return badRequestResponse();
-  }
-};
-/**
- *
  * Get a list of items in a collection
  *
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - a typology object containing the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
  */
 export const getItemsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -342,7 +309,7 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
  */
 export const getCollectionsByItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -378,7 +345,7 @@ export const getCollectionsByItem = async (event: APIGatewayEvent, context: Cont
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections
  */
 
 export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {

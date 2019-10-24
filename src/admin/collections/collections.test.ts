@@ -89,13 +89,6 @@ describe('Admin Collections', () => {
       result = JSON.parse(response.body);
     expect(result.data.objects.output.geometries.length).toEqual(2);
   });
-  test('Get items in a collection with only returning limited results', async () => {
-    const
-      queryStringParameters: QueryStringParameters = {id: '3'},
-      response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
-      result = JSON.parse(response.body);
-    expect(result.data.objects.output.geometries[0].properties.title).toEqual('Detonation');
-  });
 
   test('Get a contributors collection', async () => {
     const
