@@ -230,7 +230,6 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         return `${key === 'language' ? `"${key}"` : key}=$${paramCounter}`;
       });
 
-
     // If we have geoJSON push it into SQL SETS
     if (hasGeoData && Object.keys(geoData).length) {
       SQL_SETS.push(`geom=ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
