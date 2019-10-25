@@ -154,7 +154,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       itemResult = itemResult.sort( () => Math.random() - 0.5);
       // Loop through the items and push the items from this year or last year in to our weighted array
       for (let i = 0; i < itemResult.length; i++) {
-        if (itemResult[i].year_produced === new Date().getFullYear()) {
+        if (itemResult[i].year_produced === new Date().getFullYear() || itemResult[i].year_produced === new Date().getFullYear() - 1) {
           weightedItemResult.push(itemResult[i]);
           itemResult.splice(i, 1);
           i--;
@@ -218,7 +218,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       collectionsResult = collectionsResult.sort( () => Math.random() - 0.5);
       // Loop through the collections and push the collections from this year or last year in to our weighted array
       for (let i = 0; i < collectionsResult.length; i++) {
-        if (collectionsResult[i].year_produced === new Date().getFullYear()) {
+        if (collectionsResult[i].year_produced === new Date().getFullYear() || collectionsResult[i].year_produced === new Date().getFullYear() - 1) {
           weightedCollectionResult.push(collectionsResult[i]);
           collectionsResult.splice(i, 1);
           i--;
