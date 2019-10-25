@@ -14,7 +14,7 @@ import { insertProfile, updateProfile, deleteUserProfile } from './model';
  * Get profile(s) by either it's id, uuid or search by full_name
  *
  * @param event
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:profile
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ profile }
  */
 export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -63,7 +63,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
  * Create a profile
  *
  * @param event
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:success, id
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ success: boolean, id: number }
  */
 export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -90,7 +90,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  * Update a profile
  *
  * @param event
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:success
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ success: boolean }
  */
 export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -136,7 +136,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } body:true
+ * @returns { Promise<APIGatewayProxyResult> } body:{ boolean }
  */
 export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {

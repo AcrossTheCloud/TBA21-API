@@ -19,12 +19,12 @@ import { dbgeoparse } from '../utils/dbgeo';
  *
  * @param limit: string
  * @param offset: string
- * @param isAdmin: boolea
+ * @param isAdmin: boolean
  * @param inputQuery: string
  * @param byField: string
  * @param fieldValue: string
  * @param userId: string
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
  */
 export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
   try {
@@ -154,7 +154,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
  * @param isAdmin: boolean
  * @param isContributor: boolean
  * @param userId: string
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data.objects.output.geometries
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
  */
 export const getItemBy = async (field, value, isAdmin: boolean = false, isContributor: boolean = false, userId?: string) => {
   try {
@@ -201,7 +201,7 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
  * @param requestBody: object
  * @param isAdmin: boolean
  * @param userId: string
- * @returns body: success, updated_key, id
+ * @returns body:{ success: boolean, updated_key: string, id: number }
  */
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
@@ -329,7 +329,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
  * @param s3Key: string
  * @param isAdmin: boolean
  * @param userId: string
- * @returns { Promise<APIGatewayProxyResult> } body:data
+ * @returns { Promise<APIGatewayProxyResult> } body:{ data }
  */
 export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
   try {

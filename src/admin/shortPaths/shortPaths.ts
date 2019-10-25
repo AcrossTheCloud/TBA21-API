@@ -8,7 +8,7 @@ import Joi from '@hapi/joi';
  * Insert a short path
  *
  * @param event
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body: success, ...insertResult
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ success:boolean, ...insertResult}
  */
 export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {

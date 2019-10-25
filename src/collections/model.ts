@@ -17,7 +17,7 @@ import { dbgeoparse } from '../utils/dbgeo';
  *
  * @param requestBody: object
  * @param isAdmin: boolean
- * @returns { Promise<APIGatewayProxyResult> } body: success, id
+ * @returns { Promise<APIGatewayProxyResult> } body:{ success, id }
  */
 export const create = async (requestBody, isAdmin: boolean) => {
   try {
@@ -107,7 +107,7 @@ export const create = async (requestBody, isAdmin: boolean) => {
  * @param requestBody: object
  * @param isAdmin: boolean
  * @param userId: string
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:success
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ success: boolean }
  */
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
@@ -240,7 +240,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
  * @param id: number
  * @param isAdmin: boolean
  * @param userId: string
- * @returns body: true
+ * @returns body:{ boolean }
  */
 export const deleteCollection = async (id, isAdmin: boolean, userId?: string) => {
   try {
@@ -289,7 +289,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
  * @param isAdmin: boolean
  * @param userId: string
  * @param id: number
- * @returns { Promise<APIGatewayProxyResult> } topoJSON object with data.objects.output.geometries
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
  */
 export const get = async (requestBody, isAdmin: boolean = false, userId?: string, id?: string): Promise<APIGatewayProxyResult> => {
   try {

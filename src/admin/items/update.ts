@@ -9,7 +9,7 @@ import { update } from '../../items/model';
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:success, updated_key, id
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ success: boolean, updated_key: string, id: number }
  */
 export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
