@@ -7,12 +7,29 @@ import {
   unAuthorizedRequestResponse
 } from '../common';
 import { db } from '../databaseConnect';
+import { geoJSONToGeom } from '../map/util';
 import { limitQuery } from '../utils/queryHelpers';
+import { dbgeoparse } from '../utils/dbgeo';
 
 export const create = async (requestBody, isAdmin: boolean) => {
   try {
 
-    let paramCounter = 0;
+    let
+      paramCounter = 0,
+      hasGeoData = false,
+      geoData;
+
+    // Grab our geoJSON if we have it
+    if (requestBody.geojson) {
+      if (Object.keys(requestBody.geojson.features).length) {
+        hasGeoData = true;
+        geoData = requestBody.geojson;
+      } else {
+        Object.assign(requestBody, {geom: null});
+      }
+      // Always delete geojson as we don't have a column for it.
+      delete requestBody.geojson;
+    }
 
     const
       params = [],
@@ -22,10 +39,10 @@ export const create = async (requestBody, isAdmin: boolean) => {
         }
         return `${key}`;
       }),
-      sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
+       sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
 
         // @ts-ignore
-        if ((typeof (value) === 'string' || Array.isArray(value)) && value.length === 0) {
+        if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
 
@@ -38,6 +55,12 @@ export const create = async (requestBody, isAdmin: boolean) => {
 
     sqlFields.push('created_at', 'updated_at');
     sqlParams.push('now()', 'now()');
+
+    // If we have geoJSON push it into SQL SETS
+    if (hasGeoData && Object.keys(geoData).length) {
+      sqlFields.push('geom');
+      sqlParams.push(`ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
+    }
 
     const query = `INSERT INTO ${process.env.COLLECTIONS_TABLE} (${sqlFields.join(', ')}) VALUES (${sqlParams.join(', ')}) RETURNING id;`;
 
@@ -72,7 +95,22 @@ export const create = async (requestBody, isAdmin: boolean) => {
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
 
-    let paramCounter = 0;
+    let
+      paramCounter = 0,
+      hasGeoData = false,
+      geoData;
+
+    // Grab our geoJSON if we have it
+    if (requestBody.geojson) {
+      if (Object.keys(requestBody.geojson.features).length) {
+        hasGeoData = true;
+        geoData = requestBody.geojson;
+      } else {
+        Object.assign(requestBody, {geom: null});
+      }
+      // Always delete geojson as we don't have a column for it.
+      delete requestBody.geojson;
+    }
 
     const params = [];
     params[paramCounter++] = requestBody.id;
@@ -82,7 +120,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       .filter(([e, v]) => ((e !== 'id') && (e !== 'items'))) // remove id and items
       .map(([key, value]) => {
         // @ts-ignore
-        if ((typeof (value) === 'string' || Array.isArray(value)) && value.length === 0) {
+        if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
         params[paramCounter++] = requestBody[key];
@@ -93,6 +131,11 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
 
         return `${key}=$${paramCounter}`;
       });
+
+    // If we have geoJSON push it into SQL SETS
+    if (hasGeoData && Object.keys(geoData).length) {
+      SQL_SETS.push(`geom=ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
+    }
 
     let query = `
           UPDATE ${process.env.COLLECTIONS_TABLE}
@@ -192,7 +235,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
       if (!deleteResult) {
         throw new Error('unauthorized');
       }
-      // MA: why the 2nd query below is here ? Didn't we have cascade on delete ? I have kept it anyway
+      // We run the second delete query if for any reason the initial doesn't cascade.
       let query2 = `DELETE FROM ${process.env.COLLECTIONS_ITEMS_TABLE}
             WHERE collection_id = $1 `;
       await t.any(query2, [id]);
@@ -214,7 +257,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
-export const get = async (requestBody, isAdmin: boolean = false, userId?: string, id?: string, isPublic?: boolean): Promise<APIGatewayProxyResult> => {
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string): Promise<APIGatewayProxyResult> => {
   try {
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -223,25 +266,21 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         requestBody.offset || defaultValues.offset
       ];
 
-    if (!isPublic) {
-      if (!isAdmin) {
-        params.push(userId);
-      }
-      if (!id) {
-        params.push(id);
-      }
+    if (!isAdmin) {
+      params.push(userId);
+    }
+    if (requestBody.id) {
+      params.push(requestBody.id);
     }
 
     const
-      adminContributorConditions = `${!isAdmin ? `WHERE $3::uuid = ANY( contributors )` : ''} 
-      ${id ? `${!isAdmin ? 'AND' : 'WHERE'} contributors @> $3::uuid` : ''} `,
       query = `
         SELECT
           COUNT ( collections.id ) OVER (),
           collections.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(collections.geom) as geoJSON
+          ST_AsText(collections.geom) as geom
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
             
@@ -250,9 +289,10 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
                     
           UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
+            
+        ${!isAdmin ? `WHERE $3::uuid = ANY( contributors )` : ''} 
         
-            ${isPublic ? ' WHERE status=true ' : adminContributorConditions}
-
+        ${requestBody.id ? `${!isAdmin ? 'AND' : 'WHERE'} collections.id=${!isAdmin ? '$4' : '$3'}` : ''} 
             
         GROUP BY collections.id
         ORDER BY collections.id
@@ -261,7 +301,7 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         OFFSET $2 
       `;
 
-    return successResponse({ collections: await db.any(query, params) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
