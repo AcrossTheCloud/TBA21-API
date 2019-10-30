@@ -33,13 +33,25 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       params = [lng_sw, lat_sw, lng_ne, lat_ne, type],
       query = `
         SELECT 
-          id,
-          ${type === 'item' ? 's3_key,' : ''}
-          title,
-          ST_AsText(geom) as geom,
-          $5 as metaType
-        FROM ${type === 'item' ? process.env.ITEMS_TABLE : process.env.COLLECTIONS_TABLE}
-        WHERE status = true AND geom && ST_MakeEnvelope($1, $2, $3,$4, 4326)
+          data.id,
+          ${type === 'item' ? 'data.s3_key,' : ''}
+          data.title,
+          data.focus_arts,
+          data.focus_scitech,
+          data.focus_action,
+          ST_AsText(data.geom) as geom,
+          $5 as metaType,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags
+                   
+        FROM
+          ${type === 'item' ? process.env.ITEMS_TABLE : process.env.COLLECTIONS_TABLE} as data,
+          
+          UNNEST(CASE WHEN data.concept_tags <> '{}' THEN data.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid         
+        WHERE 
+          data.status = true AND data.geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
+          
+        GROUP BY data.id ${type === 'item' ? ', data.s3_key' : ''}
       `;
     return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
