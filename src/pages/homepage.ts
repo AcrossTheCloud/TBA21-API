@@ -85,38 +85,12 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           AND status = true
           $4:raw
         GROUP BY items.id, items.title, items.s3_key
-        ORDER BY year_produced DESC 
+        ORDER BY random() 
         LIMIT $2:raw
     `;
 
-     let
-        result = await db.any(oaHighlightQuery, params),
-        resultByYear = [];
-     // Randomising the results
-     result = result.sort( () => Math.random() - 0.5);
-      // Loop through the highlights and push the highlights from this year or last year in to our weighted array
-     for (let i = 0; i < result.length ; i++) {
-       if (parseInt(result[i].year_produced, 0 ) === new Date().getFullYear()) {
-         resultByYear.push(result[i]);
-         result.splice(i, 1);
-         i--;
-        }
-      }
-      // If our results are less than the requested limit, push the results in
-     if (resultByYear.length < (parseInt(params[1], 0))) {
-       let diff = parseInt(params[1], 0) - resultByYear.length;
-       for (let i = 0; i < diff; i++) {
-         if (result.length === 0) {
-         diff = 0;
-       } else {
-           resultByYear.push(result[i]);
-           result.splice(i, 1);
-           i--;
-         }
-       }
-     }
      return successResponse({
-         oa_highlight: resultByYear
+         oa_highlight: await db.any(oaHighlightQuery, params)
        });
     } else {
       let whereStatement: string = ``;
