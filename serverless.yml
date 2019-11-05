@@ -418,12 +418,12 @@ functions:
 
   ### MAP
   getInBounds:
-    handler: src/map/map.get
+    handler: src/map/map.post
     description: Get the items or collections within the specified bounds
     events:
       - http:
           path: map
-          method: get
+          method: post
           cors: true
           authorizer: aws_iam
           caching:

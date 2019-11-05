@@ -67,7 +67,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
           UNNEST(CASE WHEN data.concept_tags <> '{}' THEN data.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid         
         WHERE 
-          data.status = true AND ${hasIds ? `data.id NOT IN(SELECT(UNNEST($6))) AND ` : ''} data.geom @ ST_MakeEnvelope($1, $2, $3, $4, 4326)
+          data.status = true AND ${hasIds ? `data.id NOT IN(SELECT(UNNEST($6))) AND ` : ''} data.geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
           
         GROUP BY data.id ${type === 'item' ? ', data.s3_key' : ''}
         
