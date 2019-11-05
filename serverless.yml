@@ -417,7 +417,7 @@ functions:
 
 
   ### MAP
-  getInBounds:
+  mapInBounds:
     handler: src/map/map.post
     description: Get the items or collections within the specified bounds
     events:
@@ -426,14 +426,6 @@ functions:
           method: post
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.lat_se
-              - name: request.querystring.lng_sw
-              - name: request.querystring.lng_ne
-              - name: request.querystring.lat_nw
-              - name: request.querystring.type
 
   ### Short Paths
   getShortPath:
