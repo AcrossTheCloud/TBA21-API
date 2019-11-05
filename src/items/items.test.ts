@@ -16,7 +16,7 @@ import {
   getRekognitionTags
 } from './items';
 
-import { get as getItemsInBounds } from '../map/map';
+import { post as inBounds } from '../map/map';
 
 describe('Item tests', () => {
   afterAll( () => {
@@ -141,17 +141,25 @@ describe('Item tests', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-  test('Get all items within the bounding box (150.8712, -34.4022, 150.8851, -34.4023', async () => {
+  test('Get all items within the bounding box (-34.333230470355154, 150.83541870117185, -34.333230470355154, -34.43409789359468)', async () => {
     const
-      queryStringParameters: QueryStringParameters = {lng_sw: '150.8712', lat_sw: '-34.4022', lng_ne: '150.8851', lat_ne: '-34.4023', type: 'item'},
-      response = await getItemsInBounds({ queryStringParameters } as APIGatewayProxyEvent),
+      queryStringParameters: QueryStringParameters = {
+        lat_ne: '-34.4179211',
+        lat_sw: '-34.4179211',
+        lng_ne: '150.8802055',
+        lng_sw: '150.8802055',
+        type: 'item'
+      },
+      body = JSON.stringify(queryStringParameters),
+      response = await inBounds({ body } as APIGatewayProxyEvent),
       result = JSON.parse(response.body);
     expect(result.data.objects.output.geometries.length).toEqual(1);
   });
   test('Get a bad response when a boundary is missing', async () => {
     const
       queryStringParameters: QueryStringParameters = {lng_sw: '150.9218689', lat_sw: '-34.312742', lat_ne: '-34.756705', type: 'item'},
-      response = await getItemsInBounds({ queryStringParameters } as APIGatewayProxyEvent);
+      body = JSON.stringify(queryStringParameters),
+      response = await inBounds({ body } as APIGatewayProxyEvent);
 
     expect(response.statusCode).toEqual(400);
   });
