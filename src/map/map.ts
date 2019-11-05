@@ -1,6 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
 import Joi from '@hapi/joi';
-
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { dbgeoparse } from '../utils/dbgeo';
@@ -12,14 +11,18 @@ import { dbgeoparse } from '../utils/dbgeo';
  *
  * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with features and their properties
  */
-export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.assert(event.queryStringParameters, Joi.object().keys({
+    const data = JSON.parse(event.body);
+
+    await Joi.assert(data, Joi.object().keys({
       lng_sw: Joi.number().required(),
       lat_sw: Joi.number().required(),
       lng_ne: Joi.number().required(),
       lat_ne: Joi.number().required(),
-      type: Joi.string().valid('collection', 'item').required()
+      type: Joi.string().valid('collection', 'item').required(),
+      itemids: Joi.array().items(Joi.number()),
+      collectionids: Joi.array().items(Joi.number())
     }));
     const
       {
@@ -27,12 +30,27 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         lat_sw,
         lng_ne,
         lat_ne,
-        type
-      } = event.queryStringParameters, // Use default values if not supplied.
+        type,
+        itemids,
+        collectionids
+      } = data, // Use default values if not supplied.
+      params = [lng_sw, lat_sw, lng_ne, lat_ne, type];
 
-      params = [lng_sw, lat_sw, lng_ne, lat_ne, type],
+    // $6
+    let hasIds = false;
+    if (type === 'item' && itemids && itemids.length) {
+      hasIds = true;
+      params.push(itemids);
+    }
+    if (type === 'collection' && collectionids && collectionids.length) {
+      hasIds = true;
+      params.push(collectionids);
+    }
+
+    const
       query = `
-        SELECT 
+        SELECT
+          COUNT ( data.id ) OVER (),
           data.id,
           ${type === 'item' ? 'data.s3_key,' : ''}
           data.title,
@@ -49,14 +67,15 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           UNNEST(CASE WHEN data.concept_tags <> '{}' THEN data.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid         
         WHERE 
-          data.status = true AND data.geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
+          data.status = true AND ${hasIds ? `data.id NOT IN(SELECT(UNNEST($6))) AND ` : ''} data.geom @ ST_MakeEnvelope($1, $2, $3, $4, 4326)
           
         GROUP BY data.id ${type === 'item' ? ', data.s3_key' : ''}
+        
       `;
+
     return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
-
 };
