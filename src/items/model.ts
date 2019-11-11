@@ -13,7 +13,7 @@ import { geoJSONToGeom } from '../map/util';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 import { dbgeoparse } from '../utils/dbgeo';
 
-export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
+export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string, uuid?: string) => {
   try {
 
     const
@@ -85,6 +85,10 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
     const conditionsLinker = (!isAdmin || searchQuery.length > 0) ? 'AND' : 'WHERE';
 
+    if (!!uuid) {
+      params.push(uuid);
+    }
+
     const
       query = `
           SELECT
@@ -104,7 +108,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
           ${isAdmin ? searchQuery : 'WHERE status=true'}
 
-          ${userId ? ` WHERE contributor = $${params.length}::uuid ` : ''}
+          ${userId || uuid ? ` WHERE contributor = $${params.length}::uuid ` : ''}
           
           ${(byField === 'tag') ? ` ${conditionsLinker} (
             LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'

@@ -194,6 +194,12 @@ functions:
           path: items/get
           method: get
           cors: true
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.limit
+              - name: request.querystring.offset
+              - name: request.querystring.uuid
 
   getItem:
     handler: src/items/items.getItem
@@ -635,6 +641,22 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+
+  getCollections:
+    handler: src/collections/collections.get
+    description: Returns a list of collections with an option to supply the contributor uuid
+    events:
+      - http:
+          path: collections
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.limit
+              - name: request.querystring.offset
+              - name: request.querystring.uuid
 
   adminGetCollectionById:
     handler: src/admin/collections/collections.getById

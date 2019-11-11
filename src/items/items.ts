@@ -4,6 +4,7 @@ import Joi from '@hapi/joi';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
+import { uuidRegex } from '../utils/uuid';
 import { getAll, getItemBy } from './model';
 
 /**
@@ -17,17 +18,25 @@ import { getAll, getItemBy } from './model';
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
+    let uuid = undefined;
+
     if (event.queryStringParameters) {
       await Joi.assert(event.queryStringParameters, Joi.object().keys({
         limit: Joi.number().integer(),
-        offset: Joi.number().integer()
+        offset: Joi.number().integer(),
+        uuid: Joi.string().pattern(uuidRegex)
       }));
+
+      if (event.queryStringParameters.hasOwnProperty('uuid')) {
+        uuid = event.queryStringParameters.uuid;
+      }
     }
+
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, undefined, undefined, !!uuid ? uuid : undefined));
 
   } catch (e) {
     console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);
