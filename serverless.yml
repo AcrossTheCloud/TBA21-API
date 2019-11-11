@@ -257,7 +257,7 @@ functions:
 #    events:
 #      - http:
 #          path: items/changeStatus
-#          method: get
+#          method: patch
 #          cors: true
 #          authorizer: aws_iam
 #          caching:
@@ -340,7 +340,7 @@ functions:
 #    events:
 #      - http:
 #          path: collections/changeStatus
-#          method: get
+#          method: patch
 #          cors: true
 #          authorizer: aws_iam
 #          caching:
@@ -425,7 +425,7 @@ functions:
     events:
       - http:
           path: contributor/tags
-          method: PUT
+          method: post
           cors: true
           authorizer: aws_iam
 
@@ -465,7 +465,7 @@ functions:
     events:
       - http:
           path: admin/shortpaths
-          method: put
+          method: post
           cors: true
           authorizer: aws_iam
 
@@ -485,7 +485,7 @@ functions:
     events:
       - http:
           path: profiles
-          method: put
+          method: post
           cors: true
 
   updateProfile:
@@ -585,7 +585,7 @@ functions:
     events:
       - http:
           path: admin/announcements
-          method: put
+          method: post
           cors: true
           authorizer: aws_iam
 
@@ -623,7 +623,7 @@ functions:
     events:
       - http:
           path: admin/profiles
-          method: put
+          method: post
           cors: true
           authorizer: aws_iam
 
@@ -727,7 +727,7 @@ functions:
     events:
       - http:
           path: admin/collections/update
-          method: put
+          method: patch
           cors: true
           authorizer: aws_iam
 
@@ -825,7 +825,7 @@ functions:
     events:
       - http:
           path: admin/items/update
-          method: put
+          method: patch
           cors: true
           authorizer: aws_iam
 
@@ -887,7 +887,7 @@ functions:
     events:
       - http:
           path: contributor/collections/update
-          method: put
+          method: patch
           cors: true
           authorizer: aws_iam
 
@@ -917,7 +917,7 @@ functions:
     events:
       - http:
           path: contributor/items/update # ..but different path
-          method: put
+          method: patch
           cors: true
           authorizer: aws_iam
 
