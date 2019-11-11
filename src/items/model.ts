@@ -13,7 +13,20 @@ import { geoJSONToGeom } from '../map/util';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 import { dbgeoparse } from '../utils/dbgeo';
 
-export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string, uuid?: string) => {
+/**
+ *
+ * Get all items by inputQuery, or byField and fieldValue, or by userId
+ *
+ * @param limit: string
+ * @param offset: string
+ * @param isAdmin: boolean
+ * @param inputQuery: string
+ * @param byField: string
+ * @param fieldValue: string
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ */
+export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
   try {
 
     const
@@ -23,7 +36,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
     if (isAdmin && inputQuery && inputQuery.length > 0) {
       params.push(inputQuery);
-
+      // A wildcard WHERE statement for our items table columns that we use in our search
       searchQuery = `
             WHERE 
               LOWER(title) LIKE '%' || LOWER($3) || '%' OR
@@ -85,10 +98,6 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
     const conditionsLinker = (!isAdmin || searchQuery.length > 0) ? 'AND' : 'WHERE';
 
-    if (!!uuid) {
-      params.push(uuid);
-    }
-
     const
       query = `
           SELECT
@@ -108,7 +117,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
           ${isAdmin ? searchQuery : 'WHERE status=true'}
 
-          ${userId || uuid ? ` WHERE contributor = $${params.length}::uuid ` : ''}
+          ${userId ? ` WHERE contributor = $${params.length}::uuid ` : ''}
           
           ${(byField === 'tag') ? ` ${conditionsLinker} (
             LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
@@ -136,6 +145,17 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
   }
 };
 
+/**
+ *
+ * Get an item by its field and value
+ *
+ * @param field: string
+ * @param value: string
+ * @param isAdmin: boolean
+ * @param isContributor: boolean
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ */
 export const getItemBy = async (field, value, isAdmin: boolean = false, isContributor: boolean = false, userId?: string) => {
   try {
     const
@@ -174,6 +194,15 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
   }
 };
 
+/**
+ *
+ * Update an item
+ *
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @returns body:{ success: boolean, updated_key: string, id: number }
+ */
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
 
@@ -225,7 +254,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       .filter(([e, v]) => (e !== 's3_key')) // remove s3_key
       .map(([key, value]) => {
 
-        // @ts-ignore
+        // If any of our values are empty, set the key to null to prevent the database from throwing an error
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
@@ -293,6 +322,15 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
   }
 };
 
+/**
+ *
+ * Delete an item
+ *
+ * @param s3Key: string
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } body:{ data }
+ */
 export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
   try {
     const params = [s3Key];
@@ -303,6 +341,7 @@ export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
       params.push(userId);
       query += ` and contributor = $2 `;
     }
+    // We return the id of the deleted item so we can remove the short_path associated with it
     query += ` returning id;`;
 
     const delResult = await db.oneOrNone(query, params);

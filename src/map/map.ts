@@ -9,7 +9,7 @@ import { dbgeoparse } from '../utils/dbgeo';
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with features and their properties
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:objects:output:geometries
  */
 export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {

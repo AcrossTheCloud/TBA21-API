@@ -15,23 +15,23 @@ afterAll( () => {
 });
 test('limit the items we get from search function', async () => {
     const
-      requestBody = {limit: '1', criteria: [{field : 'subtitle', value: 'subtitle'}]},
+      requestBody = {limit: '1', criteria: [{field : 'subtitle', value: 'Morbi non eros'}]},
       body: string = JSON.stringify(requestBody),
       response = await post({ body } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.results.length).toEqual(2);
+    expect(results.results.length).toEqual(1);
   });
 test('Get items from search function with multiple criteria', async () => {
     const
-      requestBody = {limit: '5', criteria: [{field : 'subtitle', value: 'subtitle'}, {field : 'title', value: 'Detonation'}]},
+      requestBody = {limit: '5', criteria: [{field : 'subtitle', value: 'Morbi non eros'}, {field : 'title', value: 'The Lives of Pink River Dolpgins'}]},
       body: string = JSON.stringify(requestBody),
       response = await post({ body } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.results.length).toEqual(5);
+    expect(results.results.length).toEqual(1);
   });
 test('Get items from search function with multiple criteria and focus', async () => {
     const
-      requestBody = {limit: '10', focus_arts: 'true', criteria: [{field : 'title', value: 'Detonation'}]},
+      requestBody = {limit: '10', focus_arts: 'true', criteria: [{field : 'title', value: 'The Private Life of Sharks'}]},
       body: string = JSON.stringify(requestBody),
       response = await post({ body } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);

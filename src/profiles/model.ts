@@ -5,8 +5,9 @@ import { badRequestResponse, headers, internalServerErrorResponse, unAuthorizedR
  *
  * Create a profile
  *
- * @param requestBody
- * @param isAdmin
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body: success, id
  */
 export const insertProfile = async (requestBody, isAdmin: boolean) => {
   try {
@@ -60,6 +61,7 @@ export const insertProfile = async (requestBody, isAdmin: boolean) => {
  * @param requestBody
  * @param isAdmin
  * @param userId
+ * @returns { Promise<APIGatewayProxyResult> }  JSON object with body:success
  */
 export const updateProfile = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
@@ -109,20 +111,24 @@ export const updateProfile = async (requestBody, isAdmin: boolean, userId?: stri
  * @returns { Promise<APIGatewayProxyResult> } true
  * @param isAdmin
  * @param userId
+ * @return { Promise<APIGatewayProxyResult> } JSON object with body:true
  */
 export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
   try {
-    if ((userId && isAdmin) || (userId)) {
+    // if the users uuid is the same as the profiles or if they're an admin, allow them to edit it
+    if ((userId && isAdmin) || (userId))  {
       const
         params = [userId],
         query = `
           DELETE FROM ${process.env.PROFILES_TABLE}
           WHERE cognito_uuid = $1
         `,
+        // Delete any items that are owned by the user
         deleteItemsQuery = `
           DELETE FROM ${process.env.ITEMS_TABLE}
           WHERE contributor = $1
       `;
+      // Get the profiles id so we can delete any of their short paths
       const getProfileIdQuery = `
           SELECT id 
           FROM ${process.env.PROFILES_TABLE}
@@ -131,6 +137,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
       let
         profileCheck = await db.manyOrNone(getProfileIdQuery, params),
         profileCheckPromise = [];
+      // If we have an id returned from the check, delete any short paths its associated with
       if (profileCheck.length) {
         profileCheckPromise = profileCheck.map ( async c => {
           if ( c.id && c.id.length === 1) {
@@ -141,6 +148,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
           }
         });
       }
+      // Check if the user we're deleting owns any collections
       const checkCollectionsQuery = `
           SELECT id, contributors
           FROM ${process.env.COLLECTIONS_TABLE}
@@ -149,6 +157,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
       let
         collectionsCheck = await db.manyOrNone(checkCollectionsQuery, params),
         collectionsCheckPromise = [];
+      // If the user owns a collections and they're the only contributor for that collection, delete it
       if (collectionsCheck.length) {
         collectionsCheckPromise = collectionsCheck.map ( async c => {
           if ( c.contributors && c.contributors.length === 1) {
@@ -157,6 +166,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
               resolve(deleteCollection);
             });
           } else {
+            // Update a collection with multiple contributors to remove the deleted contributor
             return new Promise( async resolve => {
               const editCollection = await db.any(`UPDATE ${process.env.COLLECTIONS_TABLE} SET contributors = array_remove(contributors, $1) WHERE id = $2`, [userId, c.id]);
               resolve(editCollection);

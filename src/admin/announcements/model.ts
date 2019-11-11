@@ -1,10 +1,19 @@
 import { badRequestResponse, headers, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 
+/**
+ *
+ * Insert an announcement
+ *
+ * @param isAdmin: boolean
+ * @param data: { string }
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } body:{ success: boolean, ...insertResult }
+ */
 export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string ) => {
   try {
     let paramCounter = 0;
-
+    // Only an admin can publish an announcement, so we set the status to false if the uploader isn't an admin
     if (!isAdmin) {
       Object.assign(data, {'status': false, 'contributor': `${userId}`});
     }
@@ -46,6 +55,16 @@ export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string 
   }
 };
 
+/**
+ *
+ * Get an announcement
+ *
+ * @param isAdmin: boolean
+ * @param params: [ string ]
+ * @param userId: string
+ * @param id: string
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ announcements }
+ */
 export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, id?: string ) => {
   try {
     let query = `
@@ -57,7 +76,7 @@ export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, 
         LIMIT $1
         OFFSET $2
           `;
-
+    // If the user is not an admin, only show their own announcements
     if (!isAdmin) {
       query = `
         SELECT *,

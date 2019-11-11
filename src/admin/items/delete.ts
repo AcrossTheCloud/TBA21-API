@@ -8,7 +8,7 @@ import { deleteItm } from '../../items/model';
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ boolean }
  */
 export const deleteItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {

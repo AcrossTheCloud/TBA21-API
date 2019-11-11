@@ -22,7 +22,7 @@ describe('Admin Collections Delete', () => {
       response = await deleteById({
         queryStringParameters, path: '/contributor/collections/delete', requestContext: {
           identity: {
-            cognitoAuthenticationProvider: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:1f89f9b6-39bc-416e-899e-ef1a8d656f24"
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:1f89f9b6-39bc-416e-899e-ef1a8d656f24'
           }
         }
       } as APIGatewayProxyEvent);
@@ -45,7 +45,7 @@ describe('Admin Collections Delete', () => {
       response = await deleteById({
         queryStringParameters, path: '/contributor/collections/delete', requestContext: {
           identity: {
-            cognitoAuthenticationProvider: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:7e32b7c6-c6d3-4e70-a101-12af2df21a19"
+            cognitoAuthenticationProvider: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx:CognitoSignIn:7e32b7c6-c6d3-4e70-a101-12af2df21a19'
           }
         }
       } as APIGatewayProxyEvent),

@@ -100,12 +100,12 @@ describe('Item tests', () => {
 
     expect(response.statusCode).toEqual(400);
   });
-  test('Get all items with a type of video', async () => {
+  test('Get all items with a type of Image', async () => {
     const
-      queryStringParameters: QueryStringParameters = {type: 'Video'},
+      queryStringParameters: QueryStringParameters = {type: 'Image'},
       response = await getByType({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.data.objects.output.geometries.length).toEqual(2);
+    expect(result.data.objects.output.geometries.length).toEqual(1);
   });
   test('Get a bad response when no type is given', async () => {
     const

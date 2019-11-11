@@ -11,6 +11,14 @@ import { geoJSONToGeom } from '../map/util';
 import { limitQuery } from '../utils/queryHelpers';
 import { dbgeoparse } from '../utils/dbgeo';
 
+/**
+ *
+ * Create a collection
+ *
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @returns { Promise<APIGatewayProxyResult> } body:{ success, id }
+ */
 export const create = async (requestBody, isAdmin: boolean) => {
   try {
 
@@ -40,14 +48,14 @@ export const create = async (requestBody, isAdmin: boolean) => {
         return `${key}`;
       }),
        sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
-
-        // @ts-ignore
+        // If any of our values are empty, set the key to null to prevent that database from throwing an error
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
 
         params[paramCounter++] = requestBody[key];
         if (key === 'contributors') {
+          // Casting the contributor to uuid so we can insert it
           return `$${paramCounter}::uuid[]`;
         }
         return `$${paramCounter}`;
@@ -67,7 +75,7 @@ export const create = async (requestBody, isAdmin: boolean) => {
     const insertResult = await db.task(async t => {
       const insertedObject = await t.one(query, params);
 
-      // If we have items
+      // If we have items to add to the collection, insert the collection id and item s3 key in to the collections_items table
       if (requestBody.items && requestBody.items.length > 0) {
         const
           SQL_INSERTS: string[] = requestBody.items.map((item, index) => (`($1, $${index + 2})`)),
@@ -92,6 +100,15 @@ export const create = async (requestBody, isAdmin: boolean) => {
   }
 };
 
+/**
+ *
+ * Update a collection
+ *
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ success: boolean }
+ */
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
 
@@ -119,12 +136,12 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     const SQL_SETS: string[] = Object.entries(requestBody)
       .filter(([e, v]) => ((e !== 'id') && (e !== 'items'))) // remove id and items
       .map(([key, value]) => {
-        // @ts-ignore
+        // If any of our values are empty, set the key to null to prevent that database from throwing an error
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
         params[paramCounter++] = requestBody[key];
-
+        // Casting the contributor value to a uuid so we can insert it
         if (key === 'contributors') {
           return `${key}=$${paramCounter}::uuid[]`;
         }
@@ -165,8 +182,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         }
       }
 
-      // If we have items to assign to the collection
-
+      // If we have items in the requestBody, we check if we have to delete them or add them to the collection
       if (requestBody.items) {
 
         let currentItems = await t.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [requestBody.id]);
@@ -218,6 +234,14 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
   }
 };
 
+/**
+ * Delete a collection
+ *
+ * @param id: number
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @returns body:{ boolean }
+ */
 export const deleteCollection = async (id, isAdmin: boolean, userId?: string) => {
   try {
 
@@ -235,7 +259,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
       if (!deleteResult) {
         throw new Error('unauthorized');
       }
-      // We run the second delete query if for any reason the initial doesn't cascade.
+      // We run the second delete query if for any reason the initial delete doesn't cascade.
       let query2 = `DELETE FROM ${process.env.COLLECTIONS_ITEMS_TABLE}
             WHERE collection_id = $1 `;
       await t.any(query2, [id]);
@@ -257,7 +281,17 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
-export const get = async (requestBody, isAdmin: boolean = false, userId?: string): Promise<APIGatewayProxyResult> => {
+/**
+ *
+ * Get a collection
+ *
+ * @param requestBody: object
+ * @param isAdmin: boolean
+ * @param userId: string
+ * @param id: number
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ */
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string, id?: string): Promise<APIGatewayProxyResult> => {
   try {
     const
       defaultValues = { limit: 15, offset: 0 },

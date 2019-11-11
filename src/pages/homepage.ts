@@ -16,7 +16,7 @@ import Joi from '@hapi/joi';
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } Array of tags
+ * @returns { Promise<APIGatewayProxyResult> } body: items, collections || body: oa_highlight
  */
 export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {

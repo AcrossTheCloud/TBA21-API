@@ -38,7 +38,7 @@ describe('Admin Items', () => {
       response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.data.objects.output.geometries.length).toEqual(3);
+    expect(result.data.objects.output.geometries.length).toEqual(4);
   });
   test('Search for justice in tags and expect 5 results', async () => {
     const
@@ -55,12 +55,12 @@ describe('Admin Items', () => {
       result = JSON.parse(response.body);
     expect(result.data.objects.output.geometries.length).toEqual(2);
   });
-  test('Search for ocean in creators and expect 5 results', async () => {
+  test('Search for sea and expect 4 results', async () => {
     const
-      queryStringParameters: QueryStringParameters = {inputQuery: 'ocean'},
+      queryStringParameters: QueryStringParameters = {inputQuery: 'sea'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
-    expect(result.data.objects.output.geometries.length).toEqual(5);
+    expect(result.data.objects.output.geometries.length).toEqual(4);
   });
   test('Get item with a specific s3 key', async () => {
     const
@@ -104,7 +104,7 @@ describe('Admin Items', () => {
       response = await getByType({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.data.objects.output.geometries.length).toEqual(5);
+    expect(result.data.objects.output.geometries.length).toEqual(1);
   });
   test('Get items by their person', async () => {
     const
@@ -129,6 +129,6 @@ describe('Admin Items', () => {
         }} as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.data.objects.output.geometries[0].properties.id).toEqual("2");
+    expect(result.data.objects.output.geometries[0].properties.id).toEqual('2');
   });
 });

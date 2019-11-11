@@ -3,6 +3,13 @@ import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import Joi from '@hapi/joi';
 
+/**
+ *
+ * Get a result by searching over the items, collections and profiles tables
+ *
+ * @param {APIGatewayEvent}
+ * @return { Promise<APIGatewayProxyResult> } JSON object with body:results
+ */
 export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
 
