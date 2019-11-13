@@ -209,7 +209,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
       profilesWhereStatement = [],
       items = [],
       collections = [],
-      // profiles = [],
+      profiles = [],
       paramCounter = 3;
 
     const queryLoop = (list: {field: string, value: string}[]) => {
@@ -329,31 +329,31 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
         collections = await Promise.all(collectionsPromise);
       }
 
-      // if (profilesWhereStatement.length) {
-      //   const profilesQuery = `
-      //   SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
-      //   COALESCE(field_expertise, '') as field_expertise
-      //   FROM ${process.env.PROFILES_TABLE}
-      //     WHERE public_profile = true
-      //       AND (
-      //         profile_type = 'Individual' OR
-      //         profile_type = 'Collective' OR
-      //         profile_type = 'Institution'
-      //       )
-      //     AND ( ${profilesWhereStatement.join(' OR ')} )
-      //     GROUP BY profiles.id
-      //     LIMIT $1
-      //     OFFSET $2
-      // `;
-      //   profiles = await db.manyOrNone(profilesQuery, params);
-      // }
+      if (profilesWhereStatement.length) {
+        const profilesQuery = `
+        SELECT id, full_name, profile_image, country, city, affiliation, profile_type,
+        COALESCE(field_expertise, '') as field_expertise
+        FROM ${process.env.PROFILES_TABLE}
+          WHERE public_profile = true
+            AND (
+              profile_type = 'Individual' OR
+              profile_type = 'Collective' OR
+              profile_type = 'Institution'
+            )
+          AND ( ${profilesWhereStatement.join(' OR ')} )
+          GROUP BY profiles.id
+          LIMIT $1
+          OFFSET $2
+      `;
+        profiles = await db.manyOrNone(profilesQuery, params);
+      }
     }
 
     return successResponse({
        results: [
          ...items.map(e => Object.assign(e, { item: true })),
          ...collections.map(e => Object.assign(e, { collection : true })),
-         // ...profiles.map(e => Object.assign(e, { profile : true }))
+         ...profiles.map(e => Object.assign(e, { profile : true }))
        ],
      });
 

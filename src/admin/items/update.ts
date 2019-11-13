@@ -120,7 +120,10 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         featured_in: Joi.string().allow('').allow(null),
         volume: Joi.number().allow(''),
         provenance: Joi.array().items(Joi.string()),
-        url: Joi.string().allow('').allow(null)
+        url: Joi.string().allow('').allow(null),
+
+        geojson: Joi.object()
+
       }));
 
     const isAdmin: boolean = !!event.path.match(/\/admin\//);
