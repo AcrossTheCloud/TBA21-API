@@ -38,7 +38,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
     const
       queryString = event.queryStringParameters,
-      params = [limitQuery(queryString.itemsLimit, 50), limitQuery(queryString.oaHighlightLimit, 5), limitQuery(queryString.collectionsLimit, 50)];
+      params = [limitQuery(queryString.itemsLimit, 50), limitQuery(queryString.oaHighlightLimit, 50), limitQuery(queryString.collectionsLimit, 50)];
 
     let date: string;
     let collectionsDate: string;
@@ -88,6 +88,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         ORDER BY random() 
         LIMIT $2:raw
     `;
+
      return successResponse({
          oa_highlight: await db.any(oaHighlightQuery, params)
        });
@@ -117,11 +118,35 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           $4:raw
           $5:raw
         GROUP BY items.id, items.title, items.s3_key
-        ORDER BY random()
+        ORDER BY year_produced DESC 
         LIMIT $1:raw
       `;
-      const items = await db.any(itemsQuery, params);
-
+      let
+        itemResult = await db.many(itemsQuery, params),
+        weightedItemResult = [];
+      // Randomising the items order
+      itemResult = itemResult.sort( () => Math.random() - 0.5);
+      // Loop through the items and push the items from this year or last year in to our weighted array
+      for (let i = 0; i < itemResult.length; i++) {
+        if ((itemResult[i].year_produced === new Date().getFullYear()) || (itemResult[i].year_produced === new Date().getFullYear() - 1)) {
+          weightedItemResult.push(itemResult[i]);
+          itemResult.splice(i, 1);
+          i--;
+        }
+      }
+      // If our results are less than the requested limit, push the results in
+      if (weightedItemResult.length < (parseInt(params[0], 0))) {
+        let diff = parseInt(params[1], 0) - weightedItemResult.length;
+        for (let i = 0; i < diff; i++) {
+          if (itemResult.length === 0) {
+            diff = 0;
+          } else {
+            weightedItemResult.push(itemResult[i]);
+            itemResult.splice(i, 1);
+            i--;
+          }
+        }
+      }
       // Params 4
       if ( queryString.date && queryString.date.length ) {
           collectionsDate = `
@@ -135,7 +160,6 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         `;
           params.push(collectionsDate);
       }
-
       // Collections
       const collectionsQuery = `
         SELECT COUNT(*), 
@@ -158,15 +182,39 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         LIMIT $3:raw
       `;
 
-      let collections = await db.any(collectionsQuery, params);
+      let
+        collectionsResult = await db.any(collectionsQuery, params),
+        weightedCollectionResult = [];
 
       // Remove all collections without an item.
-      collections = collections.filter(c => c.s3_key && c.s3_key.length);
-
+      collectionsResult = collectionsResult.filter(c => c.s3_key && c.s3_key.length);
+      // Randomising the collection order
+      collectionsResult = collectionsResult.sort( () => Math.random() - 0.5);
+      // Loop through the collections and push the collections from this year or last year in to our weighted array
+      for (let i = 0; i < collectionsResult.length; i++) {
+        if ((collectionsResult[i].year_produced === new Date().getFullYear()) || (collectionsResult[i].year_produced === new Date().getFullYear() - 1)) {
+          weightedCollectionResult.push(collectionsResult[i]);
+          collectionsResult.splice(i, 1);
+          i--;
+        }
+      }
+      // If our results are less than the requested limit, push the results in
+      if (weightedCollectionResult.length < (parseInt(params[2], 0))) {
+        let diff = parseInt(params[1], 0) - weightedCollectionResult.length;
+        for (let i = 0; i < diff; i++) {
+          if (collectionsResult.length === 0) {
+            diff = 0;
+          } else {
+            weightedCollectionResult.push(collectionsResult[i]);
+            collectionsResult.splice(i, 1);
+            i--;
+          }
+        }
+      }
       return successResponse(
         {
-          items: items,
-          collections: collections
+          items: weightedItemResult,
+          collections: weightedCollectionResult
         });
     }
   } catch (e) {
