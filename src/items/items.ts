@@ -4,6 +4,7 @@ import Joi from '@hapi/joi';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
+import { uuidRegex } from '../utils/uuid';
 import { getAll, getItemBy } from './model';
 
 /**
@@ -17,17 +18,25 @@ import { getAll, getItemBy } from './model';
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
+    let uuid = undefined;
+
     if (event.queryStringParameters) {
       await Joi.assert(event.queryStringParameters, Joi.object().keys({
         limit: Joi.number().integer(),
-        offset: Joi.number().integer()
+        offset: Joi.number().integer(),
+        uuid: Joi.string().pattern(uuidRegex)
       }));
+
+      if (event.queryStringParameters.hasOwnProperty('uuid')) {
+        uuid = event.queryStringParameters.uuid;
+      }
     }
+
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, undefined, undefined, !!uuid ? uuid : undefined));
 
   } catch (e) {
     console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);
@@ -41,7 +50,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:item - an item object of the results
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON for item object
  */
 export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -160,7 +169,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:updatedItem - an items s3_key and status
  */
 export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -183,39 +192,6 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
     console.log('/items/items.changeStatus ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
-};
-/**
- *
- * Get all the items in a bounding box (map)
- *
- * @param event {APIGatewayEvent}
- * @param context {Promise<APIGatewayProxyResult>}
- *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:items - an item list of the results
- */
-export const getItemsInBounds = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-  try {
-    await Joi.assert(event.queryStringParameters, Joi.object().keys({
-      lat_sw: Joi.number().required(),
-      lat_ne: Joi.number().required(),
-      lng_sw: Joi.number().required(),
-      lng_ne: Joi.number().required()
-    }));
-    const
-      queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.lat_sw, queryString.lng_sw, queryString.lat_ne, queryString.lng_ne],
-      query = `
-        SELECT *, ST_AsText(geom) as geoJSON 
-        FROM ${process.env.ITEMS_TABLE}
-        WHERE geom && ST_MakeEnvelope($1, $2, $3,$4, 4326)
-      `;
-
-    return successResponse({ items: await db.any(query, params) });
-  } catch (e) {
-    console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
-    return badRequestResponse();
-  }
-
 };
 /**
  *

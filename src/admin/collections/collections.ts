@@ -5,6 +5,8 @@ import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
 import Joi from '@hapi/joi';
 import { uuidRegex } from '../../utils/uuid';
+import { dbgeoparse } from '../../utils/dbgeo';
+
 /**
  *
  * Gets all the collections
@@ -39,7 +41,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a typology object containing the results
  */
 export const getById = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -53,7 +55,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
           collections.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(collections.geom) as geoJSON 
+          ST_AsText(collections.geom) as geom
         FROM 
           ${process.env.COLLECTIONS_TABLE} AS collections,
             
@@ -68,7 +70,10 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
         GROUP BY collections.id
       `;
 
-    return successResponse({ collection: await db.oneOrNone(query, params) });
+    const result = await db.oneOrNone(query, params);
+    const data = result ? await dbgeoparse([result], null) : null;
+
+    return successResponse({ data });
   } catch (e) {
     console.log('/collections/collections.getById ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -82,7 +87,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a typology object containing the results
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -103,7 +108,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
          collections.*,
          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-         ST_AsGeoJSON(collections.geom) as geoJSON
+         ST_AsText(collections.geom) as geom
       FROM 
         ${process.env.COLLECTIONS_TABLE} AS collections,
             
@@ -125,7 +130,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       OFFSET $3
     `;
 
-    return successResponse({ collections: await db.any(query, params) });
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getByTag ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -138,7 +143,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a typology object containing the results
  *
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
@@ -181,7 +186,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
              collections.*,
              COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-             ST_AsGeoJSON(collections.geom) as geoJSON 
+             ST_AsText(collections.geom) as geom
           FROM 
             ${process.env.COLLECTIONS_TABLE} AS collections,
                          
@@ -201,7 +206,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
           OFFSET $2
       `;
 
-      return successResponse({ collections: await db.any(query, params) });
+      return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -228,33 +233,29 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
+      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    const query = `
         SELECT
-          items.*,
-          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
-          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsGeoJSON(items.geom) as geoJSON 
+          items.id,
+          items.s3_key,
+          items.title,
+          items.creators,
+          items.status,
+          items.contributor
         FROM
           ${process.env.COLLECTIONS_ITEMS_TABLE} AS collections_items
           INNER JOIN ${process.env.ITEMS_TABLE}
-          ON collections_items.item_s3_key = items.s3_key,
-          
-          UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
-            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                  
-          UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
-            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
+          ON collections_items.item_s3_key = items.s3_key
         
         WHERE collection_id = $1
-          
         GROUP BY items.s3_key
         
         LIMIT $2
         OFFSET $3
       `;
 
-    return successResponse({ items: await db.any(query, params) });
+    const data = await dbgeoparse(await db.any(query, params), null);
+    return successResponse({ data });
   } catch (e) {
     console.log('/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

@@ -11,6 +11,10 @@ import { db } from '../../databaseConnect';
 import { insert, update, deleteAnnouncement, get } from './announcements';
 
 describe('admin/announcements', () => {
+  beforeAll( async () => {
+    await reSeedDatabase();
+  });
+
   // AfterAll tests reseed the DB
   afterAll( async () => {
     await reSeedDatabase();
