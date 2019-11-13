@@ -8,7 +8,7 @@ import { db } from '../../databaseConnect';
  * @param isAdmin: boolean
  * @param data: { string }
  * @param userId: string
- * @returns { Promise<APIGatewayProxyResult> } body:{ success: boolean, ...insertResult }
+ * @returns { Promise<APIGatewayProxyResult> } body:{ success: boolean, id: string }
  */
 export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string ) => {
   try {
@@ -63,7 +63,7 @@ export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string 
  * @param params: [ string ]
  * @param userId: string
  * @param id: string
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ announcements }
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ announcements[{'id', 'title', 'description', 'url', 'created_at', 'status', 'contributor', 'count'}]  }
  */
 export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, id?: string ) => {
   try {

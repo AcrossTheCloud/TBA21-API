@@ -9,7 +9,7 @@ import Joi from '@hapi/joi';
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } the deleted tag object {id: number, tag_name: string}
+ * @returns { Promise<APIGatewayProxyResult> } the deleted tag object {'id', 'tag_name'}
  */
 export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -64,7 +64,7 @@ export const remove = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ tags }
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ tags[{'id', 'tag_name'}] }
  */
 export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
@@ -113,7 +113,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ updatedTag }
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ updatedTag{'id', 'tag_name'} }
  */
 export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {

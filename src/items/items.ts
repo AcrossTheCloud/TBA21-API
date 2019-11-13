@@ -14,7 +14,7 @@ import { getAll, getItemBy } from './model';
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries[geometries[{'type',  coordinates[]}], properties{}] } geometries contains the geom type and the long, lat and z axis.  Properties contains all the results for the item
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -50,7 +50,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries[geometries[{'type',  coordinates[]}], properties{}] } geometries contains the geom type and the long, lat and z axis.  Properties contains all the results for the item
  */
 export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -86,7 +86,7 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries[geometries[{'type',  coordinates[]}], properties{}] } geometries contains the geom type and the long, lat and z axis.  Properties contains all the results for the item
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -114,7 +114,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries[geometries[{'type',  coordinates[]}], properties{}] } geometries contains the geom type and the long, lat and z axis.  Properties contains all the results for the item
  */
 export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -141,7 +141,7 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries[geometries[{'type',  coordinates[]}], properties{}] } geometries contains the geom type and the long, lat and z axis.  Properties contains all the results for the item
  *
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
@@ -169,7 +169,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ updatedItem }
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries[geometries[{'type',  coordinates[]}], properties{}] } geometries contains the geom type and the long, lat and z axis.  Properties contains all the results for the item
  */
 export const changeStatus = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -199,7 +199,7 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } tags:{ tags: array }
+ * @returns { Promise<APIGatewayProxyResult> } tags:{ tags[] }
  */
 export const getRekognitionTags = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {

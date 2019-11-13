@@ -9,7 +9,7 @@ import { create } from '../../collections/model';
  *
  * @param event {APIGatewayEvent}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ collections }
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ success: boolean, id: string }
  */
 
 export const createCollection = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {

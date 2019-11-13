@@ -10,7 +10,7 @@ import { deleteUserProfile, insertProfile, updateProfile } from '../../profiles/
  * Get profile(s) by either it's id, uuid or search by full_name
  *
  * @param event {APIGatewayEvent}
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ profiles }
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ profiles[{'id', 'cognito_uuid', 'contributors', 'profile_image', 'featured_image', 'full_name', 'field_expertise', 'city', 'country', 'biography', 'website', 'social_media', 'public_profile', 'affiliation', 'position', 'contact_person', 'contact_email', 'profile_type', 'accepted_license'}] }
  */
 export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {

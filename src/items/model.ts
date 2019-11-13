@@ -24,7 +24,7 @@ import { dbgeoparse } from '../utils/dbgeo';
  * @param byField: string
  * @param fieldValue: string
  * @param userId: string
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries[geometries[{'type',  coordinates[]}], properties{}] } geometries contains the geom type and the long, lat and z axis.  Properties contains all the results for the item
  */
 export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
   try {
@@ -154,7 +154,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
  * @param isAdmin: boolean
  * @param isContributor: boolean
  * @param userId: string
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries[geometries[{'type',  coordinates[]}], properties{}] } geometries contains the geom type and the long, lat and z axis.  Properties contains all the results for the item
  */
 export const getItemBy = async (field, value, isAdmin: boolean = false, isContributor: boolean = false, userId?: string) => {
   try {
@@ -201,7 +201,7 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
  * @param requestBody: object
  * @param isAdmin: boolean
  * @param userId: string
- * @returns body:{ success: boolean, updated_key: string, id: number }
+ * @returns body:{ success: boolean, updated_key: string, id: string }
  */
 export const update = async (requestBody, isAdmin: boolean, userId?: string) => {
   try {
@@ -329,7 +329,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
  * @param s3Key: string
  * @param isAdmin: boolean
  * @param userId: string
- * @returns { Promise<APIGatewayProxyResult> } body:{ data }
+ * @returns { Promise<APIGatewayProxyResult> } body:{ data: boolean }
  */
 export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
   try {

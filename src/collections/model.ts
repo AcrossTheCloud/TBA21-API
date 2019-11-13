@@ -17,7 +17,7 @@ import { dbgeoparse } from '../utils/dbgeo';
  *
  * @param requestBody: object
  * @param isAdmin: boolean
- * @returns { Promise<APIGatewayProxyResult> } body:{ success, id }
+ * @returns { Promise<APIGatewayProxyResult> } body:{ success: boolean, id: string }
  */
 export const create = async (requestBody, isAdmin: boolean) => {
   try {
@@ -289,7 +289,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
  * @param isAdmin: boolean
  * @param userId: string
  * @param id: number
- * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries }
+ * @returns { Promise<APIGatewayProxyResult> } TopoJSON object with data:{ objects.output.geometries[geometries[{'type',  coordinates[]}], properties{}] } geometries contains the geom type and the long, lat and z axis.  Properties contains all the results for the collection
  */
 export const get = async (requestBody, isAdmin: boolean = false, userId?: string, id?: string): Promise<APIGatewayProxyResult> => {
   try {

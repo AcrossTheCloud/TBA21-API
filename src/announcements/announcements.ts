@@ -9,7 +9,7 @@ import { limitQuery } from '../utils/queryHelpers';
  * Get an announcement by its id
  *
  * @param event
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ announcements }
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:{ announcements[{'id', 'title', 'description', 'url', 'created_at', 'status', 'contributor'}] }
  */
 export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
