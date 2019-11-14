@@ -737,7 +737,7 @@ functions:
     events:
       - http:
           path: admin/collections/create
-          method: put
+          method: post
           cors: true
           authorizer: aws_iam
 
@@ -897,7 +897,7 @@ functions:
     events:
       - http:
           path: contributor/collections/create # ..but different path
-          method: put
+          method: post
           cors: true
           authorizer: aws_iam
 
@@ -982,7 +982,7 @@ functions:
     events:
       - http:
           path: contributor/announcements
-          method: put
+          method: post
           cors: true
           authorizer: aws_iam
 
