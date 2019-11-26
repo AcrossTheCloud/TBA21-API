@@ -22,13 +22,16 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        id: Joi.number().integer()
+        id: Joi.number().integer(),
+        order: Joi.string()
       }));
 
-    const isAdmin: boolean = !!event.path.match(/\/admin\//);
-    const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+    const
+        isAdmin: boolean = !!event.path.match(/\/admin\//),
+        userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
+        order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAllOrById(event.queryStringParameters, isAdmin, userId));
+    return (await getAllOrById(event.queryStringParameters, isAdmin, userId, order));
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

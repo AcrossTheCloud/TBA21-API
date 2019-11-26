@@ -257,7 +257,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
-export const get = async (requestBody, isAdmin: boolean = false, userId?: string): Promise<APIGatewayProxyResult> => {
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string, order?): Promise<APIGatewayProxyResult> => {
   try {
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -271,6 +271,12 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
     }
     if (requestBody.id) {
       params.push(requestBody.id);
+    }
+    let orderBy = 'collections.id';
+    if (order === 'ascending') {
+      orderBy = 'collections.created_at ASC NULLS LAST';
+    } else if (order === 'descending') {
+      orderBy = 'collections.created_at DESC NULLS LAST';
     }
 
     const
@@ -295,7 +301,7 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         ${requestBody.id ? `${!isAdmin ? 'AND' : 'WHERE'} collections.id=${!isAdmin ? '$4' : '$3'}` : ''} 
             
         GROUP BY collections.id
-        ORDER BY collections.id
+        ORDER BY ${orderBy}
         
         LIMIT $1 
         OFFSET $2 
