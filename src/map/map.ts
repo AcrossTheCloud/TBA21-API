@@ -16,10 +16,10 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
     const data = JSON.parse(event.body);
 
     await Joi.assert(data, Joi.object().keys({
-      lng_sw: Joi.number().required(),
-      lat_sw: Joi.number().required(),
-      lng_ne: Joi.number().required(),
-      lat_ne: Joi.number().required(),
+      lng_sw: Joi.number().min(-180).max(180).required(),
+      lat_sw: Joi.number().min(-90).max(90).required(),
+      lng_ne: Joi.number().min(-180).max(180).required(),
+      lat_ne: Joi.number().min(-90).max(90).required(),
       type: Joi.string().valid('collection', 'item').required(),
       itemids: Joi.array().items(Joi.number()),
       collectionids: Joi.array().items(Joi.number())
