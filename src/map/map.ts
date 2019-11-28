@@ -73,10 +73,10 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
         
       `;
 
-      const result = await db.any(query,params);
-      console.log("SQL query: " + query);
-      console.log("SQL params:" + JSON.stringify(params));
-      console.log("SQL result: " + JSON.stringify(result));
+    const result = await db.any(query,params);
+    console.log('SQL query: ' + query);
+    console.log('SQL params:' + JSON.stringify(params));
+    console.log('SQL result: ' + JSON.stringify(result));
 
     return successResponse({ data: await dbgeoparse(result, null) });
   } catch (e) {
