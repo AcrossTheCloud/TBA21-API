@@ -73,7 +73,12 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
         
       `;
 
-    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
+      const result = await db.any(query,params);
+      console.log("SQL query: " + query);
+      console.log("SQL params:" + JSON.stringify(params));
+      console.log("SQL result: " + JSON.stringify(result));
+
+    return successResponse({ data: await dbgeoparse(result, null) });
   } catch (e) {
     console.log('/items/items.getItemsOnMap ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
