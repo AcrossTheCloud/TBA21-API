@@ -121,15 +121,17 @@ export const getAllMine = async (event: APIGatewayEvent, context: Context): Prom
     await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         limit: Joi.number().integer(),
-        offset: Joi.number().integer()
+        offset: Joi.number().integer(),
+        order: Joi.string()
       })
     ));
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters,
-      userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+      userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
+      order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, null, null, userId));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, order, null, null, null, userId));
 
   } catch (e) {
     console.log('admin/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
