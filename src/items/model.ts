@@ -13,7 +13,7 @@ import { geoJSONToGeom } from '../map/util';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 import { dbgeoparse } from '../utils/dbgeo';
 
-export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order?, byField?: string, fieldValue?: string, userId?: string, uuid?: string) => {
+export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string, uuid?: string, order?) => {
   try {
 
     const

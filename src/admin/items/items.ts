@@ -131,7 +131,7 @@ export const getAllMine = async (event: APIGatewayEvent, context: Context): Prom
       userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
       order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, order, null, null, null, userId));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, null, null, userId, order));
 
   } catch (e) {
     console.log('admin/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
