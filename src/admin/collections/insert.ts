@@ -86,7 +86,8 @@ export const createCollection = async (event: APIGatewayProxyEvent): Promise<API
         contributors: Joi.array().items(Joi.string().uuid()),
         items: Joi.array().items(Joi.string()), // Array of s3 keys to be added to collection
 
-        geojson: Joi.object()
+        geojson: Joi.object(),
+        collections: Joi.object()
       }));
 
     return (await create(data, (!!event.path.match(/\/admin\//))));

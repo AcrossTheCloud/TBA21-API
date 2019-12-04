@@ -342,4 +342,4 @@ CREATE TABLE tba21.keyword_tags
 ALTER TABLE tba21.keyword_tags ADD CONSTRAINT keyword_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.concept_tags ADD CONSTRAINT concept_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.short_paths ADD CONSTRAINT short_path_name UNIQUE (short_path);
-
+ALTER TABLE tba21.collections ADD COLUMN collections jsonb;
