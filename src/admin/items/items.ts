@@ -92,14 +92,16 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        tag: Joi.string().required()
+        tag: Joi.string().required(),
+        order: Joi.string()
       }));
 
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters;
+      queryString = event.queryStringParameters,
+      order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, 'tag', queryString.tag));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, order, 'tag', queryString.tag));
 
   } catch (e) {
     console.log('admin/items/items.getByTag ERROR - ', !e.isJoi ? e : e.details);
@@ -129,9 +131,9 @@ export const getAllMine = async (event: APIGatewayEvent, context: Context): Prom
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters,
       userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
-      order = event.queryStringParameters ? event.queryStringParameters.order : null;
+      order = event.queryStringParameters.order ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, null, null, userId, order));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, order, null, null, userId));
 
   } catch (e) {
     console.log('admin/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
@@ -157,9 +159,10 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
       }));
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters;
+      queryString = event.queryStringParameters,
+      order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, 'type', queryString.type));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, order, 'type', queryString.type));
 
   } catch (e) {
     console.log('admin/items/items.getByType ERROR - ', !e.isJoi ? e : e.details);
