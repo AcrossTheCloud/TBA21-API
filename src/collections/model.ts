@@ -273,9 +273,9 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
       params.push(requestBody.id);
     }
     let orderBy = 'collections.id';
-    if (order === 'ascending') {
+    if (order === 'asc') {
       orderBy = 'collections.created_at ASC NULLS LAST';
-    } else if (order === 'descending') {
+    } else if (order === 'desc') {
       orderBy = 'collections.created_at DESC NULLS LAST';
     }
 

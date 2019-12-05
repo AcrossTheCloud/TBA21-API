@@ -21,9 +21,9 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
     let searchQuery = '';
     let orderBy = isAdmin ? 'item.updated_at DESC NULLS LAST' : 'item.s3_key';
-    if (order === 'ascending') {
+    if (order === 'asc') {
       orderBy = 'item.created_at ASC NULLS LAST';
-    } else if (order === 'descending') {
+    } else if (order === 'desc') {
       orderBy = 'item.created_at DESC NULLS LAST';
     }
 
