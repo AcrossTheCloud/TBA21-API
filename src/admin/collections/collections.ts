@@ -29,7 +29,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
     const
         isAdmin: boolean = !!event.path.match(/\/admin\//),
         userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
-        order = event.queryStringParameters ? event.queryStringParameters.order : null;
+        order = event.queryStringParameters.order ? event.queryStringParameters.order : null;
 
     return (await getAllOrById(event.queryStringParameters, isAdmin, userId, order));
   } catch (e) {
