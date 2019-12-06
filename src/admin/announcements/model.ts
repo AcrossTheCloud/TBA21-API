@@ -46,14 +46,21 @@ export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string 
   }
 };
 
-export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, id?: string ) => {
+export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, id?: string, order?: string | null ) => {
   try {
+    let orderBy = 'created_at DESC';
+    if (order === 'asc') {
+      orderBy = 'created_at ASC';
+    }
+    if (order === 'desc') {
+      orderBy = 'created_at DESC';
+    }
     let query = `
         SELECT *,
         COUNT ( id ) OVER ()
         FROM ${process.env.ANNOUNCEMENTS_TABLE}
         ${id ? `WHERE id = ${id}` : ''}
-        ORDER BY created_at DESC
+        ORDER BY ${orderBy}
         LIMIT $1
         OFFSET $2
           `;
@@ -65,7 +72,7 @@ export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, 
         FROM ${process.env.ANNOUNCEMENTS_TABLE}
         WHERE contributor = '${userId}'
         ${id ? `AND id = ${id}` : ''}
-        ORDER BY created_at DESC
+        ORDER BY ${orderBy}
         LIMIT $1
         OFFSET $2
           `;
