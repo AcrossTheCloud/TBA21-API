@@ -121,7 +121,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         ORDER BY random() 
         LIMIT $1:raw
       `;
-      const itemsResult = await db.many(itemsQuery, params);
+      const itemsResult = await db.any(itemsQuery, params);
       // Params 4
       if ( queryString.date && queryString.date.length ) {
           collectionsDate = `
