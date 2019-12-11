@@ -323,6 +323,13 @@ CREATE TABLE tba21.collections_items
 	item_s3_key varchar(1024) references tba21.items(s3_key) ON DELETE CASCADE
 );
 
+-- Collection a table that holds collections that are attached to another collection.
+CREATE TABLE tba21.collection_collections
+(
+    id bigint references tba21.collections(ID) ON DELETE CASCADE,
+	collection_id bigint references tba21.collections(ID) ON DELETE CASCADE,
+);
+
 --Concept tags metadata
 CREATE TABLE tba21.concept_tags
 (
@@ -342,4 +349,3 @@ CREATE TABLE tba21.keyword_tags
 ALTER TABLE tba21.keyword_tags ADD CONSTRAINT keyword_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.concept_tags ADD CONSTRAINT concept_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.short_paths ADD CONSTRAINT short_path_name UNIQUE (short_path);
-ALTER TABLE tba21.collections ADD COLUMN collections jsonb;
