@@ -15,7 +15,7 @@ import { getAll, getItemBy } from '../../items/model';
  */
 export const get = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         inputQuery: Joi.string(),
         limit: Joi.number().integer(),
@@ -45,7 +45,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
  */
 export const getItem = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+    await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         s3Key: Joi.string(),
         id: Joi.string()
@@ -67,8 +67,6 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
       value = queryString.id;
     }
 
-    console.log('isContributor', isContributor, userId);
-
     return (await getItemBy(column, value, isAdmin, isContributor, userId));
 
   } catch (e) {
@@ -88,7 +86,7 @@ export const getItem = async (event: APIGatewayEvent, context: Context): Promise
  */
 export const getByTag = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
@@ -118,7 +116,7 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  */
 export const getAllMine = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.alternatives().try(
+    await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         limit: Joi.number().integer(),
         offset: Joi.number().integer()
@@ -147,7 +145,7 @@ export const getAllMine = async (event: APIGatewayEvent, context: Context): Prom
  */
 export const getByType = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.validate(event.queryStringParameters, Joi.object().keys(
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),

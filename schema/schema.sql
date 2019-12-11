@@ -220,7 +220,7 @@ CREATE TABLE tba21.collections
 	cast_ varchar(256)[],
 	title varchar(256),
 	subtitle varchar(256),
-	description varchar(2048),
+	description varchar(4096),
 	copyright_holder varchar(256),
 	copyright_country varchar(256),
 	disciplinary_field varchar(256),
@@ -310,17 +310,11 @@ CREATE TABLE tba21.announcements
 
 -- Geo stuff
 
-SELECT AddGeometryColumn ('tba21','items','geom',4326,'POINT',2); -- items location column
-CREATE INDEX items_gix ON tba21.items USING GIST (geom); -- items location GIST index
+SELECT AddGeometryColumn ('tba21','items','geom',4326,'GEOMETRYCOLLECTION', 3);
+CREATE INDEX items_geom_gix ON tba21.items USING GIST (geom);
 
-SELECT AddGeometryColumn ('tba21','collections','geom',4326,'LINESTRING',2); -- collections geom column
-CREATE INDEX collections_gix ON tba21.collections USING GIST (geom); -- collections geom GIST index
-
-SELECT AddGeometryColumn ('tba21','collections','expedition_start_point',4326,'POINT',2); -- items location column
-CREATE INDEX collections_start_gix ON tba21.collections USING GIST (geom); -- items location GIST index
-
-SELECT AddGeometryColumn ('tba21','collections','expedition_end_point',4326,'POINT',2); -- items location column
-CREATE INDEX collections_end_gix ON tba21.collections USING GIST (geom); -- items location GIST index
+SELECT AddGeometryColumn ('tba21','collections','geom',4326,'GEOMETRYCOLLECTION', 3);
+CREATE INDEX collections_geom_gix ON tba21.collections USING GIST (geom);
 
 -- Collection items cross-references
 CREATE TABLE tba21.collections_items

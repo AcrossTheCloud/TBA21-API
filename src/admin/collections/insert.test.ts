@@ -31,7 +31,8 @@ describe('/admin/collections/insert/', () => {
         'focus_arts': '1',
         'focus_action': '2',
         'focus_scitech': '3',
-        'concept_tags' : [3]
+        'concept_tags' : [3],
+        "geojson":{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-220.913086,55.416544,1],[-220.737305,54.711929,1.01],[-219.660645,54.635697,1],[-218.254395,54.686534,1.01],[-218.803711,55.37911,1.2],[-219.396973,55.862982,1.1],[-220.539551,55.838314,1.6],[-220.913086,55.416544,1]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-12.216797,5.397273,0]}}]}
       },
       body: string = JSON.stringify(requestBody),
       response = await createCollection({ body , 'path': '/admin/collections/create' } as APIGatewayProxyEvent),

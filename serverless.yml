@@ -39,7 +39,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   stage: ${env:STAGE, 'prod'}
   region: ${env:REGION, 'eu-central-1'}
   memorySize: 2048 # optional, in MB, default is 1024
@@ -199,6 +199,12 @@ functions:
           path: items/get
           method: get
           cors: true
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.limit
+              - name: request.querystring.offset
+              - name: request.querystring.uuid
 
   getItem:
     handler: src/items/items.getItem
@@ -271,23 +277,6 @@ functions:
 #              - name: request.querystring.id
 #              - name: request.querystring.status
 
-#  getItemsInBounds:
-#    handler: src/items/items.getItemsInBounds
-#    description: Get all items inside a bounding box
-#    events:
-#      - http:
-#          path: items/getItemsInBounds
-#          method: get
-#          cors: true
-#          authorizer: aws_iam
-#          caching:
-#            enabled: true
-#            cacheKeyParameters:
-#              - name: request.querystring.lat_se
-#              - name: request.querystring.lng_sw
-#              - name: request.querystring.lng_ne
-#              - name: request.querystring.lat_nw
-
   getItemsRekognitionTags:
     handler: src/items/items.getRekognitionTags
     description: Get the Rekognition Tags from an item.
@@ -353,23 +342,6 @@ functions:
 #            cacheKeyParameters:
 #              - name: request.querystring.id
 #              - name: request.querystring.status
-
-#  getCollectionsInBounds:
-#    handler: src/collections/collections.getInBounds
-#    description: Gets the collections within the specified bounds
-#    events:
-#      - http:
-#          path: collections/getInBounds
-#          method: get
-#          cors: true
-#          authorizer: aws_iam
-#          caching:
-#            enabled: true
-#            cacheKeyParameters:
-#              - name: request.querystring.lat_se
-#              - name: request.querystring.lng_sw
-#              - name: request.querystring.lng_ne
-#              - name: request.querystring.lat_nw
 
   deleteItem:
     handler: src/admin/items/delete.deleteItem
@@ -451,6 +423,18 @@ functions:
       - http:
           path: admin/tags
           method: DELETE
+          cors: true
+          authorizer: aws_iam
+
+
+  ### MAP
+  mapInBounds:
+    handler: src/map/map.post
+    description: Get the items or collections within the specified bounds
+    events:
+      - http:
+          path: map
+          method: post
           cors: true
           authorizer: aws_iam
 
@@ -662,6 +646,22 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+
+  getCollections:
+    handler: src/collections/collections.get
+    description: Returns a list of collections with an option to supply the contributor uuid
+    events:
+      - http:
+          path: collections
+          method: get
+          cors: true
+          authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.limit
+              - name: request.querystring.offset
+              - name: request.querystring.uuid
 
   adminGetCollectionById:
     handler: src/admin/collections/collections.getById

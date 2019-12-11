@@ -18,7 +18,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
   try {
     const data = JSON.parse(event.body);
 
-    await Joi.validate(data, Joi.object().keys(
+    await Joi.assert(data, Joi.object().keys(
       {
         id: Joi.number().integer().required(),
         status: Joi.boolean(),
@@ -26,7 +26,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         end_date: Joi.date().raw().allow('').allow(null),
         concept_tags: Joi.array().items(Joi.number().integer()),
         keyword_tags: Joi.array().items(Joi.number().integer()),
-        contributors: Joi.array().items(Joi.string().regex(uuidRegex)),
+        contributors: Joi.array().items(Joi.string().pattern(uuidRegex)),
         regional_focus: Joi.string().allow('').allow(null),
         regions: Joi.array().items(Joi.string()),
         creators: Joi.array().items(Joi.string()),
@@ -83,7 +83,9 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         related_event: Joi.string().allow('').allow(null),
         volume: Joi.number().integer().allow(''),
         number: Joi.number().integer().allow(''),
-        items: Joi.array().items(Joi.string()) // Array of s3 keys to be added to collection
+        items: Joi.array().items(Joi.string()), // Array of s3 keys to be added to collection
+
+        geojson: Joi.object()
       }));
 
     return (await update(data, true));

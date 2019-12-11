@@ -5,10 +5,15 @@ import {
   successResponse,
   unAuthorizedRequestResponse
 } from '../common';
-import { db } from '../databaseConnect';
-import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 
-export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string) => {
+import { db, pgp } from '../databaseConnect';
+import { qldbQuery } from '../REST/QLDB';
+import { geoJSONToGeom } from '../map/util';
+
+import { changeS3ProtectionLevel } from '../utils/AWSHelper';
+import { dbgeoparse } from '../utils/dbgeo';
+
+export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string, uuid?: string) => {
   try {
 
     const
@@ -80,6 +85,10 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
     const conditionsLinker = (!isAdmin || searchQuery.length > 0) ? 'AND' : 'WHERE';
 
+    if (!!uuid) {
+      params.push(uuid);
+    }
+
     const
       query = `
           SELECT
@@ -87,7 +96,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-            ST_AsGeoJSON(item.geom) as geoJSON
+            ST_AsText(item.geom) as geom
           FROM 
             ${process.env.ITEMS_TABLE} AS item,
               
@@ -99,7 +108,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
           ${isAdmin ? searchQuery : 'WHERE status=true'}
 
-          ${userId ? ` WHERE contributor = $${params.length}::uuid ` : ''}
+          ${userId || uuid ? ` WHERE contributor = $${params.length}::uuid ` : ''}
           
           ${(byField === 'tag') ? ` ${conditionsLinker} (
             LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
@@ -120,7 +129,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
           OFFSET $2 
         `;
 
-    return successResponse({items: await db.any(query, params)});
+    return successResponse({data: await dbgeoparse(await db.any(query, params), null)});
   } catch (e) {
     console.log('items/model.get ERROR - ', e);
     return badRequestResponse();
@@ -138,7 +147,7 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-            ST_AsGeoJSON(item.geom) as geoJSON 
+            ST_AsText(item.geom) as geom 
           FROM 
             ${process.env.ITEMS_TABLE} AS item,
               
@@ -149,13 +158,16 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
               LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
           
           WHERE item.${field}=$1
-          ${(isAdmin || userId) ? '' : 'AND status = true'}
-          ${isContributor && userId ? ` AND contributor = '${userId}'::uuid ` : ''}
+          ${(isAdmin || !!userId) ? '' : 'AND status = true'}
+          ${isContributor && !!userId ? ` AND contributor = '${userId}'::uuid ` : ''}
 
           GROUP BY item.s3_key
         `;
 
-    return successResponse({item: await db.oneOrNone(query, params)});
+    const result = await db.oneOrNone(query, params);
+    const data = result ? await dbgeoparse([result], null) : null;
+
+    return successResponse({ data });
   } catch (e) {
     console.log('admin/items/items.getById ERROR - ', e);
     return badRequestResponse();
@@ -179,6 +191,23 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       }
     }
 
+    let
+      paramCounter = 0,
+      hasGeoData = false,
+      geoData;
+
+    // Grab our geoJSON if we have it
+    if (requestBody.geojson) {
+      if (Object.keys(requestBody.geojson.features).length) {
+        hasGeoData = true;
+        geoData = requestBody.geojson;
+      } else {
+        Object.assign(requestBody, {geom: null});
+      }
+      // Always delete geojson as we don't have a column for it.
+      delete requestBody.geojson;
+    }
+
     if (requestBody.keyword_tags) {
       requestBody.keyword_tags = requestBody.keyword_tags.map(t => parseInt(t, 0));
     }
@@ -186,12 +215,10 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       requestBody.concept_tags = requestBody.concept_tags.map(t => parseInt(t, 0));
     }
 
-    let paramCounter = 0;
-
     // NOTE: contributor is inserted on create, uuid from claims
     const params = [];
-
     params[paramCounter++] = requestBody.s3_key;
+
     // pushed into from SQL SET map
     // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
     const SQL_SETS: string[] = Object.entries(requestBody)
@@ -202,12 +229,19 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
           requestBody[key] = null;
         }
+
         params[paramCounter++] = requestBody[key];
-        return `${key}=$${paramCounter}`;
+        return `${key === 'language' ? `"${key}"` : key}=$${paramCounter}`;
       });
+
+    // If we have geoJSON push it into SQL SETS
+    if (hasGeoData && Object.keys(geoData).length) {
+      SQL_SETS.push(`geom=ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
+    }
+    const updatedAt = new Date().toISOString();
     let query = `UPDATE ${process.env.ITEMS_TABLE}
             SET 
-              updated_at='${new Date().toISOString()}',
+              updated_at='${updatedAt}',
               ${SQL_SETS.join(', ')}
           WHERE s3_key = $1 `;
 
@@ -229,6 +263,11 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         updated_key: result.s3_key,
         id: result.id
       };
+
+      // Update QLDB
+      const formattedPGQuery = pgp.as.format(`UPDATE item_history SET updated_at='${updatedAt}', ${SQL_SETS.join(',')} WHERE id=${result.id}`, params);
+      await qldbQuery(formattedPGQuery);
+
       // If we have a message, add it to the response.
       if (message.length > 1) {
         Object.assign(bodyResponse, {message: message, success: false});
@@ -270,7 +309,7 @@ export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
     if (!delResult) {
       throw new Error('unauthorized');
     }
-
+    // if the item was successfully deleted, we delete any associated entries in the short paths table.
     if (delResult) {
       await db.any(
         `DELETE FROM ${process.env.SHORT_PATHS_TABLE}
@@ -280,6 +319,9 @@ export const deleteItm = async (s3Key, isAdmin: boolean, userId?: string) => {
                             AND id = $1 )`,
         [delResult.id]);
     }
+
+    // Query QLDB
+    await qldbQuery(`DELETE FROM ${process.env.ITEMS_TABLE} WHERE id=${delResult.id}`);
 
     return successResponse(true);
   } catch (e) {

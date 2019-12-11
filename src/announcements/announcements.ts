@@ -16,7 +16,7 @@ export const get = async(event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
       event.queryStringParameters = {};
     }
 
-    await Joi.validate(event.queryStringParameters, Joi.object().keys({
+    await Joi.assert(event.queryStringParameters, Joi.object().keys({
       id: Joi.number().integer(),
       limit: Joi.number().integer(),
       offset: Joi.number().integer()
