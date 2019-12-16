@@ -260,7 +260,54 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
     const data = await dbgeoparse(await db.any(query, params), null);
     return successResponse({ data });
   } catch (e) {
-    console.log('/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
+    console.log('/admin/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+};
+
+/**
+ *
+ * Get a list of collections in a collection
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - an item list of the results
+ */
+export const getCollectionsInCollection = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+        id: Joi.number().required()
+      }));
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    const query = `
+        SELECT
+          collection.id,
+          collection.title,
+          collection.creators,
+          collection.status
+        FROM
+          ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
+          
+          INNER JOIN ${process.env.COLLECTIONS_TABLE} AS collection
+          ON collection.id = collection_collections.collection_id
+          
+        WHERE collection_collections.id = $1
+        GROUP BY collection.id
+        
+        LIMIT $2
+        OFFSET $3
+      `;
+
+    const data = await dbgeoparse(await db.any(query, params), null);
+    return successResponse({ data });
+  } catch (e) {
+    console.log('/admin/collections/collections.getCollectionsInCollection ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

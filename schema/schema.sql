@@ -327,7 +327,7 @@ CREATE TABLE tba21.collections_items
 CREATE TABLE tba21.collection_collections
 (
     id bigint references tba21.collections(ID) ON DELETE CASCADE,
-	collection_id bigint references tba21.collections(ID) ON DELETE CASCADE,
+	collection_id bigint references tba21.collections(ID) ON DELETE CASCADE
 );
 
 --Concept tags metadata
