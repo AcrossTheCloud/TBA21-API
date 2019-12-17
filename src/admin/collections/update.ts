@@ -9,7 +9,7 @@ import { uuidRegex } from '../../utils/uuid';
  *
  * Update a collection by it's ID
  *
- * @param event {APIGatewayEvent}
+ * @param event {APIGatewayProxyResult}
  *
  * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a collections list of the results
  */
@@ -84,9 +84,9 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         volume: Joi.number().integer().allow(''),
         number: Joi.number().integer().allow(''),
         items: Joi.array().items(Joi.string()), // Array of s3 keys to be added to collection
+        collections: Joi.array().items(Joi.number()),  // Array of collection ids to be added to collection
 
         geojson: Joi.object(),
-        collections: Joi.object()
       }));
 
     return (await update(data, true));

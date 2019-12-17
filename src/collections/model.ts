@@ -33,13 +33,13 @@ export const create = async (requestBody, isAdmin: boolean) => {
 
     const
       params = [],
-      sqlFields: string[] = Object.keys(requestBody).filter(e => (e !== 'items')).map((key) => {
+      sqlFields: string[] = Object.keys(requestBody).filter(e => (e !== 'items') && (e !== 'collections')).map((key) => {
         if (key === 'contributors') {
           return `contributors`;
         }
         return `${key}`;
       }),
-       sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
+      sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items') && (e !== 'collections')).map(([key, value]) => {
 
         // @ts-ignore
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
@@ -73,6 +73,15 @@ export const create = async (requestBody, isAdmin: boolean) => {
           SQL_INSERTS: string[] = requestBody.items.map((item, index) => (`($1, $${index + 2})`)),
           addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${SQL_INSERTS.join(', ')}`,
           addParams = [insertedObject.id, ...requestBody.items];
+
+        await t.any(addQuery, addParams);
+      }
+      // If we have collections
+      if (requestBody.collections && requestBody.collections.length > 0) {
+        const
+          SQL_INSERTS: string[] = requestBody.collections.map((item, index) => (`($1, $${index + 2})`)),
+          addQuery = `INSERT INTO ${process.env.COLLECTION_COLLECTIONS_TABLE} (id, collection_id) VALUES ${SQL_INSERTS.join(', ')}`,
+          addParams = [insertedObject.id, ...requestBody.collections];
 
         await t.any(addQuery, addParams);
       }
@@ -117,7 +126,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     // pushed into from SQL SET map
     // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
     const SQL_SETS: string[] = Object.entries(requestBody)
-      .filter(([e, v]) => ((e !== 'id') && (e !== 'items'))) // remove id and items
+      .filter(([e, v]) => ((e !== 'id') && (e !== 'items') && (e !== 'collections'))) // remove id and items
       .map(([key, value]) => {
         // @ts-ignore
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
@@ -166,9 +175,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       }
 
       // If we have items to assign to the collection
-
       if (requestBody.items) {
-
         let currentItems = await t.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [requestBody.id]);
         currentItems = currentItems.map(e => (e.item_s3_key));
 
@@ -193,6 +200,37 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
               return `$${index + 2}`;
             }),
             removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${SQL_REMOVES.join(', ')})`,
+            removeParams = [requestBody.id, ...toBeRemoved];
+
+          await t.any(removeQuery, removeParams);
+        }
+      }
+      // If we have collections to assign to the collection
+      if (requestBody.collections) {
+        let currentCollections = await t.any(`select collection_id from ${process.env.COLLECTION_COLLECTIONS_TABLE} where id = $1`, [requestBody.id]);
+        currentCollections = currentCollections.map(e => parseInt(e.collection_id, 0));
+
+        console.log('currentCollections', currentCollections);
+
+        const
+          toBeAdded = requestBody.collections.filter(e => (currentCollections.indexOf(e) < 0)),
+          toBeRemoved = currentCollections.filter(e => (requestBody.collections.indexOf(e) < 0));
+
+        if (toBeAdded.length > 0) {
+          const
+            SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
+              return `($1, $${index + 2})`;
+            }),
+            addQuery = `INSERT INTO ${process.env.COLLECTION_COLLECTIONS_TABLE} (id, collection_id) VALUES ${SQL_INSERTS.join(', ')}`,
+            addParams = [requestBody.id, ...toBeAdded];
+
+          await t.any(addQuery, addParams);
+        }
+
+        if (toBeRemoved.length > 0) {
+          const
+            SQL_REMOVES: string[] = toBeRemoved.map((v, index) => (`$${index + 2}`)),
+            removeQuery = `DELETE from ${process.env.COLLECTION_COLLECTIONS_TABLE} where id = $1 and collection_id in (${SQL_REMOVES.join(', ')})`,
             removeParams = [requestBody.id, ...toBeRemoved];
 
           await t.any(removeQuery, removeParams);
@@ -283,9 +321,9 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
     let searchQuery = '';
     if (inputQuery && inputQuery.length > 0) {
       params.push(inputQuery);
-      const paramCount = requestBody.id && isAdmin ? '$4' : '$3'; // if we have an ID that means input will be 4
+      const paramCount = requestBody.id ? '$4' : (isAdmin ? '$3' : '$4'); // if we have an ID that means input will be 4
       searchQuery = ` 
-        ${requestBody.id ? 'WHERE collection.id != $3 AND (' : 'WHERE ('}
+        ${requestBody.id ? 'WHERE collection.id != $3 AND (' : isAdmin ? 'WHERE (' : 'AND ('}
           LOWER(title) LIKE '%' || LOWER(${paramCount}) || '%' OR
           LOWER(subtitle) LIKE '%' || LOWER(${paramCount}) || '%' OR
           LOWER(description) LIKE '%' || LOWER(${paramCount}) || '%' OR
