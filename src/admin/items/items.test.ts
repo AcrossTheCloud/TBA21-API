@@ -129,6 +129,21 @@ describe('Admin Items', () => {
         }} as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.data.objects.output.geometries[0].properties.id).toEqual("2");
+    expect(result.data.objects.output.geometries[0].properties.id).toEqual('2');
+  });
+
+  test('Get all items with a title of Modeling Complex Systems', async () => {
+    const
+        queryStringParameters: QueryStringParameters = {byField: 'title', inputQuery: 'Modeling Complex Systems'},
+        response = await get({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+        result = JSON.parse(response.body);
+    expect(result.data.objects.output.geometries.length).toEqual(3);
+  });
+  test('Get all items with a creator of ch', async () => {
+    const
+        queryStringParameters: QueryStringParameters = {byField: 'creator', inputQuery: 'ch'},
+        response = await get({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+        result = JSON.parse(response.body);
+    expect(result.data.objects.output.geometries.length).toEqual(3);
   });
 });

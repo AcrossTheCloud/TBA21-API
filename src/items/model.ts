@@ -27,7 +27,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
       orderBy = 'item.created_at DESC NULLS LAST';
     }
 
-    if (isAdmin && inputQuery && inputQuery.length > 0) {
+    if (!byField && isAdmin && inputQuery && inputQuery.length > 0) {
       params.push(inputQuery);
 
       searchQuery = `
@@ -81,8 +81,13 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
               LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($3) || '%' 
           `;
     }
-    if (byField && byField.match(/(tag|type|person)/)) {
+    // this is used for searching for all of one column
+    if (byField && fieldValue) {
       params.push(fieldValue);
+    }
+    // this is used for searching for specific things in a column
+    if (byField && inputQuery) {
+      params.push(inputQuery);
     }
 
     if (userId) {
@@ -123,9 +128,15 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
           )` : ''}
 
           ${(byField === 'type') ? ` ${conditionsLinker} (item.item_type::varchar = $${params.length})` : ''}
-
+          
           ${(byField === 'person') ? ` ${conditionsLinker} ( 
             LOWER(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) LIKE '%' || LOWER($${params.length}) || '%' 
+          )` : ''}
+          ${(byField === 'Title') ? `${conditionsLinker} (
+            LOWER(item.title) LIKE '%' || LOWER($${params.length}) || '%' 
+          )` : ''}
+          ${(byField === 'Creator') ? `${conditionsLinker} (
+            LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($${params.length}) || '%' 
           )` : ''}
               
           GROUP BY item.s3_key

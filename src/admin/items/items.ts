@@ -20,16 +20,18 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         inputQuery: Joi.string(),
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        order: Joi.string()
+        order: Joi.string(),
+        byField: Joi.string()
       }));
 
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues,
       inputQuery = event.queryStringParameters ? event.queryStringParameters.inputQuery : null,
-      order = event.queryStringParameters ? event.queryStringParameters.order : null;
-
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, inputQuery, order));
+      order = event.queryStringParameters ? event.queryStringParameters.order : null,
+      byField = event.queryStringParameters ? event.queryStringParameters.byField : null;
+    console.log(byField, inputQuery, 'aaaafuck');
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, inputQuery, order, byField));
 
   } catch (e) {
     console.log('admin/items/items.get ERROR - ', !e.isJoi ? e : e.details);
