@@ -30,7 +30,6 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       inputQuery = event.queryStringParameters ? event.queryStringParameters.inputQuery : null,
       order = event.queryStringParameters ? event.queryStringParameters.order : null,
       byField = event.queryStringParameters ? event.queryStringParameters.byField : null;
-    console.log(byField, inputQuery, 'aaaafuck');
     return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, inputQuery, order, byField));
 
   } catch (e) {
