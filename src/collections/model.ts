@@ -257,7 +257,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
-export const get = async (requestBody, isAdmin: boolean = false, userId?: string, order?): Promise<APIGatewayProxyResult> => {
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string, order?, byField?: string, inputQuery?: string): Promise<APIGatewayProxyResult> => {
   try {
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -277,6 +277,9 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
       orderBy = 'collections.created_at ASC NULLS LAST';
     } else if (order === 'desc') {
       orderBy = 'collections.created_at DESC NULLS LAST';
+    }
+    if (byField && inputQuery) {
+      params.push(inputQuery);
     }
 
     const
@@ -300,6 +303,13 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         
         ${requestBody.id ? `${!isAdmin ? 'AND' : 'WHERE'} collections.id=${!isAdmin ? '$4' : '$3'}` : ''} 
             
+        ${(byField === 'Title') ? `${!isAdmin ? 'AND' : 'WHERE'} (
+          LOWER(collections.title) LIKE '%' || LOWER($${params.length}) || '%' 
+        )` : ''}
+        ${(byField === 'Creator') ? `${!isAdmin ? 'AND' : 'WHERE'} (
+            LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($${params.length}) || '%' 
+        )` : ''}
+        
         GROUP BY collections.id
         ORDER BY ${orderBy}
         
