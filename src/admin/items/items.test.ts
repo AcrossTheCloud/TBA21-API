@@ -137,13 +137,13 @@ describe('Admin Items', () => {
         queryStringParameters: QueryStringParameters = {byField: 'title', inputQuery: 'Modeling Complex Systems'},
         response = await get({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
         result = JSON.parse(response.body);
-    expect(result.data.objects.output.geometries.length).toEqual(3);
+    expect(result.data.objects.output.geometries.length).toEqual(6);
   });
   test('Get all items with a creator of ch', async () => {
     const
         queryStringParameters: QueryStringParameters = {byField: 'creator', inputQuery: 'ch'},
         response = await get({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
         result = JSON.parse(response.body);
-    expect(result.data.objects.output.geometries.length).toEqual(3);
+    expect(result.data.objects.output.geometries.length).toEqual(6);
   });
 });
