@@ -138,7 +138,9 @@ export const get = async(event: APIGatewayEvent): Promise<APIGatewayProxyResult>
       id: Joi.number().integer(),
       limit: Joi.number().integer(),
       offset: Joi.number().integer(),
-      order: Joi.string()
+      order: Joi.string(),
+      byField: Joi.string(),
+      inputQuery: Joi.string()
     }));
 
     const
@@ -148,9 +150,11 @@ export const get = async(event: APIGatewayEvent): Promise<APIGatewayProxyResult>
       params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
       isAdmin: boolean = !!event.path.match(/\/admin\//),
       userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
-      order = queryString.order ? queryString.order : 'none';
+      order = queryString.order ? queryString.order : null,
+      byField = queryString.byField ? queryString.byField : null,
+      inputQuery = queryString.inputQuery ? queryString.inputQuery : null;
 
-    return (await getAnnouncement(isAdmin, params, userId, id, order));
+    return (await getAnnouncement(isAdmin, params, userId, id, order, byField, inputQuery));
 
   } catch (e) {
     console.log('/announcements.get ERROR - ', e);
