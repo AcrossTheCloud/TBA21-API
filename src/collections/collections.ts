@@ -341,12 +341,16 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent, context
           collection.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsText(collection.geom) as geom 
+          ST_AsText(collection.geom) as geom,
+          ARRAY_AGG(items.item_s3_key) as s3_key
         FROM
           ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
           
           INNER JOIN ${process.env.COLLECTIONS_TABLE} AS collection
-          ON collection.id = collection_collections.collection_id,
+          ON collection.id = collection_collections.collection_id
+          
+          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} AS items
+          ON items.collection_ID = collection_collections.collection_id,
           
           UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
@@ -356,7 +360,7 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent, context
         
         WHERE collection_collections.id = $1
           AND status = true
-        GROUP BY collection.id
+        GROUP BY collection.id, items.item_s3_key
         
         LIMIT $2
         OFFSET $3
