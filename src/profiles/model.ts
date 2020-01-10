@@ -71,9 +71,12 @@ export const updateProfile = async (requestBody, isAdmin: boolean, userId?: stri
       userId ? params.push(userId) : params.push(requestBody.uuid);
       paramCounter++;
       const SQL_SETS: string[] = Object.keys(requestBody).filter( i => i !== 'uuid').map((key) => {
+            params[paramCounter++] = requestBody[key];
+            if (key === 'contributors') {
+              return `${key}=$${paramCounter}::uuid[]`;
+            }
+            return `${key}=$${paramCounter}`;
 
-          params[paramCounter++] = requestBody[key];
-          return `${key}=$${paramCounter}`;
         }),
         query = `
           UPDATE ${process.env.PROFILES_TABLE}
