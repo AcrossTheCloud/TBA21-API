@@ -360,7 +360,7 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent, context
         
         WHERE collection_collections.id = $1
           AND status = true
-        GROUP BY collection.id, items.item_s3_key
+        GROUP BY collection.id
         
         LIMIT $2
         OFFSET $3

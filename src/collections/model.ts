@@ -210,8 +210,6 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
         let currentCollections = await t.any(`select collection_id from ${process.env.COLLECTION_COLLECTIONS_TABLE} where id = $1`, [requestBody.id]);
         currentCollections = currentCollections.map(e => parseInt(e.collection_id, 0));
 
-        console.log('currentCollections', currentCollections);
-
         const
           toBeAdded = requestBody.collections.filter(e => (currentCollections.indexOf(e) < 0)),
           toBeRemoved = currentCollections.filter(e => (requestBody.collections.indexOf(e) < 0));
