@@ -152,14 +152,16 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     await Joi.assert(event.queryStringParameters, Joi.object().keys({
       limit: Joi.number().integer(),
       offset: Joi.number().integer(),
-      person: Joi.string().required()
+      person: Joi.string().required(),
+      byField: Joi.string()
     }));
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters,
-      order = event.queryStringParameters ? event.queryStringParameters.order : null;
+      order = event.queryStringParameters ? event.queryStringParameters.order : null,
+      byField = event.queryStringParameters ? event.queryStringParameters.byField : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, order, 'person', queryString.person));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, order, byField, queryString.person));
 
   } catch (e) {
     console.log('/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
