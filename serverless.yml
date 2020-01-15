@@ -372,6 +372,15 @@ functions:
           method: get
           cors: true
 
+  getCollectionsInCollection:
+    handler: src/collections/collections.getCollectionsInCollection
+    description: Returns the collections in a collection
+    events:
+      - http:
+          path: collections/getCollectionsInCollection
+          method: get
+          cors: true
+
   getCollectionsByItem:
     handler: src/collections/collections.getCollectionsByItem
     description: Returns the collections an item is in
