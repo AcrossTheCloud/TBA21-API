@@ -7,7 +7,7 @@ require('dotenv').config(
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import { QueryStringParameters } from '../../types/_test_';
-import { get, getById, getByPerson, getByTag, getItemsInCollection } from './collections';
+import { get, getById, getByPerson, getByTag, getCollectionsInCollection, getItemsInCollection } from './collections';
 
 describe('Admin Collections', () => {
 
@@ -95,6 +95,15 @@ describe('Admin Collections', () => {
       response = await getItemsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
     expect(result.data.objects.output.geometries[0].properties.title).toEqual('Detonation');
+  });
+
+  test('Get collections in a collection', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {id: '1'},
+      response = await getCollectionsInCollection({queryStringParameters } as APIGatewayProxyEvent),
+      result = JSON.parse(response.body);
+
+    expect(result.data.objects.output.geometries.length).toEqual(2);
   });
 
   test('Get a contributors collection', async () => {

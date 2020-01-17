@@ -23,6 +23,7 @@ plugins:
   - serverless-offline
   - serverless-api-gateway-caching
   - serverless-plugin-split-stacks
+  - serverless-plugin-tracing
 
 custom:
   # Enable API GW caching with some global options set
@@ -57,6 +58,7 @@ provider:
     ITEMS_TABLE: ${env:ITEMS_TABLE}
     COLLECTIONS_TABLE: ${env:COLLECTIONS_TABLE}
     COLLECTIONS_ITEMS_TABLE: ${env:COLLECTIONS_ITEMS_TABLE}
+    COLLECTION_COLLECTIONS_TABLE: ${env:COLLECTION_COLLECTIONS_TABLE}
     CONCEPT_TAGS_TABLE: ${env:CONCEPT_TAGS_TABLE}
     KEYWORD_TAGS_TABLE: ${env:KEYWORD_TAGS_TABLE}
     SHORT_PATHS_TABLE: ${env:SHORT_PATHS_TABLE}
@@ -88,8 +90,12 @@ provider:
           - - 'arn:aws:s3:::'
             - ${env:S3_BUCKET}
             - '/*'
-
-
+    - Effect: "Allow" # xray permissions (required)
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
     - Effect: 'Allow'
       Action:
         - 'lambda:InvokeFunction'
@@ -364,6 +370,15 @@ functions:
     events:
       - http:
           path: collections/getItemsInCollection
+          method: get
+          cors: true
+
+  getCollectionsInCollection:
+    handler: src/collections/collections.getCollectionsInCollection
+    description: Returns the collections in a collection
+    events:
+      - http:
+          path: collections/getCollectionsInCollection
           method: get
           cors: true
 
