@@ -85,8 +85,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         number: Joi.number().integer().allow(''),
         items: Joi.array().items(Joi.string()), // Array of s3 keys to be added to collection
         collections: Joi.array().items(Joi.number()),  // Array of collection ids to be added to collection
-
-        geojson: Joi.object(),
+        geojson: Joi.object()
       }));
 
     return (await update(data, true));
