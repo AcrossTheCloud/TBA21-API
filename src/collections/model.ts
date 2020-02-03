@@ -33,13 +33,13 @@ export const create = async (requestBody, isAdmin: boolean) => {
 
     const
       params = [],
-      sqlFields: string[] = Object.keys(requestBody).filter(e => (e !== 'items')).map((key) => {
+      sqlFields: string[] = Object.keys(requestBody).filter(e => (e !== 'items') && (e !== 'collections')).map((key) => {
         if (key === 'contributors') {
           return `contributors`;
         }
         return `${key}`;
       }),
-       sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items')).map(([key, value]) => {
+      sqlParams: string[] = Object.entries(requestBody).filter(([e, v]) => (e !== 'items') && (e !== 'collections')).map(([key, value]) => {
 
         // @ts-ignore
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
@@ -73,6 +73,15 @@ export const create = async (requestBody, isAdmin: boolean) => {
           SQL_INSERTS: string[] = requestBody.items.map((item, index) => (`($1, $${index + 2})`)),
           addQuery = `INSERT INTO ${process.env.COLLECTIONS_ITEMS_TABLE} (collection_id, item_s3_key) VALUES ${SQL_INSERTS.join(', ')}`,
           addParams = [insertedObject.id, ...requestBody.items];
+
+        await t.any(addQuery, addParams);
+      }
+      // If we have collections
+      if (requestBody.collections && requestBody.collections.length > 0) {
+        const
+          SQL_INSERTS: string[] = requestBody.collections.map((item, index) => (`($1, $${index + 2})`)),
+          addQuery = `INSERT INTO ${process.env.COLLECTION_COLLECTIONS_TABLE} (id, collection_id) VALUES ${SQL_INSERTS.join(', ')}`,
+          addParams = [insertedObject.id, ...requestBody.collections];
 
         await t.any(addQuery, addParams);
       }
@@ -117,7 +126,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     // pushed into from SQL SET map
     // An array of strings [`publish='abc'`, `cast_ = 'the rock'`]
     const SQL_SETS: string[] = Object.entries(requestBody)
-      .filter(([e, v]) => ((e !== 'id') && (e !== 'items'))) // remove id and items
+      .filter(([e, v]) => ((e !== 'id') && (e !== 'items') && (e !== 'collections'))) // remove id and items
       .map(([key, value]) => {
         // @ts-ignore
         if ((typeof(value) === 'string' || Array.isArray(value)) && value.length === 0) {
@@ -166,9 +175,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
       }
 
       // If we have items to assign to the collection
-
       if (requestBody.items) {
-
         let currentItems = await t.any(`select item_s3_key from ${process.env.COLLECTIONS_ITEMS_TABLE} where collection_id=$1`, [requestBody.id]);
         currentItems = currentItems.map(e => (e.item_s3_key));
 
@@ -193,6 +200,35 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
               return `$${index + 2}`;
             }),
             removeQuery = `DELETE from ${process.env.COLLECTIONS_ITEMS_TABLE}  where collection_id =$1 and item_s3_key in (${SQL_REMOVES.join(', ')})`,
+            removeParams = [requestBody.id, ...toBeRemoved];
+
+          await t.any(removeQuery, removeParams);
+        }
+      }
+      // If we have collections to assign to the collection
+      if (requestBody.collections) {
+        let currentCollections = await t.any(`select collection_id from ${process.env.COLLECTION_COLLECTIONS_TABLE} where id = $1`, [requestBody.id]);
+        currentCollections = currentCollections.map(e => parseInt(e.collection_id, 0));
+
+        const
+          toBeAdded = requestBody.collections.filter(e => (currentCollections.indexOf(e) < 0)),
+          toBeRemoved = currentCollections.filter(e => (requestBody.collections.indexOf(e) < 0));
+
+        if (toBeAdded.length > 0) {
+          const
+            SQL_INSERTS: string[] = toBeAdded.map((item, index) => {
+              return `($1, $${index + 2})`;
+            }),
+            addQuery = `INSERT INTO ${process.env.COLLECTION_COLLECTIONS_TABLE} (id, collection_id) VALUES ${SQL_INSERTS.join(', ')}`,
+            addParams = [requestBody.id, ...toBeAdded];
+
+          await t.any(addQuery, addParams);
+        }
+
+        if (toBeRemoved.length > 0) {
+          const
+            SQL_REMOVES: string[] = toBeRemoved.map((v, index) => (`$${index + 2}`)),
+            removeQuery = `DELETE from ${process.env.COLLECTION_COLLECTIONS_TABLE} where id = $1 and collection_id in (${SQL_REMOVES.join(', ')})`,
             removeParams = [requestBody.id, ...toBeRemoved];
 
           await t.any(removeQuery, removeParams);
@@ -257,7 +293,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
-export const get = async (requestBody, isAdmin: boolean = false, userId?: string, order?, byField?: string, inputQuery?: string): Promise<APIGatewayProxyResult> => {
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string, inputQuery?: string, order?): Promise<APIGatewayProxyResult> => {
   try {
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -272,45 +308,79 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
     if (requestBody.id) {
       params.push(requestBody.id);
     }
-    let orderBy = 'collections.id';
-    if (order === 'asc') {
-      orderBy = 'collections.created_at ASC NULLS LAST';
-    } else if (order === 'desc') {
-      orderBy = 'collections.created_at DESC NULLS LAST';
+
+    let orderBy = 'collection.id';
+    if (order === 'ascending') {
+      orderBy = 'collection.created_at ASC NULLS LAST';
+    } else if (order === 'descending') {
+      orderBy = 'collection.created_at DESC NULLS LAST';
     }
-    if (byField && inputQuery) {
+
+    let searchQuery = '';
+    if (inputQuery && inputQuery.length > 0) {
       params.push(inputQuery);
+      const paramCount = requestBody.id ? '$4' : (isAdmin ? '$3' : '$4'); // if we have an ID that means input will be 4
+      searchQuery = ` 
+        ${requestBody.id ? 'WHERE collection.id != $3 AND (' : isAdmin ? 'WHERE (' : 'AND ('}
+          LOWER(title) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(subtitle) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(description) LIKE '%' || LOWER(${paramCount}) || '%' OR
+      
+          LOWER(institution) LIKE '%' || LOWER(${paramCount}) || '%' OR
+      
+          LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(location) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(city_of_publication) LIKE '%' || LOWER(${paramCount}) || '%' OR
+            
+          LOWER(editor) LIKE '%' || LOWER(${paramCount}) || '%' OR
+      
+          ISBN::text LIKE '%' || (${paramCount}) || '%' OR
+      
+          LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+      
+          LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+      
+          LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+      
+          LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+      
+          LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          
+          LOWER(concept_tag.tag_name) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          LOWER(keyword_tag.tag_name) LIKE '%' || LOWER(${paramCount}) || '%' 
+        )
+      `;
     }
 
     const
       query = `
         SELECT
-          COUNT ( collections.id ) OVER (),
-          collections.*,
+          COUNT ( collection.id ) OVER (),
+          collection.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsText(collections.geom) as geom
+          ST_AsText(collection.geom) as geom
         FROM 
-          ${process.env.COLLECTIONS_TABLE} AS collections,
+          ${process.env.COLLECTIONS_TABLE} AS collection,
             
-          UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
+          UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
                     
-          UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
+          UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
             
         ${!isAdmin ? `WHERE $3::uuid = ANY( contributors )` : ''} 
         
-        ${requestBody.id ? `${!isAdmin ? 'AND' : 'WHERE'} collections.id=${!isAdmin ? '$4' : '$3'}` : ''} 
-            
-        ${(byField === 'Title') ? `${!isAdmin ? 'AND' : 'WHERE'} (
-          LOWER(collections.title) LIKE '%' || LOWER($${params.length}) || '%' 
-        )` : ''}
-        ${(byField === 'Creator') ? `${!isAdmin ? 'AND' : 'WHERE'} (
-            LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($${params.length}) || '%' 
-        )` : ''}
+        ${!inputQuery && requestBody.id ? `${!isAdmin ? 'AND' : 'WHERE'} collection.id=${!isAdmin ? '$4' : '$3'}` : ''} 
         
-        GROUP BY collections.id
+        ${inputQuery ? searchQuery : ''}
+             
+        GROUP BY collection.id
         ORDER BY ${orderBy}
         
         LIMIT $1 

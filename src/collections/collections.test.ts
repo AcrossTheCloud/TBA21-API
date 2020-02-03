@@ -14,7 +14,7 @@ import {
   getByTag,
   changeStatus,
   getItemsInCollection,
-  getCollectionsByItem
+  getCollectionsByItem, getCollectionsInCollection
 } from './collections';
 
 import { post as inBounds } from '../map/map';
@@ -150,4 +150,13 @@ describe('Collections', () => {
       result = JSON.parse(response.body);
     expect(result.data.objects.output.geometries.length).toEqual(2);
   });
+
+  test('Get all collections in a collection', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {id: '1'},
+      response = await getCollectionsInCollection({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+    expect(result.data.objects.output.geometries.length).toEqual(2);
+  });
+
 });

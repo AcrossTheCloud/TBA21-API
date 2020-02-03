@@ -1,4 +1,5 @@
-const AWS = require('aws-sdk');
+const awsXRay = require('aws-xray-sdk');
+const AWS = awsXRay.captureAWS(require('aws-sdk'));
 
 /**
  * Get the users email from their UUID on Cognito

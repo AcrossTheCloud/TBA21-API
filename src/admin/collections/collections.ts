@@ -23,19 +23,17 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
         id: Joi.number().integer(),
-        order: Joi.string(),
-        byField: Joi.string(),
-        inputQuery: Joi.string()
+        inputQuery: Joi.string(),
+        order: Joi.string()
       }));
 
     const
         isAdmin: boolean = !!event.path.match(/\/admin\//),
         userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
-        order = event.queryStringParameters.order ? event.queryStringParameters.order : null,
-        byField = event.queryStringParameters.byField ? event.queryStringParameters.byField : null,
-        inputQuery = event.queryStringParameters.inputQuery ? event.queryStringParameters.inputQuery : null;
+        inputQuery = event.queryStringParameters ? event.queryStringParameters.inputQuery : null,
+        order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAllOrById(event.queryStringParameters, isAdmin, userId, order, byField, inputQuery));
+    return (await getAllOrById(event.queryStringParameters, isAdmin, userId, inputQuery, order));
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -264,7 +262,58 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
     const data = await dbgeoparse(await db.any(query, params), null);
     return successResponse({ data });
   } catch (e) {
-    console.log('/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
+    console.log('/admin/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+};
+
+/**
+ *
+ * Get a list of collections in a collection
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - an item list of the results
+ */
+export const getCollectionsInCollection = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+        id: Joi.number().required()
+      }));
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    const query = `
+        SELECT
+          collection.id,
+          collection.title,
+          collection.creators,
+          collection.status,
+          ARRAY_AGG(items.item_s3_key) as s3_key
+        FROM
+          ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
+          
+          INNER JOIN ${process.env.COLLECTIONS_TABLE} AS collection
+          ON collection.id = collection_collections.collection_id
+          
+          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} AS items
+          ON items.collection_ID = collection_collections.collection_id
+          
+        WHERE collection_collections.id = $1
+        GROUP BY collection.id
+        
+        LIMIT $2
+        OFFSET $3
+      `;
+
+    const data = await dbgeoparse(await db.any(query, params), null);
+    return successResponse({ data });
+  } catch (e) {
+    console.log('/admin/collections/collections.getCollectionsInCollection ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
