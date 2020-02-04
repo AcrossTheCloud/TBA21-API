@@ -10,7 +10,7 @@ jobs:
       - image: circleci/node:lts
         environment:
           TEST_DATABASE_URL: postgresql://postgres@localhost/tba21
-      - image: circleci/postgres:11-alpine-postgis-ram
+      - image: circleci/postgres:12-alpine-postgis-ram
         environment:
           POSTGRES_DB: tba21
           POSTGRES_PASSWORD: postgres
