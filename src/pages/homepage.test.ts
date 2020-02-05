@@ -21,8 +21,7 @@ describe('homepage tests', () => {
       multiValueQueryStringParameters: MultiQueryStringParameters = {id: ['1', '2']},
       response = await get({ queryStringParameters, multiValueQueryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    console.log(results, 'results');
-    expect(results.items.length).toEqual(3);
+    expect(results.items.length).toEqual(2);
     expect(results.collections.length).toEqual(3);
   });
   test('Get items and collections between dates', async () => {
@@ -30,7 +29,7 @@ describe('homepage tests', () => {
       queryStringParameters: QueryStringParameters = {date: '2011-07-01',  oa_highlight: 'false'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(4);
+    expect(results.items.length).toEqual(3);
     expect(results.collections.length).toEqual(3);
   });
   test('Test we can limit what we get back', async () => {

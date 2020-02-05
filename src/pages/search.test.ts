@@ -27,7 +27,7 @@ test('Get items from search function with multiple criteria', async () => {
       body: string = JSON.stringify(requestBody),
       response = await post({ body } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.results.length).toEqual(5);
+    expect(results.results.length).toEqual(4);
   });
 test('Get items from search function with multiple criteria and focus', async () => {
     const
