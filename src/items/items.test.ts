@@ -91,7 +91,7 @@ describe('Item tests', () => {
       response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
       result = JSON.parse(response.body);
 
-    expect(result.data.objects.output.geometries.length).toEqual(2);
+    expect(result.data.objects.output.geometries.length).toEqual(3);
   });
   test('Get a bad response when no people are given', async () => {
     const
