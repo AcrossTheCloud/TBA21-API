@@ -26,53 +26,53 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
       searchQuery = `
             WHERE 
-              LOWER(title) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(original_title) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(event_title) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(subtitle) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(description) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(title) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(original_title) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(event_title) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(subtitle) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(description) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              LOWER(institution) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(news_outlet) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(institution) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(news_outlet) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(location) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(city_of_publication) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(array_to_string(regions, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(location) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(city_of_publication) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              LOWER(featured_in) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(featured_in) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              LOWER(editor) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(editor) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              ISBN::text LIKE '%' || ($3) || '%' OR
-              related_ISBN::text LIKE '%' || ($3) || '%' OR
-              LOWER(DOI) LIKE '%' || LOWER($3) || '%' OR
+              ISBN::text ILIKE '%' || ($3) || '%' OR
+              related_ISBN::text ILIKE '%' || ($3) || '%' OR
+              DOI ILIKE '%' || $3 || '%' OR
           
-              LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(lecturer) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(project) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(record_label) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(array_to_string(cast_, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(lecturer) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(project) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(record_label) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(array_to_string(directors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(array_to_string(writers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(array_to_string(collaborators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(array_to_string(authors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(array_to_string(publisher, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(array_to_string(produced_by, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(array_to_string(participants, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(array_to_string(interviewers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(array_to_string(interviewees, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(array_to_string(speakers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(array_to_string(performers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
           
-              LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($3) || '%' OR
+              UNACCENT(array_to_string(host_organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(array_to_string(organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               
-              LOWER(concept_tag.tag_name) LIKE '%' || LOWER($3) || '%' OR
-              LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($3) || '%' 
+              UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%' OR
+              UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%' 
           `;
     }
     if (byField && byField.match(/(tag|type|person)/)) {
@@ -111,15 +111,15 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
           ${userId || uuid ? ` WHERE contributor = $${params.length}::uuid ` : ''}
           
           ${(byField === 'tag') ? ` ${conditionsLinker} (
-            LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
+            UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($${params.length}) || '%'
             OR
-            LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
+            UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($${params.length}) || '%'
           )` : ''}
 
           ${(byField === 'type') ? ` ${conditionsLinker} (item.item_type::varchar = $${params.length})` : ''}
 
           ${(byField === 'person') ? ` ${conditionsLinker} ( 
-            LOWER(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) LIKE '%' || LOWER($${params.length}) || '%' 
+            UNACCENT(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) ILIKE '%' || UNACCENT($${params.length}) || '%' 
           )` : ''}
               
           GROUP BY item.s3_key

@@ -44,7 +44,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     }
     if (queryStringParameters.hasOwnProperty('full_name')) {
       params.push(queryStringParameters.full_name);
-      whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
+      whereStatement = `WHERE UNACCENT(full_name) ILIKE '%' || UNACCENT($1) || '%'`;
     }
     const sqlStatement = `
         SELECT *

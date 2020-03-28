@@ -7,6 +7,9 @@ AUTHORIZATION postgres;
 -- Geospatial support
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+-- Support for searching while ignoring diacritics
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
 --License
 CREATE TYPE tba21.licence_type AS ENUM ('CC BY', 'CC BY-SA', 'CC BY-ND', 'CC BY-NC', 'CC BY-NC-SA', 'CC BY-NC-ND', 'Ocean Archive', 'Locked');
 
