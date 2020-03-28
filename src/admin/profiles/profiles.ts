@@ -41,7 +41,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     }
     if (queryStringParameters.hasOwnProperty('fullname')) {
       params.push(queryStringParameters.fullname);
-      whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
+      whereStatement = `WHERE UNACCENT(full_name) ILIKE '%' || UNACCENT($1) || '%'`;
 
       if (queryStringParameters.hasOwnProperty('notPublicUsers')) {
         params.push(queryStringParameters.notPublicUsers);
