@@ -187,17 +187,39 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
  */
 export const getByPerson = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    await Joi.assert(event.queryStringParameters, Joi.object().keys(
-      {
-        limit: Joi.number().integer(),
-        offset: Joi.number().integer(),
-        person: Joi.string().required()
-      }));
+    await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
+        Joi.object().keys({
+                            limit: Joi.number().integer(),
+                            offset: Joi.number().integer(),
+                            person: Joi.string().required()
+                          }),
+        Joi.object().keys({
+                            limit: Joi.number().integer(),
+                            offset: Joi.number().integer(),
+                            uuid: Joi.string().pattern(uuidRegex).required()
+                          })
+    ));
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters, // Use default values if not supplied.
-      params = [queryString.person, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
-      query = `
+        params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    let whereStatement;
+    if (queryString.person) {
+      params.push(queryString.person);
+      whereStatement = `
+          AND ( 
+            LOWER(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) 
+          )
+          LIKE '%' || LOWER($3) || '%' 
+        
+        `;
+    } else if (queryString.uuid) {
+      params.push(queryString.uuid);
+      whereStatement = `
+         AND contributors @> ARRAY[$3]::uuid[]
+        `;
+    }
+    const query = `
         SELECT
           COUNT ( collections.id ) OVER (),
            collections.*,
@@ -214,15 +236,13 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
         WHERE 
           status=true
-        AND ( 
-          LOWER(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) LIKE '%' || LOWER($1) || '%' 
-        )
+        ${whereStatement}
         
         GROUP BY collections.id
         ORDER BY collections.id
         
-        LIMIT $2 
-        OFFSET $3 
+        LIMIT $1 
+        OFFSET $2 
       `;
 
     return successResponse({ data: await dbgeoparse(await db.any(query, params), null)});

@@ -93,6 +93,13 @@ describe('Collections', () => {
       result = JSON.parse(response.body);
     expect(result.data.objects.output.geometries.length).toEqual(2);
   });
+  test('Get a collection by uuid', async () => {
+    const
+      queryStringParameters: QueryStringParameters = {uuid: 'cfa81825-2716-41e2-a48d-8f010840b559'},
+      response = await getByPerson({queryStringParameters } as APIGatewayProxyEvent, {} as Context),
+      result = JSON.parse(response.body);
+    expect(result.data.objects.output.geometries.length).toEqual(1);
+  });
   test('Get a bad response when no person is given', async () => {
     const
       queryStringParameters: QueryStringParameters = {person: ''},
