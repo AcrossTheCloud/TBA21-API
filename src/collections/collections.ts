@@ -157,9 +157,9 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       WHERE 
         status=true
       AND (
-        LOWER(concept_tag.tag_name) LIKE '%' || LOWER($1) || '%'
+        UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
         OR
-        LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($1) || '%'
+        UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
       )
       
       GROUP BY collections.id
@@ -215,7 +215,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         WHERE 
           status=true
         AND ( 
-          LOWER(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) LIKE '%' || LOWER($1) || '%' 
+          UNACCENT(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) ILIKE '%' || UNACCENT($1) || '%' 
         )
         
         GROUP BY collections.id

@@ -22,7 +22,8 @@ describe('Profile tests', () => {
       requestBody = {
         'full_name': 'updated',
         'city': 'cat cafe',
-        'country': 'city of rats'
+        'country': 'city of rats',
+        'contributors' : ['7ba0060a-064b-489d-a7de-a30866a510d0', '9ba0060a-064b-489d-a7de-a30866a510d9']
       },
       body: string = JSON.stringify(requestBody),
       response = await update({
