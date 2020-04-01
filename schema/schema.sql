@@ -68,17 +68,17 @@ CREATE TYPE tba21.subtype AS ENUM (
 
 --Collection types
 CREATE TYPE tba21.collection_type AS ENUM (
-'Series',
-'Area of research',
-'Event',
-'Event Series',
-'Edited Volume',
-'Expedition',
-'Collection',
-'Convening',
-'Performance',
-'Installation',
-'Other'
+  'Series',
+  'Area of research',
+  'Event',
+  'Event Series',
+  'Edited Volume',
+  'Expedition',
+  'Collection',
+  'Convening',
+  'Performance',
+  'Installation',
+  'Other'
 );
 
 -- Items metadata table
@@ -200,33 +200,33 @@ CREATE TABLE tba21.collections
   updated_at timestamp with time zone NOT NULL,
   start_date date,
   end_date date,
-	time_produced timestamp with time zone,
-	status boolean,
-	concept_tags bigint[],
-	keyword_tags bigint[],
-	place varchar(128),
-	regional_focus varchar(128),
-	regions varchar(128)[],
-	creators varchar(256)[],
-	contributors uuid[],
-	directors varchar(256)[],
-	writers varchar(256)[],
-	editor varchar(256),
-	collaborators varchar(256)[],
-	exhibited_at varchar(256)[],
-	series varchar(256),
-	ISBN numeric(13)[],
-	edition numeric(3),
-	publisher varchar(256)[],
-	interviewers varchar(256)[],
-	interviewees varchar(256)[],
-	cast_ varchar(256)[],
-	title varchar(256),
-	subtitle varchar(256),
-	description varchar(4096),
-	copyright_holder varchar(256),
-	copyright_country varchar(256),
-	disciplinary_field varchar(256),
+  time_produced timestamp with time zone,
+  status boolean,
+  concept_tags bigint[],
+  keyword_tags bigint[],
+  place varchar(128),
+  regional_focus varchar(128),
+  regions varchar(128)[],
+  creators varchar(256)[],
+  contributors uuid[],
+  directors varchar(256)[],
+  writers varchar(256)[],
+  editor varchar(256),
+  collaborators varchar(256)[],
+  exhibited_at varchar(256)[],
+  series varchar(256),
+  ISBN numeric(13)[],
+  edition numeric(3),
+  publisher varchar(256)[],
+  interviewers varchar(256)[],
+  interviewees varchar(256)[],
+  cast_ varchar(256)[],
+  title varchar(256),
+  subtitle varchar(256),
+  description varchar(4096),
+  copyright_holder varchar(256),
+  copyright_country varchar(256),
+  disciplinary_field varchar(256),
   specialisation varchar(256),
   department varchar(256),
   expedition_leader varchar(256),
@@ -326,6 +326,13 @@ CREATE TABLE tba21.collections_items
 	item_s3_key varchar(1024) references tba21.items(s3_key) ON DELETE CASCADE
 );
 
+-- Collection a table that holds collections that are attached to another collection.
+CREATE TABLE tba21.collection_collections
+(
+    id bigint references tba21.collections(ID) ON DELETE CASCADE,
+	collection_id bigint references tba21.collections(ID) ON DELETE CASCADE
+);
+
 --Concept tags metadata
 CREATE TABLE tba21.concept_tags
 (
@@ -345,4 +352,3 @@ CREATE TABLE tba21.keyword_tags
 ALTER TABLE tba21.keyword_tags ADD CONSTRAINT keyword_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.concept_tags ADD CONSTRAINT concept_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.short_paths ADD CONSTRAINT short_path_name UNIQUE (short_path);
-

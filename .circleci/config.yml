@@ -58,6 +58,7 @@ jobs:
             ITEMS_TABLE: tba21.items
             COLLECTIONS_TABLE: tba21.collections
             COLLECTIONS_ITEMS_TABLE: tba21.collections_items
+            COLLECTION_COLLECTIONS_TABLE: tba21.collection_collections
             CONCEPT_TAGS_TABLE: tba21.concept_tags
             KEYWORD_TAGS_TABLE: tba21.keyword_tags
             SHORT_PATHS_TABLE: tba21.short_paths

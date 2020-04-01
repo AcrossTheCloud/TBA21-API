@@ -317,6 +317,63 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
 };
 /**
  *
+ * Get a list of collections in a collection
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - a typology object containing the results
+ */
+export const getCollectionsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+        id: Joi.number().required()
+      }));
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      query = `
+        SELECT
+          collection.*,
+          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+          COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+          ST_AsText(collection.geom) as geom,
+          ARRAY_AGG(items.item_s3_key) as s3_key
+        FROM
+          ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
+          
+          INNER JOIN ${process.env.COLLECTIONS_TABLE} AS collection
+          ON collection.id = collection_collections.collection_id
+          
+          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} AS items
+          ON items.collection_ID = collection_collections.collection_id,
+          
+          UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
+            LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
+                  
+          UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
+            LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
+        
+        WHERE collection_collections.id = $1
+          AND status = true
+        GROUP BY collection.id
+        
+        LIMIT $2
+        OFFSET $3
+      `;
+
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
+  } catch (e) {
+    console.log('/collections/collections.getCollectionsInCollection ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+};
+/**
+ *
  * Returns the collections an item appears in
  *
  * @param event {APIGatewayEvent}

@@ -13,13 +13,19 @@ import { geoJSONToGeom } from '../map/util';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 import { dbgeoparse } from '../utils/dbgeo';
 
-export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string, uuid?: string) => {
+export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string, uuid?: string, order?) => {
   try {
 
     const
       params = [limit, offset];
 
     let searchQuery = '';
+    let orderBy = isAdmin ? 'item.updated_at DESC NULLS LAST' : 'item.s3_key';
+    if (order === 'ascending') {
+      orderBy = 'item.created_at ASC NULLS LAST';
+    } else if (order === 'descending') {
+      orderBy = 'item.created_at DESC NULLS LAST';
+    }
 
     if (isAdmin && inputQuery && inputQuery.length > 0) {
       params.push(inputQuery);
@@ -123,7 +129,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
           )` : ''}
               
           GROUP BY item.s3_key
-          ORDER BY  ${isAdmin ? 'item.updated_at DESC NULLS LAST' : 'item.s3_key'} 
+          ORDER BY  ${orderBy} 
   
           LIMIT $1 
           OFFSET $2 
