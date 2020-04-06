@@ -31,6 +31,7 @@ custom:
     enabled: true # enabled but still needs to be turned on for each function
     ttlInSeconds: ${env:CACHE_TTL, 3600}
     dataEncrypted: true
+    clusterSize: ${env:CACHE_SIZE, '237'}
 
   # Avoid hitting the CF Resource limit by splitting them up.
   splitStacks:
