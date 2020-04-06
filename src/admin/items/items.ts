@@ -19,15 +19,17 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       {
         inputQuery: Joi.string(),
         limit: Joi.number().integer(),
-        offset: Joi.number().integer()
+        offset: Joi.number().integer(),
+        order: Joi.string()
       }));
 
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues,
-      inputQuery = event.queryStringParameters ? event.queryStringParameters.inputQuery : null;
+      inputQuery = event.queryStringParameters ? event.queryStringParameters.inputQuery : null,
+      order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, inputQuery));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, inputQuery, order));
 
   } catch (e) {
     console.log('admin/items/items.get ERROR - ', !e.isJoi ? e : e.details);
@@ -119,15 +121,17 @@ export const getAllMine = async (event: APIGatewayEvent, context: Context): Prom
     await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
       Joi.object().keys({
         limit: Joi.number().integer(),
-        offset: Joi.number().integer()
+        offset: Joi.number().integer(),
+        order: Joi.string()
       })
     ));
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters,
-      userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+      userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
+      order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, null, null, userId));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, null, null, userId, order));
 
   } catch (e) {
     console.log('admin/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);

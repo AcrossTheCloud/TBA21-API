@@ -28,10 +28,12 @@
   "homepage": "https://github.com/AcrossTheCloud/TBA21-API",
   "dependencies": {
     "@hapi/joi": "^17.1.0",
+    "aws-xray-sdk": "^2.5.0",
     "axios": "^0.19.2",
     "dbgeo": "github:AcrossTheCloud/dbgeo",
     "lodash.findkey": "^4.6.0",
-    "pg-promise": "^10.4.2"
+    "pg-promise": "^10.4.2",
+    "serverless-plugin-tracing": "^2.0.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.40",

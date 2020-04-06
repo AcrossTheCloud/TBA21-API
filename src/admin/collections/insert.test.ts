@@ -32,7 +32,7 @@ describe('/admin/collections/insert/', () => {
         'focus_action': '2',
         'focus_scitech': '3',
         'concept_tags' : [3],
-        "geojson":{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-220.913086,55.416544,1],[-220.737305,54.711929,1.01],[-219.660645,54.635697,1],[-218.254395,54.686534,1.01],[-218.803711,55.37911,1.2],[-219.396973,55.862982,1.1],[-220.539551,55.838314,1.6],[-220.913086,55.416544,1]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-12.216797,5.397273,0]}}]}
+        'geojson': {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'properties': {}, 'geometry': {'type': 'Polygon', 'coordinates': [[[-220.913086, 55.416544, 1], [-220.737305, 54.711929, 1.01], [-219.660645, 54.635697, 1], [-218.254395, 54.686534, 1.01], [-218.803711, 55.37911, 1.2], [-219.396973, 55.862982, 1.1], [-220.539551, 55.838314, 1.6], [-220.913086, 55.416544, 1]]]}}, {'type': 'Feature', 'properties': {}, 'geometry': {'type': 'Point', 'coordinates': [-12.216797, 5.397273, 0]}}]}
       },
       body: string = JSON.stringify(requestBody),
       response = await createCollection({ body , 'path': '/admin/collections/create' } as APIGatewayProxyEvent),
@@ -67,9 +67,8 @@ describe('/admin/collections/insert/', () => {
     expect(nItems.count).toBe('2');
   });
 
-  test('Create a complete collection with items', async () => {
+  test('Create a complete collection with items and collections', async () => {
     const
-
       requestBody = {
         'start_date': '2019-02-22 10:53',
         'regional_focus': 'Arctic Ocean',
@@ -125,6 +124,7 @@ describe('/admin/collections/insert/', () => {
         'volume': '1',
         'number': '2',
         'items': ['private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg', 'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg'],
+        'collections' : [1, 2]
       },
       body: string = JSON.stringify(requestBody),
       response = await createCollection({ body, 'path': '/admin/collections/create' } as APIGatewayProxyEvent),
