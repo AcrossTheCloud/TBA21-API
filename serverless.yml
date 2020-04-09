@@ -423,7 +423,7 @@ functions:
             enabled: true
             cacheKeyParameters:
               - name: request.querystring.type
-              - name: request.querystring.query
+              - name: request.querystring.limit
               - name: request.querystring.offset
               - name: request.querystring.query
 
@@ -569,6 +569,7 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+
   searchPost:
     handler: src/pages/search.post
     description:
