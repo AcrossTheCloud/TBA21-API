@@ -779,11 +779,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.person
-              - name: request.querystring.uuid
 
   adminDeleteCollection:
     handler: src/admin/collections/delete.deleteById
@@ -835,11 +830,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.s3Key
-              - name: request.querystring.id
 
   adminGetItemNoCache:
     handler: src/admin/items/items.getItem
@@ -888,10 +878,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.person
 
   adminUpdateItem:
     handler: src/admin/items/update.updateByS3key
@@ -1014,11 +1000,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.person
-              - name: request.querystring.uuid
 
   contributorItemsByPerson:
     handler: src/admin/items/items.getAllMine
