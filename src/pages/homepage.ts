@@ -85,7 +85,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           AND status = true
           $4:raw
         GROUP BY items.id, items.title, items.s3_key
-        ORDER BY random() 
+        ORDER BY items.created_at DESC
         LIMIT $2:raw
     `;
 
@@ -118,7 +118,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           $4:raw
           $5:raw
         GROUP BY items.id, items.title, items.s3_key
-        ORDER BY random() 
+        ORDER BY items.created_at DESC
         LIMIT $1:raw
       `;
       const itemsResult = await db.any(itemsQuery, params);
@@ -153,7 +153,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           AND ${process.env.ITEMS_TABLE}.status = true
           $6:raw
         GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
-        ORDER BY random()
+        ORDER BY collections.created_at DESC
         LIMIT $3:raw
       `;
 
