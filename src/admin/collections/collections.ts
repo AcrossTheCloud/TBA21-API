@@ -294,7 +294,7 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent): Promis
           collection.title,
           collection.creators,
           collection.status,
-          ARRAY_AGG(items.item_s3_key) as s3_key
+          ARRAY_AGG(items.item_s3_key ORDER by items.id) as s3_key
         FROM
           ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
           

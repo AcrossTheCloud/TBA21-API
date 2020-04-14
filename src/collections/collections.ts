@@ -343,7 +343,7 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent, context
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsText(collection.geom) as geom,
-          ARRAY_AGG(items.item_s3_key) as s3_key
+          ARRAY_AGG(items.item_s3_key ORDER BY items.id) as s3_key
         FROM
           ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
           
