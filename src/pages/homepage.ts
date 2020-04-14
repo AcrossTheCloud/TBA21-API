@@ -86,7 +86,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           AND status = true
           $4:raw
         GROUP BY items.id, items.title, items.s3_key
-        ORDER BY random() 
+        ORDER BY items.id
         LIMIT $2:raw
     `;
 
