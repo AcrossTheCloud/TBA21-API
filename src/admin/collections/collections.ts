@@ -253,7 +253,7 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
           ON collections_items.item_s3_key = items.s3_key
         
         WHERE collection_id = $1
-        GROUP BY items.s3_key
+        GROUP BY items.s3_key, collections_items.id
         ORDER BY collections_items.id
         
         LIMIT $2
