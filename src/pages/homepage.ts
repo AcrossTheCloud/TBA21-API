@@ -82,9 +82,9 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
           WHERE oa_highlight = true
+          AND on_homepage = true
           AND status = true
           $4:raw
-        WHERE items.on_homepage = false
         GROUP BY items.id, items.title, items.s3_key
         ORDER BY items.created_at DESC
         LIMIT $2:raw
@@ -116,6 +116,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         FROM ${process.env.ITEMS_TABLE}
           WHERE status = true
           AND oa_highlight IS NOT TRUE
+          AND on_homepage = true
           $4:raw
           $5:raw
         GROUP BY items.id, items.title, items.s3_key
