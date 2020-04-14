@@ -323,6 +323,7 @@ CREATE INDEX collections_geom_gix ON tba21.collections USING GIST (geom);
 -- Collection items cross-references
 CREATE TABLE tba21.collections_items
 (
+  id serial primary key,
 	collection_ID bigint references tba21.collections(ID) ON DELETE CASCADE,
 	item_s3_key varchar(1024) references tba21.items(s3_key) ON DELETE CASCADE
 );
