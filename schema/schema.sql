@@ -165,6 +165,7 @@ CREATE TABLE tba21.items
   OA_highlight boolean,
   TBA21_material boolean,
   OA_original boolean,
+  on_homepage boolean,
   lecturer varchar(256),
   authors varchar(256)[],
   credit varchar(256),

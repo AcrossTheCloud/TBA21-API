@@ -84,6 +84,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           WHERE oa_highlight = true
           AND status = true
           $4:raw
+        WHERE items.on_homepage = false
         GROUP BY items.id, items.title, items.s3_key
         ORDER BY items.created_at DESC
         LIMIT $2:raw
