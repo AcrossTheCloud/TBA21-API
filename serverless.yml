@@ -29,7 +29,7 @@ custom:
   # Enable API GW caching with some global options set
   apiGatewayCaching:
     enabled: true # enabled but still needs to be turned on for each function
-    ttlInSeconds: ${env:CACHE_TTL, 3600}
+    ttlInSeconds: ${env:CACHE_TTL, 600}
     dataEncrypted: true
     clusterSize: ${env:CACHE_SIZE, '237'}
 
