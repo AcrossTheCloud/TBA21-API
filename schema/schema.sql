@@ -138,7 +138,7 @@ CREATE TABLE tba21.items
   birth_date date,
   death_date date,
   venues varchar(256)[],
-  screened_at varchar(256),
+  screened_at varchar(1024),
   genre varchar(128),
   news_outlet varchar(256),
   institution varchar(256),
