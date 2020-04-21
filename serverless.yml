@@ -46,9 +46,6 @@ provider:
   memorySize: 2048 # optional, in MB, default is 1024
   timeout: 29 # seconds, maximum allowed for API GW integration
   versionFunctions: false
-  apiGateway:
-    restApiId: ${env:API_ID}
-    restApiRootResourceId: ${env:ROOT_RESOURCE_ID}
   environment:
     # AWS
     USER_POOL_ID: ${env:USER_POOL_ID}
