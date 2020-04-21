@@ -46,7 +46,7 @@
     "jest": "^25.1.0",
     "rimraf": "^3.0.1",
     "serverless": "1.62.0",
-    "serverless-api-gateway-caching": "^1.4.1",
+    "serverless-api-gateway-caching-split-stack": "0.0.4-rc",
     "serverless-aws-documentation": "^1.1.0",
     "serverless-dotenv-plugin": "^2.3.1",
     "serverless-offline": "^5.12.1",

@@ -21,8 +21,8 @@ plugins:
   - serverless-plugin-typescript
   - serverless-dotenv-plugin
   - serverless-offline
-  - serverless-api-gateway-caching
   - serverless-plugin-split-stacks
+  - serverless-api-gateway-caching-split-stack
   - serverless-plugin-tracing
 
 custom:
