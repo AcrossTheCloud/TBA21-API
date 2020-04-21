@@ -312,7 +312,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
 
@@ -653,7 +653,7 @@ functions:
           cors: true
           authorizer: aws_iam
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.uuid
@@ -669,7 +669,7 @@ functions:
           cors: true
           authorizer: aws_iam
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.uuid
@@ -727,7 +727,7 @@ functions:
           cors: true
           authorizer: aws_iam
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.limit
               - name: request.querystring.offset
@@ -743,7 +743,7 @@ functions:
           cors: true
           authorizer: aws_iam
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
 
