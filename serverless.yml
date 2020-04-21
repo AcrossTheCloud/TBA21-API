@@ -202,7 +202,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.limit
               - name: request.querystring.offset
@@ -217,7 +217,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.s3Key
               - name: request.querystring.id
@@ -374,7 +374,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.limit
@@ -389,7 +389,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.limit
@@ -404,7 +404,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.limit
               - name: request.querystring.offset
@@ -505,7 +505,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.uuid
