@@ -1,5 +1,5 @@
-FROM circleci/postgres:11-alpine-postgis
-MAINTAINER Dan Wood <daniel@acrossthecloud.net>
+FROM circleci/postgres:12-alpine-postgis
+MAINTAINER Matthew Berryman <matthew@acrossthecloud.net>
 
 # Clear the init folder for we don't run postgis.sh again.
 RUN rm -rf /docker-entrypoint-initdb.d/*
