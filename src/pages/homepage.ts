@@ -88,15 +88,21 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       SELECT COUNT(*), 
         ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id as id,
         ${process.env.COLLECTIONS_TABLE}.title,
-        ${process.env.COLLECTIONS_TABLE}.type, 
+        ${process.env.COLLECTIONS_TABLE}.type,
         ${process.env.COLLECTIONS_TABLE}.time_produced,
         ${process.env.COLLECTIONS_TABLE}.year_produced, 
         COALESCE(array_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
         ${process.env.COLLECTIONS_TABLE}.creators,
-        ${process.env.COLLECTIONS_TABLE}.regions
+        ${process.env.COLLECTIONS_TABLE}.regions,
+        COALESCE(json_agg(DISTINCT concept_tag.tag_name) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
+        COALESCE(json_agg(DISTINCT keyword_tag.tag_name) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
       FROM ${process.env.COLLECTIONS_TABLE}
         INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
-        INNER JOIN ${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
+        INNER JOIN ${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key,
+        UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
+          LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
+        UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
+          LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         WHERE ${process.env.COLLECTIONS_TABLE}.status = true
         AND ${process.env.ITEMS_TABLE}.status = true
         AND ${process.env.COLLECTIONS_TABLE}.oa_highlight = true
