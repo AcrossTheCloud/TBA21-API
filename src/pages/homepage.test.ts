@@ -15,16 +15,6 @@ describe('homepage tests', () => {
     db.$pool.end();
   });
 
-  test('Get items and collections between dates except items id 1 and 2', async () => {
-    const
-      queryStringParameters: QueryStringParameters = {date: '2011-07-01', oa_highlight: 'false'},
-      multiValueQueryStringParameters: MultiQueryStringParameters = {id: ['1', '2']},
-      response = await get({ queryStringParameters, multiValueQueryStringParameters } as APIGatewayProxyEvent),
-      results = JSON.parse(response.body);
-    console.log(results, 'results');
-    expect(results.items.length).toEqual(3);
-    expect(results.collections.length).toEqual(3);
-  });
   test('Get items and collections between dates', async () => {
     const
       queryStringParameters: QueryStringParameters = {date: '2011-07-01',  oa_highlight: 'false'},
