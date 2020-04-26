@@ -35,12 +35,12 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
 
     const
       queryString = event.queryStringParameters,
-      params = [limitQuery(queryString.itemsLimit, 50), limitQuery(queryString.oaHighlightLimit, 50), limitQuery(queryString.collectionsLimit, 50)];
+      params = [limitQuery(queryString.itemsLimit, 50), limitQuery(queryString.collectionsLimit, 50)];
 
     let date: string;
     let collectionsDate: string;
 
-    // Params index 4
+    // Params index 3
     if ( queryString.date && queryString.date.length ) {
       date = `
         AND created_at >= '${queryString.date}'::date
@@ -79,10 +79,8 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
           WHERE oa_highlight = true
           AND status = true
-          $4:raw
         GROUP BY items.id, items.title, items.s3_key
         ORDER BY items.id DESC
-        LIMIT $2:raw
       `;
 
       // Collections
@@ -102,22 +100,21 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         WHERE ${process.env.COLLECTIONS_TABLE}.status = true
         AND ${process.env.ITEMS_TABLE}.status = true
         AND ${process.env.COLLECTIONS_TABLE}.oa_highlight = true
-        $6:raw
       GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
-      ORDER BY random()
-      LIMIT $3:raw
+      ORDER BY ${process.env.COLLECTIONS_TABLE}.id DESC
       `;
 
-      let collectionsResult = await db.any(collectionsQuery, params);
+      let collectionsResult = await db.any(collectionsQuery);
 
       // Remove all collections without an item.
       collectionsResult = collectionsResult.filter(c => c.s3_key && c.s3_key.length);
 
       return successResponse({
-          oa_highlight_items: await db.any(oaItemsHighlightQuery, params),
+          oa_highlight_items: await db.any(oaItemsHighlightQuery),
           oa_highlight_collections: collectionsResult
       });
     } else {
+      console.log(params);
       const itemsQuery = `
         SELECT 
           items.id,
@@ -136,8 +133,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           WHERE status = true
           AND oa_highlight IS NOT TRUE
           AND on_homepage = true
-          $4:raw
-          $5:raw
+          $3:raw
         GROUP BY items.id, items.title, items.s3_key
         ORDER BY random() 
         LIMIT $1:raw
@@ -156,6 +152,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         `;
           params.push(collectionsDate);
       }
+      console.log(params);
       // Collections
       const collectionsQuery = `
         SELECT COUNT(*), 
@@ -173,10 +170,10 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           WHERE ${process.env.COLLECTIONS_TABLE}.status = true
           AND ${process.env.COLLECTIONS_TABLE}.oa_highlight = false
           AND ${process.env.ITEMS_TABLE}.status = true
-          $6:raw
+          $4:raw
         GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
         ORDER BY random()
-        LIMIT $3:raw
+        LIMIT $2:raw
       `;
 
       let collectionsResult = await db.any(collectionsQuery, params);
