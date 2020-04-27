@@ -25,15 +25,6 @@ describe('Tag get tests', () => {
     expect(results.tags.length).toEqual(10);
   });
 
-  test('Check that we have 1 keyword tag using limit with the name of keyword.', async () => {
-    const
-      queryStringParameters: QueryStringParameters = {type: 'keyword', limit: '1' },
-      response = await get({ queryStringParameters } as APIGatewayProxyEvent),
-      results = JSON.parse(response.body);
-
-    expect(results.tags.length).toEqual(1);
-  });
-
 });
 
 describe('Tag get tests', () => {
