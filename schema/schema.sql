@@ -114,6 +114,7 @@ CREATE TABLE tba21.items
   DOI varchar(1024),
   edition numeric(3),
   year_produced numeric(4),
+  end_year_produced varchar(7),
   volume numeric(4),
   issue numeric(4),
   pages numeric(5),
