@@ -20,7 +20,7 @@ describe('homepage tests', () => {
       queryStringParameters: QueryStringParameters = {date: '2011-07-01',  oa_highlight: 'false'},
       response = await get({ queryStringParameters } as APIGatewayProxyEvent),
       results = JSON.parse(response.body);
-    expect(results.items.length).toEqual(1);
+    expect(results.items.length).toEqual(3);
     expect(results.collections.length).toEqual(2);
   });
   test('Get oa_highlights', async () => {
