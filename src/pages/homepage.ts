@@ -92,7 +92,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         ${process.env.COLLECTIONS_TABLE}.type,
         ${process.env.COLLECTIONS_TABLE}.time_produced,
         ${process.env.COLLECTIONS_TABLE}.year_produced, 
-        COALESCE(array_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
+        (array_agg(${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key order by ${process.env.COLLECTIONS_ITEMS_TABLE}.id))[1] AS s3_key,
         ${process.env.COLLECTIONS_TABLE}.creators,
         ${process.env.COLLECTIONS_TABLE}.regions,
         COALESCE(json_agg(DISTINCT concept_tag.tag_name) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
@@ -170,7 +170,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           ${process.env.COLLECTIONS_TABLE}.type, 
           ${process.env.COLLECTIONS_TABLE}.time_produced,
           ${process.env.COLLECTIONS_TABLE}.year_produced, 
-          COALESCE(array_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
+          (array_agg(${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key order by ${process.env.COLLECTIONS_ITEMS_TABLE}.id))[1] AS s3_key,
           ${process.env.COLLECTIONS_TABLE}.creators,
           ${process.env.COLLECTIONS_TABLE}.regions
         FROM ${process.env.COLLECTIONS_TABLE}
