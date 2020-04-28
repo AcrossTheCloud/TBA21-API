@@ -361,7 +361,8 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent, context
         
         WHERE collection_collections.id = $1
           AND status = true
-        GROUP BY collection.id
+        GROUP BY collection.id, collection_collections.ordering
+        ORDER BY collection_collections.ordering
         
         LIMIT $2
         OFFSET $3
