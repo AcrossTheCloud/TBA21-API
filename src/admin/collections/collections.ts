@@ -305,7 +305,8 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent): Promis
           ON items.collection_ID = collection_collections.collection_id
           
         WHERE collection_collections.id = $1
-        GROUP BY collection.id
+        GROUP BY collection.id, collection_collections.ordering
+        ORDER BY collection_collections.ordering
         
         LIMIT $2
         OFFSET $3

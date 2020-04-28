@@ -327,7 +327,7 @@ CREATE INDEX collections_geom_gix ON tba21.collections USING GIST (geom);
 -- Collection items cross-references
 CREATE TABLE tba21.collections_items
 (
-  id serial primary key,
+  id bigserial primary key,
 	collection_ID bigint references tba21.collections(ID) ON DELETE CASCADE,
 	item_s3_key varchar(1024) references tba21.items(s3_key) ON DELETE CASCADE
 );
@@ -335,7 +335,8 @@ CREATE TABLE tba21.collections_items
 -- Collection a table that holds collections that are attached to another collection.
 CREATE TABLE tba21.collection_collections
 (
-    id bigint references tba21.collections(ID) ON DELETE CASCADE,
+  ordering bigserial primary key,
+  id bigint references tba21.collections(ID) ON DELETE CASCADE,
 	collection_id bigint references tba21.collections(ID) ON DELETE CASCADE
 );
 
