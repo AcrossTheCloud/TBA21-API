@@ -334,8 +334,8 @@ CREATE TABLE tba21.collections_items
 -- Collection a table that holds collections that are attached to another collection.
 CREATE TABLE tba21.collection_collections
 (
-  ordering bigserial primary key
-    id bigint references tba21.collections(ID) ON DELETE CASCADE,
+  ordering bigserial primary key,
+  id bigint references tba21.collections(ID) ON DELETE CASCADE,
 	collection_id bigint references tba21.collections(ID) ON DELETE CASCADE
 );
 
