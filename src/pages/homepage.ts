@@ -138,6 +138,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         FROM ${process.env.ITEMS_TABLE}
           WHERE status = true
           AND oa_highlight IS NOT TRUE
+          AND s3_key not in (select item_s3_key from tba21.collections_items)
           AND on_homepage = true
           $3:raw
         GROUP BY items.id, items.title, items.s3_key
