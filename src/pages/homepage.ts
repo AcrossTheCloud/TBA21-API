@@ -141,7 +141,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           WHERE status = true
           AND oa_highlight IS NOT TRUE
           AND s3_key not in (select item_s3_key from tba21.collections_items)
-          AND NOT (s3_key ilike '%.mp4' or s3_key ilike '%.mp3')
+          AND (s3_key not ilike '%.mp3' or item_type = 'Audio')
           AND on_homepage = true
           $3:raw
         GROUP BY items.id, items.title, items.s3_key
