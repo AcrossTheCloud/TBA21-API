@@ -39,6 +39,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         SELECT * 
           FROM ${queryString.type === 'concept' ? process.env.CONCEPT_TAGS_TABLE : process.env.KEYWORD_TAGS_TABLE}
           ${searchQuery}
+        ORDER BY ID
         LIMIT $1
         OFFSET $2
       `;
