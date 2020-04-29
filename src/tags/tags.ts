@@ -23,7 +23,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     }));
 
     const
-      defaultValues = { limit: 15, offset: 0 },
+      defaultValues = { limit: 500, offset: 0 },
       queryString = event.queryStringParameters,
       params: (string | number)[] = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
 
