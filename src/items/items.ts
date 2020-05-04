@@ -36,7 +36,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, undefined, undefined, !!uuid ? uuid : undefined));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, undefined, undefined, undefined, undefined, uuid));
 
   } catch (e) {
     console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);

@@ -108,7 +108,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
           ${isAdmin ? searchQuery : 'WHERE status=true'}
 
-          ${userId || uuid ? ` WHERE contributor = $${params.length}::uuid ` : ''}
+          ${userId || uuid ? ` AND contributor = $${params.length}::uuid ` : ''}
           
           ${(byField === 'tag') ? ` ${conditionsLinker} (
             LOWER(concept_tag.tag_name) LIKE '%' || LOWER($${params.length}) || '%'
