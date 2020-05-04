@@ -1,6 +1,8 @@
 -- START FIRST QUERY tba21.items
 INSERT INTO tba21.items(
   s3_key,
+  oa_highlight,
+  on_homepage,
   sha512,
   authors,
   exif,
@@ -74,6 +76,8 @@ INSERT INTO tba21.items(
 )
 VALUES (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad749e30-a6a0-11e9-b5d9-1726307e8330-photo-1518791841217-8f162f1e1131.jpeg',
+  'true',
+  'false',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
   '{John Jameson, John Jameson II}',
   null,
@@ -178,6 +182,8 @@ VALUES (
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-kitten-pet-animal-domestic-104827.jpeg',
+  'true',
+  'true',
   '887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
   '{John JamesonIII, John Jameson IV}',
   null,
@@ -278,6 +284,8 @@ VALUES (
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-cat-pet-animal-domestic-104827.jpeg',
+  'false',
+  'true',
   '887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
   '{}',
   null,
@@ -378,6 +386,8 @@ VALUES (
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/862f0b10-a6a7-11e9-9669-7fbab4073699-Humpback_Whales_-_South_Bank.jpg',
+  'false',
+  'true',
   '887565faebcdc369d61a04d90f6e229c2ab05f3212ae1a4ea5f6f132152046adba3adc21b0bce802236c03a051e63a2d6f24cbc25bf576a93f423290e276dfee',
   '{John JamesonIIV, John Jameson IIIV}',
   null,
@@ -478,6 +488,8 @@ VALUES (
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-rat-pet-animal-domestic-104827.jpeg',
+  'false',
+  'true',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
   '{John Johningson, John J Jamieson}',
   null,
@@ -582,6 +594,8 @@ VALUES (
 ),
 (
   'private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg',
+  'false',
+  'true',
   'e29d2f333f2251a14ccfae3b7fea5412dd0f5947a122e341a4e0b6f4e13a09929545295f2bab25f6dfb745f34f9bccb55c6869ad99e23ce7f0e3d5b0ac796b06',
   '{John Johningson II, John J Jamieson II}',
   null,

@@ -22,13 +22,18 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        id: Joi.number().integer()
+        id: Joi.number().integer(),
+        inputQuery: Joi.string(),
+        order: Joi.string()
       }));
 
-    const isAdmin: boolean = !!event.path.match(/\/admin\//);
-    const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
+    const
+        isAdmin: boolean = !!event.path.match(/\/admin\//),
+        userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
+        inputQuery = event.queryStringParameters ? event.queryStringParameters.inputQuery : null,
+        order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAllOrById(event.queryStringParameters, isAdmin, userId));
+    return (await getAllOrById(event.queryStringParameters, isAdmin, userId, inputQuery, order));
   } catch (e) {
     console.log('/collections/collections.get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
@@ -118,9 +123,9 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
         UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
           LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
       WHERE (
-        LOWER(concept_tag.tag_name) LIKE '%' || LOWER($1) || '%'
+        UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
         OR
-        LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($1) || '%'
+        UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
       )
       
       GROUP BY collections.id
@@ -169,9 +174,9 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         params.push(queryString.person);
         whereStatement = `
           AND ( 
-            LOWER(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) 
+            UNACCENT(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) 
           )
-          LIKE '%' || LOWER($3) || '%' 
+          ILIKE '%' || UNACCENT($3) || '%' 
         
         `;
       } else if (queryString.uuid) {
@@ -248,7 +253,8 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
           ON collections_items.item_s3_key = items.s3_key
         
         WHERE collection_id = $1
-        GROUP BY items.s3_key
+        GROUP BY items.s3_key, collections_items.id
+        ORDER BY collections_items.id
         
         LIMIT $2
         OFFSET $3
@@ -257,7 +263,59 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
     const data = await dbgeoparse(await db.any(query, params), null);
     return successResponse({ data });
   } catch (e) {
-    console.log('/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
+    console.log('/admin/collections/collections.getItemsInCollection ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+};
+
+/**
+ *
+ * Get a list of collections in a collection
+ *
+ * @param event {APIGatewayEvent}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - an item list of the results
+ */
+export const getCollectionsInCollection = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+        id: Joi.number().required()
+      }));
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [queryString.id, limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset];
+    const query = `
+        SELECT
+          collection.id,
+          collection.title,
+          collection.creators,
+          collection.status,
+          ARRAY_AGG(items.item_s3_key ORDER by items.id) as s3_key
+        FROM
+          ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
+          
+          INNER JOIN ${process.env.COLLECTIONS_TABLE} AS collection
+          ON collection.id = collection_collections.collection_id
+          
+          INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} AS items
+          ON items.collection_ID = collection_collections.collection_id
+          
+        WHERE collection_collections.id = $1
+        GROUP BY collection.id, collection_collections.ordering
+        ORDER BY collection_collections.ordering
+        
+        LIMIT $2
+        OFFSET $3
+      `;
+
+    const data = await dbgeoparse(await db.any(query, params), null);
+    return successResponse({ data });
+  } catch (e) {
+    console.log('/admin/collections/collections.getCollectionsInCollection ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };

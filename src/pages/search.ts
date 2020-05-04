@@ -23,46 +23,46 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       FROM ${process.env.ITEMS_TABLE} AS item
       WHERE status = true
         AND (
-          LOWER(title) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(original_title) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(event_title) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(subtitle) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(description) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(title) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(original_title) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(event_title) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(subtitle) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(description) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(institution) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(news_outlet) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(institution) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(news_outlet) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(location) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(city_of_publication) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(array_to_string(regions, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(location) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(city_of_publication) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(featured_in) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(featured_in) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(editor) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(editor) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(lecturer) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(project) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(record_label) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(array_to_string(cast_, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(lecturer) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(project) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(record_label) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(array_to_string(authors, '||')) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(array_to_string(directors, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(array_to_string(writers, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(array_to_string(collaborators, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(array_to_string(authors, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(array_to_string(produced_by, '||')) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(array_to_string(publisher, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(array_to_string(produced_by, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(array_to_string(participants, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(array_to_string(interviewers, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(array_to_string(interviewees, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(array_to_string(speakers, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(array_to_string(performers, '||')) LIKE '%' || LOWER($1) || '%' OR
+          UNACCENT(array_to_string(speakers, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(array_to_string(performers, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
       
-          LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER($1) || '%' OR
-          LOWER(array_to_string(organisation, '||')) LIKE '%' || LOWER($1) || '%' 
+          UNACCENT(array_to_string(host_organisation, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+          UNACCENT(array_to_string(organisation, '||')) ILIKE '%' || UNACCENT($1) || '%' 
         )
        
       GROUP BY item.s3_key
@@ -73,32 +73,32 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       FROM ${process.env.COLLECTIONS_TABLE}
         WHERE ${process.env.COLLECTIONS_TABLE}.status = true
           AND (
-            LOWER(collections.title) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(collections.subtitle) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(collections.description) LIKE '%' || LOWER($1) || '%' OR
+            UNACCENT(collections.title) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(collections.subtitle) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(collections.description) ILIKE '%' || UNACCENT($1) || '%' OR
       
-            LOWER(collections.institution) LIKE '%' || LOWER($1) || '%' OR
+            UNACCENT(collections.institution) ILIKE '%' || UNACCENT($1) || '%' OR
       
-            LOWER(array_to_string(collections.regions, '||')) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(collections.location) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(collections.city_of_publication) LIKE '%' || LOWER($1) || '%' OR
+            UNACCENT(array_to_string(collections.regions, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(collections.location) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(collections.city_of_publication) ILIKE '%' || UNACCENT($1) || '%' OR
       
-            LOWER(collections.editor) LIKE '%' || LOWER($1) || '%' OR
+            UNACCENT(collections.editor) ILIKE '%' || UNACCENT($1) || '%' OR
       
-            LOWER(array_to_string(collections.cast_, '||')) LIKE '%' || LOWER($1) || '%' OR
+            UNACCENT(array_to_string(collections.cast_, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
       
-            LOWER(array_to_string(collections.creators, '||')) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(array_to_string(collections.directors, '||')) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(array_to_string(collections.writers, '||')) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(array_to_string(collections.collaborators, '||')) LIKE '%' || LOWER($1) || '%' OR
+            UNACCENT(array_to_string(collections.creators, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(array_to_string(collections.directors, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(array_to_string(collections.writers, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(array_to_string(collections.collaborators, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
       
-            LOWER(array_to_string(collections.publisher, '||')) LIKE '%' || LOWER($1) || '%' OR
+            UNACCENT(array_to_string(collections.publisher, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
       
-            LOWER(array_to_string(collections.participants, '||')) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(array_to_string(collections.interviewers, '||')) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(array_to_string(collections.interviewees, '||')) LIKE '%' || LOWER($1) || '%' OR
+            UNACCENT(array_to_string(collections.participants, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(array_to_string(collections.interviewers, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(array_to_string(collections.interviewees, '||')) ILIKE '%' || UNACCENT($1) || '%' OR
       
-            LOWER(array_to_string(collections.host_organisation, '||')) LIKE '%' || LOWER($1) || '%'
+            UNACCENT(array_to_string(collections.host_organisation, '||')) ILIKE '%' || UNACCENT($1) || '%'
           )
           
         GROUP BY collections.id
@@ -115,11 +115,11 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
             profile_type = 'Institution'
           )
           AND (
-            LOWER(profiles.full_name) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(profiles.field_expertise) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(profiles.city) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(profiles.country) LIKE '%' || LOWER($1) || '%' OR
-            LOWER(profiles.affiliation) LIKE '%' || LOWER($1) || '%'
+            UNACCENT(profiles.full_name) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(profiles.field_expertise) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(profiles.city) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(profiles.country) ILIKE '%' || UNACCENT($1) || '%' OR
+            UNACCENT(profiles.affiliation) ILIKE '%' || UNACCENT($1) || '%'
           )
         GROUP BY profiles.id
     `;
@@ -219,7 +219,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
         const addToParams = (type?: string): string => {
           type = type ? `${type}.` : '';
           params.push(`${type}${field}`, list[i].value);
-          return `LOWER($${paramCounter++}:raw::text) LIKE '%' || LOWER($${paramCounter++}) || '%'`;
+          return `UNACCENT($${paramCounter++}:raw::text) ILIKE '%' || UNACCENT($${paramCounter++}) || '%'`;
         };
 
         if (field === 'full_name' || field === 'country' || field === 'city' || field === 'affiliation' || field === 'profile_type') {

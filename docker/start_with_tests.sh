@@ -23,6 +23,7 @@ export TYPES_TABLE=tba21.types
 export ITEMS_TABLE=tba21.items
 export COLLECTIONS_TABLE=tba21.collections
 export COLLECTIONS_ITEMS_TABLE=tba21.collections_items
+export COLLECTION_COLLECTIONS_TABLE=tba21.collection_collections
 export CONCEPT_TAGS_TABLE=tba21.concept_tags
 export KEYWORD_TAGS_TABLE=tba21.keyword_tags
 export SHORT_PATHS_TABLE=tba21.short_paths

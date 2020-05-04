@@ -7,6 +7,9 @@ AUTHORIZATION postgres;
 -- Geospatial support
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+-- Support for searching while ignoring diacritics
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
 --License
 CREATE TYPE tba21.licence_type AS ENUM ('CC BY', 'CC BY-SA', 'CC BY-ND', 'CC BY-NC', 'CC BY-NC-SA', 'CC BY-NC-ND', 'Ocean Archive', 'Locked');
 
@@ -65,17 +68,17 @@ CREATE TYPE tba21.subtype AS ENUM (
 
 --Collection types
 CREATE TYPE tba21.collection_type AS ENUM (
-'Series',
-'Area of research',
-'Event',
-'Event Series',
-'Edited Volume',
-'Expedition',
-'Collection',
-'Convening',
-'Performance',
-'Installation',
-'Other'
+  'Series',
+  'Area of research',
+  'Event',
+  'Event Series',
+  'Edited Volume',
+  'Expedition',
+  'Collection',
+  'Convening',
+  'Performance',
+  'Installation',
+  'Other'
 );
 
 -- Items metadata table
@@ -111,6 +114,7 @@ CREATE TABLE tba21.items
   DOI varchar(1024),
   edition numeric(3),
   year_produced numeric(4),
+  end_year_produced varchar(7),
   volume numeric(4),
   issue numeric(4),
   pages numeric(5),
@@ -124,7 +128,7 @@ CREATE TABLE tba21.items
   title varchar(256),
   subtitle varchar(256),
   in_title varchar(256), -- e.g. title of book an article/chapter is in
-  description varchar(2048),
+  description varchar(16384),
   map_icon varchar(1024), -- path to s3 object in client side code bucket
   focus_arts numeric(1),
   focus_action numeric(1),
@@ -135,7 +139,7 @@ CREATE TABLE tba21.items
   birth_date date,
   death_date date,
   venues varchar(256)[],
-  screened_at varchar(256),
+  screened_at varchar(1024),
   genre varchar(128),
   news_outlet varchar(256),
   institution varchar(256),
@@ -162,6 +166,7 @@ CREATE TABLE tba21.items
   OA_highlight boolean,
   TBA21_material boolean,
   OA_original boolean,
+  on_homepage boolean,
   lecturer varchar(256),
   authors varchar(256)[],
   credit varchar(256),
@@ -197,33 +202,36 @@ CREATE TABLE tba21.collections
   updated_at timestamp with time zone NOT NULL,
   start_date date,
   end_date date,
-	time_produced timestamp with time zone,
-	status boolean,
-	concept_tags bigint[],
-	keyword_tags bigint[],
-	place varchar(128),
-	regional_focus varchar(128),
-	regions varchar(128)[],
-	creators varchar(256)[],
-	contributors uuid[],
-	directors varchar(256)[],
-	writers varchar(256)[],
-	editor varchar(256),
-	collaborators varchar(256)[],
-	exhibited_at varchar(256)[],
-	series varchar(256),
-	ISBN numeric(13)[],
-	edition numeric(3),
-	publisher varchar(256)[],
-	interviewers varchar(256)[],
-	interviewees varchar(256)[],
-	cast_ varchar(256)[],
-	title varchar(256),
-	subtitle varchar(256),
-	description varchar(4096),
-	copyright_holder varchar(256),
-	copyright_country varchar(256),
-	disciplinary_field varchar(256),
+  time_produced timestamp with time zone,
+  status boolean,
+  concept_tags bigint[],
+  keyword_tags bigint[],
+  place varchar(128),
+  regional_focus varchar(128),
+  regions varchar(128)[],
+  creators varchar(256)[],
+  contributors uuid[],
+  directors varchar(256)[],
+  writers varchar(256)[],
+  editor varchar(256),
+  collaborators varchar(256)[],
+  exhibited_at varchar(256)[],
+  series varchar(256),
+  ISBN numeric(13)[],
+  edition numeric(3),
+  publisher varchar(256)[],
+  interviewers varchar(256)[],
+  interviewees varchar(256)[],
+  cast_ varchar(256)[],
+  title varchar(256),
+  subtitle varchar(256),
+  description varchar(16384),
+  OA_highlight boolean,
+  TBA21_material boolean,
+  OA_original boolean,
+  copyright_holder varchar(256),
+  copyright_country varchar(256),
+  disciplinary_field varchar(256),
   specialisation varchar(256),
   department varchar(256),
   expedition_leader varchar(256),
@@ -319,8 +327,17 @@ CREATE INDEX collections_geom_gix ON tba21.collections USING GIST (geom);
 -- Collection items cross-references
 CREATE TABLE tba21.collections_items
 (
+  id bigserial primary key,
 	collection_ID bigint references tba21.collections(ID) ON DELETE CASCADE,
 	item_s3_key varchar(1024) references tba21.items(s3_key) ON DELETE CASCADE
+);
+
+-- Collection a table that holds collections that are attached to another collection.
+CREATE TABLE tba21.collection_collections
+(
+  ordering bigserial primary key,
+  id bigint references tba21.collections(ID) ON DELETE CASCADE,
+	collection_id bigint references tba21.collections(ID) ON DELETE CASCADE
 );
 
 --Concept tags metadata
@@ -342,4 +359,3 @@ CREATE TABLE tba21.keyword_tags
 ALTER TABLE tba21.keyword_tags ADD CONSTRAINT keyword_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.concept_tags ADD CONSTRAINT concept_tag_name UNIQUE (tag_name);
 ALTER TABLE tba21.short_paths ADD CONSTRAINT short_path_name UNIQUE (short_path);
-

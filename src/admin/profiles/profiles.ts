@@ -22,7 +22,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       }),
       Joi.object().keys({
         fullname: Joi.string().required(),
-        notPublicUsers: Joi.boolean(),
+        public: Joi.boolean()
       })
     ));
 
@@ -41,12 +41,11 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     }
     if (queryStringParameters.hasOwnProperty('fullname')) {
       params.push(queryStringParameters.fullname);
-      whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
+      whereStatement = `WHERE UNACCENT(full_name) ILIKE '%' || UNACCENT($1) || '%'`;
+    }
 
-      if (queryStringParameters.hasOwnProperty('notPublicUsers')) {
-        params.push(queryStringParameters.notPublicUsers);
-        whereStatement = `${whereStatement} AND profile_type <> 'Public'`;
-      }
+    if (queryStringParameters.hasOwnProperty('public') && queryStringParameters.public) {
+      whereStatement = `${whereStatement} AND profile_type = 'Public'`;
     }
 
     const sqlStatement = `
