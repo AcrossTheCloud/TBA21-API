@@ -129,7 +129,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
 
     const isAdmin: boolean = !!event.path.match(/\/admin\//);
     const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
-
+    console.log(userId, data.id, data.title, data.geojson);
     return (await update(data, isAdmin, userId));
   } catch (e) {
     if ((e.message === 'Nothing to update')) {
