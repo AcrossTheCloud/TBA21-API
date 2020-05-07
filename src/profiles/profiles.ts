@@ -70,7 +70,8 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     await Joi.assert(data, Joi.object().keys(
       {
         full_name: Joi.string().allow('').allow(null).required(),
-        uuid: Joi.string().allow('').allow(null).uuid(uuidRegex).required()
+        uuid: Joi.string().allow('').allow(null).uuid(uuidRegex).required(),
+        profile_type: Joi.any().valid('Individual', 'Collective', 'Institution', 'Public')
       }));
 
     return (await insertProfile( data, false)) ;
