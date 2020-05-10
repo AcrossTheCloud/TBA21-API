@@ -157,9 +157,9 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
       WHERE 
         status=true
       AND (
-        LOWER(concept_tag.tag_name) LIKE '%' || LOWER($1) || '%'
+        UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
         OR
-        LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($1) || '%'
+        UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
       )
       
       GROUP BY collections.id
@@ -215,7 +215,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         WHERE 
           status=true
         AND ( 
-          LOWER(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) LIKE '%' || LOWER($1) || '%' 
+          UNACCENT(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) ILIKE '%' || UNACCENT($1) || '%' 
         )
         
         GROUP BY collections.id
@@ -303,7 +303,8 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
         
         WHERE collection_id = $1
           AND status = true
-        GROUP BY items.s3_key
+        GROUP BY items.s3_key, collections_items.id
+        ORDER by collections_items.id
         
         LIMIT $2
         OFFSET $3
@@ -342,7 +343,7 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent, context
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           ST_AsText(collection.geom) as geom,
-          ARRAY_AGG(items.item_s3_key) as s3_key
+          ARRAY_AGG(items.item_s3_key ORDER BY items.id) as s3_key
         FROM
           ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
           
@@ -360,7 +361,8 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent, context
         
         WHERE collection_collections.id = $1
           AND status = true
-        GROUP BY collection.id
+        GROUP BY collection.id, collection_collections.ordering
+        ORDER BY collection_collections.ordering
         
         LIMIT $2
         OFFSET $3

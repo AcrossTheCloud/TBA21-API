@@ -21,16 +21,17 @@ plugins:
   - serverless-plugin-typescript
   - serverless-dotenv-plugin
   - serverless-offline
-  - serverless-api-gateway-caching
   - serverless-plugin-split-stacks
+  - serverless-api-gateway-caching-split-stack
   - serverless-plugin-tracing
 
 custom:
   # Enable API GW caching with some global options set
   apiGatewayCaching:
     enabled: true # enabled but still needs to be turned on for each function
-    ttlInSeconds: 120 # I think 2 mins is fine?
+    ttlInSeconds: ${env:CACHE_TTL, 600}
     dataEncrypted: true
+    clusterSize: ${env:CACHE_SIZE, '237'}
 
   # Avoid hitting the CF Resource limit by splitting them up.
   splitStacks:
@@ -201,7 +202,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.limit
               - name: request.querystring.offset
@@ -216,7 +217,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.s3Key
               - name: request.querystring.id
@@ -311,7 +312,7 @@ functions:
           method: get
           cors: true
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
 
@@ -372,6 +373,12 @@ functions:
           path: collections/getItemsInCollection
           method: get
           cors: true
+          caching:
+            enabled: false
+            cacheKeyParameters:
+              - name: request.querystring.id
+              - name: request.querystring.limit
+              - name: request.querystring.offset
 
   getCollectionsInCollection:
     handler: src/collections/collections.getCollectionsInCollection
@@ -381,6 +388,12 @@ functions:
           path: collections/getCollectionsInCollection
           method: get
           cors: true
+          caching:
+            enabled: false
+            cacheKeyParameters:
+              - name: request.querystring.id
+              - name: request.querystring.limit
+              - name: request.querystring.offset
 
   getCollectionsByItem:
     handler: src/collections/collections.getCollectionsByItem
@@ -390,6 +403,12 @@ functions:
           path: collections/getCollectionsByItem
           method: get
           cors: true
+          caching:
+            enabled: false
+            cacheKeyParameters:
+              - name: request.querystring.limit
+              - name: request.querystring.offset
+              - name: request.querystring.s3Key
 
   ###### TAG FUNCTIONS ######
   getTags:
@@ -400,11 +419,13 @@ functions:
           path: tags
           method: get
           cors: true
-#          caching:
-#            enabled: true
-#            cacheKeyParameters:
-#              - name: request.querystring.type
-#              - name: request.querystring.query
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.type
+              - name: request.querystring.limit
+              - name: request.querystring.offset
+              - name: request.querystring.query
 
   insertTags:
     handler: src/admin/tags/tags.insert
@@ -457,6 +478,12 @@ functions:
           path: shortpaths
           method: get
           cors: true
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.table
+              - name: request.querystring.short_path
+              - name: request.querystring.id
 
   insertShortPath:
     handler: src/admin/shortPaths/shortPaths.insert
@@ -477,6 +504,12 @@ functions:
           path: profiles
           method: get
           cors: true
+          caching:
+            enabled: false
+            cacheKeyParameters:
+              - name: request.querystring.id
+              - name: request.querystring.uuid
+              - name: request.querystring.full_name
 
   InsertProfile:
     handler: src/profiles/profiles.insert
@@ -517,6 +550,15 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+          caching:
+            enabled: true
+            cacheKeyParameters:
+              - name: request.querystring.itemsLimit
+              - name: request.querystring.collectionsLimit
+              - name: request.querystring.oaHighlightLimit
+              - name: request.querystring.date
+              - name: request.querystring.id
+              - name: request.querystring.oa_highlight
 
   search:
     handler: src/pages/search.get
@@ -527,6 +569,7 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
+
   searchPost:
     handler: src/pages/search.post
     description:
@@ -610,7 +653,7 @@ functions:
           cors: true
           authorizer: aws_iam
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.uuid
@@ -626,7 +669,7 @@ functions:
           cors: true
           authorizer: aws_iam
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.uuid
@@ -684,7 +727,7 @@ functions:
           cors: true
           authorizer: aws_iam
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.limit
               - name: request.querystring.offset
@@ -700,7 +743,7 @@ functions:
           cors: true
           authorizer: aws_iam
           caching:
-            enabled: true
+            enabled: false
             cacheKeyParameters:
               - name: request.querystring.id
 
@@ -737,11 +780,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.person
-              - name: request.querystring.uuid
 
   adminDeleteCollection:
     handler: src/admin/collections/delete.deleteById
@@ -793,11 +831,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.s3Key
-              - name: request.querystring.id
 
   adminGetItemNoCache:
     handler: src/admin/items/items.getItem
@@ -846,10 +879,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.person
 
   adminUpdateItem:
     handler: src/admin/items/update.updateByS3key
@@ -972,11 +1001,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-          caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.person
-              - name: request.querystring.uuid
 
   contributorItemsByPerson:
     handler: src/admin/items/items.getAllMine

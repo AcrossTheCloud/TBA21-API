@@ -44,7 +44,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     }
     if (queryStringParameters.hasOwnProperty('full_name')) {
       params.push(queryStringParameters.full_name);
-      whereStatement = `WHERE LOWER(full_name) LIKE  '%' || LOWER($1) || '%'`;
+      whereStatement = `WHERE UNACCENT(full_name) ILIKE '%' || UNACCENT($1) || '%'`;
     }
     const sqlStatement = `
         SELECT *
@@ -70,7 +70,8 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     await Joi.assert(data, Joi.object().keys(
       {
         full_name: Joi.string().allow('').allow(null).required(),
-        uuid: Joi.string().allow('').allow(null).uuid(uuidRegex).required()
+        uuid: Joi.string().allow('').allow(null).uuid(uuidRegex).required(),
+        profile_type: Joi.any().valid('Individual', 'Collective', 'Institution', 'Public')
       }));
 
     return (await insertProfile( data, false)) ;

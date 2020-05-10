@@ -20,11 +20,9 @@ import Joi from '@hapi/joi';
  */
 export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   try {
-
-    const ids = event.multiValueQueryStringParameters && event.multiValueQueryStringParameters.hasOwnProperty('id') ? {id: event.multiValueQueryStringParameters.id} : {};
+    
     const eventParams = {
-      ...event.queryStringParameters,
-      ...ids
+      ...event.queryStringParameters
     };
 
     await Joi.assert(eventParams, Joi.object().keys({
@@ -32,18 +30,17 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       collectionsLimit: Joi.number().integer(),
       oaHighlightLimit: Joi.number().integer(),
       date: Joi.date().raw(),
-      id: Joi.array().items(Joi.number().integer()),
       oa_highlight: Joi.boolean().required()
     }));
 
     const
       queryString = event.queryStringParameters,
-      params = [limitQuery(queryString.itemsLimit, 50), limitQuery(queryString.oaHighlightLimit, 50), limitQuery(queryString.collectionsLimit, 50)];
+      params = [limitQuery(queryString.itemsLimit, 50), limitQuery(queryString.collectionsLimit, 50)];
 
     let date: string;
     let collectionsDate: string;
 
-    // Params index 4
+    // Params index 3
     if ( queryString.date && queryString.date.length ) {
       date = `
         AND created_at >= '${queryString.date}'::date
@@ -58,8 +55,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
     }
 
     if (queryString.oa_highlight && queryString.oa_highlight === 'true') {
-
-     const oaHighlightQuery = `
+      const oaItemsHighlightQuery = `
         SELECT 
         items.id,
         title,
@@ -67,6 +63,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         item_type,
         item_subtype,
         year_produced,
+        end_year_produced,
         time_produced,
         creators,
         file_dimensions,
@@ -83,21 +80,48 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
           WHERE oa_highlight = true
           AND status = true
-          $4:raw
         GROUP BY items.id, items.title, items.s3_key
-        ORDER BY random() 
-        LIMIT $2:raw
-    `;
+        ORDER BY items.id DESC
+      `;
 
-     return successResponse({
-         oa_highlight: await db.any(oaHighlightQuery, params)
-       });
+      // Collections
+      const collectionsQuery = `
+      SELECT COUNT(*), 
+        ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id as id,
+        ${process.env.COLLECTIONS_TABLE}.title,
+        ${process.env.COLLECTIONS_TABLE}.type,
+        ${process.env.COLLECTIONS_TABLE}.time_produced,
+        ${process.env.COLLECTIONS_TABLE}.year_produced, 
+        (array_agg(${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key order by ${process.env.COLLECTIONS_ITEMS_TABLE}.id))[1] AS s3_key,
+        ${process.env.COLLECTIONS_TABLE}.creators,
+        ${process.env.COLLECTIONS_TABLE}.regions,
+        COALESCE(json_agg(DISTINCT concept_tag.tag_name) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
+        COALESCE(json_agg(DISTINCT keyword_tag.tag_name) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
+      FROM ${process.env.COLLECTIONS_TABLE}
+        INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
+        INNER JOIN ${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key,
+        UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
+          LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
+        UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
+          LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
+        WHERE ${process.env.COLLECTIONS_TABLE}.status = true
+        AND ${process.env.ITEMS_TABLE}.status = true
+        AND ${process.env.COLLECTIONS_TABLE}.oa_highlight = true
+      GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
+      ORDER BY ${process.env.COLLECTIONS_TABLE}.id DESC
+      `;
+
+      let collectionsResult = await db.any(collectionsQuery);
+
+      // Remove all collections without an item.
+      collectionsResult = collectionsResult.filter(c => c.s3_key && c.s3_key.length);
+
+      return successResponse({
+          oa_highlight_items: await db.any(oaItemsHighlightQuery),
+          oa_highlight_collections: collectionsResult
+      });
     } else {
-      let whereStatement: string = ``;
-      if (eventParams.hasOwnProperty('id') && eventParams.id.length) {
-        whereStatement = eventParams.id.map( id => `AND items.id <> ${id}`).toString().replace(/,/g, ' ');
-      }
-      params.push(whereStatement);
+      console.log(params);
       const itemsQuery = `
         SELECT 
           items.id,
@@ -106,6 +130,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           item_type,
           item_subtype,
           year_produced,
+          end_year_produced,
           time_produced,
           creators,
           file_dimensions,
@@ -115,8 +140,9 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         FROM ${process.env.ITEMS_TABLE}
           WHERE status = true
           AND oa_highlight IS NOT TRUE
-          $4:raw
-          $5:raw
+          AND s3_key not in (select item_s3_key from tba21.collections_items)
+          AND on_homepage = true
+          $3:raw
         GROUP BY items.id, items.title, items.s3_key
         ORDER BY random() 
         LIMIT $1:raw
@@ -135,6 +161,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         `;
           params.push(collectionsDate);
       }
+      console.log(params);
       // Collections
       const collectionsQuery = `
         SELECT COUNT(*), 
@@ -143,18 +170,19 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           ${process.env.COLLECTIONS_TABLE}.type, 
           ${process.env.COLLECTIONS_TABLE}.time_produced,
           ${process.env.COLLECTIONS_TABLE}.year_produced, 
-          COALESCE(array_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
+          (array_agg(${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key order by ${process.env.COLLECTIONS_ITEMS_TABLE}.id))[1] AS s3_key,
           ${process.env.COLLECTIONS_TABLE}.creators,
           ${process.env.COLLECTIONS_TABLE}.regions
         FROM ${process.env.COLLECTIONS_TABLE}
           INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON ${process.env.COLLECTIONS_TABLE}.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
           INNER JOIN ${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key
           WHERE ${process.env.COLLECTIONS_TABLE}.status = true
+          AND ${process.env.COLLECTIONS_TABLE}.oa_highlight = false
           AND ${process.env.ITEMS_TABLE}.status = true
-          $6:raw
+          $4:raw
         GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
         ORDER BY random()
-        LIMIT $3:raw
+        LIMIT $2:raw
       `;
 
       let collectionsResult = await db.any(collectionsQuery, params);

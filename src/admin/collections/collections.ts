@@ -123,9 +123,9 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
         UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
           LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
       WHERE (
-        LOWER(concept_tag.tag_name) LIKE '%' || LOWER($1) || '%'
+        UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
         OR
-        LOWER(keyword_tag.tag_name) LIKE '%' || LOWER($1) || '%'
+        UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
       )
       
       GROUP BY collections.id
@@ -174,9 +174,9 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         params.push(queryString.person);
         whereStatement = `
           AND ( 
-            LOWER(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) 
+            UNACCENT(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) 
           )
-          LIKE '%' || LOWER($3) || '%' 
+          ILIKE '%' || UNACCENT($3) || '%' 
         
         `;
       } else if (queryString.uuid) {
@@ -253,7 +253,8 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
           ON collections_items.item_s3_key = items.s3_key
         
         WHERE collection_id = $1
-        GROUP BY items.s3_key
+        GROUP BY items.s3_key, collections_items.id
+        ORDER BY collections_items.id
         
         LIMIT $2
         OFFSET $3
@@ -293,7 +294,7 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent): Promis
           collection.title,
           collection.creators,
           collection.status,
-          ARRAY_AGG(items.item_s3_key) as s3_key
+          ARRAY_AGG(items.item_s3_key ORDER by items.id) as s3_key
         FROM
           ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
           
@@ -304,7 +305,8 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent): Promis
           ON items.collection_ID = collection_collections.collection_id
           
         WHERE collection_collections.id = $1
-        GROUP BY collection.id
+        GROUP BY collection.id, collection_collections.ordering
+        ORDER BY collection_collections.ordering
         
         LIMIT $2
         OFFSET $3

@@ -39,6 +39,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         DOI: Joi.string().allow('').allow(null),
         edition: Joi.number().integer().allow(''),
         year_produced: Joi.number().integer().allow(''),
+        end_year_produced: Joi.string().allow('').allow(null),
         time_produced: Joi.date().raw().allow('').allow(null),
         publisher: Joi.array().items(Joi.string()),
         interviewers: Joi.array().items(Joi.string()),
@@ -128,7 +129,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
 
     const isAdmin: boolean = !!event.path.match(/\/admin\//);
     const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
-
+    console.log(userId, data.id, data.title, data.geojson);
     return (await update(data, isAdmin, userId));
   } catch (e) {
     if ((e.message === 'Nothing to update')) {
