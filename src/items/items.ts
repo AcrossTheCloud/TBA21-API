@@ -34,9 +34,10 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
 
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues;
+      queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues,
+      order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, undefined, undefined, !!uuid ? uuid : undefined));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, undefined, order, undefined, !!uuid ? uuid : undefined));
 
   } catch (e) {
     console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);
@@ -98,9 +99,10 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
 
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters;
+      queryString = event.queryStringParameters,
+      order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, 'tag', queryString.tag));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, order, 'tag', queryString.tag));
 
   } catch (e) {
     console.log('/items/items.getByTag ERROR - ', !e.isJoi ? e : e.details);
@@ -125,9 +127,10 @@ export const getByType = async (event: APIGatewayEvent, context: Context): Promi
     }));
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters;
+      queryString = event.queryStringParameters,
+      order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, 'type', queryString.type));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, order, 'type', queryString.type));
 
   } catch (e) {
     console.log('/items/items.getByType ERROR - ', !e.isJoi ? e : e.details);
@@ -149,13 +152,16 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
     await Joi.assert(event.queryStringParameters, Joi.object().keys({
       limit: Joi.number().integer(),
       offset: Joi.number().integer(),
-      person: Joi.string().required()
+      person: Joi.string().required(),
+      byField: Joi.string()
     }));
     const
       defaultValues = { limit: 15, offset: 0 },
-      queryString = event.queryStringParameters;
+      queryString = event.queryStringParameters,
+      order = event.queryStringParameters ? event.queryStringParameters.order : null,
+      byField = event.queryStringParameters ? event.queryStringParameters.byField : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, 'person', queryString.person));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, order, byField, queryString.person));
 
   } catch (e) {
     console.log('/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);

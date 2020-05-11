@@ -293,7 +293,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
-export const get = async (requestBody, isAdmin: boolean = false, userId?: string, inputQuery?: string, order?): Promise<APIGatewayProxyResult> => {
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string, inputQuery?: string, order?: string, byField?: string): Promise<APIGatewayProxyResult> => {
   try {
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -309,10 +309,12 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
       params.push(requestBody.id);
     }
 
+    console.log(order);
+
     let orderBy = 'collection.id';
-    if (order === 'ascending') {
+    if (order === 'asc') {
       orderBy = 'collection.created_at ASC NULLS LAST';
-    } else if (order === 'descending') {
+    } else if (order === 'desc') {
       orderBy = 'collection.created_at DESC NULLS LAST';
     }
 

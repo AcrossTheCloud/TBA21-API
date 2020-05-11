@@ -46,16 +46,40 @@ export const insertAnnouncement = async(isAdmin: boolean, data, userId?: string 
   }
 };
 
-export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, id?: string ) => {
+export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, id?: string, order?: string | null, byField?: string | null, inputQuery?: string | null ) => {
   try {
+    let orderBy = 'created_at DESC';
+    if (order === 'asc') {
+      orderBy = 'created_at ASC';
+    }
+    if (order === 'desc') {
+      orderBy = 'created_at DESC';
+    }
+    let whereStatement = '';
+    if (id) {
+      whereStatement = `WHERE id = ${id}`;
+    }
+    if (byField && inputQuery) {
+      if (byField === 'Title') {
+        whereStatement = ` 
+          WHERE LOWER(announcements.title) LIKE '%' || LOWER('${inputQuery}') || '%'`;
+      }
+    }
+    if ((byField && inputQuery) && id) {
+      if (byField === 'Title') {
+        whereStatement = `
+          WHERE LOWER(announcements.title) LIKE '%' || LOWER('${inputQuery}') || '%'
+          AND id = ${id}`;
+      }
+    }
     let query = `
-        SELECT *,
-        COUNT ( id ) OVER ()
-        FROM ${process.env.ANNOUNCEMENTS_TABLE}
-        ${id ? `WHERE id = ${id}` : ''}
-        ORDER BY created_at DESC
-        LIMIT $1
-        OFFSET $2
+          SELECT *,
+          COUNT ( id ) OVER ()
+          FROM ${process.env.ANNOUNCEMENTS_TABLE}
+          ${whereStatement}
+          ORDER BY ${orderBy}
+          LIMIT $1
+          OFFSET $2
           `;
 
     if (!isAdmin) {
@@ -63,9 +87,8 @@ export const getAnnouncement = async(isAdmin: boolean, params, userId?: string, 
         SELECT *,
         COUNT ( id ) OVER ()
         FROM ${process.env.ANNOUNCEMENTS_TABLE}
-        WHERE contributor = '${userId}'
-        ${id ? `AND id = ${id}` : ''}
-        ORDER BY created_at DESC
+        ${whereStatement}
+        ORDER BY ${orderBy}
         LIMIT $1
         OFFSET $2
           `;

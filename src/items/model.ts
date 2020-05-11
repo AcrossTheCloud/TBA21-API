@@ -13,7 +13,7 @@ import { geoJSONToGeom } from '../map/util';
 import { changeS3ProtectionLevel } from '../utils/AWSHelper';
 import { dbgeoparse } from '../utils/dbgeo';
 
-export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byField?: string, fieldValue?: string, userId?: string, uuid?: string, order?) => {
+export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order?: string | null, byField?: string, fieldValue?: string, userId?: string, uuid?: string) => {
   try {
 
     const
@@ -21,13 +21,13 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
 
     let searchQuery = '';
     let orderBy = isAdmin ? 'item.updated_at DESC NULLS LAST' : 'item.s3_key';
-    if (order === 'ascending') {
+    if (order === 'asc') {
       orderBy = 'item.created_at ASC NULLS LAST';
-    } else if (order === 'descending') {
+    } else if (order === 'desc') {
       orderBy = 'item.created_at DESC NULLS LAST';
     }
 
-    if (isAdmin && inputQuery && inputQuery.length > 0) {
+    if (!byField && isAdmin && inputQuery && inputQuery.length > 0) {
       params.push(inputQuery);
 
       searchQuery = `
@@ -81,8 +81,13 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
               UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%' 
           `;
     }
-    if (byField && byField.match(/(tag|type|person)/)) {
+    // this is used for searching for all of one column
+    if (byField && fieldValue) {
       params.push(fieldValue);
+    }
+    // this is used for searching for specific things in a column
+    if (byField && inputQuery) {
+      params.push(inputQuery);
     }
 
     if (userId) {
@@ -123,9 +128,15 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, byFie
           )` : ''}
 
           ${(byField === 'type') ? ` ${conditionsLinker} (item.item_type::varchar = $${params.length})` : ''}
-
+          
           ${(byField === 'person') ? ` ${conditionsLinker} ( 
             UNACCENT(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) ILIKE '%' || UNACCENT($${params.length}) || '%' 
+          )` : ''}
+          ${(byField === 'Title') ? `${conditionsLinker} (
+            LOWER(item.title) LIKE '%' || LOWER($${params.length}) || '%' 
+          )` : ''}
+          ${(byField === 'Creator') ? `${conditionsLinker} (
+            LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($${params.length}) || '%' 
           )` : ''}
               
           GROUP BY item.s3_key
