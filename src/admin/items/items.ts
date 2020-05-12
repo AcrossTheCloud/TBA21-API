@@ -125,16 +125,18 @@ export const getAllMine = async (event: APIGatewayEvent, context: Context): Prom
       Joi.object().keys({
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        order: Joi.string()
+        order: Joi.string(),
+        byField : Joi.string()
       })
     ));
     const
       defaultValues = { limit: 15, offset: 0 },
       queryString = event.queryStringParameters,
       userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1],
-      order = event.queryStringParameters.order ? event.queryStringParameters.order : null;
+      order = event.queryStringParameters.order ? event.queryStringParameters.order : null,
+      byField = event.queryStringParameters.byField ? event.queryStringParameters.byField : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, order, null, null, userId));
+    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, true, null, order, byField, null, userId));
 
   } catch (e) {
     console.log('admin/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
