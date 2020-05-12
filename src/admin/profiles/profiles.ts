@@ -45,7 +45,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
     }
 
     if (queryStringParameters.hasOwnProperty('public') && queryStringParameters.public) {
-      whereStatement = `${whereStatement} AND profile_type = 'Public'`;
+      whereStatement = `${whereStatement} AND public_profile = true`;
     }
 
     const sqlStatement = `
@@ -53,6 +53,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         FROM ${process.env.PROFILES_TABLE}
         ${whereStatement}
       `;
+    console.log(sqlStatement);
     return successResponse({ profiles: await db.any(sqlStatement, params) });
   } catch (e) {
     console.log('/profile/profile.get ERROR - ', !e.isJoi ? e : e.details);
