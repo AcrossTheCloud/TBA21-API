@@ -95,7 +95,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
     }
     
     let conditionsLinker = (!isAdmin || searchQuery.length > 0) ? 'AND' : 'WHERE';
-
+    console.log(uuid);
     if (!!uuid) {
       params.push(uuid);
       conditionsLinker = 'AND';
