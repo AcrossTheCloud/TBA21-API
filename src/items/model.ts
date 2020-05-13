@@ -133,10 +133,10 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
             UNACCENT(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) ILIKE '%' || UNACCENT($${params.length}) || '%' 
           )` : ''}
           ${(byField === 'Title') ? `${conditionsLinker} (
-            LOWER(item.title) LIKE '%' || LOWER($${params.length}) || '%' 
+            UNACCENT(item.title) ILIKE '%' || UNACCENT($${params.length}) || '%' 
           )` : ''}
           ${(byField === 'Creator') ? `${conditionsLinker} (
-            LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER($${params.length}) || '%' 
+            UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($${params.length}) || '%' 
           )` : ''}
               
           GROUP BY item.s3_key
