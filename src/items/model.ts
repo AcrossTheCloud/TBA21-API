@@ -145,7 +145,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
           LIMIT $1 
           OFFSET $2 
         `;
-    console.log(query,params);
+    console.log(query, params);
     return successResponse({data: await dbgeoparse(await db.any(query, params), null)});
   } catch (e) {
     console.log('items/model.get ERROR - ', e);
