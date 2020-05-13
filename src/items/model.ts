@@ -94,10 +94,14 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
       params.push(userId);
     }
 
-    const conditionsLinker = (!isAdmin || searchQuery.length > 0 || uuid) ? 'AND' : 'WHERE';
+    console.log(uuid)
+
+    
+    let conditionsLinker = (!isAdmin || searchQuery.length > 0) ? 'AND' : 'WHERE';
 
     if (!!uuid) {
       params.push(uuid);
+      conditionsLinker = 'AND';
     }
 
     const
@@ -122,21 +126,21 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
           ${userId || uuid ? ` WHERE contributor = $${params.length}::uuid ` : ''}
           
           ${(byField === 'tag') ? ` ${conditionsLinker} (
-            UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($${uuid ? params.length - 2 : params.length}) || '%'
+            UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($${uuid ? params.length - 1 : params.length}) || '%'
             OR
-            UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($${uuid ? params.length - 2 : params.length}) || '%'
+            UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($${uuid ? params.length - 1 : params.length}) || '%'
           )` : ''}
 
-          ${(byField === 'type') ? ` ${conditionsLinker} (item.item_type::varchar = $${uuid ? params.length - 2 : params.length})` : ''}
+          ${(byField === 'type') ? ` ${conditionsLinker} (item.item_type::varchar = $${uuid ? params.length - 1 : params.length})` : ''}
           
           ${(byField === 'person') ? ` ${conditionsLinker} ( 
-            UNACCENT(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) ILIKE '%' || UNACCENT($${uuid ? params.length - 2 : params.length}) || '%' 
+            UNACCENT(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) ILIKE '%' || UNACCENT($${uuid ? params.length - 1 : params.length}) || '%' 
           )` : ''}
           ${(byField === 'Title') ? `${conditionsLinker} (
-            UNACCENT(item.title) ILIKE '%' || UNACCENT($${uuid ? params.length - 2 : params.length}) || '%' 
+            UNACCENT(item.title) ILIKE '%' || UNACCENT($${uuid ? params.length - 1 : params.length}) || '%' 
           )` : ''}
           ${(byField === 'Creator') ? `${conditionsLinker} (
-            UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($${uuid ? params.length - 2 : params.length}) || '%' 
+            UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($${uuid ? params.length - 1 : params.length}) || '%' 
           )` : ''}
               
           GROUP BY item.s3_key
