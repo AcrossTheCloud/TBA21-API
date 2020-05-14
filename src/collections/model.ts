@@ -293,7 +293,7 @@ export const deleteCollection = async (id, isAdmin: boolean, userId?: string) =>
   }
 };
 
-export const get = async (requestBody, isAdmin: boolean = false, userId?: string, inputQuery?: string, order?): Promise<APIGatewayProxyResult> => {
+export const get = async (requestBody, isAdmin: boolean = false, userId?: string, inputQuery?: string, order?: string, byField?: string): Promise<APIGatewayProxyResult> => {
   try {
     const
       defaultValues = { limit: 15, offset: 0 },
@@ -309,10 +309,12 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
       params.push(requestBody.id);
     }
 
+    console.log(order);
+
     let orderBy = 'collection.id';
-    if (order === 'ascending') {
+    if (order === 'asc') {
       orderBy = 'collection.created_at ASC NULLS LAST';
-    } else if (order === 'descending') {
+    } else if (order === 'desc') {
       orderBy = 'collection.created_at DESC NULLS LAST';
     }
 
@@ -322,37 +324,37 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
       const paramCount = requestBody.id ? '$4' : (isAdmin ? '$3' : '$4'); // if we have an ID that means input will be 4
       searchQuery = ` 
         ${requestBody.id ? 'WHERE collection.id != $3 AND (' : isAdmin ? 'WHERE (' : 'AND ('}
-          LOWER(title) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(subtitle) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(description) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          UNACCENT(title) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(subtitle) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(description) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
       
-          LOWER(institution) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          UNACCENT(institution) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
       
-          LOWER(array_to_string(regions, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(location) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(city_of_publication) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(regions, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(location) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(city_of_publication) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
             
-          LOWER(editor) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          UNACCENT(editor) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
       
           ISBN::text LIKE '%' || (${paramCount}) || '%' OR
       
-          LOWER(array_to_string(cast_, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(cast_, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
       
-          LOWER(array_to_string(creators, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(array_to_string(directors, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(array_to_string(writers, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(array_to_string(collaborators, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(directors, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(writers, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(collaborators, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
       
-          LOWER(array_to_string(publisher, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(publisher, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
       
-          LOWER(array_to_string(participants, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(array_to_string(interviewers, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(array_to_string(interviewees, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(participants, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(interviewers, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(interviewees, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
       
-          LOWER(array_to_string(host_organisation, '||')) LIKE '%' || LOWER(${paramCount}) || '%' OR
+          UNACCENT(array_to_string(host_organisation, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           
-          LOWER(concept_tag.tag_name) LIKE '%' || LOWER(${paramCount}) || '%' OR
-          LOWER(keyword_tag.tag_name) LIKE '%' || LOWER(${paramCount}) || '%' 
+          UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
+          UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT(${paramCount}) || '%' 
         )
       `;
     }
