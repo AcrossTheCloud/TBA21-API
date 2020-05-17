@@ -128,7 +128,7 @@ CREATE TABLE tba21.items
   title varchar(256),
   subtitle varchar(256),
   in_title varchar(256), -- e.g. title of book an article/chapter is in
-  description varchar(16384),
+  description varchar(32768),
   map_icon varchar(1024), -- path to s3 object in client side code bucket
   focus_arts numeric(1),
   focus_action numeric(1),
@@ -225,7 +225,7 @@ CREATE TABLE tba21.collections
   cast_ varchar(256)[],
   title varchar(256),
   subtitle varchar(256),
-  description varchar(16384),
+  description varchar(32768),
   OA_highlight boolean,
   TBA21_material boolean,
   OA_original boolean,
