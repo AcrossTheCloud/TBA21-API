@@ -316,6 +316,19 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
 
+  getCollectionsList:
+        handler: src/collections/collections.getCollectionsList
+        description: Returns the collections List
+        events:
+          - http:
+              path: collections/getCollectionsList
+              method: get
+              cors: true
+              caching:
+                enabled: false
+                cacheKeyParameters:
+                  - name: request.querystring.limit
+                  - name: request.querystring.offset
 #  getCollectionsByPerson:
 #    handler: src/collections/collections.getByPerson
 #    description: Returns collection by person from the database.

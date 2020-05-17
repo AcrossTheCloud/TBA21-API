@@ -413,6 +413,46 @@ export const getCollectionsByItem = async (event: APIGatewayEvent, context: Cont
 
 /**
  *
+ * Returns the collections list with collection title
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collection_collections - an collections list of the results with title
+ */
+export const getCollectionsList = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+      }));
+    const
+      defaultValues = { limit: 15, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      query = `
+        SELECT 
+          collection_collections.*,
+          title
+        FROM 
+          ${process.env.COLLECTION_COLLECTIONS_TABLE}
+        INNER JOIN 
+          ${process.env.COLLECTIONS_TABLE} on ${process.env.COLLECTIONS_TABLE}.id = collection_id
+
+        LIMIT $1 
+        OFFSET $2
+      `;
+
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
+  } catch (e) {
+    console.log('/collections/collections.getCollectionsList ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+};
+
+/**
+ *
  * Contributor update a collection by it's ID
  *
  * @param event {APIGatewayEvent}
