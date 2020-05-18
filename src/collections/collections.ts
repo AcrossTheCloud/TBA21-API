@@ -413,12 +413,12 @@ export const getCollectionsByItem = async (event: APIGatewayEvent, context: Cont
 
 /**
  *
- * Returns the collections list with collection title
+ * Returns the collections list with collection title for side menu display
  *
  * @param event {APIGatewayEvent}
  * @param context {Promise<APIGatewayProxyResult>}
  *
- * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collection_collections - an collections list of the results with title
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - an collections list of the results with title
  */
 export const getCollectionsList = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
@@ -428,17 +428,18 @@ export const getCollectionsList = async (event: APIGatewayEvent, context: Contex
         offset: Joi.number().integer(),
       }));
     const
-      defaultValues = { limit: 15, offset: 0 },
+      defaultValues = { limit: 100, offset: 0 },
       queryString = event.queryStringParameters, // Use default values if not supplied.
       params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
       query = `
         SELECT 
-          collection_collections.*,
-          title
+          id,
+          title,
+          needs_side_menu
         FROM 
-          ${process.env.COLLECTION_COLLECTIONS_TABLE}
-        INNER JOIN 
-          ${process.env.COLLECTIONS_TABLE} on ${process.env.COLLECTIONS_TABLE}.id = collection_id
+          ${process.env.COLLECTIONS_TABLE}
+        where
+          needs_side_menu = true
 
         LIMIT $1 
         OFFSET $2
@@ -447,6 +448,43 @@ export const getCollectionsList = async (event: APIGatewayEvent, context: Contex
     return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
     console.log('/collections/collections.getCollectionsList ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+};
+
+/**
+ *
+ * Returns the collection_collections.collection_id for side menu display icon
+ *
+ * @param event {APIGatewayEvent}
+ * @param context {Promise<APIGatewayProxyResult>}
+ *
+ * @returns { Promise<APIGatewayProxyResult> } JSON object with body:collections - an collections list of the results with title
+ */
+export const getCollectionCollectionsId = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.assert(event.queryStringParameters, Joi.object().keys(
+      {
+        limit: Joi.number().integer(),
+        offset: Joi.number().integer(),
+      }));
+    const
+      defaultValues = { limit: 100, offset: 0 },
+      queryString = event.queryStringParameters, // Use default values if not supplied.
+      params = [limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset],
+      query = `
+        SELECT 
+          collection_id
+        FROM 
+          ${process.env.COLLECTION_COLLECTIONS_TABLE}
+
+        LIMIT $1 
+        OFFSET $2
+      `;
+
+    return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
+  } catch (e) {
+    console.log('/collections/collections.getCollectionCollectionsId ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
   }
 };
