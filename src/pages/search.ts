@@ -65,7 +65,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
           UNACCENT(array_to_string(organisation, '||')) ILIKE '%' || UNACCENT($1) || '%' 
         )
       
-      AND title not ilike '%Banner:%';
+      AND title not ilike '%Banner%'
        
       GROUP BY item.s3_key
       ORDER BY item.updated_at DESC NULLS LAST
@@ -278,7 +278,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
           UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
         WHERE status = true
-          AND item.title not ilike '%Banner:%';
+          AND item.title not ilike '%Banner%'
           AND ( ${itemsWhereStatement.join(' OR ')} )
           ${focusArts}
           ${focusAction}
