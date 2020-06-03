@@ -6,7 +6,6 @@ import Joi from '@hapi/joi';
 import { update } from './model';
 import { uuidRegex } from '../utils/uuid';
 import { dbgeoparse } from '../utils/dbgeo';
-const dns = require('dns');
 
 /**
  *
@@ -275,11 +274,6 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
  */
 export const getItemsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    dns.lookup(process.env.PGHOST, 0, (err, addresses, family) => {
-      console.log(err);
-      console.log(addresses);
-      console.log(family);
-    });
     await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
