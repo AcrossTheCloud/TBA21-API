@@ -275,7 +275,11 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
  */
 export const getItemsInCollection = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   try {
-    console.log(dns.lookup(process.env.PGHOST));
+    dns.lookup(process.env.PGHOST), (err, addresses, family) => {
+      console.log(err);
+      console.log(addresses);
+      console.log(family);
+    }
     await Joi.assert(event.queryStringParameters, Joi.object().keys(
       {
         limit: Joi.number().integer(),
