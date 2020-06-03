@@ -204,8 +204,8 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
     const focusArtsState = data.hasOwnProperty('focus_arts') && data.focus_arts ? 1 : 0;
     const focusActionState = data.hasOwnProperty('focus_action') && data.focus_action ? 2 : 0;
     const focusScitechState = data.hasOwnProperty('focus_scitech') && data.focus_scitech ? 4 : 0;
-    const focusState = focusArtsState + focusActionState + focusScitechState;;
-    let focusString = "";
+    const focusState = focusArtsState + focusActionState + focusScitechState;
+    let focusString = '';
     if (focusState === 0) {
       focusString = ``;
     } else if (focusState === 1) {
