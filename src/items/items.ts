@@ -37,7 +37,17 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       queryString = event.queryStringParameters ? event.queryStringParameters : defaultValues,
       order = event.queryStringParameters ? event.queryStringParameters.order : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, undefined, order, undefined, !!uuid ? uuid : undefined));
+    return await getAll(
+      limitQuery(queryString.limit, defaultValues.limit),
+      queryString.offset || defaultValues.offset,
+      false,
+      undefined,
+      order,
+      undefined,
+      undefined,
+      undefined,
+      !!uuid ? uuid : undefined
+    );
 
   } catch (e) {
     console.log('/items/items.get ERROR - ', !e.isJoi ? e : e.details);
@@ -188,8 +198,8 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
       params = [queryString.status, queryString.s3Key],
       query = `
         UPDATE ${process.env.ITEMS_TABLE}
-        SET status = $1 
-        WHERE s3_key = $2 
+        SET status = $1
+        WHERE s3_key = $2
         RETURNING s3_key,status
       `;
 
