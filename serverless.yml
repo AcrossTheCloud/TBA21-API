@@ -725,7 +725,6 @@ functions:
           path: collections
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: false
             cacheKeyParameters:
