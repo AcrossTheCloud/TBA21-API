@@ -171,8 +171,15 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
       order = event.queryStringParameters ? event.queryStringParameters.order : null,
       byField = event.queryStringParameters ? event.queryStringParameters.byField : null;
 
-    return (await getAll(limitQuery(queryString.limit, defaultValues.limit), queryString.offset || defaultValues.offset, false, null, order, byField, queryString.person));
-
+    return await getAll(
+      limitQuery(queryString.limit, defaultValues.limit),
+      queryString.offset || defaultValues.offset,
+      false,
+      null,
+      order,
+      byField,
+      queryString.person
+    );
   } catch (e) {
     console.log('/items/items.getByPerson ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

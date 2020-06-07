@@ -121,7 +121,7 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
 
           ${isAdmin ? searchQuery : 'WHERE status=true'}
 
-          ${userId || uuid ? `AND contributor = $${params.length}::uuid ` : ''}
+          ${(userId || uuid) ? `${isAdmin && !searchQuery ? 'WHERE' : 'AND'} contributor = $${params.length}::uuid ` : ''}
 
           ${(byField === 'tag') ? ` ${conditionsLinker} (
             UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($${userId || uuid ? params.length - 1 : params.length}) || '%'
