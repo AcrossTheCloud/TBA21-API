@@ -201,9 +201,28 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
       offset = data.offset ? data.offset : 0,
       params = [limit, offset];
 
-    const focusArts: string = data.hasOwnProperty('focus_arts') && data.focus_arts ? ` AND focus_arts = 1`  : ``;
-    const focusAction: string = data.hasOwnProperty('focus_action') && data.focus_action ? ` AND focus_action = 1`  : ``;
-    const focusScitech: string = data.hasOwnProperty('focus_scitech') && data.focus_scitech ? ` AND focus_scitech = 1`  : ``;
+    const focusArtsState = data.hasOwnProperty('focus_arts') && data.focus_arts ? 1 : 0;
+    const focusActionState = data.hasOwnProperty('focus_action') && data.focus_action ? 2 : 0;
+    const focusScitechState = data.hasOwnProperty('focus_scitech') && data.focus_scitech ? 4 : 0;
+    const focusState = focusArtsState + focusActionState + focusScitechState;
+    let focusString = '';
+    if (focusState === 0) {
+      focusString = ``;
+    } else if (focusState === 1) {
+      focusString = `AND focus_arts = 1`;
+    } else if (focusState === 2) {
+      focusString = `AND focus_action = 1`;
+    } else if (focusState === 3) {
+      focusString = `AND (focus_arts = 1 OR focus_action = 1)`;
+    } else if (focusState === 4) {
+      focusString = `AND focus_scitech = 1`;
+    } else if (focusState === 5) {
+      focusString = `AND (focus_arts = 1 OR focus_scitech = 1)`;
+    } else if (focusState === 6) {
+      focusString = `AND (focus_action = 1 OR focus_scitech = 1)`;
+    } else if (focusState === 7) {
+      focusString = `AND (focus_action = 1 OR focus_action = 1 OR focus_scitech = 1)`;
+    } 
 
     let
       itemsWhereStatement = [],
@@ -280,9 +299,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
         WHERE status = true
           AND item.title not ilike '%Banner%'
           AND ( ${itemsWhereStatement.join(' OR ')} )
-          ${focusArts}
-          ${focusAction}
-          ${focusScitech}
+          ${focusString}
         GROUP BY item.s3_key
         ORDER BY item.updated_at DESC NULLS LAST
         LIMIT $1
@@ -310,9 +327,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
             
           WHERE ${process.env.COLLECTIONS_TABLE}.status = true
             AND ( ${collectionsWhereStatement.join(' OR ')} )
-            ${focusArts}
-            ${focusAction}
-            ${focusScitech}
+            ${focusString}
           GROUP BY collections.id
           LIMIT $1
           OFFSET $2
