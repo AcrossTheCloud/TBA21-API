@@ -31,7 +31,7 @@ export PROFILES_TABLE=tba21.profiles
 export ANNOUNCEMENTS_TABLE=tba21.announcements
 
 npm run lint
-jest -i --coverage --detectOpenHandles --bail
+jest -i --coverage --detectOpenHandles
 
 echo -e '\033[0;33m#### STOPPING DOCKER ####\033[m'
 bash ./docker/stop.sh > /dev/null 2>&1 # ignore the output
