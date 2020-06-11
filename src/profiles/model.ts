@@ -32,10 +32,10 @@ export const insertProfile = async (requestBody, isAdmin: boolean) => {
       });
 
     const query = `
-    INSERT INTO ${process.env.PROFILES_TABLE} 
-      (${[...sqlFields]}, accepted_license) 
-    VALUES 
-      (${[...sqlParams]}, false) 
+    INSERT INTO ${process.env.PROFILES_TABLE}
+      (${[...sqlFields]}, accepted_license)
+    VALUES
+      (${[...sqlParams]}, false)
     RETURNING id;`;
 
     const result = await db.one(query, params);
@@ -80,7 +80,7 @@ export const updateProfile = async (requestBody, isAdmin: boolean, userId?: stri
         }),
         query = `
           UPDATE ${process.env.PROFILES_TABLE}
-          SET 
+          SET
             ${SQL_SETS}
           WHERE cognito_uuid = $1::uuid
           returning id
@@ -127,7 +127,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
           WHERE contributor = $1
       `;
       const getProfileIdQuery = `
-          SELECT id 
+          SELECT id
           FROM ${process.env.PROFILES_TABLE}
           WHERE cognito_uuid = $1
       `;
@@ -147,7 +147,7 @@ export const deleteUserProfile = async (isAdmin: boolean, userId: string) => {
       const checkCollectionsQuery = `
           SELECT id, contributors
           FROM ${process.env.COLLECTIONS_TABLE}
-          WHERE collections.contributors @> ARRAY[$1]::uuid[] 
+          WHERE collections.contributors @> ARRAY[$1]::uuid[]
       `;
       let
         collectionsCheck = await db.manyOrNone(checkCollectionsQuery, params),
