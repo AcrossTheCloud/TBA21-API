@@ -5,56 +5,34 @@ import {
   badRequestResponse,
   internalServerErrorResponse,
   successResponse,
+  unAuthorizedRequestResponse,
+  notFoundResponse,
 } from '../common';
 import { uuidRegex } from '../utils/uuid';
 import { insertProfile, updateProfile, deleteUserProfile } from './model';
-
 /**
  *
  * Get profile(s) by either it's id, uuid or search by full_name
  *
  * @param event
  */
-export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  try {
-    await Joi.assert(event.queryStringParameters, Joi.alternatives().try(
-      Joi.object().keys({
-        id: Joi.number().integer()
-      }),
-      Joi.object().keys({
-        uuid: Joi.string().allow('').allow(null).pattern(uuidRegex)
-      }),
-      Joi.object().keys({
-        full_name: Joi.string().allow('').allow(null)
-      })
-    ));
 
-    const
-      queryStringParameters = event.queryStringParameters,
-    params = [];
-    let whereStatement = '';
-    // checks to see what has been passed through, and changing the WHERE statement to suit as well as pushing queryStringParameters in to params[]
-    if (queryStringParameters.hasOwnProperty('id')) {
-      params.push(queryStringParameters.id);
-      whereStatement = 'WHERE id = $1';
-    }
-    if (queryStringParameters.hasOwnProperty('uuid')) {
-      params.push(queryStringParameters.uuid);
-      whereStatement = 'WHERE cognito_uuid = $1';
-    }
-    if (queryStringParameters.hasOwnProperty('full_name')) {
-      params.push(queryStringParameters.full_name);
-      whereStatement = `WHERE UNACCENT(full_name) ILIKE '%' || UNACCENT($1) || '%'`;
-    }
+export const getCurrent = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const params = [event.requestContext.identity.cognitoIdentityId]
     const sqlStatement = `
         SELECT *
         FROM ${process.env.PROFILES_TABLE}
-        ${whereStatement}
+        WHERE cognito_uuid = $1
       `;
-    return successResponse({ profile: await db.any(sqlStatement, params) });
-  } catch (e) {
-    console.log('/profile/profile.get ERROR - ', !e.isJoi ? e : e.details);
-    return badRequestResponse();
+    const profile = await db.oneOrNone(sqlStatement, params)
+    if (! profile) {
+      throw Error
+    }
+    return successResponse({ profile });
+  } catch {
+    console.log('/profile/profile.get ERROR - ');
+    return unAuthorizedRequestResponse("Something went wrong. Please try again later.")
   }
 };
 /**
@@ -144,4 +122,29 @@ export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGat
       console.log('/profile/profiles/deleteProfile ERROR - ', !e.isJoi ? e : e.details);
       return badRequestResponse();
     }
+};
+
+export const get = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.assert(
+      event.queryStringParameters,
+      Joi.object().keys({
+        id: Joi.number().integer().required()
+      })
+    );
+    const params = [event.queryStringParameters.id];
+    const sqlStatement = `SELECT * FROM ${process.env.PROFILES_TABLE} WHERE id = $1 AND public_profile = TRUE`;
+    let profile = await db.any(sqlStatement, params);
+
+    if (!profile.length) {
+      return notFoundResponse()
+    }
+
+    return successResponse({ profile });
+  } catch(e) {
+    console.log('/profile/profiles/publicProfiles ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse()
+  }
 };
