@@ -6,7 +6,6 @@ import {
   internalServerErrorResponse,
   successResponse,
   unAuthorizedRequestResponse,
-  notFoundResponse,
 } from '../common';
 import { uuidRegex } from '../utils/uuid';
 import { insertProfile, updateProfile, deleteUserProfile } from './model';
@@ -137,10 +136,6 @@ export const get = async (
     const params = [event.queryStringParameters.id];
     const sqlStatement = `SELECT * FROM ${process.env.PROFILES_TABLE} WHERE id = $1 AND public_profile = TRUE`;
     let profile = await db.any(sqlStatement, params);
-
-    if (!profile.length) {
-      return notFoundResponse()
-    }
 
     return successResponse({ profile });
   } catch(e) {
