@@ -19,7 +19,7 @@ import { insertProfile, updateProfile, deleteUserProfile } from './model';
 export const getCurrent = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const uuid = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
-    const params = [uuid]
+    const params = [uuid];
 
     const sqlStatement = `
         SELECT *
@@ -27,14 +27,14 @@ export const getCurrent = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         WHERE cognito_uuid = $1
       `;
 
-    const profile = await db.oneOrNone(sqlStatement, params)
+    const profile = await db.oneOrNone(sqlStatement, params);
     if (!profile) {
-      throw Error
+      throw Error;
     }
     return successResponse({ profile });
   } catch {
     console.log('/profiles/profile.getCurrent ERROR - ');
-    return unAuthorizedRequestResponse()
+    return unAuthorizedRequestResponse();
   }
 };
 /**
@@ -141,8 +141,8 @@ export const get = async (
     let profile = await db.any(sqlStatement, params);
 
     return successResponse({ profile });
-  } catch(e) {
+  } catch (e) {
     console.log('/profile/profiles/get ERROR - ', !e.isJoi ? e : e.details);
-    return badRequestResponse()
+    return badRequestResponse();
   }
 };
