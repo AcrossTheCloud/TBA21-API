@@ -31,54 +31,54 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
       params.push(inputQuery);
 
       searchQuery = `
-            WHERE 
+            WHERE
               UNACCENT(title) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(original_title) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(event_title) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(subtitle) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(description) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               UNACCENT(institution) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(news_outlet) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               UNACCENT(array_to_string(regions, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(location) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(city_of_publication) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               UNACCENT(featured_in) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               UNACCENT(editor) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               ISBN::text ILIKE '%' || ($3) || '%' OR
               related_ISBN::text ILIKE '%' || ($3) || '%' OR
               DOI ILIKE '%' || $3 || '%' OR
-          
+
               UNACCENT(array_to_string(cast_, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(lecturer) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(project) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(record_label) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(array_to_string(directors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(array_to_string(writers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(array_to_string(collaborators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(array_to_string(authors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               UNACCENT(array_to_string(publisher, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(array_to_string(produced_by, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               UNACCENT(array_to_string(participants, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(array_to_string(interviewers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(array_to_string(interviewees, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               UNACCENT(array_to_string(speakers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(array_to_string(performers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
-          
+
               UNACCENT(array_to_string(host_organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
               UNACCENT(array_to_string(organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
-              
+
               UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%' OR
-              UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%' 
+              UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%'
           `;
     }
     // this is used for searching for all of one column
@@ -110,19 +110,19 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
             ST_AsText(item.geom) as geom
-          FROM 
+          FROM
             ${process.env.ITEMS_TABLE} AS item,
-              
+
             UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
               LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                      
+
             UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
               LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
 
           ${isAdmin ? searchQuery : 'WHERE status=true'}
 
-          ${userId || uuid ? ` WHERE contributor = $${params.length}::uuid ` : ''}
-          
+          ${(userId || uuid) ? `${isAdmin && !searchQuery ? 'WHERE' : 'AND'} contributor = $${params.length}::uuid ` : ''}
+
           ${(byField === 'tag') ? ` ${conditionsLinker} (
             UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($${userId || uuid ? params.length - 1 : params.length}) || '%'
             OR
@@ -130,22 +130,22 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
           )` : ''}
 
           ${(byField === 'type') ? ` ${conditionsLinker} (item.item_type::varchar = $${userId || uuid ? params.length - 1 : params.length})` : ''}
-          
-          ${(byField === 'person') ? ` ${conditionsLinker} ( 
-            UNACCENT(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) ILIKE '%' || UNACCENT($${userId || uuid ? params.length - 1 : params.length}) || '%' 
+
+          ${(byField === 'person') ? ` ${conditionsLinker} (
+            UNACCENT(CONCAT(item.writers, item.creators, item.collaborators, item.directors, item.interviewers, item.interviewees, item.cast_)) ILIKE '%' || UNACCENT($${userId || uuid ? params.length - 1 : params.length}) || '%'
           )` : ''}
           ${(byField === 'Title') ? `${conditionsLinker} (
-            UNACCENT(item.title) ILIKE '%' || UNACCENT($${userId || uuid ? params.length - 1 : params.length}) || '%' 
+            UNACCENT(item.title) ILIKE '%' || UNACCENT($${userId || uuid ? params.length - 1 : params.length}) || '%'
           )` : ''}
           ${(byField === 'Creator') ? `${conditionsLinker} (
-            UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($${userId || uuid ? params.length - 1 : params.length}) || '%' 
+            UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($${userId || uuid ? params.length - 1 : params.length}) || '%'
           )` : ''}
-              
+
           GROUP BY item.s3_key
-          ORDER BY  ${orderBy} 
-  
-          LIMIT $1 
-          OFFSET $2 
+          ORDER BY  ${orderBy}
+
+          LIMIT $1
+          OFFSET $2
         `;
     console.log(query, params);
     return successResponse({data: await dbgeoparse(await db.any(query, params), null)});
@@ -166,16 +166,16 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
             item.*,
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-            ST_AsText(item.geom) as geom 
-          FROM 
+            ST_AsText(item.geom) as geom
+          FROM
             ${process.env.ITEMS_TABLE} AS item,
-              
+
             UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
               LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                      
+
             UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
               LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-          
+
           WHERE item.${field}=$1
           ${(isAdmin || !!userId) ? '' : 'AND status = true'}
           ${isContributor && !!userId ? ` AND contributor = '${userId}'::uuid ` : ''}
@@ -259,7 +259,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
     }
     const updatedAt = new Date().toISOString();
     let query = `UPDATE ${process.env.ITEMS_TABLE}
-            SET 
+            SET
               updated_at='${updatedAt}',
               ${SQL_SETS.join(', ')}
           WHERE s3_key = $1 `;

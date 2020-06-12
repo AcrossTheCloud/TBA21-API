@@ -509,7 +509,16 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.uuid
-              - name: request.querystring.full_name
+
+  getCurrentProfile:
+    handler: src/profiles/profiles.getCurrent
+    description: Get current user profile
+    events:
+      - http:
+          path: currentUserProfile
+          method: get
+          cors: true
+          authorizer: aws_iam
 
   InsertProfile:
     handler: src/profiles/profiles.insert
@@ -725,7 +734,6 @@ functions:
           path: collections
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: false
             cacheKeyParameters:
