@@ -165,17 +165,15 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
           SELECT
             item.*,
             (
-              ARRAY(
-                SELECT json_build_object(
-                'id', profile.cognito_uuid,
-                'name', profile.full_name,
-                'isProfilePublic', profile.public_profile
-                )
-                FROM tba21.profiles
-                AS profile
-                WHERE profile.cognito_uuid = item.contributor
+              SELECT json_build_object(
+              'id', profile.id,
+              'name', profile.full_name,
+              'isProfilePublic', profile.public_profile
               )
-            ) as contributors,
+              FROM tba21.profiles
+              AS profile
+              WHERE profile.cognito_uuid = item.contributor
+            ) as displayed_contributor,
 
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
 

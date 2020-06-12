@@ -148,7 +148,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
 
     let query = `
           UPDATE ${process.env.COLLECTIONS_TABLE}
-          SET 
+          SET
             updated_at='${new Date().toISOString()}',
             ${SQL_SETS.join(', ')}
           WHERE id = $1 `;
@@ -322,39 +322,39 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
     if (inputQuery && inputQuery.length > 0) {
       params.push(inputQuery);
       const paramCount = requestBody.id ? '$4' : (isAdmin ? '$3' : '$4'); // if we have an ID that means input will be 4
-      searchQuery = ` 
+      searchQuery = `
         ${requestBody.id ? 'WHERE collection.id != $3 AND (' : isAdmin ? 'WHERE (' : 'AND ('}
           UNACCENT(title) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           UNACCENT(subtitle) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           UNACCENT(description) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-      
+
           UNACCENT(institution) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-      
+
           UNACCENT(array_to_string(regions, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           UNACCENT(location) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           UNACCENT(city_of_publication) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-            
+
           UNACCENT(editor) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-      
+
           ISBN::text LIKE '%' || (${paramCount}) || '%' OR
-      
+
           UNACCENT(array_to_string(cast_, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-      
+
           UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           UNACCENT(array_to_string(directors, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           UNACCENT(array_to_string(writers, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           UNACCENT(array_to_string(collaborators, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-      
+
           UNACCENT(array_to_string(publisher, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-      
+
           UNACCENT(array_to_string(participants, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           UNACCENT(array_to_string(interviewers, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
           UNACCENT(array_to_string(interviewees, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-      
+
           UNACCENT(array_to_string(host_organisation, '||')) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-          
+
           UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT(${paramCount}) || '%' OR
-          UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT(${paramCount}) || '%' 
+          UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT(${paramCount}) || '%'
         )
       `;
     }
@@ -364,29 +364,32 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         SELECT
           COUNT ( collection.id ) OVER (),
           collection.*,
+
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+
           ST_AsText(collection.geom) as geom
-        FROM 
+        FROM
           ${process.env.COLLECTIONS_TABLE} AS collection,
-            
+
           UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
-                    
+
           UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
-            
-        ${!isAdmin ? `WHERE $3::uuid = ANY( contributors )` : ''} 
-        
-        ${!inputQuery && requestBody.id ? `${!isAdmin ? 'AND' : 'WHERE'} collection.id=${!isAdmin ? '$4' : '$3'}` : ''} 
-        
+
+        ${!isAdmin ? `WHERE $3::uuid = ANY( contributors )` : ''}
+
+        ${!inputQuery && requestBody.id ? `${!isAdmin ? 'AND' : 'WHERE'} collection.id=${!isAdmin ? '$4' : '$3'}` : ''}
+
         ${inputQuery ? searchQuery : ''}
-             
+
         GROUP BY collection.id
         ORDER BY ${orderBy}
-        
-        LIMIT $1 
-        OFFSET $2 
+
+        LIMIT $1
+        OFFSET $2
       `;
 
     return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
