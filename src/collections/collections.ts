@@ -90,7 +90,7 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
       params = [queryString.id],
       query = `
         SELECT
-          collection.*,
+          collections.*,
           (
             SELECT json_agg(
               json_build_object(
@@ -101,27 +101,27 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
             )
               FROM ${process.env.PROFILES_TABLE}
               AS profile
-              WHERE profile.cognito_uuid = ANY(collection.contributors)
+              WHERE profile.cognito_uuid = ANY(collections.contributors)
           ) AS displayed_contributors,
 
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
 
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
 
-          ST_AsText(collection.geom) as geom
+          ST_AsText(collections.geom) as geom
 
         FROM
-          ${process.env.COLLECTIONS_TABLE} AS collection,
+          ${process.env.COLLECTIONS_TABLE} AS collections,
 
-          UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
+          UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
 
-          UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
+          UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
 
-        WHERE status=true AND collection.id=$1
+        WHERE status=true AND collections.id=$1
 
-        GROUP BY collection.id
+        GROUP BY collections.id
       `;
 
     const result = await db.oneOrNone(query, params);
