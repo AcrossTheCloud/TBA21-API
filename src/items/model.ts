@@ -164,11 +164,18 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
       query = `
           SELECT
             item.*,
+
+            ARRAY(select json_build_object('profileId', profile.id, 'name', profile.full_name, 'isPublic', profile.public_profile)) as contributors,
+
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+
             ST_AsText(item.geom) as geom
           FROM
             ${process.env.ITEMS_TABLE} AS item,
+
+            INNER JOIN ${process.env.PROFILES_TABLE} AS profile ON item.contributor = profile.cognito_uuid,
 
             UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
               LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
