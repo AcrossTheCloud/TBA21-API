@@ -170,7 +170,7 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
               'name', profile.full_name,
               'isProfilePublic', profile.public_profile
               )
-              FROM tba21.profiles
+              FROM ${process.env.PROFILES_TABLE}
               AS profile
               WHERE profile.cognito_uuid = item.contributor
             ) as displayed_contributor,
