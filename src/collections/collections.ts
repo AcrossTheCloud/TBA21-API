@@ -91,9 +91,25 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
       query = `
         SELECT
           collections.*,
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', profile.cognito_uuid,
+                'name', profile.full_name,
+                'isProfilePublic', profile.public_profile
+              )
+            )
+              FROM tba21.profiles
+              AS profile
+              WHERE profile.cognito_uuid = ANY(collections.contributors)
+          ) AS contributors,
+
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+
           ST_AsText(collections.geom) as geom
+
         FROM
           ${process.env.COLLECTIONS_TABLE} AS collections,
 
