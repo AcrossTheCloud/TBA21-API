@@ -558,16 +558,8 @@ functions:
           path: pages/homepage
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.itemsLimit
-              - name: request.querystring.collectionsLimit
-              - name: request.querystring.oaHighlightLimit
-              - name: request.querystring.date
-              - name: request.querystring.id
-              - name: request.querystring.oa_highlight
+            enabled: false
 
   search:
     handler: src/pages/search.get
