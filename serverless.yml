@@ -568,7 +568,6 @@ functions:
           path: pages/search
           method: get
           cors: true
-          authorizer: aws_iam
 
   searchPost:
     handler: src/pages/search.post
@@ -578,7 +577,6 @@ functions:
           path: pages/search
           method: post
           cors: true
-          authorizer: aws_iam
 
 
   ### Announcements
