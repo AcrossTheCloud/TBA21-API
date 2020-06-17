@@ -44,27 +44,27 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
           COALESCE(array_agg(DISTINCT ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key)) AS s3_key,
           ST_AsText(collections.geom) as geom
-        FROM 
+        FROM
           ${process.env.COLLECTIONS_TABLE} AS collections
-          
+
           INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} ON collections.id = ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
           INNER JOIN ${process.env.ITEMS_TABLE} ON ${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key = ${process.env.ITEMS_TABLE}.s3_key,
-          
+
           UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
-                    
+
           UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
-            
+
         WHERE collections.status=true
         AND ${process.env.ITEMS_TABLE}.status = true
         ${UUIDStatement}
-        
+
         GROUP BY collections.id
         ORDER BY collections.year_produced
-        
-        LIMIT $1 
-        OFFSET $2 
+
+        LIMIT $1
+        OFFSET $2
       `;
 
     return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
@@ -91,20 +91,36 @@ export const getById = async (event: APIGatewayEvent, context: Context): Promise
       query = `
         SELECT
           collections.*,
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', profile.id,
+                'name', profile.full_name,
+                'isProfilePublic', profile.public_profile
+              )
+            )
+              FROM ${process.env.PROFILES_TABLE}
+              AS profile
+              WHERE profile.cognito_uuid = ANY(collections.contributors)
+          ) AS displayed_contributors,
+
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+
           ST_AsText(collections.geom) as geom
-        FROM 
+
+        FROM
           ${process.env.COLLECTIONS_TABLE} AS collections,
-            
+
           UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
-                    
+
           UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
-        
+
         WHERE status=true AND collections.id=$1
-        
+
         GROUP BY collections.id
       `;
 
@@ -146,26 +162,26 @@ export const getByTag = async (event: APIGatewayEvent, context: Context): Promis
          COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
          ST_AsText(collections.geom) as geom
-      FROM 
+      FROM
         ${process.env.COLLECTIONS_TABLE} AS collections,
-            
+
         UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
           LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
-                
+
         UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
           LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
-      WHERE 
+      WHERE
         status=true
       AND (
         UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
         OR
         UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($1) || '%'
       )
-      
+
       GROUP BY collections.id
       ORDER BY collections.id
-      
-      LIMIT $2  
+
+      LIMIT $2
       OFFSET $3
     `;
 
@@ -204,25 +220,25 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
            COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
            COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
            ST_AsText(collections.geom) as geom
-        FROM 
+        FROM
           ${process.env.COLLECTIONS_TABLE} AS collections,
-                       
+
           UNNEST(CASE WHEN collections.concept_tags <> '{}' THEN collections.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.id = concept_tagid,
-                  
+
           UNNEST(CASE WHEN collections.keyword_tags <> '{}' THEN collections.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.id = keyword_tagid
-        WHERE 
+        WHERE
           status=true
-        AND ( 
-          UNACCENT(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) ILIKE '%' || UNACCENT($1) || '%' 
+        AND (
+          UNACCENT(CONCAT(collections.writers, collections.creators, collections.collaborators, collections.directors, collections.interviewers, collections.interviewees, collections.cast_)) ILIKE '%' || UNACCENT($1) || '%'
         )
-        
+
         GROUP BY collections.id
         ORDER BY collections.id
-        
-        LIMIT $2 
-        OFFSET $3 
+
+        LIMIT $2
+        OFFSET $3
       `;
 
     return successResponse({ data: await dbgeoparse(await db.any(query, params), null)});
@@ -252,8 +268,8 @@ export const changeStatus = async (event: APIGatewayEvent, context: Context): Pr
       params = [queryString.status, queryString.id],
       query = `
         UPDATE ${process.env.COLLECTIONS_TABLE}
-        SET status = $1 
-        WHERE id = $2 
+        SET status = $1
+        WHERE id = $2
         RETURNING id, status
       `;
 
@@ -289,23 +305,23 @@ export const getItemsInCollection = async (event: APIGatewayEvent, context: Cont
           items.*,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
-          ST_AsText(items.geom) as geom 
+          ST_AsText(items.geom) as geom
         FROM
           ${process.env.COLLECTIONS_ITEMS_TABLE} AS collections_items
           INNER JOIN ${process.env.ITEMS_TABLE}
           ON collections_items.item_s3_key = items.s3_key,
-          
+
           UNNEST(CASE WHEN items.concept_tags <> '{}' THEN items.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                  
+
           UNNEST(CASE WHEN items.keyword_tags <> '{}' THEN items.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-        
+
         WHERE collection_id = $1
           AND status = true
         GROUP BY items.s3_key, collections_items.id
         ORDER by collections_items.id
-        
+
         LIMIT $2
         OFFSET $3
       `;
@@ -346,24 +362,24 @@ export const getCollectionsInCollection = async (event: APIGatewayEvent, context
           ARRAY_AGG(items.item_s3_key ORDER BY items.id) as s3_key
         FROM
           ${process.env.COLLECTION_COLLECTIONS_TABLE} AS collection_collections
-          
+
           INNER JOIN ${process.env.COLLECTIONS_TABLE} AS collection
           ON collection.id = collection_collections.collection_id
-          
+
           INNER JOIN ${process.env.COLLECTIONS_ITEMS_TABLE} AS items
           ON items.collection_ID = collection_collections.collection_id,
-          
+
           UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
             LEFT JOIN ${process.env.CONCEPT_TAGS_TABLE} AS concept_tag ON concept_tag.ID = concept_tagid,
-                  
+
           UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
             LEFT JOIN ${process.env.KEYWORD_TAGS_TABLE} AS keyword_tag ON keyword_tag.ID = keyword_tagid
-        
+
         WHERE collection_collections.id = $1
           AND status = true
         GROUP BY collection.id, collection_collections.ordering
         ORDER BY collection_collections.ordering
-        
+
         LIMIT $2
         OFFSET $3
       `;
