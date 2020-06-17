@@ -164,8 +164,21 @@ export const getItemBy = async (field, value, isAdmin: boolean = false, isContri
       query = `
           SELECT
             item.*,
+            (
+              SELECT json_build_object(
+              'id', profile.id,
+              'name', profile.full_name,
+              'isProfilePublic', profile.public_profile
+              )
+              FROM ${process.env.PROFILES_TABLE}
+              AS profile
+              WHERE profile.cognito_uuid = item.contributor
+            ) as displayed_contributor,
+
             COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+
             COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+
             ST_AsText(item.geom) as geom
           FROM
             ${process.env.ITEMS_TABLE} AS item,
