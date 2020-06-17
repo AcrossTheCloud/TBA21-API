@@ -509,7 +509,16 @@ functions:
             cacheKeyParameters:
               - name: request.querystring.id
               - name: request.querystring.uuid
-              - name: request.querystring.full_name
+
+  getCurrentProfile:
+    handler: src/profiles/profiles.getCurrent
+    description: Get current user profile
+    events:
+      - http:
+          path: currentUserProfile
+          method: get
+          cors: true
+          authorizer: aws_iam
 
   InsertProfile:
     handler: src/profiles/profiles.insert
@@ -549,16 +558,8 @@ functions:
           path: pages/homepage
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
-            enabled: true
-            cacheKeyParameters:
-              - name: request.querystring.itemsLimit
-              - name: request.querystring.collectionsLimit
-              - name: request.querystring.oaHighlightLimit
-              - name: request.querystring.date
-              - name: request.querystring.id
-              - name: request.querystring.oa_highlight
+            enabled: false
 
   search:
     handler: src/pages/search.get
@@ -723,7 +724,6 @@ functions:
           path: collections
           method: get
           cors: true
-          authorizer: aws_iam
           caching:
             enabled: false
             cacheKeyParameters:

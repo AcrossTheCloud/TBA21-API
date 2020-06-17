@@ -41,7 +41,7 @@ describe('shortPaths/shortpaths/get', () => {
   test('Check nothing is returned when no column and no params is passed', async () => {
     const
       queryStringParameters: QueryStringParameters = {
-        'table': 'Item'
+        table: 'Item'
       },
       response = await get({queryStringParameters} as APIGatewayProxyEvent),
       responseBody = JSON.parse(response.body);
