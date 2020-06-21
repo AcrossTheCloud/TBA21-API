@@ -9,6 +9,13 @@ const options = {
     }
 };
 export const pgp: IMain = pgPromise(options);
-const cn: string = `postgres://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}?ssl=${process.env.PGSSL}`;
+const cn = {
+    host: process.env.PGHOST,
+    port: process.env.PGPORT,
+    database: process.env.PGDATABASE,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    ssl: (process.env.PGSSL === 'true')
+} as any; // tslint:disable-line no-any
 
 export const db: IDatabase<any> = pgp(cn); // tslint:disable-line no-any
