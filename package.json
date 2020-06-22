@@ -32,7 +32,7 @@
     "axios": "^0.19.2",
     "dbgeo": "github:AcrossTheCloud/dbgeo",
     "lodash.findkey": "^4.6.0",
-    "pg-promise": "^10.5.6",
+    "pg-promise": "^10.5.7",
     "serverless-plugin-tracing": "^2.0.0"
   },
   "devDependencies": {
