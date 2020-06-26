@@ -1,4 +1,5 @@
 import { IMain, IDatabase } from 'pg-promise';
+import { IConnectionParameters } from 'pg-promise/typescript/pg-subset';
 import pgPromise from 'pg-promise';
 const options = {
     query: (e: any) => { // tslint:disable-line no-any
@@ -9,6 +10,13 @@ const options = {
     }
 };
 export const pgp: IMain = pgPromise(options);
-const cn: string = `postgres://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${process.env.PGPORT}/${process.env.PGDATABASE}?ssl=${process.env.PGSSL}`;
+const cn: IConnectionParameters = {
+    host: process.env.PGHOST,
+    port: Number(process.env.PGPORT),
+    database: process.env.PGDATABASE,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    ssl: (process.env.PGSSL === 'true') ? ({ rejectUnauthorized: false }) : false
+}; 
 
 export const db: IDatabase<any> = pgp(cn); // tslint:disable-line no-any
