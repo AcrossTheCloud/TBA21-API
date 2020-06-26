@@ -16,7 +16,7 @@ const cn: IConnectionParameters = {
     database: process.env.PGDATABASE,
     user: process.env.PGUSER,
     password: process.env.PGPASSWORD,
-    ssl: (process.env.PGSSL === 'true')
+    ssl: (process.env.PGSSL === 'true') ? ({ rejectUnauthorized: false }) : false
 }; 
 
 export const db: IDatabase<any> = pgp(cn); // tslint:disable-line no-any
