@@ -49,7 +49,7 @@
     "serverless-api-gateway-caching-split-stack": "0.0.4-rc",
     "serverless-aws-documentation": "^1.1.0",
     "serverless-dotenv-plugin": "^2.4.2",
-    "serverless-offline": "^6.5.0",
+    "serverless-offline": "github:AlexHayton/serverless-offline#patch-1",
     "serverless-plugin-split-stacks": "^1.9.3",
     "serverless-plugin-typescript": "^1.1.9",
     "ts-jest": "^25.5.1",
