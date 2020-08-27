@@ -2,7 +2,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { db } from '../../databaseConnect';
 import Joi from 'joi';
 import { badRequestResponse, internalServerErrorResponse, successResponse } from '../../common';
-import { uuidRegex } from '../../utils/uuid';
 import { deleteUserProfile, insertProfile, updateProfile } from '../../profiles/model';
 
 /**
@@ -18,7 +17,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
         id: Joi.number().integer().required()
       }),
       Joi.object().keys({
-        uuid: Joi.string().pattern(uuidRegex).required()
+        uuid: Joi.string().uuid().required()
       }),
       Joi.object().keys({
         fullname: Joi.string().required(),
@@ -72,8 +71,8 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     await Joi.assert(data, Joi.object().keys(
       {
-        contributors: Joi.array().items(Joi.string().pattern(uuidRegex)),
-        uuid: Joi.string().pattern(uuidRegex).required(),
+        contributors: Joi.array().items(Joi.string().uuid()),
+        uuid: Joi.string().uuid().required(),
         profile_image: Joi.string(),
         featured_image: Joi.string(),
         full_name: Joi.string().required(),
@@ -116,8 +115,8 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     await Joi.assert(data, Joi.object().keys(
       {
         id: Joi.number().integer().required(),
-        uuid: Joi.string().allow('').allow(null).pattern(uuidRegex).required(),
-        contributors: Joi.array().items(Joi.string().allow('').allow(null).pattern(uuidRegex)),
+        uuid: Joi.string().uuid().required(),
+        contributors: Joi.array().items(Joi.string().uuid()),
         profile_image: Joi.string().allow('').allow(null),
         featured_image: Joi.string().allow('').allow(null),
         full_name: Joi.string().allow('').allow(null),
@@ -160,7 +159,7 @@ export const deleteProfile = async (event: APIGatewayProxyEvent): Promise<APIGat
     const data = JSON.parse(event.body);
     await Joi.assert(data, Joi.object().keys(
       {
-        uuid: Joi.string().pattern(uuidRegex).required()
+        uuid: Joi.string().uuid().required()
       }));
     const userId = data.uuid;
     return (await deleteUserProfile(true, userId));

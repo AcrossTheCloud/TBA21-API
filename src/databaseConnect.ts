@@ -1,6 +1,7 @@
 import { IMain, IDatabase } from 'pg-promise';
 import { IConnectionParameters } from 'pg-promise/typescript/pg-subset';
 import pgPromise from 'pg-promise';
+/*
 const options = {
     query: (e: any) => { // tslint:disable-line no-any
         console.log('QUERY:', e.query);
@@ -9,7 +10,9 @@ const options = {
         }
     }
 };
-export const pgp: IMain = pgPromise(options);
+*/
+
+export const pgp: IMain = pgPromise();
 const cn: IConnectionParameters = {
     host: process.env.PGHOST,
     port: Number(process.env.PGPORT),

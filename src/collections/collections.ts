@@ -4,7 +4,6 @@ import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
 import Joi from 'joi';
 import { update } from './model';
-import { uuidRegex } from '../utils/uuid';
 import { dbgeoparse } from '../utils/dbgeo';
 
 /**
@@ -21,7 +20,7 @@ export const get = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyR
       {
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        uuid: Joi.string().pattern(uuidRegex)
+        uuid: Joi.string().uuid()
       }));
 
     const
@@ -446,7 +445,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
       end_date: Joi.date().raw().allow('').allow(null),
       concept_tags: Joi.array().items(Joi.number().integer()),
       keyword_tags: Joi.array().items(Joi.number().integer()),
-      contributors: Joi.array().items(Joi.string().pattern(uuidRegex)),
+      contributors: Joi.array().items(Joi.string().uuid()),
       regional_focus: Joi.string().allow('').allow(null),
       regions: Joi.array().items(Joi.string()),
       creators: Joi.array().items(Joi.string()),

@@ -7,7 +7,7 @@ import { TopoJSON } from 'topojson-specification';
  * geometryColumn: the column to process, 'geom'
  */
 
-dbgeo.defaults = {
+const defaults = {
   outputFormat: 'topojson',
   geometryColumn: 'geom',
   geometryType: 'wkt',
@@ -25,7 +25,7 @@ interface DbGeoParams {
 
 export const dbgeoparse = function(input: any, params: DbGeoParams) { // tslint:disable-line:no-any
   return new Promise((resolve, reject) => {
-    dbgeo.parse(input, params, (err: string, output: TopoJSON) => { 
+    dbgeo.parse(input, params ? params : defaults, (err: string, output: TopoJSON) => { 
       if (!input) {
         console.log(input);
         resolve(null);

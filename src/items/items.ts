@@ -4,7 +4,6 @@ import Joi from 'joi';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
-import { uuidRegex } from '../utils/uuid';
 import { getAll, getItemBy } from './model';
 
 /**
@@ -24,7 +23,7 @@ export const get = async (event: APIGatewayProxyEvent, context: Context): Promis
       await Joi.assert(event.queryStringParameters, Joi.object().keys({
         limit: Joi.number().integer(),
         offset: Joi.number().integer(),
-        uuid: Joi.string().pattern(uuidRegex)
+        uuid: Joi.string().uuid()
       }));
 
       if (event.queryStringParameters.hasOwnProperty('uuid')) {

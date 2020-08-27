@@ -3,8 +3,6 @@ import { badRequestResponse } from '../../common';
 import Joi from 'joi';
 import { update } from '../../collections/model';
 
-import { uuidRegex } from '../../utils/uuid';
-
 /**
  *
  * Update a collection by it's ID
@@ -26,7 +24,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         end_date: Joi.date().raw().allow('').allow(null),
         concept_tags: Joi.array().items(Joi.number().integer()),
         keyword_tags: Joi.array().items(Joi.number().integer()),
-        contributors: Joi.array().items(Joi.string().pattern(uuidRegex)),
+        contributors: Joi.array().items(Joi.string().uuid()),
         regional_focus: Joi.string().allow('').allow(null),
         regions: Joi.array().items(Joi.string()),
         creators: Joi.array().items(Joi.string()),

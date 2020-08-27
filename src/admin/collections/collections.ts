@@ -4,7 +4,6 @@ import { badRequestResponse, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
 import Joi from 'joi';
-import { uuidRegex } from '../../utils/uuid';
 import { dbgeoparse } from '../../utils/dbgeo';
 
 /**
@@ -164,7 +163,7 @@ export const getByPerson = async (event: APIGatewayEvent, context: Context): Pro
         Joi.object().keys({
           limit: Joi.number().integer(),
           offset: Joi.number().integer(),
-          uuid: Joi.string().pattern(uuidRegex).required()
+          uuid: Joi.string().uuid().required()
           })
       ));
       const

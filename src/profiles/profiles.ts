@@ -7,7 +7,7 @@ import {
   successResponse,
   unAuthorizedRequestResponse,
 } from '../common';
-import { uuidRegex } from '../utils/uuid';
+
 import { insertProfile, updateProfile, deleteUserProfile } from './model';
 /**
  *
@@ -50,7 +50,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
     await Joi.assert(data, Joi.object().keys(
       {
         full_name: Joi.string().allow('').allow(null).required(),
-        uuid: Joi.string().allow('').allow(null).uuid(uuidRegex).required(),
+        uuid: Joi.string().allow('').allow(null).uuid().required(),
         profile_type: Joi.any().valid('Individual', 'Collective', 'Institution', 'Public')
       }));
 
@@ -77,7 +77,7 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
 
     await Joi.assert(data, Joi.object().keys(
       {
-        contributors: Joi.array().items(Joi.string().allow('').allow(null).pattern(uuidRegex)),
+        contributors: Joi.array().items(Joi.string().uuid()),
         profile_image: Joi.string().allow('').allow(null),
         featured_image: Joi.string().allow('').allow(null),
         full_name: Joi.string().allow('').allow(null),
