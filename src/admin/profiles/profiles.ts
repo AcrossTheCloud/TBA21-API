@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { db } from '../../databaseConnect';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { badRequestResponse, internalServerErrorResponse, successResponse } from '../../common';
 import { uuidRegex } from '../../utils/uuid';
 import { deleteUserProfile, insertProfile, updateProfile } from '../../profiles/model';

@@ -1,7 +1,7 @@
 import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { badRequestResponse } from '../../common';
 import { limitQuery } from '../../utils/queryHelpers';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { getAll, getItemBy } from '../../items/model';
 
 /**

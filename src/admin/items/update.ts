@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { badRequestResponse, internalServerErrorResponse, successResponse } from '../../common';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { update } from '../../items/model';
 
 /**

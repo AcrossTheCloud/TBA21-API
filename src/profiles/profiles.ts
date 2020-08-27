@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { db } from '../databaseConnect';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import {
   badRequestResponse,
   internalServerErrorResponse,

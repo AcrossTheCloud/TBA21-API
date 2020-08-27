@@ -1,5 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { dbgeoparse } from '../utils/dbgeo';

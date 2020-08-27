@@ -2,7 +2,7 @@ import { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult, Context }
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
 import { limitQuery } from '../utils/queryHelpers';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { update } from './model';
 import { uuidRegex } from '../utils/uuid';
 import { dbgeoparse } from '../utils/dbgeo';

@@ -2,7 +2,7 @@ import { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { limitQuery } from '../utils/queryHelpers';
 import { badRequestResponse, successResponse } from '../common';
 import { db } from '../databaseConnect';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 
 /**
  *

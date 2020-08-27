@@ -3,7 +3,7 @@ import { get as getAllOrById } from '../../collections/model';
 import { badRequestResponse, successResponse } from '../../common';
 import { db } from '../../databaseConnect';
 import { limitQuery } from '../../utils/queryHelpers';
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import { uuidRegex } from '../../utils/uuid';
 import { dbgeoparse } from '../../utils/dbgeo';
 
