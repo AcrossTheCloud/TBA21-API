@@ -51,6 +51,7 @@ export const insert = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
       {
         full_name: Joi.string().allow('').allow(null).required(),
         uuid: Joi.string().allow('').allow(null).uuid().required(),
+        public_profile: Joi.boolean().required(),
         profile_type: Joi.any().valid('Individual', 'Collective', 'Institution', 'Public')
       }));
 
