@@ -39,6 +39,7 @@ describe('Profile tests', () => {
     const
       requestBody = {
         'full_name': 'inserted',
+        'public_profile': true,
         'uuid': '7ba0060a-064b-489d-a7de-a30866a510d0'
       },
       body: string = JSON.stringify(requestBody),
