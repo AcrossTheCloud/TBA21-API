@@ -5,7 +5,7 @@ env:
 phases:
   install:
     commands:
-      - npm install
+      - npm install --arch=x64 --platform=linux --target=12.19.0
       - npm prune
   build:
     commands:
