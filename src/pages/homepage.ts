@@ -108,7 +108,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         AND ${process.env.ITEMS_TABLE}.status = true
         AND ${process.env.COLLECTIONS_TABLE}.oa_highlight = true
       GROUP BY ${process.env.COLLECTIONS_TABLE}.id, ${process.env.COLLECTIONS_ITEMS_TABLE}.collection_id
-      ORDER BY ${process.env.COLLECTIONS_TABLE}.id ASC
+      ORDER BY RANDOM()
       `;
 
       let collectionsResult = await db.any(collectionsQuery);
