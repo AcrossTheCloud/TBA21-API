@@ -338,7 +338,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
         if (collections.length) {
           collectionsPromise = collections.map(async c => {
             return new Promise(async resolve => {
-              const collectionsItems = await db.manyOrNone('SELECT item_s3_key FROM tba21.collections_items WHERE collection_id = $1 ', [c.id]);
+              const collectionsItems = await db.manyOrNone('SELECT item_s3_key FROM tba21.collections_items WHERE collection_id = $1 order by id', [c.id]);
               resolve({...c, s3_key: collectionsItems.map(i => i.item_s3_key)});
             });
           });
