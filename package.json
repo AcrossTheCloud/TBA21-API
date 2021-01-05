@@ -29,7 +29,7 @@
   "dependencies": {
     "aws-sdk": "^2.797.0",
     "aws-xray-sdk": "^3.2.0",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "dbgeo": "github:AcrossTheCloud/dbgeo",
     "joi": "^17.3.0",
     "lodash.findkey": "^4.6.0",
