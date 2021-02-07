@@ -69,6 +69,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         file_dimensions,
         duration,
         regions,
+        OA_highlight_order,
         COALESCE(json_agg(DISTINCT concept_tag.tag_name) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
         COALESCE(json_agg(DISTINCT keyword_tag.tag_name) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
 
@@ -95,6 +96,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         (array_agg(${process.env.COLLECTIONS_ITEMS_TABLE}.item_s3_key order by ${process.env.COLLECTIONS_ITEMS_TABLE}.id))[1] AS s3_key,
         ${process.env.COLLECTIONS_TABLE}.creators,
         ${process.env.COLLECTIONS_TABLE}.regions,
+        ${process.env.COLLECTIONS_TABLE}.OA_highlight_order,
         COALESCE(json_agg(DISTINCT concept_tag.tag_name) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
         COALESCE(json_agg(DISTINCT keyword_tag.tag_name) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
       FROM ${process.env.COLLECTIONS_TABLE}
