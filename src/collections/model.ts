@@ -313,9 +313,9 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
 
     let orderBy = 'collection.id';
     if (order === 'asc') {
-      orderBy = 'collection.created_at ASC NULLS LAST';
+      orderBy = '(case when collection.oa_highlight then 1 else 2 end) asc, collection.created_at ASC NULLS LAST';
     } else if (order === 'desc') {
-      orderBy = 'collection.created_at DESC NULLS LAST';
+      orderBy = '(case when collection.oa_highlight then 1 else 2 end) asc, collection.created_at DESC NULLS LAST';
     }
 
     let searchQuery = '';
@@ -391,6 +391,8 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         LIMIT $1
         OFFSET $2
       `;
+
+      console.log(inputQuery,searchQuery,query,params);
 
     return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {
