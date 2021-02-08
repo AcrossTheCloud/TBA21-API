@@ -43,7 +43,7 @@ export const updateById = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         title: Joi.string().allow('').allow(null),
         subtitle: Joi.string().allow('').allow(null),
         oa_highlight: Joi.boolean(),
-        OA_highlight_order: Joi.number().min(1).max(3).allow(null),
+        oa_highlight_order: Joi.number().min(1).max(3).allow(null),
         tba21_material: Joi.boolean(),
         oa_original: Joi.boolean(),
         description: Joi.string().allow('').allow(null),
