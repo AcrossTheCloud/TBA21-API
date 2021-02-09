@@ -313,9 +313,17 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
 
     let orderBy = 'collection.id';
     if (order === 'asc') {
-      orderBy = 'collection.created_at ASC NULLS LAST';
+      if (isAdmin) {
+        orderBy = '(case when collection.oa_highlight then 1 else 2 end) asc, collection.created_at ASC NULLS LAST';
+      } else {
+        orderBy = 'collection.created_at ASC NULLS LAST';
+      }
     } else if (order === 'desc') {
-      orderBy = 'collection.created_at DESC NULLS LAST';
+      if (isAdmin) {
+        orderBy = '(case when collection.oa_highlight then 1 else 2 end) asc, collection.created_at DESC NULLS LAST';
+      } else {
+        orderBy = 'collection.created_at DESC NULLS LAST';
+      }
     }
 
     let searchQuery = '';

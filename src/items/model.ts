@@ -22,6 +22,20 @@ export const getAll = async (limit, offset, isAdmin: boolean, inputQuery?, order
     let searchQuery = '';
     let orderBy = isAdmin ? 'item.updated_at DESC NULLS LAST' : 'item.s3_key';
     if (order === 'asc') {
+      if (isAdmin) {
+        orderBy = '(case when item.oa_highlight then 1 else 2 end) asc, item.created_at ASC NULLS LAST';
+      } else {
+        orderBy = 'item.created_at ASC NULLS LAST';
+      }
+    } else if (order === 'desc') {
+      if (isAdmin) {
+        orderBy = '(case when item.oa_highlight then 1 else 2 end) asc, item.created_at DESC NULLS LAST';
+      } else {
+        orderBy = 'item.created_at DESC NULLS LAST';
+      }
+    }
+
+    if (order === 'asc') {
       orderBy = 'item.created_at ASC NULLS LAST';
     } else if (order === 'desc') {
       orderBy = 'item.created_at DESC NULLS LAST';
@@ -268,7 +282,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
 
     // If we have geoJSON push it into SQL SETS
     if (hasGeoData && Object.keys(geoData).length) {
-      SQL_SETS.push(`geom=ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
+      SQL_SETS.push(`geom=ST_GeomFromText('Geometryitem(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
     }
     const updatedAt = new Date().toISOString();
     let query = `UPDATE ${process.env.ITEMS_TABLE}
