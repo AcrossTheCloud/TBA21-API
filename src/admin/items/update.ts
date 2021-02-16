@@ -3,6 +3,8 @@ import { badRequestResponse, internalServerErrorResponse, successResponse } from
 import Joi from 'joi';
 import { update } from '../../items/model';
 
+const sns = new (require('aws-sdk')).SNS();
+
 /**
  *
  * Update an item by its s3_key
@@ -113,7 +115,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         participants: Joi.array().items(Joi.string()),
         produced_by: Joi.array().items(Joi.string()),
         projection: Joi.string().allow('').allow(null),
-
+        thumbnail_time: Joi.string().pattern(/^\d{1,2}:\d{1,2}:\d{1,2}/),
         isbn: Joi.number().integer().allow(''),
         related_isbn: Joi.number().integer().allow(''),
         edition_uploaded: Joi.number().integer(),
@@ -131,6 +133,17 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
     const isAdmin: boolean = !!event.path.match(/\/admin\//);
     const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
     console.log(userId, data.id, data.title, data.geojson);
+    if (data.thumbnail_time) {
+      const params = {
+        Message: JSON.stringify({ 
+          's3_key': data.s3_key,
+          's3_bucket': process.env.S3_BUCKET,
+          'time': data.thumbnail_time
+        }),
+        TopicArn: process.env.THUMBNAIL_SNS
+       };
+       await sns.publish(params).promise();
+    }
     return (await update(data, isAdmin, userId));
   } catch (e) {
     if ((e.message === 'Nothing to update')) {
