@@ -83,6 +83,7 @@ provider:
 
     # SNS
     THUMBNAIL_SNS: ${env:THUMBNAIL_SNS}
+    VIDEO_BUCKET: ${env:VIDEO_BUCKET}
 
   iamRoleStatements:
     - Effect: "Allow"
