@@ -143,6 +143,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         TopicArn: process.env.THUMBNAIL_SNS
        };
        await sns.publish(params).promise();
+       delete data.thumbnail_time;
     }
     return (await update(data, isAdmin, userId));
   } catch (e) {
