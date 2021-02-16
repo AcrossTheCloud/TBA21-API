@@ -81,6 +81,9 @@ provider:
     MC_APIKEY: ${env:MC_APIKEY}
     MC_AUDIENCE_ID: ${env:MC_AUDIENCE_ID}
 
+    # SNS
+    THUMBNAIL_SNS: ${env:THUMBNAIL_SNS}
+
   iamRoleStatements:
     - Effect: "Allow"
       Action:
