@@ -137,7 +137,8 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
       const params = {
         Message: JSON.stringify({ 
           's3_key': data.s3_key,
-          's3_bucket': process.env.VIDEO_BUCKET,
+          's3_content_bucket': process.env.S3_BUCKET,
+          's3_vod_bucket': process.env.VIDEO_BUCKET,
           'time': data.thumbnail_time
         }),
         TopicArn: process.env.THUMBNAIL_SNS
