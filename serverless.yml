@@ -101,6 +101,11 @@ provider:
         - "xray:PutTelemetryRecords"
       Resource:
         - "*"
+    - Effect: "Allow"
+      Action:
+        - "cloudfront:CreateInvalidation" 
+      Resource:
+        - "*"
     - Effect: 'Allow'
       Action:
         - 'lambda:InvokeFunction'
