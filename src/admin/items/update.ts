@@ -152,7 +152,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
        const invalidationParams = {
         DistributionId: 'E3LCA9UP25RENJ', /* required */
         InvalidationBatch: { /* required */
-          CallerReference: String(new Date().valueOf), /* required */
+          CallerReference: String(new Date().valueOf()), /* required */
           Paths: { /* required */
             Quantity: '1', /* required */
             Items: [
