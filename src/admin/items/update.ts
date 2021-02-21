@@ -3,6 +3,10 @@ import { badRequestResponse, internalServerErrorResponse, successResponse } from
 import Joi from 'joi';
 import { update } from '../../items/model';
 
+const AWS = require('aws-sdk');
+const sns = new AWS.SNS();
+const cloudfront = new AWS.CloudFront();
+
 /**
  *
  * Update an item by its s3_key
@@ -113,7 +117,7 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
         participants: Joi.array().items(Joi.string()),
         produced_by: Joi.array().items(Joi.string()),
         projection: Joi.string().allow('').allow(null),
-
+        thumbnail_time: Joi.string().pattern(/^\d{1,2}:\d{1,2}:\d{1,2}/),
         isbn: Joi.number().integer().allow(''),
         related_isbn: Joi.number().integer().allow(''),
         edition_uploaded: Joi.number().integer(),
@@ -131,6 +135,34 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
     const isAdmin: boolean = !!event.path.match(/\/admin\//);
     const userId: string | null = isAdmin ? null : event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
     console.log(userId, data.id, data.title, data.geojson);
+    if (data.thumbnail_time) {
+      const sns_params = {
+        Message: JSON.stringify({ 
+          's3_key': data.s3_key,
+          's3_content_bucket': process.env.S3_BUCKET,
+          's3_vod_bucket': process.env.VIDEO_BUCKET,
+          'time': data.thumbnail_time
+        }),
+        TopicArn: process.env.THUMBNAIL_SNS
+       };
+       await sns.publish(sns_params).promise();
+       delete data.thumbnail_time;
+       const thumbPrefix=data.s3_key.split('/').slice(0,-1).join('/');
+       const thumbName=data.s3_key.split('/').slice(-1)[0].slice(0,4)+"_thumb.0000001.jpg"
+       const invalidationParams = {
+        DistributionId: 'E3LCA9UP25RENJ', /* required */
+        InvalidationBatch: { /* required */
+          CallerReference: String(new Date().valueOf()), /* required */
+          Paths: { /* required */
+            Quantity: '1', /* required */
+            Items: [
+              '/'+thumbPrefix+'/thumbnails/'+thumbName
+            ]
+          }
+        }
+      };
+      await cloudfront.createInvalidation(invalidationParams).promise();
+    }
     return (await update(data, isAdmin, userId));
   } catch (e) {
     if ((e.message === 'Nothing to update')) {
