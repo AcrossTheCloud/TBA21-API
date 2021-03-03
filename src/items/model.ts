@@ -282,7 +282,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
 
     // If we have geoJSON push it into SQL SETS
     if (hasGeoData && Object.keys(geoData).length) {
-      SQL_SETS.push(`geom=ST_GeomFromText('Geometryitem(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
+      SQL_SETS.push(`geom=ST_GeomFromText('GeometryCollection(${(await geoJSONToGeom(geoData)).join(',')})', 4326)`);
     }
     const updatedAt = new Date().toISOString();
     let query = `UPDATE ${process.env.ITEMS_TABLE}
