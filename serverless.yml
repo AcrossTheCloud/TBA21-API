@@ -907,6 +907,16 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  adminCreateItem:
+    handler: src/admin/items/create.createItem
+    description: Admin creates an item
+    events:
+      - http:
+          path: admin/items/create
+          method: put
+          cors: true
+          authorizer: aws_iam
+
 # MAILCHIMP
   mailchimpGetSegments:
     handler: src/mailchimp/mailchimp.getSegments
@@ -991,10 +1001,20 @@ functions:
 
   contributorUpdateItem:
     handler: src/admin/items/update.updateByS3key # NOTE the same admin handler..
-    description: Contributor creates a collection
+    description: Contributor updates an item
     events:
       - http:
           path: contributor/items/update # ..but different path
+          method: put
+          cors: true
+          authorizer: aws_iam
+ 
+  contributorCreateItem:
+    handler: src/admin/items/create.createItem
+    description: Contributor creates an item
+    events:
+      - http:
+          path: contributor/items/create # ..but different path
           method: put
           cors: true
           authorizer: aws_iam

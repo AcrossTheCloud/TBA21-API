@@ -144,19 +144,19 @@ export const updateByS3key = async (event: APIGatewayProxyEvent): Promise<APIGat
           'time': data.thumbnail_time
         }),
         TopicArn: process.env.THUMBNAIL_SNS
-       };
-       await sns.publish(sns_params).promise();
-       delete data.thumbnail_time;
-       const thumbPrefix=data.s3_key.split('/').slice(0,-1).join('/');
-       const thumbName=data.s3_key.split('/').slice(-1)[0].slice(0,4)+"_thumb.0000001.jpg"
-       const invalidationParams = {
+      };
+      await sns.publish(sns_params).promise();
+      delete data.thumbnail_time;
+      const thumbPrefix = data.s3_key.split('/').slice(0, -1).join('/');
+      const thumbName = data.s3_key.split('/').slice(-1)[0].slice(0, 4) + '_thumb.0000001.jpg';
+      const invalidationParams = {
         DistributionId: 'E3LCA9UP25RENJ', /* required */
         InvalidationBatch: { /* required */
           CallerReference: String(new Date().valueOf()), /* required */
           Paths: { /* required */
             Quantity: '1', /* required */
             Items: [
-              '/'+thumbPrefix+'/thumbnails/'+thumbName
+              '/' + thumbPrefix + '/thumbnails/' + thumbName
             ]
           }
         }

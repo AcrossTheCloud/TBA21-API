@@ -1,0 +1,1891 @@
+
+> TBA21-API@1.0.0 test
+> npm run clean && npm run lint && ./docker/start_with_tests.sh
+
+
+> TBA21-API@1.0.0 clean
+> rimraf .build .serverless coverage
+
+
+> TBA21-API@1.0.0 lint
+> tslint -c ./tslint.json -t stylish -p .
+
+
+Warning: member-ordering - Direct string option is deprecated and does not support accessors.
+See also https://palantir.github.io/tslint/rules/member-ordering/
+You should replace "public-before-private","static-before-instance","variables-before-functions"
+with the following equivalent options and add -accessor categories as appropriate:
+[
+  {
+    "name": "public static field",
+    "kinds": [
+      "public-static-field",
+      "protected-static-field"
+    ]
+  },
+  {
+    "name": "private static field",
+    "kinds": [
+      "private-static-field"
+    ]
+  },
+  {
+    "name": "public instance field",
+    "kinds": [
+      "public-instance-field",
+      "protected-instance-field"
+    ]
+  },
+  {
+    "name": "private instance field",
+    "kinds": [
+      "private-instance-field"
+    ]
+  },
+  {
+    "name": "public static method",
+    "kinds": [
+      "public-static-method",
+      "protected-static-method",
+      "public-static-accessor",
+      "protected-static-accessor"
+    ]
+  },
+  {
+    "name": "private static method",
+    "kinds": [
+      "private-static-method",
+      "private-static-accessor"
+    ]
+  },
+  {
+    "name": "public instance method",
+    "kinds": [
+      "public-constructor",
+      "protected-constructor",
+      "public-instance-method",
+      "protected-instance-method",
+      "public-instance-accessor",
+      "protected-instance-accessor"
+    ]
+  },
+  {
+    "name": "private instance method",
+    "kinds": [
+      "private-constructor",
+      "private-instance-method",
+      "private-instance-accessor"
+    ]
+  }
+]
+[1;32m#### LAUNCHING DOCKER ####[m
+Building tba21_test_postgres
+Step 1/5 : FROM circleci/postgres:12-alpine-postgis
+ ---> dc169fb267dc
+Step 2/5 : MAINTAINER Matthew Berryman <matthew@acrossthecloud.net>
+ ---> Using cache
+ ---> de73dbe93b65
+Step 3/5 : RUN rm -rf /docker-entrypoint-initdb.d/*
+ ---> Using cache
+ ---> ecfc992e911f
+Step 4/5 : COPY schema/schema.sql /docker-entrypoint-initdb.d/0.schema.sql
+ ---> Using cache
+ ---> 040ae0dd2b9d
+Step 5/5 : COPY schema/seeds/* /docker-entrypoint-initdb.d/
+ ---> Using cache
+ ---> 68c731120e30
+
+Successfully built 68c731120e30
+Successfully tagged tba21_test_postgres:latest
+Creating tba21_test_postgres ... 
+[1A[2KCreating tba21_test_postgres ... [32mdone[0m[1B[0;33m#### WAITING FOR INITD SCRIPTS TO RUN ON DOCKER ####[m
+
+> TBA21-API@1.0.0 lint
+> tslint -c ./tslint.json -t stylish -p .
+
+
+Warning: member-ordering - Direct string option is deprecated and does not support accessors.
+See also https://palantir.github.io/tslint/rules/member-ordering/
+You should replace "public-before-private","static-before-instance","variables-before-functions"
+with the following equivalent options and add -accessor categories as appropriate:
+[
+  {
+    "name": "public static field",
+    "kinds": [
+      "public-static-field",
+      "protected-static-field"
+    ]
+  },
+  {
+    "name": "private static field",
+    "kinds": [
+      "private-static-field"
+    ]
+  },
+  {
+    "name": "public instance field",
+    "kinds": [
+      "public-instance-field",
+      "protected-instance-field"
+    ]
+  },
+  {
+    "name": "private instance field",
+    "kinds": [
+      "private-instance-field"
+    ]
+  },
+  {
+    "name": "public static method",
+    "kinds": [
+      "public-static-method",
+      "protected-static-method",
+      "public-static-accessor",
+      "protected-static-accessor"
+    ]
+  },
+  {
+    "name": "private static method",
+    "kinds": [
+      "private-static-method",
+      "private-static-accessor"
+    ]
+  },
+  {
+    "name": "public instance method",
+    "kinds": [
+      "public-constructor",
+      "protected-constructor",
+      "public-instance-method",
+      "protected-instance-method",
+      "public-instance-accessor",
+      "protected-instance-accessor"
+    ]
+  },
+  {
+    "name": "private instance method",
+    "kinds": [
+      "private-constructor",
+      "private-instance-method",
+      "private-instance-accessor"
+    ]
+  }
+]
+PASS src/admin/announcements/announcements.test.ts
+PASS src/admin/collections/collections.test.ts
+  ● Console
+
+    console.log
+      undefined
+
+      at src/collections/model.ts:312:13
+
+    console.log
+      undefined  
+              SELECT
+                COUNT ( collection.id ) OVER (),
+                collection.*,
+      
+                COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+      
+                COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+      
+                ST_AsText(collection.geom) as geom
+              FROM
+                tba21.collections AS collection,
+      
+                UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
+                  LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.id = concept_tagid,
+      
+                UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                  LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.id = keyword_tagid
+      
+              
+      
+              
+      
+              
+      
+              GROUP BY collection.id
+              ORDER BY collection.id
+      
+              LIMIT $1
+              OFFSET $2
+             [ '15', 0 ]
+
+      at src/collections/model.ts:403:13
+
+    console.log
+      undefined
+
+      at src/collections/model.ts:312:13
+
+    console.log
+      undefined  
+              SELECT
+                COUNT ( collection.id ) OVER (),
+                collection.*,
+      
+                COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+      
+                COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+      
+                ST_AsText(collection.geom) as geom
+              FROM
+                tba21.collections AS collection,
+      
+                UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
+                  LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.id = concept_tagid,
+      
+                UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                  LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.id = keyword_tagid
+      
+              
+      
+              
+      
+              
+      
+              GROUP BY collection.id
+              ORDER BY collection.id
+      
+              LIMIT $1
+              OFFSET $2
+             [ '1', 0 ]
+
+      at src/collections/model.ts:403:13
+
+    console.log
+      undefined
+
+      at src/collections/model.ts:312:13
+
+    console.log
+      undefined  
+              SELECT
+                COUNT ( collection.id ) OVER (),
+                collection.*,
+      
+                COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+      
+                COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+      
+                ST_AsText(collection.geom) as geom
+              FROM
+                tba21.collections AS collection,
+      
+                UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
+                  LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.id = concept_tagid,
+      
+                UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                  LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.id = keyword_tagid
+      
+              
+      
+              
+      
+              
+      
+              GROUP BY collection.id
+              ORDER BY collection.id
+      
+              LIMIT $1
+              OFFSET $2
+             [ '1', '1' ]
+
+      at src/collections/model.ts:403:13
+
+    console.log
+      /collections/collections.getByTag ERROR -  [
+        {
+          message: '"tag" is required',
+          path: [ 'tag' ],
+          type: 'any.required',
+          context: { label: 'tag', key: 'tag' }
+        }
+      ]
+
+      at src/admin/collections/collections.ts:141:13
+
+    console.log
+      /collections/collections.getByTag ERROR -  [
+        {
+          message: '"tag" is not allowed to be empty',
+          path: [ 'tag' ],
+          type: 'string.empty',
+          context: { label: 'tag', value: '', key: 'tag' }
+        }
+      ]
+
+      at src/admin/collections/collections.ts:141:13
+
+    console.log
+      undefined
+
+      at src/collections/model.ts:312:13
+
+    console.log
+      undefined  
+              SELECT
+                COUNT ( collection.id ) OVER (),
+                collection.*,
+      
+                COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+      
+                COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+      
+                ST_AsText(collection.geom) as geom
+              FROM
+                tba21.collections AS collection,
+      
+                UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
+                  LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.id = concept_tagid,
+      
+                UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                  LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.id = keyword_tagid
+      
+              WHERE $3::uuid = ANY( contributors )
+      
+              
+      
+              
+      
+              GROUP BY collection.id
+              ORDER BY collection.id
+      
+              LIMIT $1
+              OFFSET $2
+             [ '15', 0, '7e32b7c6-c6d3-4e70-a101-12af2df21a19' ]
+
+      at src/collections/model.ts:403:13
+
+    console.log
+      undefined
+
+      at src/collections/model.ts:312:13
+
+    console.log
+      undefined  
+              SELECT
+                COUNT ( collection.id ) OVER (),
+                collection.*,
+      
+                COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+      
+                COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+      
+                ST_AsText(collection.geom) as geom
+              FROM
+                tba21.collections AS collection,
+      
+                UNNEST(CASE WHEN collection.concept_tags <> '{}' THEN collection.concept_tags ELSE '{null}' END) AS concept_tagid
+                  LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.id = concept_tagid,
+      
+                UNNEST(CASE WHEN collection.keyword_tags <> '{}' THEN collection.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                  LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.id = keyword_tagid
+      
+              WHERE $3::uuid = ANY( contributors )
+      
+              AND collection.id=$4
+      
+              
+      
+              GROUP BY collection.id
+              ORDER BY collection.id
+      
+              LIMIT $1
+              OFFSET $2
+             [ '15', 0, 'cfa81825-2716-41e2-a48d-8f010840b559', '1' ]
+
+      at src/collections/model.ts:403:13
+
+PASS src/admin/collections/delete.test.ts
+  ● Console
+
+    console.log
+      /admin/collections/delete ERROR -  [
+        {
+          message: '"id" must be a number',
+          path: [ 'id' ],
+          type: 'number.base',
+          context: { label: 'id', value: '', key: 'id' }
+        }
+      ]
+
+      at src/admin/collections/delete.ts:27:13
+
+PASS src/admin/collections/insert.test.ts
+PASS src/admin/collections/update.test.ts
+  ● Console
+
+    console.log
+      /admin/collections/update ERROR -  [
+        {
+          message: '"id" must be a number',
+          path: [ 'id' ],
+          type: 'number.base',
+          context: { label: 'id', value: '', key: 'id' }
+        }
+      ]
+
+      at src/admin/collections/update.ts:99:15
+
+FAIL src/admin/items/create.test.ts
+  ● Console
+
+    console.log
+      cfa81825-2716-41e2-a48d-8f010840b559 https://www.youtube.com/watch?v=9gxEfjtgqlA
+
+      at src/admin/items/create.ts:29:13
+
+    console.log
+      { id: '7' }
+
+      at src/items/model.ts:393:13
+
+    console.log
+      {
+        body: '{"success":true,"id":"7"}',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': true
+        },
+        statusCode: 200
+      }
+
+      at src/admin/items/create.test.ts:34:13
+
+    console.log
+      cfa81825-2716-41e2-a48d-8f010840b559 httwhoops://badurl
+
+      at src/admin/items/create.ts:29:13
+
+    console.log
+      { id: '8' }
+
+      at src/items/model.ts:393:13
+
+  ● /contributor/item › create VideoEmbed item with bad url
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      51 |         }
+      52 |       } as APIGatewayProxyEvent);
+    > 53 |     expect(response.statusCode).toBe(400);
+         |                                 ^
+      54 |   });
+      55 | 
+      56 |   
+
+      at src/admin/items/create.test.ts:53:33
+      at step (src/admin/items/create.test.ts:33:23)
+      at Object.next (src/admin/items/create.test.ts:14:53)
+      at fulfilled (src/admin/items/create.test.ts:5:58)
+
+PASS src/admin/items/delete.test.ts
+  ● Console
+
+    console.log
+      true
+
+      at src/admin/items/delete.test.ts:27:13
+
+PASS src/admin/items/items.test.ts
+  ● Console
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0 ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '2', 0 ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+                  WHERE
+                    UNACCENT(title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(original_title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(event_title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(subtitle) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(description) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(institution) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(news_outlet) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(regions, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(location) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(city_of_publication) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(featured_in) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(editor) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    ISBN::text ILIKE '%' || ($3) || '%' OR
+                    related_ISBN::text ILIKE '%' || ($3) || '%' OR
+                    DOI ILIKE '%' || $3 || '%' OR
+      
+                    UNACCENT(array_to_string(cast_, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(lecturer) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(project) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(record_label) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(directors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(writers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(collaborators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(authors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(publisher, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(produced_by, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(participants, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(interviewers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(interviewees, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(speakers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(performers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(host_organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%'
+                
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'Chris' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+                  WHERE
+                    UNACCENT(title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(original_title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(event_title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(subtitle) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(description) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(institution) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(news_outlet) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(regions, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(location) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(city_of_publication) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(featured_in) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(editor) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    ISBN::text ILIKE '%' || ($3) || '%' OR
+                    related_ISBN::text ILIKE '%' || ($3) || '%' OR
+                    DOI ILIKE '%' || $3 || '%' OR
+      
+                    UNACCENT(array_to_string(cast_, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(lecturer) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(project) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(record_label) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(directors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(writers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(collaborators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(authors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(publisher, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(produced_by, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(participants, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(interviewers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(interviewees, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(speakers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(performers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(host_organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%'
+                
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'justice' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+                  WHERE
+                    UNACCENT(title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(original_title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(event_title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(subtitle) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(description) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(institution) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(news_outlet) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(regions, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(location) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(city_of_publication) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(featured_in) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(editor) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    ISBN::text ILIKE '%' || ($3) || '%' OR
+                    related_ISBN::text ILIKE '%' || ($3) || '%' OR
+                    DOI ILIKE '%' || $3 || '%' OR
+      
+                    UNACCENT(array_to_string(cast_, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(lecturer) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(project) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(record_label) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(directors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(writers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(collaborators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(authors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(publisher, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(produced_by, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(participants, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(interviewers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(interviewees, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(speakers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(performers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(host_organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%'
+                
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'ben' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+                  WHERE
+                    UNACCENT(title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(original_title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(event_title) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(subtitle) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(description) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(institution) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(news_outlet) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(regions, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(location) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(city_of_publication) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(featured_in) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(editor) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    ISBN::text ILIKE '%' || ($3) || '%' OR
+                    related_ISBN::text ILIKE '%' || ($3) || '%' OR
+                    DOI ILIKE '%' || $3 || '%' OR
+      
+                    UNACCENT(array_to_string(cast_, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(lecturer) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(project) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(record_label) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(creators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(directors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(writers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(collaborators, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(authors, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(publisher, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(produced_by, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(participants, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(interviewers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(interviewees, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(speakers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(performers, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(array_to_string(host_organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(array_to_string(organisation, '||')) ILIKE '%' || UNACCENT($3) || '%' OR
+      
+                    UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%' OR
+                    UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%'
+                
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'ocean' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      admin/items/items.getByTag ERROR -  [
+        {
+          message: '"tag" is required',
+          path: [ 'tag' ],
+          type: 'any.required',
+          context: { label: 'tag', key: 'tag' }
+        }
+      ]
+
+      at src/admin/items/items.ts:108:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+      
+                
+      
+                 WHERE (
+                  UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%'
+                  OR
+                  UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%'
+                )
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'kitten' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      admin/items/items.getByTag ERROR -  [
+        {
+          message: '"tag" is not allowed to be empty',
+          path: [ 'tag' ],
+          type: 'string.empty',
+          context: { label: 'tag', value: '', key: 'tag' }
+        }
+      ]
+
+      at src/admin/items/items.ts:108:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+      
+                
+      
+                
+      
+                 WHERE (item.item_type::varchar = $3)
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'Video' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+      
+                WHERE contributor = $3::uuid 
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'cfa81825-2716-41e2-a48d-8f010840b559' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'Modeling Complex Systems' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.updated_at DESC NULLS LAST
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'ch' ]
+
+      at src/items/model.ts:165:13
+
+PASS src/admin/items/update.test.ts
+  ● Console
+
+    console.log
+      null undefined title {
+        type: 'FeatureCollection',
+        features: [
+          { type: 'Feature', properties: {}, geometry: [Object] },
+          { type: 'Feature', properties: {}, geometry: [Object] }
+        ]
+      }
+
+      at src/admin/items/update.ts:137:13
+
+    console.log
+      cfa81825-2716-41e2-a48d-8f010840b559 undefined title undefined
+
+      at src/admin/items/update.ts:137:13
+
+    console.log
+      1f89f9b6-39bc-416e-899e-ef1a8d656f24 undefined title undefined
+
+      at src/admin/items/update.ts:137:13
+
+PASS src/admin/profiles/profiles.test.ts
+  ● Console
+
+    console.log
+      
+              SELECT *
+              FROM tba21.profiles
+              WHERE id = $1
+
+      at src/admin/profiles/profiles.ts:55:13
+
+    console.log
+      
+              SELECT *
+              FROM tba21.profiles
+              WHERE cognito_uuid = $1
+
+      at src/admin/profiles/profiles.ts:55:13
+
+    console.log
+      
+              SELECT *
+              FROM tba21.profiles
+              WHERE UNACCENT(full_name) ILIKE '%' || UNACCENT($1) || '%'
+
+      at src/admin/profiles/profiles.ts:55:13
+
+    console.log
+      /admin/profiles/update ERROR -  [
+        {
+          message: '"id" must be a number',
+          path: [ 'id' ],
+          type: 'number.base',
+          context: { label: 'id', value: '', key: 'id' }
+        }
+      ]
+
+      at src/admin/profiles/profiles.ts:144:15
+
+PASS src/admin/shortPaths/shortPaths.test.ts
+PASS src/admin/tags/tags.test.ts
+PASS src/announcements/announcements.test.ts
+PASS src/collections/collections.test.ts
+  ● Console
+
+    console.log
+      /collections/collections.getByTag ERROR -  [
+        {
+          message: '"tag" is required',
+          path: [ 'tag' ],
+          type: 'any.required',
+          context: { label: 'tag', key: 'tag' }
+        }
+      ]
+
+      at src/collections/collections.ts:189:13
+
+    console.log
+      /collections/collections.getByTag ERROR -  [
+        {
+          message: '"tag" is not allowed to be empty',
+          path: [ 'tag' ],
+          type: 'string.empty',
+          context: { label: 'tag', value: '', key: 'tag' }
+        }
+      ]
+
+      at src/collections/collections.ts:189:13
+
+    console.log
+      /collections/collections.getByPerson ERROR -  [
+        {
+          message: '"person" is not allowed to be empty',
+          path: [ 'person' ],
+          type: 'string.empty',
+          context: { label: 'person', value: '', key: 'person' }
+        }
+      ]
+
+      at src/collections/collections.ts:245:13
+
+    console.log
+      /collections/collections.changeStatus ERROR -  [
+        {
+          message: '"id" is not allowed to be empty',
+          path: [ 'id' ],
+          type: 'string.empty',
+          context: { label: 'id', value: '', key: 'id' }
+        }
+      ]
+
+      at src/collections/collections.ts:277:13
+
+    console.log
+      /collections/collections.changeStatus ERROR -  [
+        {
+          message: '"status" must be a boolean',
+          path: [ 'status' ],
+          type: 'boolean.base',
+          context: { label: 'status', value: '', key: 'status' }
+        }
+      ]
+
+      at src/collections/collections.ts:277:13
+
+    console.log
+      SQL query: 
+              SELECT
+                COUNT ( data.id ) OVER (),
+                data.id,
+                
+                data.title,
+                data.focus_arts,
+                data.focus_scitech,
+                data.focus_action,
+                ST_AsText(data.geom) as geom,
+                $5 as metaType,
+                COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags
+                         
+              FROM
+                tba21.collections as data,
+                
+                UNNEST(CASE WHEN data.concept_tags <> '{}' THEN data.concept_tags ELSE '{null}' END) AS concept_tagid
+                  LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.id = concept_tagid         
+              WHERE 
+                data.status = true AND  data.geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
+                
+              GROUP BY data.id
+
+      at src/map/map.ts:77:13
+
+    console.log
+      SQL params:["-180","-90","180","90","collection"]
+
+      at src/map/map.ts:78:13
+
+    console.log
+      SQL result: [{"count":"3","id":"1","title":"The Decisive Moment","focus_arts":"0","focus_scitech":"3","focus_action":"2","geom":"GEOMETRYCOLLECTION Z (POLYGON Z ((-60.5126953125 -42.8437513262902 1,-63.08349609375 -45.5063469010834 1.1,-63.369140625 -46.6041671629318 0.9,-61.72119140625 -47.7097615426664 0.999,-57.76611328125 -46.5890690830918 0.97,-57.89794921875 -43.5803908556078 0.95,-59.12841796875 -42.391008609205 0.96,-60.5126953125 -42.8437513262902 0.99)))","metatype":"collection","aggregated_concept_tags":[{"id":2,"tag_name":"Justice"}]},{"count":"3","id":"2","title":"The Decisive Moment","focus_arts":"0","focus_scitech":"3","focus_action":"2","geom":"GEOMETRYCOLLECTION Z (POINT Z (150.879814624786 -34.406219215112 0),POINT Z (150.881853103638 -34.4074938717232 0),POINT Z (150.874578952789 -34.4064670665297 0))","metatype":"collection","aggregated_concept_tags":[{"id":2,"tag_name":"Justice"}]},{"count":"3","id":"3","title":"","focus_arts":"0","focus_scitech":"3","focus_action":"2","geom":"GEOMETRYCOLLECTION Z (LINESTRING Z (150.940132141113 -34.4377789543379 12,150.937385559082 -34.4643910293177 3,150.944595336914 -34.4771278507485 4,150.978927612305 -34.5076882900338 12,150.941162109375 -34.5235300339023 4))","metatype":"collection","aggregated_concept_tags":[{"id":2,"tag_name":"Justice"}]}]
+
+      at src/map/map.ts:79:13
+
+    console.log
+      /items/items.getItemsOnMap ERROR -  [
+        {
+          message: '"lng_sw" must be a number',
+          path: [ 'lng_sw' ],
+          type: 'number.base',
+          context: { label: 'lng_sw', value: '', key: 'lng_sw' }
+        }
+      ]
+
+      at src/map/map.ts:83:13
+
+PASS src/collections/update.test.ts
+PASS src/items/items.test.ts
+  ● Console
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                WHERE status=true
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.s3_key
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0 ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                WHERE status=true
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.s3_key
+      
+                LIMIT $1
+                OFFSET $2
+               [ '2', 0 ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      /items/items.getByTag ERROR -  [
+        {
+          message: '"tag" is required',
+          path: [ 'tag' ],
+          type: 'any.required',
+          context: { label: 'tag', key: 'tag' }
+        }
+      ]
+
+      at src/items/items.ts:117:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                WHERE status=true
+      
+                
+      
+                 AND (
+                  UNACCENT(concept_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%'
+                  OR
+                  UNACCENT(keyword_tag.tag_name) ILIKE '%' || UNACCENT($3) || '%'
+                )
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.s3_key
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'kitten' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      /items/items.getByTag ERROR -  [
+        {
+          message: '"tag" is not allowed to be empty',
+          path: [ 'tag' ],
+          type: 'string.empty',
+          context: { label: 'tag', value: '', key: 'tag' }
+        }
+      ]
+
+      at src/items/items.ts:117:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                WHERE status=true
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.s3_key
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0 ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      /items/items.getByPerson ERROR -  [
+        {
+          message: '"person" is not allowed to be empty',
+          path: [ 'person' ],
+          type: 'string.empty',
+          context: { label: 'person', value: '', key: 'person' }
+        }
+      ]
+
+      at src/items/items.ts:183:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                WHERE status=true
+      
+                
+      
+                
+      
+                 AND (item.item_type::varchar = $3)
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.s3_key
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0, 'Video' ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      /items/items.getByTag ERROR -  [
+        {
+          message: '"tag" is required',
+          path: [ 'tag' ],
+          type: 'any.required',
+          context: { label: 'tag', key: 'tag' }
+        }
+      ]
+
+      at src/items/items.ts:117:13
+
+    console.log
+      
+                SELECT
+                  COUNT ( item.s3_key ) OVER (),
+                  item.*,
+                  COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags,
+                  COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS aggregated_keyword_tags,
+                  ST_AsText(item.geom) as geom
+                FROM
+                  tba21.items AS item,
+      
+                  UNNEST(CASE WHEN item.concept_tags <> '{}' THEN item.concept_tags ELSE '{null}' END) AS concept_tagid
+                    LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.ID = concept_tagid,
+      
+                  UNNEST(CASE WHEN item.keyword_tags <> '{}' THEN item.keyword_tags ELSE '{null}' END) AS keyword_tagid
+                    LEFT JOIN tba21.keyword_tags AS keyword_tag ON keyword_tag.ID = keyword_tagid
+      
+                WHERE status=true
+      
+                
+      
+                
+      
+                
+      
+                
+                
+                
+      
+                GROUP BY item.s3_key
+                ORDER BY  item.s3_key
+      
+                LIMIT $1
+                OFFSET $2
+               [ '15', 0 ]
+
+      at src/items/model.ts:165:13
+
+    console.log
+      /items/items.changeStatus ERROR -  [
+        {
+          message: '"s3Key" is not allowed to be empty',
+          path: [ 's3Key' ],
+          type: 'string.empty',
+          context: { label: 's3Key', value: '', key: 's3Key' }
+        }
+      ]
+
+      at src/items/items.ts:214:13
+
+    console.log
+      /items/items.changeStatus ERROR -  [
+        {
+          message: '"status" must be a boolean',
+          path: [ 'status' ],
+          type: 'boolean.base',
+          context: { label: 'status', value: '', key: 'status' }
+        }
+      ]
+
+      at src/items/items.ts:214:13
+
+    console.log
+      SQL query: 
+              SELECT
+                COUNT ( data.id ) OVER (),
+                data.id,
+                data.s3_key,
+                data.title,
+                data.focus_arts,
+                data.focus_scitech,
+                data.focus_action,
+                ST_AsText(data.geom) as geom,
+                $5 as metaType,
+                COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS aggregated_concept_tags
+                         
+              FROM
+                tba21.items as data,
+                
+                UNNEST(CASE WHEN data.concept_tags <> '{}' THEN data.concept_tags ELSE '{null}' END) AS concept_tagid
+                  LEFT JOIN tba21.concept_tags AS concept_tag ON concept_tag.id = concept_tagid         
+              WHERE 
+                data.status = true AND  data.geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
+                
+              GROUP BY data.id , data.s3_key
+
+      at src/map/map.ts:77:13
+
+    console.log
+      SQL params:["150.8802055","-34.4179211","150.8802055","-34.4179211","item"]
+
+      at src/map/map.ts:78:13
+
+    console.log
+      SQL result: [{"count":"1","id":"6","s3_key":"private/eu-central-1:80f1e349-677b-4aed-8b26-896570a8073c/ad742900-a6a0-11e9-b5d9-1726307e8330-dog-pet-animal-domestic-104827.jpeg","title":"","focus_arts":"1","focus_scitech":"0","focus_action":"1","geom":"GEOMETRYCOLLECTION Z (POINT Z (150.894124 -34.425669 5215),LINESTRING Z (-421.4794921875 18.5629474428883 12,-419.326171875 15.3689498965347 3,-419.0625 12.511665400971 4,-419.2822265625 10.4013775545436 5,-417.392578125 8.53756535080403 4,-415.283203125 8.14624282503438 3,-414.404296875 7.97219771438688 2))","metatype":"item","aggregated_concept_tags":[{"id":2,"tag_name":"Justice"}]}]
+
+      at src/map/map.ts:79:13
+
+    console.log
+      /items/items.getItemsOnMap ERROR -  [
+        {
+          message: '"lng_ne" is required',
+          path: [ 'lng_ne' ],
+          type: 'any.required',
+          context: { label: 'lng_ne', key: 'lng_ne' }
+        }
+      ]
+
+      at src/map/map.ts:83:13
+
+    console.log
+      /items/items.getRekognitionTags ERROR -  TypeError: Cannot read property 's3key' of undefined
+          at /Users/matthew/code/TBA21-API/src/items/items.ts:234:45
+          at step (/Users/matthew/code/TBA21-API/src/items/items.ts:6032:19)
+          at Object.next (/Users/matthew/code/TBA21-API/src/items/items.ts:5762:14)
+          at fulfilled (/Users/matthew/code/TBA21-API/src/items/items.ts:5649:24)
+          at processTicksAndRejections (node:internal/process/task_queues:94:5)
+
+      at src/items/items.ts:254:13
+
+PASS src/pages/homepage.test.ts
+  ● Console
+
+    console.log
+      [
+        '50',
+        '50',
+        '\n' +
+          "        AND created_at >= '2011-07-01'::date\n" +
+          '        AND created_at <= now() \n' +
+          '      '
+      ]
+
+      at src/pages/homepage.ts:126:15
+
+    console.log
+      [
+        '50',
+        '50',
+        '\n' +
+          "        AND created_at >= '2011-07-01'::date\n" +
+          '        AND created_at <= now() \n' +
+          '      ',
+        '\n' +
+          "          AND tba21.collections.created_at >= '2011-07-01'::date\n" +
+          '          AND tba21.collections.created_at <= now() \n' +
+          '        '
+      ]
+
+      at src/pages/homepage.ts:167:15
+
+    console.log
+      [
+        '1',
+        '50',
+        '\n' +
+          "        AND created_at >= '2011-07-01'::date\n" +
+          '        AND created_at <= now() \n' +
+          '      '
+      ]
+
+      at src/pages/homepage.ts:126:15
+
+    console.log
+      [
+        '1',
+        '50',
+        '\n' +
+          "        AND created_at >= '2011-07-01'::date\n" +
+          '        AND created_at <= now() \n' +
+          '      ',
+        '\n' +
+          "          AND tba21.collections.created_at >= '2011-07-01'::date\n" +
+          '          AND tba21.collections.created_at <= now() \n' +
+          '        '
+      ]
+
+      at src/pages/homepage.ts:167:15
+
+PASS src/pages/search.test.ts
+PASS src/profiles/profiles.test.ts
+PASS src/shortPaths/shortPaths.test.ts
+  ● Console
+
+    console.log
+      /shortPaths.get ERROR -  Error [ValidationError]: {
+        "table": "Item",
+        [41m"undefined"[0m[31m [1]: -- missing --[0m
+      }
+      [31m
+      [1] "value" does not match any of the allowed types[0m
+          at Object.<anonymous>.exports.process (/Users/matthew/code/TBA21-API/node_modules/joi/lib/errors.js:184:16)
+          at Object.<anonymous>.internals.entry (/Users/matthew/code/TBA21-API/node_modules/joi/lib/validator.js:150:26)
+          at Object.<anonymous>.exports.entry (/Users/matthew/code/TBA21-API/node_modules/joi/lib/validator.js:27:30)
+          at Object.<anonymous>.internals.Base.validate (/Users/matthew/code/TBA21-API/node_modules/joi/lib/base.js:548:26)
+          at Object.<anonymous>.internals.assert (/Users/matthew/code/TBA21-API/node_modules/joi/lib/index.js:225:27)
+          at Object.assert (/Users/matthew/code/TBA21-API/node_modules/joi/lib/index.js:102:19)
+          at /Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.ts:15:15
+          at step (/Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.ts:3222:19)
+          at Object.next (/Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.ts:2952:14)
+          at /Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.ts:2880:40
+          at new Promise (<anonymous>)
+          at Object.<anonymous>.__awaiter (/Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.ts:2823:10)
+          at Object.get (/Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.ts:12:53)
+          at /Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.test.ts:46:24
+          at step (/Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.test.ts:33:23)
+          at Object.next (/Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.test.ts:14:53)
+          at /Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.test.ts:8:71
+          at new Promise (<anonymous>)
+          at Object.<anonymous>.__awaiter (/Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.test.ts:4:12)
+          at Object.<anonymous> (/Users/matthew/code/TBA21-API/src/shortPaths/shortPaths.test.ts:41:76)
+          at Object.asyncJestTest (/Users/matthew/code/TBA21-API/node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:106:37)
+          at /Users/matthew/code/TBA21-API/node_modules/jest-jasmine2/build/queueRunner.js:45:12
+          at new Promise (<anonymous>)
+          at mapper (/Users/matthew/code/TBA21-API/node_modules/jest-jasmine2/build/queueRunner.js:28:19)
+          at /Users/matthew/code/TBA21-API/node_modules/jest-jasmine2/build/queueRunner.js:75:41
+          at processTicksAndRejections (node:internal/process/task_queues:94:5) {
+        _original: { table: 'Item' },
+        details: [
+          {
+            message: '"value" does not match any of the allowed types',
+            path: [],
+            type: 'alternatives.match',
+            context: [Object]
+          }
+        ]
+      }
+
+      at src/shortPaths/shortPaths.ts:47:13
+
+PASS src/tags/tags.test.ts
+  ● Console
+
+    console.log
+      /tags/tags.get ERROR -  TypeError: Cannot read property 'limit' of undefined
+          at /Users/matthew/code/TBA21-API/src/tags/tags.ts:28:61
+          at step (/Users/matthew/code/TBA21-API/src/tags/tags.ts:3369:19)
+          at Object.next (/Users/matthew/code/TBA21-API/src/tags/tags.ts:3099:14)
+          at fulfilled (/Users/matthew/code/TBA21-API/src/tags/tags.ts:2986:24)
+          at processTicksAndRejections (node:internal/process/task_queues:94:5)
+
+      at src/tags/tags.ts:51:13
+
+-------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                             
+-------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------
+All files                |   78.82 |    61.57 |   88.84 |   74.72 |                                                                                               
+ src                     |      90 |       40 |      60 |     100 |                                                                                               
+  common.ts              |    87.5 |     37.5 |      60 |     100 | 14-26                                                                                         
+  databaseConnect.ts     |     100 |       50 |     100 |     100 | 22                                                                                            
+ src/REST                |      75 |       50 |     100 |      60 |                                                                                               
+  QLDB.ts                |      75 |       50 |     100 |      60 | 8-19                                                                                          
+ src/admin/announcements |      79 |    56.86 |     100 |    74.7 |                                                                                               
+  announcements.ts       |   79.25 |       56 |     100 |   74.42 | 31-32,65-66,112,127-131,160-161                                                               
+  model.ts               |   78.72 |    57.69 |     100 |      75 | 44-45,53,56,63-64,69-70,99-100                                                                
+ src/admin/collections   |   85.16 |    53.45 |     100 |   79.55 |                                                                                               
+  collections.ts         |   83.91 |     56.1 |     100 |   76.79 | 39-40,84-85,183-185,217-218,267-268,319-320                                                   
+  delete.ts              |     100 |       80 |     100 |     100 | 27                                                                                            
+  insert.ts              |   71.43 |    14.29 |     100 |   63.64 | 98-102                                                                                        
+  update.ts              |   92.86 |       60 |     100 |   90.91 | 97                                                                                            
+ src/admin/items         |   78.07 |    62.69 |     100 |   72.22 |                                                                                               
+  create.ts              |   81.25 |       40 |     100 |   76.92 | 20,33-34                                                                                      
+  delete.ts              |   83.33 |       60 |     100 |   77.78 | 22-23                                                                                         
+  items.ts               |   85.71 |    68.89 |     100 |   80.49 | 36-37,76-77,153-154,182-183                                                                   
+  update.ts              |      60 |       50 |     100 |   55.56 | 24,139-164,168-172                                                                            
+ src/admin/profiles      |   73.33 |    46.43 |      75 |   70.21 |                                                                                               
+  profiles.ts            |   73.33 |    46.43 |      75 |   70.21 | 47,58-59,96-100,142,159-168                                                                   
+ src/admin/shortPaths    |      75 |        0 |     100 |   69.23 |                                                                                               
+  shortPaths.ts          |      75 |        0 |     100 |   69.23 | 39-47                                                                                         
+ src/admin/tags          |   83.33 |    57.14 |     100 |   78.05 |                                                                                               
+  tags.ts                |   83.33 |    57.14 |     100 |   78.05 | 27,56-57,105-106,141-145                                                                      
+ src/announcements       |   84.21 |    88.89 |     100 |      80 |                                                                                               
+  announcements.ts       |   84.21 |    88.89 |     100 |      80 | 16,47-48                                                                                      
+ src/collections         |   86.77 |     71.2 |   95.92 |   82.43 |                                                                                               
+  collections.ts         |   85.71 |    64.81 |     100 |   77.14 | 33-34,71-72,131-132,330-331,388-389,424-425,513-517                                           
+  model.ts               |   87.43 |    73.85 |   93.55 |   84.87 | 28,99-100,118,219-225,247,251-252,290-291,316-319,322-325,331-333,407-408                     
+ src/items               |    83.2 |     67.8 |     100 |   79.08 |                                                                                               
+  items.ts               |   91.57 |    70.91 |     100 |   88.14 | 30,52-53,87-88,145-146                                                                        
+  model.ts               |   79.04 |    66.67 |     100 |   75.18 | 26-29,32-35,40,42,116-117,168-169,219-220,230-237,252,320,329,333,337-338,378-379,395,409-415 
+ src/map                 |   88.89 |    72.73 |     100 |   85.19 |                                                                                               
+  map.ts                 |   85.71 |    71.43 |     100 |   82.61 | 42-43,46-47                                                                                   
+  util.ts                |     100 |      100 |     100 |     100 |                                                                                               
+ src/pages               |    62.8 |    56.03 |   78.95 |   61.03 |                                                                                               
+  homepage.ts            |   91.11 |    84.21 |     100 |   89.19 | 162-165,202-203                                                                               
+  search.ts              |    52.1 |    50.52 |   73.33 |   50.51 | 9-177,213-224,248,250-251,254,270,351-366,374-380                                             
+ src/profiles            |   60.96 |    35.82 |   66.67 |   57.02 |                                                                                               
+  model.ts               |   68.97 |    43.75 |      70 |   68.12 | 26,29,48-52,96-103,156-165,181-185                                                            
+  profiles.ts            |   49.15 |    15.79 |      60 |      40 | 21-37,60-64,104-108,125-126,131-147                                                           
+ src/shortPaths          |     100 |      100 |     100 |     100 |                                                                                               
+  shortPaths.ts          |     100 |      100 |     100 |     100 |                                                                                               
+ src/tags                |     100 |       80 |     100 |     100 |                                                                                               
+  tags.ts                |     100 |       80 |     100 |     100 | 49-51                                                                                         
+ src/utils               |   73.44 |    64.29 |   61.54 |   74.55 |                                                                                               
+  AWSHelper.ts           |      30 |        0 |       0 |   26.67 | 12-27,33-43                                                                                   
+  dbgeo.ts               |      75 |       50 |     100 |   72.73 | 30-31,34                                                                                      
+  queryHelpers.ts        |     100 |      100 |     100 |     100 |                                                                                               
+  testHelper.ts          |     100 |      100 |     100 |     100 |                                                                                               
+-------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------
+
+Summary of all failing tests
+FAIL src/admin/items/create.test.ts
+  ● /contributor/item › create VideoEmbed item with bad url
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      51 |         }
+      52 |       } as APIGatewayProxyEvent);
+    > 53 |     expect(response.statusCode).toBe(400);
+         |                                 ^
+      54 |   });
+      55 | 
+      56 |   
+
+      at src/admin/items/create.test.ts:53:33
+      at step (src/admin/items/create.test.ts:33:23)
+      at Object.next (src/admin/items/create.test.ts:14:53)
+      at fulfilled (src/admin/items/create.test.ts:5:58)
+
+
+Test Suites: 1 failed, 20 passed, 21 total
+Tests:       1 failed, 133 passed, 134 total
+Snapshots:   0 total
+Time:        10.055 s
+Ran all test suites.
+[0;33m#### STOPPING DOCKER ####[m
