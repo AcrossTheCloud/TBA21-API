@@ -397,7 +397,7 @@ export const create = async (requestBody, userId: string) => {
 
     const bodyResponse = {
       success: true,
-      id: result.s3_key
+      s3_key: result.s3_key
     };
 
     return {
