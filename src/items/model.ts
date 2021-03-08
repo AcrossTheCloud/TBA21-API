@@ -387,7 +387,7 @@ export const create = async (requestBody, userId: string) => {
     const time = new Date().toISOString();
     const fake_s3_key = uuidv4();
 
-    const query = `INSERT INTO tba21.items (s3_key, created_at, updated_at, contributor, url, item_type) VALUES ($1, $2, $2, $3, $4, 'VideoEmbed') RETURNING ID;`;
+    const query = `INSERT INTO tba21.items (s3_key, created_at, updated_at, contributor, url, item_type) VALUES ($1, $2, $2, $3, $4, 'VideoEmbed') RETURNING s3_key;`;
 
     const result = await db.one(query, [fake_s3_key, time, userId, requestBody.url]);
     console.log(result);
@@ -397,7 +397,7 @@ export const create = async (requestBody, userId: string) => {
 
     const bodyResponse = {
       success: true,
-      id: result.id
+      id: result.s3_key
     };
 
     return {
