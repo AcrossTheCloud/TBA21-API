@@ -225,7 +225,7 @@ export const update = async (requestBody, isAdmin: boolean, userId?: string) => 
   try {
 
     let message: string = '';
-    if (requestBody.hasOwnProperty('status')) {
+    if (requestBody.hasOwnProperty('status') && requestBody.s3_key.includes('/')) {
       // Change the s3 level to Private or Public
       const levelResponse = await changeS3ProtectionLevel(requestBody.s3_key, requestBody.status ? 'public-read' : 'private');
       if (!levelResponse) {
