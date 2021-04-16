@@ -37,13 +37,13 @@ jobs:
       # Seed the database
       - run:
           name: Add Schema to DB
-          command: psql -d $TEST_DATABASE_URL -f ~/project/schema/schema.sql
+          command: TERM=xterm psql -d $TEST_DATABASE_URL -f ~/project/schema/schema.sql
       - run:
           name: Add Seeds to DB
           command:
             for f in ~/project/schema/seeds/*.sql;
               do
-                psql -d $TEST_DATABASE_URL -f "$f";
+                TERM=xterm psql -d $TEST_DATABASE_URL -f "$f";
               done;
 
       - run:
