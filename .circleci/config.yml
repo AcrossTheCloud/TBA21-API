@@ -1,13 +1,13 @@
 version: 2.1
 
 orbs:
-  codecov: codecov/codecov@1.0.5
+  codecov: codecov/codecov@1.1.4
 
 jobs:
   build:
 
     docker:
-      - image: circleci/node:14.4.0
+      - image: circleci/node:14.16.1
         environment:
           TEST_DATABASE_URL: postgresql://postgres@localhost/tba21
       - image: circleci/postgres:12-alpine-postgis-ram
