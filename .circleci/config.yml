@@ -19,7 +19,7 @@ jobs:
 
       # PG CLIENT
       - run: curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-      - run: echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee  /etc/apt/sources.list.d/pgdg.list
+      - run: echo "deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main" | sudo tee  /etc/apt/sources.list.d/pgdg.list
       - run: sudo apt update
       - run: sudo apt -y upgrade
       - run: sudo apt -y install postgresql-client
