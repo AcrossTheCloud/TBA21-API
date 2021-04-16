@@ -10,7 +10,7 @@ jobs:
       - image: cimg/node:14.16.1
         environment:
           TEST_DATABASE_URL: postgresql://postgres@localhost/tba21
-      - image: circleci/postgres:13-postgis-ram
+      - image: circleci/postgres:13-alpine-postgis-ram
         environment:
           POSTGRES_DB: tba21
           POSTGRES_PASSWORD: postgres
@@ -37,13 +37,13 @@ jobs:
       # Seed the database
       - run:
           name: Add Schema to DB
-          command: TERM=xterm psql -d $TEST_DATABASE_URL -f ~/project/schema/schema.sql
+          command: TERM=xterm psql -d $TEST_DATABASE_URL -f ~/project/schema/schema.sql &> /dev/null
       - run:
           name: Add Seeds to DB
           command:
             for f in ~/project/schema/seeds/*.sql;
               do
-                TERM=xterm psql -d $TEST_DATABASE_URL -f "$f";
+                TERM=xterm psql -d $TEST_DATABASE_URL -f "$f" &> /dev/null ;
               done;
 
       - run:
