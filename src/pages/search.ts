@@ -19,7 +19,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
       title, original_title, event_title, subtitle, description, institution, news_outlet, regions, 
       location, city_of_publication, featured_in, editor, cast_, lecturer, project, record_label, creators,
       directors, writers, collaborators, authors, publisher, produced_by, participants, interviewees, interviewers,
-      speakers, performers, host_organisation, organisation
+      speakers, performers, host_organisation, organisation, url
       FROM ${process.env.ITEMS_TABLE} AS item
       WHERE status = true
         AND (
@@ -288,6 +288,7 @@ export const post = async (event: APIGatewayEvent): Promise<APIGatewayProxyResul
           item.creators,
           item.file_dimensions,
           item.item_type as type,
+          item.url as url,
           COALESCE(json_agg(DISTINCT concept_tag.*) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
           COALESCE(json_agg(DISTINCT keyword_tag.*) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
         FROM ${process.env.ITEMS_TABLE} AS item,

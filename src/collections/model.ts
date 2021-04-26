@@ -400,7 +400,7 @@ export const get = async (requestBody, isAdmin: boolean = false, userId?: string
         OFFSET $2
       `;
 
-      console.log(inputQuery,searchQuery,query,params);
+    console.log(inputQuery, searchQuery, query, params);
 
     return successResponse({ data: await dbgeoparse(await db.any(query, params), null) });
   } catch (e) {

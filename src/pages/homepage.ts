@@ -70,6 +70,7 @@ export const get = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult
         duration,
         regions,
         oa_highlight_order,
+        url,
         COALESCE(json_agg(DISTINCT concept_tag.tag_name) FILTER (WHERE concept_tag IS NOT NULL), '[]') AS concept_tags,
         COALESCE(json_agg(DISTINCT keyword_tag.tag_name) FILTER (WHERE keyword_tag IS NOT NULL), '[]') AS keyword_tags
 
