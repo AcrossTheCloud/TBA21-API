@@ -94,7 +94,8 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         contact_person: Joi.string().allow('').allow(null),
         contact_position: Joi.string().allow('').allow(null),
         contact_email: Joi.string().allow('').allow(null),
-        accepted_license: Joi.boolean()
+        accepted_license: Joi.boolean(),
+        favourites: Joi.object().allow(null)
       }));
     const userId = event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1];
 

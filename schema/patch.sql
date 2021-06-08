@@ -1,2 +1,1 @@
-alter type tba21.item_type add value 'VideoEmbed';
-
+alter table tba21.profiles add column favourites jsonb;

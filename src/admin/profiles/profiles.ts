@@ -132,7 +132,8 @@ export const update = async (event: APIGatewayProxyEvent): Promise<APIGatewayPro
         contact_person: Joi.string().allow('').allow(null),
         contact_position: Joi.string().allow('').allow(null),
         contact_email: Joi.string().allow('').allow(null),
-        profile_type: Joi.any().valid('Individual', 'Collective', 'Institution')
+        profile_type: Joi.any().valid('Individual', 'Collective', 'Institution'),
+        favourites: Joi.object().allow(null)
       }));
 
     return (await updateProfile(data, (!!event.path.match(/\/admin\//))));
