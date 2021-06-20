@@ -8,6 +8,9 @@ import {
   unAuthorizedRequestResponse,
 } from '../common';
 
+const AWS=require('aws-sdk');
+const CognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
+
 import { insertProfile, updateProfile, deleteUserProfile } from './model';
 /**
  *
@@ -143,6 +146,39 @@ export const get = async (
     let profile = await db.any(sqlStatement, params);
 
     return successResponse({ profile });
+  } catch (e) {
+    console.log('/profile/profiles/get ERROR - ', !e.isJoi ? e : e.details);
+    return badRequestResponse();
+  }
+};
+
+export const getNamesByEmails = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
+  try {
+    await Joi.assert(
+      event.queryStringParameters,
+      Joi.object().keys({
+        emails: Joi.array().items(Joi.string()).required()
+      })
+    );
+    let userIds = [];
+    await Promise.all(JSON.parse(event.queryStringParameters.emails).map(async (email) => {
+      const cogintoRequest = {
+        AttributesToGet: [ 'sub', 'email' ],
+        'Filter': `email="${email}"`,
+        'UserPoolId': process.env.UserPoolId
+      }
+      const cognitoResult = await CognitoIdentityServiceProvider.listUsers(cogintoRequest).promise();
+
+      cognitoResult.Users.map(async (user) => {
+        userIds.push(user.Username)
+      });
+
+    }));
+    const dbResult = await db.any(`SELECT cognito_uuid, full_name FROM tba21.profiles WHERE cognito_uuid IN ($1:csv)`, [userIds]);
+
+    return successResponse(dbResult);
   } catch (e) {
     console.log('/profile/profiles/get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();

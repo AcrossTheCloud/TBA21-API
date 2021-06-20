@@ -529,6 +529,17 @@ functions:
               - name: request.querystring.id
               - name: request.querystring.uuid
 
+  getNamesByEmails:
+    handler: src/profiles/profiles.getNamesByEmails
+    description: Get names by emails
+    events:
+      - http:
+          path: getNamesByEmails
+          method: get
+          cors: true
+          caching:
+            enabled: false
+
   getCurrentProfile:
     handler: src/profiles/profiles.getCurrent
     description: Get current user profile
