@@ -163,23 +163,35 @@ export const getNamesByEmails = async (
         emails: Joi.array().items(Joi.string()).required()
       })
     );
-    let userIds = [];
+    let users = [];
     await Promise.all(body.emails.map(async (email) => {
       const cognitoRequest = {
-        AttributesToGet: [ 'sub', 'email' ],
+        AttributesToGet: [ 'email' ],
         'Filter': `email="${email}"`,
         'UserPoolId': process.env.USER_POOL_ID
       };
       const cognitoResult = await CognitoIdentityServiceProvider.listUsers(cognitoRequest).promise();
 
       cognitoResult.Users.map(async (user) => {
-        userIds.push(user.Username);
+        users.push(user);
       });
 
     }));
-    const dbResult = await db.any(`SELECT cognito_uuid, full_name FROM tba21.profiles WHERE cognito_uuid IN ($1:csv)`, [userIds]);
+    let userIDs=users.map((user) => user.Username);
+    let userIDsWithEmail = {};
+    users.map((user) => {
+      userIDsWithEmail[user.Username] = user.Attributes[0];
+    });
 
-    return successResponse(dbResult);
+    const dbResults = await db.any(`SELECT cognito_uuid, full_name FROM tba21.profiles WHERE cognito_uuid IN ($1:csv)`, [userIDs]);
+
+    const result = dbResults.map((dbResult) => {
+      let temp = dbResult;
+      temp['email'] = userIDsWithEmail[temp.cognito_uuid];
+      return temp;
+    });
+
+    return successResponse(result);
   } catch (e) {
     console.log('/profile/profiles/get ERROR - ', !e.isJoi ? e : e.details);
     return badRequestResponse();
