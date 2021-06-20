@@ -180,7 +180,7 @@ export const getNamesByEmails = async (
     let userIDs = users.map((user) => user.Username);
     let userIDsWithEmail = {};
     users.map((user) => {
-      userIDsWithEmail[user.Username] = user.Attributes[0];
+      userIDsWithEmail[user.Username] = user.Attributes[0].Value;
     });
 
     const dbResults = await db.any(`SELECT cognito_uuid, full_name FROM tba21.profiles WHERE cognito_uuid IN ($1:csv)`, [userIDs]);
