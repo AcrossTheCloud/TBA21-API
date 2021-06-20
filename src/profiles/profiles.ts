@@ -156,14 +156,15 @@ export const getNamesByEmails = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
+    const body = JSON.parse(event.body);
     await Joi.assert(
-      event.queryStringParameters,
+      body,
       Joi.object().keys({
         emails: Joi.array().items(Joi.string()).required()
       })
     );
     let userIds = [];
-    await Promise.all(JSON.parse(event.queryStringParameters.emails).map(async (email) => {
+    await Promise.all(body.emails.map(async (email) => {
       const cognitoRequest = {
         AttributesToGet: [ 'sub', 'email' ],
         'Filter': `email="${email}"`,
