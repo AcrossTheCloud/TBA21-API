@@ -164,12 +164,12 @@ export const getNamesByEmails = async (
     );
     let userIds = [];
     await Promise.all(JSON.parse(event.queryStringParameters.emails).map(async (email) => {
-      const cogintoRequest = {
+      const cognitoRequest = {
         AttributesToGet: [ 'sub', 'email' ],
         'Filter': `email="${email}"`,
         'UserPoolId': process.env.UserPoolId
       };
-      const cognitoResult = await CognitoIdentityServiceProvider.listUsers(cogintoRequest).promise();
+      const cognitoResult = await CognitoIdentityServiceProvider.listUsers(cognitoRequest).promise();
 
       cognitoResult.Users.map(async (user) => {
         userIds.push(user.Username);
