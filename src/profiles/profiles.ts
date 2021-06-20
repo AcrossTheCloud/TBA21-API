@@ -177,7 +177,7 @@ export const getNamesByEmails = async (
       });
 
     }));
-    let userIDs=users.map((user) => user.Username);
+    let userIDs = users.map((user) => user.Username);
     let userIDsWithEmail = {};
     users.map((user) => {
       userIDsWithEmail[user.Username] = user.Attributes[0];
@@ -187,7 +187,7 @@ export const getNamesByEmails = async (
 
     const result = dbResults.map((dbResult) => {
       let temp = dbResult;
-      temp['email'] = userIDsWithEmail[temp.cognito_uuid];
+      temp.email = userIDsWithEmail[temp.cognito_uuid];
       return temp;
     });
 
