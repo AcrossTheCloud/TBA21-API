@@ -8,7 +8,7 @@ import {
   unAuthorizedRequestResponse,
 } from '../common';
 
-const AWS=require('aws-sdk');
+const AWS = require('aws-sdk');
 const CognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
 import { insertProfile, updateProfile, deleteUserProfile } from './model';
@@ -168,11 +168,11 @@ export const getNamesByEmails = async (
         AttributesToGet: [ 'sub', 'email' ],
         'Filter': `email="${email}"`,
         'UserPoolId': process.env.UserPoolId
-      }
+      };
       const cognitoResult = await CognitoIdentityServiceProvider.listUsers(cogintoRequest).promise();
 
       cognitoResult.Users.map(async (user) => {
-        userIds.push(user.Username)
+        userIds.push(user.Username);
       });
 
     }));
