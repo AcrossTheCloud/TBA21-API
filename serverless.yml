@@ -535,7 +535,7 @@ functions:
     events:
       - http:
           path: getNamesByEmails
-          method: get
+          method: post
           cors: true
           caching:
             enabled: false
