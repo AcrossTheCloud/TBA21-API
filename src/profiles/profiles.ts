@@ -168,7 +168,7 @@ export const getNamesByEmails = async (
       const cognitoRequest = {
         AttributesToGet: [ 'sub', 'email' ],
         'Filter': `email="${email}"`,
-        'UserPoolId': process.env.UserPoolId
+        'UserPoolId': process.env.USER_POOL_ID
       };
       const cognitoResult = await CognitoIdentityServiceProvider.listUsers(cognitoRequest).promise();
 
