@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-#  codecov: codecov/codecov@1.1.6
+  codecov: codecov/codecov@1.1.6
   slack: circleci/slack@4.4.2
 
 workflows:
@@ -80,8 +80,8 @@ jobs:
             PGSSL: false
       - store_artifacts:
           path: coverage
-#      - codecov/upload:
-#          file: coverage/coverage-final.json
+      - codecov/upload:
+          file: coverage/coverage-final.json
       - save_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
